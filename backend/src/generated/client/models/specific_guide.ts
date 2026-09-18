@@ -268,9 +268,9 @@ export type Specific_guideGroupByOutputType = {
   full_name: string
   username: string
   email: string
-  password: string
+  password: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic: string | null
   tagline: string | null
   authprovider: $Enums.authProviders
   review: string[]
@@ -313,9 +313,9 @@ export type specific_guideWhereInput = {
   full_name?: Prisma.StringFilter<"specific_guide"> | string
   username?: Prisma.StringFilter<"specific_guide"> | string
   email?: Prisma.StringFilter<"specific_guide"> | string
-  password?: Prisma.StringFilter<"specific_guide"> | string
+  password?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   phonenumber?: Prisma.StringFilter<"specific_guide"> | string
-  profile_pic?: Prisma.StringFilter<"specific_guide"> | string
+  profile_pic?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   tagline?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"specific_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"specific_guide">
@@ -337,9 +337,9 @@ export type specific_guideOrderByWithRelationInput = {
   full_name?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
   phonenumber?: Prisma.SortOrder
-  profile_pic?: Prisma.SortOrder
+  profile_pic?: Prisma.SortOrderInput | Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
@@ -360,19 +360,19 @@ export type specific_guideWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   username?: string
   email?: string
-  placeid?: string
   AND?: Prisma.specific_guideWhereInput | Prisma.specific_guideWhereInput[]
   OR?: Prisma.specific_guideWhereInput[]
   NOT?: Prisma.specific_guideWhereInput | Prisma.specific_guideWhereInput[]
   full_name?: Prisma.StringFilter<"specific_guide"> | string
-  password?: Prisma.StringFilter<"specific_guide"> | string
+  password?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   phonenumber?: Prisma.StringFilter<"specific_guide"> | string
-  profile_pic?: Prisma.StringFilter<"specific_guide"> | string
+  profile_pic?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   tagline?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"specific_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"specific_guide">
   rating?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   description?: Prisma.StringNullableFilter<"specific_guide"> | string | null
+  placeid?: Prisma.StringFilter<"specific_guide"> | string
   isReported?: Prisma.BoolFilter<"specific_guide"> | boolean
   experience?: Prisma.IntFilter<"specific_guide"> | number
   cost?: Prisma.IntFilter<"specific_guide"> | number
@@ -381,16 +381,16 @@ export type specific_guideWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
   testimonials?: Prisma.TestimonialsListRelationFilter
-}, "id" | "username" | "email" | "placeid">
+}, "id" | "username" | "email">
 
 export type specific_guideOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
   phonenumber?: Prisma.SortOrder
-  profile_pic?: Prisma.SortOrder
+  profile_pic?: Prisma.SortOrderInput | Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
@@ -418,9 +418,9 @@ export type specific_guideScalarWhereWithAggregatesInput = {
   full_name?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
   username?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
   email?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
-  password?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
+  password?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
   phonenumber?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
-  profile_pic?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
+  profile_pic?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
   tagline?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"specific_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"specific_guide">
@@ -440,9 +440,9 @@ export type specific_guideCreateInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -463,9 +463,9 @@ export type specific_guideUncheckedCreateInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -486,9 +486,9 @@ export type specific_guideUpdateInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -509,9 +509,9 @@ export type specific_guideUncheckedUpdateInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -532,9 +532,9 @@ export type specific_guideCreateManyInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -554,9 +554,9 @@ export type specific_guideUpdateManyMutationInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -575,9 +575,9 @@ export type specific_guideUncheckedUpdateManyInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -595,6 +595,16 @@ export type specific_guideUncheckedUpdateManyInput = {
 export type Specific_guideNullableScalarRelationFilter = {
   is?: Prisma.specific_guideWhereInput | null
   isNot?: Prisma.specific_guideWhereInput | null
+}
+
+export type Specific_guideListRelationFilter = {
+  every?: Prisma.specific_guideWhereInput
+  some?: Prisma.specific_guideWhereInput
+  none?: Prisma.specific_guideWhereInput
+}
+
+export type specific_guideOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type specific_guideCountOrderByAggregateInput = {
@@ -687,36 +697,46 @@ export type specific_guideUpdateOneWithoutTestimonialsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.specific_guideUpdateToOneWithWhereWithoutTestimonialsInput, Prisma.specific_guideUpdateWithoutTestimonialsInput>, Prisma.specific_guideUncheckedUpdateWithoutTestimonialsInput>
 }
 
-export type specific_guideCreateNestedOneWithoutPlaceInput = {
-  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
-  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput
-  connect?: Prisma.specific_guideWhereUniqueInput
+export type specific_guideCreateNestedManyWithoutPlaceInput = {
+  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput> | Prisma.specific_guideCreateWithoutPlaceInput[] | Prisma.specific_guideUncheckedCreateWithoutPlaceInput[]
+  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput | Prisma.specific_guideCreateOrConnectWithoutPlaceInput[]
+  createMany?: Prisma.specific_guideCreateManyPlaceInputEnvelope
+  connect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
 }
 
-export type specific_guideUncheckedCreateNestedOneWithoutPlaceInput = {
-  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
-  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput
-  connect?: Prisma.specific_guideWhereUniqueInput
+export type specific_guideUncheckedCreateNestedManyWithoutPlaceInput = {
+  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput> | Prisma.specific_guideCreateWithoutPlaceInput[] | Prisma.specific_guideUncheckedCreateWithoutPlaceInput[]
+  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput | Prisma.specific_guideCreateOrConnectWithoutPlaceInput[]
+  createMany?: Prisma.specific_guideCreateManyPlaceInputEnvelope
+  connect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
 }
 
-export type specific_guideUpdateOneWithoutPlaceNestedInput = {
-  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
-  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput
-  upsert?: Prisma.specific_guideUpsertWithoutPlaceInput
-  disconnect?: Prisma.specific_guideWhereInput | boolean
-  delete?: Prisma.specific_guideWhereInput | boolean
-  connect?: Prisma.specific_guideWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.specific_guideUpdateToOneWithWhereWithoutPlaceInput, Prisma.specific_guideUpdateWithoutPlaceInput>, Prisma.specific_guideUncheckedUpdateWithoutPlaceInput>
+export type specific_guideUpdateManyWithoutPlaceNestedInput = {
+  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput> | Prisma.specific_guideCreateWithoutPlaceInput[] | Prisma.specific_guideUncheckedCreateWithoutPlaceInput[]
+  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput | Prisma.specific_guideCreateOrConnectWithoutPlaceInput[]
+  upsert?: Prisma.specific_guideUpsertWithWhereUniqueWithoutPlaceInput | Prisma.specific_guideUpsertWithWhereUniqueWithoutPlaceInput[]
+  createMany?: Prisma.specific_guideCreateManyPlaceInputEnvelope
+  set?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  disconnect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  delete?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  connect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  update?: Prisma.specific_guideUpdateWithWhereUniqueWithoutPlaceInput | Prisma.specific_guideUpdateWithWhereUniqueWithoutPlaceInput[]
+  updateMany?: Prisma.specific_guideUpdateManyWithWhereWithoutPlaceInput | Prisma.specific_guideUpdateManyWithWhereWithoutPlaceInput[]
+  deleteMany?: Prisma.specific_guideScalarWhereInput | Prisma.specific_guideScalarWhereInput[]
 }
 
-export type specific_guideUncheckedUpdateOneWithoutPlaceNestedInput = {
-  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
-  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput
-  upsert?: Prisma.specific_guideUpsertWithoutPlaceInput
-  disconnect?: Prisma.specific_guideWhereInput | boolean
-  delete?: Prisma.specific_guideWhereInput | boolean
-  connect?: Prisma.specific_guideWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.specific_guideUpdateToOneWithWhereWithoutPlaceInput, Prisma.specific_guideUpdateWithoutPlaceInput>, Prisma.specific_guideUncheckedUpdateWithoutPlaceInput>
+export type specific_guideUncheckedUpdateManyWithoutPlaceNestedInput = {
+  create?: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput> | Prisma.specific_guideCreateWithoutPlaceInput[] | Prisma.specific_guideUncheckedCreateWithoutPlaceInput[]
+  connectOrCreate?: Prisma.specific_guideCreateOrConnectWithoutPlaceInput | Prisma.specific_guideCreateOrConnectWithoutPlaceInput[]
+  upsert?: Prisma.specific_guideUpsertWithWhereUniqueWithoutPlaceInput | Prisma.specific_guideUpsertWithWhereUniqueWithoutPlaceInput[]
+  createMany?: Prisma.specific_guideCreateManyPlaceInputEnvelope
+  set?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  disconnect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  delete?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  connect?: Prisma.specific_guideWhereUniqueInput | Prisma.specific_guideWhereUniqueInput[]
+  update?: Prisma.specific_guideUpdateWithWhereUniqueWithoutPlaceInput | Prisma.specific_guideUpdateWithWhereUniqueWithoutPlaceInput[]
+  updateMany?: Prisma.specific_guideUpdateManyWithWhereWithoutPlaceInput | Prisma.specific_guideUpdateManyWithWhereWithoutPlaceInput[]
+  deleteMany?: Prisma.specific_guideScalarWhereInput | Prisma.specific_guideScalarWhereInput[]
 }
 
 export type specific_guideCreatereviewInput = {
@@ -762,9 +782,9 @@ export type specific_guideCreateWithoutTestimonialsInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -784,9 +804,9 @@ export type specific_guideUncheckedCreateWithoutTestimonialsInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -822,9 +842,9 @@ export type specific_guideUpdateWithoutTestimonialsInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -844,9 +864,9 @@ export type specific_guideUncheckedUpdateWithoutTestimonialsInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -866,9 +886,9 @@ export type specific_guideCreateWithoutPlaceInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -888,9 +908,9 @@ export type specific_guideUncheckedCreateWithoutPlaceInput = {
   full_name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
-  profile_pic: string
+  profile_pic?: string | null
   tagline?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.specific_guideCreatereviewInput | string[]
@@ -910,15 +930,71 @@ export type specific_guideCreateOrConnectWithoutPlaceInput = {
   create: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
 }
 
-export type specific_guideUpsertWithoutPlaceInput = {
-  update: Prisma.XOR<Prisma.specific_guideUpdateWithoutPlaceInput, Prisma.specific_guideUncheckedUpdateWithoutPlaceInput>
-  create: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
-  where?: Prisma.specific_guideWhereInput
+export type specific_guideCreateManyPlaceInputEnvelope = {
+  data: Prisma.specific_guideCreateManyPlaceInput | Prisma.specific_guideCreateManyPlaceInput[]
+  skipDuplicates?: boolean
 }
 
-export type specific_guideUpdateToOneWithWhereWithoutPlaceInput = {
-  where?: Prisma.specific_guideWhereInput
+export type specific_guideUpsertWithWhereUniqueWithoutPlaceInput = {
+  where: Prisma.specific_guideWhereUniqueInput
+  update: Prisma.XOR<Prisma.specific_guideUpdateWithoutPlaceInput, Prisma.specific_guideUncheckedUpdateWithoutPlaceInput>
+  create: Prisma.XOR<Prisma.specific_guideCreateWithoutPlaceInput, Prisma.specific_guideUncheckedCreateWithoutPlaceInput>
+}
+
+export type specific_guideUpdateWithWhereUniqueWithoutPlaceInput = {
+  where: Prisma.specific_guideWhereUniqueInput
   data: Prisma.XOR<Prisma.specific_guideUpdateWithoutPlaceInput, Prisma.specific_guideUncheckedUpdateWithoutPlaceInput>
+}
+
+export type specific_guideUpdateManyWithWhereWithoutPlaceInput = {
+  where: Prisma.specific_guideScalarWhereInput
+  data: Prisma.XOR<Prisma.specific_guideUpdateManyMutationInput, Prisma.specific_guideUncheckedUpdateManyWithoutPlaceInput>
+}
+
+export type specific_guideScalarWhereInput = {
+  AND?: Prisma.specific_guideScalarWhereInput | Prisma.specific_guideScalarWhereInput[]
+  OR?: Prisma.specific_guideScalarWhereInput[]
+  NOT?: Prisma.specific_guideScalarWhereInput | Prisma.specific_guideScalarWhereInput[]
+  id?: Prisma.StringFilter<"specific_guide"> | string
+  full_name?: Prisma.StringFilter<"specific_guide"> | string
+  username?: Prisma.StringFilter<"specific_guide"> | string
+  email?: Prisma.StringFilter<"specific_guide"> | string
+  password?: Prisma.StringNullableFilter<"specific_guide"> | string | null
+  phonenumber?: Prisma.StringFilter<"specific_guide"> | string
+  profile_pic?: Prisma.StringNullableFilter<"specific_guide"> | string | null
+  tagline?: Prisma.StringNullableFilter<"specific_guide"> | string | null
+  authprovider?: Prisma.EnumauthProvidersFilter<"specific_guide"> | $Enums.authProviders
+  review?: Prisma.StringNullableListFilter<"specific_guide">
+  rating?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
+  description?: Prisma.StringNullableFilter<"specific_guide"> | string | null
+  placeid?: Prisma.StringFilter<"specific_guide"> | string
+  isReported?: Prisma.BoolFilter<"specific_guide"> | boolean
+  experience?: Prisma.IntFilter<"specific_guide"> | number
+  cost?: Prisma.IntFilter<"specific_guide"> | number
+  language?: Prisma.StringNullableListFilter<"specific_guide">
+  createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
+}
+
+export type specific_guideCreateManyPlaceInput = {
+  id?: string
+  full_name: string
+  username: string
+  email: string
+  password?: string | null
+  phonenumber: string
+  profile_pic?: string | null
+  tagline?: string | null
+  authprovider: $Enums.authProviders
+  review?: Prisma.specific_guideCreatereviewInput | string[]
+  rating?: number | null
+  description?: string | null
+  isReported?: boolean
+  experience: number
+  cost: number
+  language?: Prisma.specific_guideCreatelanguageInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type specific_guideUpdateWithoutPlaceInput = {
@@ -926,9 +1002,9 @@ export type specific_guideUpdateWithoutPlaceInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -948,9 +1024,9 @@ export type specific_guideUncheckedUpdateWithoutPlaceInput = {
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
-  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.specific_guideUpdatereviewInput | string[]
@@ -963,6 +1039,27 @@ export type specific_guideUncheckedUpdateWithoutPlaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutSpecificguideNestedInput
+}
+
+export type specific_guideUncheckedUpdateManyWithoutPlaceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  review?: Prisma.specific_guideUpdatereviewInput | string[]
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  cost?: Prisma.IntFieldUpdateOperationsInput | number
+  language?: Prisma.specific_guideUpdatelanguageInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1113,9 +1210,9 @@ export type $specific_guidePayload<ExtArgs extends runtime.Types.Extensions.Inte
     full_name: string
     username: string
     email: string
-    password: string
+    password: string | null
     phonenumber: string
-    profile_pic: string
+    profile_pic: string | null
     tagline: string | null
     authprovider: $Enums.authProviders
     review: string[]

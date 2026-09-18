@@ -59,10 +59,10 @@ model user {
   name          String 
   username      String   @unique
   email         String   @unique
-  password      String   
+  password      String?   
   phonenumber   String
   profilepic    String?
-  authprovider      authProviders
+  authprovider      authProviders?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   user_fav_place  user_fav_place[]
@@ -109,7 +109,7 @@ model place {
   description     String
   districtId      String
   images          String[]
-  specificguide   specific_guide?
+  specificguide   specific_guide[]
   commonGuidePlaces common_guide_places[]
   entryfee        Float
   category        String
@@ -126,15 +126,15 @@ model specific_guide {
   full_name       String
   username        String      @unique
   email           String      @unique
-  password        String
+  password        String?
   phonenumber     String
-  profile_pic     String
+  profile_pic     String?
   tagline         String?
   authprovider        authProviders
   review          String[]
   rating          Float?
   description     String?
-  placeid         String @unique
+  placeid         String
   place           place @relation(fields: [placeid], references: [id])
   testimonials    testimonials[]
   

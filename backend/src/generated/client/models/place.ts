@@ -268,7 +268,7 @@ export type placeWhereInput = {
   longitude?: Prisma.FloatFilter<"place"> | number
   createdAt?: Prisma.DateTimeFilter<"place"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"place"> | Date | string
-  specificguide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
+  specificguide?: Prisma.Specific_guideListRelationFilter
   commonGuidePlaces?: Prisma.Common_guide_placesListRelationFilter
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
@@ -286,7 +286,7 @@ export type placeOrderByWithRelationInput = {
   longitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  specificguide?: Prisma.specific_guideOrderByWithRelationInput
+  specificguide?: Prisma.specific_guideOrderByRelationAggregateInput
   commonGuidePlaces?: Prisma.common_guide_placesOrderByRelationAggregateInput
   district?: Prisma.districtOrderByWithRelationInput
   user_fav_place?: Prisma.user_fav_placeOrderByRelationAggregateInput
@@ -307,7 +307,7 @@ export type placeWhereUniqueInput = Prisma.AtLeast<{
   longitude?: Prisma.FloatFilter<"place"> | number
   createdAt?: Prisma.DateTimeFilter<"place"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"place"> | Date | string
-  specificguide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
+  specificguide?: Prisma.Specific_guideListRelationFilter
   commonGuidePlaces?: Prisma.Common_guide_placesListRelationFilter
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
@@ -360,7 +360,7 @@ export type placeCreateInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
@@ -378,7 +378,7 @@ export type placeUncheckedCreateInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideUncheckedCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideUncheckedCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
@@ -394,7 +394,7 @@ export type placeUpdateInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
@@ -412,7 +412,7 @@ export type placeUncheckedUpdateInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUncheckedUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
@@ -629,7 +629,7 @@ export type placeCreateWithoutUser_fav_placeInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
 }
@@ -646,7 +646,7 @@ export type placeUncheckedCreateWithoutUser_fav_placeInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideUncheckedCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideUncheckedCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -677,7 +677,7 @@ export type placeUpdateWithoutUser_fav_placeInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
 }
@@ -694,7 +694,7 @@ export type placeUncheckedUpdateWithoutUser_fav_placeInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUncheckedUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -709,7 +709,7 @@ export type placeCreateWithoutDistrictInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -725,7 +725,7 @@ export type placeUncheckedCreateWithoutDistrictInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideUncheckedCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideUncheckedCreateNestedManyWithoutPlaceInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
@@ -864,7 +864,7 @@ export type placeCreateWithoutCommonGuidePlacesInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -881,7 +881,7 @@ export type placeUncheckedCreateWithoutCommonGuidePlacesInput = {
   longitude: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  specificguide?: Prisma.specific_guideUncheckedCreateNestedOneWithoutPlaceInput
+  specificguide?: Prisma.specific_guideUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -912,7 +912,7 @@ export type placeUpdateWithoutCommonGuidePlacesInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -929,7 +929,7 @@ export type placeUncheckedUpdateWithoutCommonGuidePlacesInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUncheckedUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -957,7 +957,7 @@ export type placeUpdateWithoutDistrictInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -973,7 +973,7 @@ export type placeUncheckedUpdateWithoutDistrictInput = {
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  specificguide?: Prisma.specific_guideUncheckedUpdateOneWithoutPlaceNestedInput
+  specificguide?: Prisma.specific_guideUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuidePlaces?: Prisma.common_guide_placesUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
@@ -997,11 +997,13 @@ export type placeUncheckedUpdateManyWithoutDistrictInput = {
  */
 
 export type PlaceCountOutputType = {
+  specificguide: number
   commonGuidePlaces: number
   user_fav_place: number
 }
 
 export type PlaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  specificguide?: boolean | PlaceCountOutputTypeCountSpecificguideArgs
   commonGuidePlaces?: boolean | PlaceCountOutputTypeCountCommonGuidePlacesArgs
   user_fav_place?: boolean | PlaceCountOutputTypeCountUser_fav_placeArgs
 }
@@ -1014,6 +1016,13 @@ export type PlaceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Select specific fields to fetch from the PlaceCountOutputType
    */
   select?: Prisma.PlaceCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PlaceCountOutputType without action
+ */
+export type PlaceCountOutputTypeCountSpecificguideArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.specific_guideWhereInput
 }
 
 /**
@@ -1112,7 +1121,7 @@ export type placeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type $placePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "place"
   objects: {
-    specificguide: Prisma.$specific_guidePayload<ExtArgs> | null
+    specificguide: Prisma.$specific_guidePayload<ExtArgs>[]
     commonGuidePlaces: Prisma.$common_guide_placesPayload<ExtArgs>[]
     district: Prisma.$districtPayload<ExtArgs>
     user_fav_place: Prisma.$user_fav_placePayload<ExtArgs>[]
@@ -1523,7 +1532,7 @@ readonly fields: placeFieldRefs;
  */
 export interface Prisma__placeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  specificguide<T extends Prisma.place$specificguideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$specificguideArgs<ExtArgs>>): Prisma.Prisma__specific_guideClient<runtime.Types.Result.GetResult<Prisma.$specific_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  specificguide<T extends Prisma.place$specificguideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$specificguideArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$specific_guidePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commonGuidePlaces<T extends Prisma.place$commonGuidePlacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$commonGuidePlacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   district<T extends Prisma.districtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.districtDefaultArgs<ExtArgs>>): Prisma.Prisma__districtClient<runtime.Types.Result.GetResult<Prisma.$districtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user_fav_place<T extends Prisma.place$user_fav_placeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$user_fav_placeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$user_fav_placePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1984,6 +1993,11 @@ export type place$specificguideArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.specific_guideInclude<ExtArgs> | null
   where?: Prisma.specific_guideWhereInput
+  orderBy?: Prisma.specific_guideOrderByWithRelationInput | Prisma.specific_guideOrderByWithRelationInput[]
+  cursor?: Prisma.specific_guideWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Specific_guideScalarFieldEnum | Prisma.Specific_guideScalarFieldEnum[]
 }
 
 /**

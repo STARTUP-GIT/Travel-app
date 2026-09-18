@@ -182,10 +182,10 @@ export type UserGroupByOutputType = {
   name: string
   username: string
   email: string
-  password: string
+  password: string | null
   phonenumber: string
   profilepic: string | null
-  authprovider: $Enums.authProviders
+  authprovider: $Enums.authProviders | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -216,10 +216,10 @@ export type userWhereInput = {
   name?: Prisma.StringFilter<"user"> | string
   username?: Prisma.StringFilter<"user"> | string
   email?: Prisma.StringFilter<"user"> | string
-  password?: Prisma.StringFilter<"user"> | string
+  password?: Prisma.StringNullableFilter<"user"> | string | null
   phonenumber?: Prisma.StringFilter<"user"> | string
   profilepic?: Prisma.StringNullableFilter<"user"> | string | null
-  authprovider?: Prisma.EnumauthProvidersFilter<"user"> | $Enums.authProviders
+  authprovider?: Prisma.EnumauthProvidersNullableFilter<"user"> | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFilter<"user"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"user"> | Date | string
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
@@ -231,10 +231,10 @@ export type userOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
   phonenumber?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
-  authprovider?: Prisma.SortOrder
+  authprovider?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user_fav_place?: Prisma.user_fav_placeOrderByRelationAggregateInput
@@ -249,10 +249,10 @@ export type userWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.userWhereInput[]
   NOT?: Prisma.userWhereInput | Prisma.userWhereInput[]
   name?: Prisma.StringFilter<"user"> | string
-  password?: Prisma.StringFilter<"user"> | string
+  password?: Prisma.StringNullableFilter<"user"> | string | null
   phonenumber?: Prisma.StringFilter<"user"> | string
   profilepic?: Prisma.StringNullableFilter<"user"> | string | null
-  authprovider?: Prisma.EnumauthProvidersFilter<"user"> | $Enums.authProviders
+  authprovider?: Prisma.EnumauthProvidersNullableFilter<"user"> | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFilter<"user"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"user"> | Date | string
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
@@ -264,10 +264,10 @@ export type userOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
   phonenumber?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
-  authprovider?: Prisma.SortOrder
+  authprovider?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.userCountOrderByAggregateInput
@@ -283,10 +283,10 @@ export type userScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"user"> | string
   username?: Prisma.StringWithAggregatesFilter<"user"> | string
   email?: Prisma.StringWithAggregatesFilter<"user"> | string
-  password?: Prisma.StringWithAggregatesFilter<"user"> | string
+  password?: Prisma.StringNullableWithAggregatesFilter<"user"> | string | null
   phonenumber?: Prisma.StringWithAggregatesFilter<"user"> | string
   profilepic?: Prisma.StringNullableWithAggregatesFilter<"user"> | string | null
-  authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"user"> | $Enums.authProviders
+  authprovider?: Prisma.EnumauthProvidersNullableWithAggregatesFilter<"user"> | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"user"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"user"> | Date | string
 }
@@ -296,10 +296,10 @@ export type userCreateInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutUserInput
@@ -311,10 +311,10 @@ export type userUncheckedCreateInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutUserInput
@@ -326,10 +326,10 @@ export type userUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutUserNestedInput
@@ -341,10 +341,10 @@ export type userUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutUserNestedInput
@@ -356,10 +356,10 @@ export type userCreateManyInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -369,10 +369,10 @@ export type userUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -382,10 +382,10 @@ export type userUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -448,6 +448,10 @@ export type userUpdateOneRequiredWithoutTestimonialsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.userUpdateToOneWithWhereWithoutTestimonialsInput, Prisma.userUpdateWithoutTestimonialsInput>, Prisma.userUncheckedUpdateWithoutTestimonialsInput>
 }
 
+export type NullableEnumauthProvidersFieldUpdateOperationsInput = {
+  set?: $Enums.authProviders | null
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
@@ -471,10 +475,10 @@ export type userCreateWithoutTestimonialsInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutUserInput
@@ -485,10 +489,10 @@ export type userUncheckedCreateWithoutTestimonialsInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutUserInput
@@ -515,10 +519,10 @@ export type userUpdateWithoutTestimonialsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutUserNestedInput
@@ -529,10 +533,10 @@ export type userUncheckedUpdateWithoutTestimonialsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutUserNestedInput
@@ -543,10 +547,10 @@ export type userCreateWithoutUser_fav_placeInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutUserInput
@@ -557,10 +561,10 @@ export type userUncheckedCreateWithoutUser_fav_placeInput = {
   name: string
   username: string
   email: string
-  password: string
+  password?: string | null
   phonenumber: string
   profilepic?: string | null
-  authprovider: $Enums.authProviders
+  authprovider?: $Enums.authProviders | null
   createdAt?: Date | string
   updatedAt?: Date | string
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutUserInput
@@ -587,10 +591,10 @@ export type userUpdateWithoutUser_fav_placeInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testimonials?: Prisma.testimonialsUpdateManyWithoutUserNestedInput
@@ -601,10 +605,10 @@ export type userUncheckedUpdateWithoutUser_fav_placeInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  authprovider?: Prisma.NullableEnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutUserNestedInput
@@ -725,10 +729,10 @@ export type $userPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string
     username: string
     email: string
-    password: string
+    password: string | null
     phonenumber: string
     profilepic: string | null
-    authprovider: $Enums.authProviders
+    authprovider: $Enums.authProviders | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>

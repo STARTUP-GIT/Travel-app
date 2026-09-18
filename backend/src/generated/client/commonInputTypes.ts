@@ -129,6 +129,13 @@ export type EnumauthProvidersWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumauthProvidersFilter<$PrismaModel>
 }
 
+export type EnumauthProvidersNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.authProviders | Prisma.EnumauthProvidersFieldRefInput<$PrismaModel> | null
+  in?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel> | $Enums.authProviders | null
+}
+
 export type DateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -138,6 +145,16 @@ export type DateTimeFilter<$PrismaModel = never> = {
   gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   not?: Prisma.NestedDateTimeFilter<$PrismaModel> | Date | string
+}
+
+export type EnumauthProvidersNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.authProviders | Prisma.EnumauthProvidersFieldRefInput<$PrismaModel> | null
+  in?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumauthProvidersNullableWithAggregatesFilter<$PrismaModel> | $Enums.authProviders | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel>
 }
 
 export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -366,6 +383,13 @@ export type NestedEnumauthProvidersWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumauthProvidersFilter<$PrismaModel>
 }
 
+export type NestedEnumauthProvidersNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.authProviders | Prisma.EnumauthProvidersFieldRefInput<$PrismaModel> | null
+  in?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel> | $Enums.authProviders | null
+}
+
 export type NestedDateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -375,6 +399,16 @@ export type NestedDateTimeFilter<$PrismaModel = never> = {
   gt?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   gte?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   not?: Prisma.NestedDateTimeFilter<$PrismaModel> | Date | string
+}
+
+export type NestedEnumauthProvidersNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.authProviders | Prisma.EnumauthProvidersFieldRefInput<$PrismaModel> | null
+  in?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.authProviders[] | Prisma.ListEnumauthProvidersFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumauthProvidersNullableWithAggregatesFilter<$PrismaModel> | $Enums.authProviders | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumauthProvidersNullableFilter<$PrismaModel>
 }
 
 export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
