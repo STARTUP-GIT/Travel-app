@@ -1,0 +1,263 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model app_config{
+  id                  String   @id @default(uuid())
+  app_name            String
+  imageBanners        String[]
+  icon                String
+  webTitle            String
+  text                String
+  contacts            String
+  termsandconditions  String
+  privacy             String
+  app_description     String
+  testimonials        testimonials[]
+  admin               admin[]
+}
+
+model testimonials{
+  id          String     @id @default(uuid())
+  userId      String
+  appConfigId String
+  user        user       @relation(fields: [userId], references: [id])
+  specificguideId String?
+  specificguide specific_guide? @relation(fields: [specificguideId], references: [id])
+  commonGuideId String?
+  commonGuide common_guide? @relation(fields: [commonGuideId], references: [id])
+  appConfig   app_config @relation(fields: [appConfigId], references: [id])
+  text        String
+  image       String?
+  rating      Float
+}
+
+model admin{
+  id            String   @id @default(uuid())
+  name          String 
+  username      String   @unique
+  email         String   @unique
+  password      String   
+  appConfigId String
+  appConfig   app_config @relation(fields: [appConfigId], references: [id])
+  authprovider      authProviders
+  profilepic    String?
+}
+
+model user {
+  id            String   @id @default(uuid())
+  name          String 
+  username      String   @unique
+  email         String   @unique
+  password      String   
+  phonenumber   String
+  profilepic    String?
+  authprovider      authProviders
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user_fav_place  user_fav_place[]
+  testimonials    testimonials[]
+}
+
+model user_fav_place {
+  id        String   @id @default(uuid())
+  userId    String
+  placeId   String
+  user      user     @relation(fields: [userId], references: [id])
+  place     place    @relation(fields: [placeId], references: [id])
+
+  @@unique([userId, placeId])
+}
+
+model country {
+  id        String   @id @default(uuid())
+  name      String
+  states    state[]
+}
+
+model state {
+  id        String   @id @default(uuid())
+  name      String
+  countryId String
+  country   country  @relation(fields: [countryId], references: [id])
+  districts district[]
+}
+
+model district {
+  id        String   @id @default(uuid())
+  name      String
+  stateId   String
+  state     state    @relation(fields: [stateId], references: [id])
+  places    place[]
+  hotels    hotel[]
+  restaurent  restaurent[]
+}
+
+model place {
+  id              String   @id @default(uuid())
+  name            String
+  description     String
+  districtId      String
+  images          String[]
+  specificguide   specific_guide?
+  commonGuidePlaces common_guide_places[]
+  entryfee        Float
+  category        String
+  latitude        Float
+  longitude       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  district        district @relation(fields: [districtId], references: [id])
+  user_fav_place  user_fav_place[]
+}
+
+model specific_guide {
+  id              String     @id  @default(uuid())
+  full_name       String
+  username        String      @unique
+  email           String      @unique
+  password        String
+  phonenumber     String
+  profile_pic     String
+  tagline         String?
+  authprovider        authProviders
+  review          String[]
+  rating          Float?
+  description     String?
+  placeid         String @unique
+  place           place @relation(fields: [placeid], references: [id])
+  testimonials    testimonials[]
+  
+  isReported      Boolean @default(false)
+  experience      Int
+  cost            Int
+  language        String[]
+   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+} 
+model common_guide {
+  id              String     @id  @default(uuid())
+  full_name       String
+  username        String      @unique
+  email           String      @unique
+  password        String
+  phonenumber     String
+  profile_pic     String
+  tagline         String?
+  authprovider        authProviders
+  review          String[]
+  rating          Float?
+  description     String?
+  places          common_guide_places[]
+  isReported      Boolean @default(false)
+  experience      Int
+  cost            Int
+  language        String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+    testimonials    testimonials[]
+
+} 
+
+model common_guide_places {
+  id            String       @id @default(uuid())
+  placeId       String
+  commonGuideId String
+
+  place        place        @relation(fields: [placeId], references: [id])
+  commonGuide  common_guide @relation(fields: [commonGuideId], references: [id])
+
+  @@unique([placeId, commonGuideId])
+}
+
+model hotel {
+  id                    String    @id @default(uuid())
+  name                  String
+  address               String
+  profile_logo          String
+  districtId            String
+  description           String?
+  rating                Float
+  review                String[]
+  cost_per_night        Int
+  images                String[]
+  latitude        Float
+  longitude       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  district  district @relation(fields: [districtId], references: [id])
+}
+
+model  restaurent {
+  id                    String    @id @default(uuid())
+  name                  String
+  address               String
+  districtId            String
+  description           String?
+  rating                Float
+  review                String[]
+  menu                  String[]
+  food_category         Food_Category @default(VEG_AND_NONVEG)
+  images                String[]
+  profile_logo          String
+  latitude        Float
+  longitude       Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  district  district @relation(fields: [districtId], references: [id])
+}
+
+// model tranport {
+//   id  String  @id @default(uuid())
+//   travelauthProviders travelauthProviders[]
+//   mode    Mode
+// }
+
+
+
+// model travelauthProviders {
+//   id            String      @id @default(uuid())
+//   onlineTransport OnlineTransport
+//   tranportId    String
+//   tranport      tranport    @relation(fields: [tranportId], references: [id])
+// }
+
+// enum Mode{
+//   AUTO
+//   BIKE
+//   CAR
+// }
+
+
+
+
+enum Food_Category{
+  PUREVEG
+  NONVEG
+  VEG_AND_NONVEG
+}
+
+// enum OnlineTransport{
+//   RAPIDO
+//   NAMMA_YATRI
+//   OLA
+//   UBER
+// }
+
+
+enum authProviders{
+  GOOGLE
+  EMAIL
+}
+
+
