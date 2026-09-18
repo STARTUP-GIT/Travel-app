@@ -1,0 +1,148 @@
+# Path Tracker — Implementation Plan & Architecture Specification
+
+Fix and refine **Path Tracker** into a production-grade Expo + React Native application adhering strictly to the core principle: **Record the exact path travelled, and guide the user back to the original start using the SAME recorded path.**
+
+---
+
+## Technical Stack & Compatibility Constraints
+
+- **Expo**: SDK 54 (`expo ~54.0.0`)
+- **React Native**: 0.81.5
+- **Routing**: Expo Router `~6.0.24`
+- **TypeScript**: `~5.9.0`
+- **Map Renderer**: `@maplibre/maplibre-react-native` `^11.3.8` (OpenFreeMap / OpenMapTiles)
+- **Location & Background**: `expo-location` `~19.0.8`, `expo-task-manager` `~14.0.9`
+- **Database**: `expo-sqlite` `~16.0.10`
+- **Notifications**: `expo-notifications` `~0.32.17`
+- **Build**: Native EAS Development / Preview / Production Build compatible.
+
+---
+
+## Key Technical Problems Identified & Fix Strategy
+
+### 1. Direct OSRM Shortest-Path Replacement Bug (Violating Core Principle)
+- **Problem**: When return started and the device was online, `TripEngine.recalcRoute()` fetched an OSRM route directly from `currentPosition` to `tripStartLocation`. This completely overwrote the return path with a generic shortest road route, sending the user down potentially completely different roads.
+- **Fix**:
+  - The recorded path $[P_0, P_1, \dots, P_n]$ is the **primary return corridor**.
+  - When returning:
+    1. Project `currentPosition` onto the nearest segment of `recordedPath`.
+    2. Extract the return corridor slice from the projected position back to $P_0$: $[P_{\text{proj}}, P_k, P_{k-1}, \dots, P_1, P_0]$.
+    3. Calculate remaining return distance along this path sequence (NOT straight-line distance, NOT shortest OSRM route distance).
+    4. OSRM is **NEVER** used to calculate a direct replacement for the recorded return path.
+
+### 2. Off-Route & OSRM Recovery Routing
+- **Problem**: Previously, off-route detection either recalculated a direct OSRM route to start or fell back to straight-line bearing.
+- **Fix**:
+  - Treat the recorded return path as a corridor (`RETURN_CORRIDOR_METERS = 40m`).
+  - If user leaves the corridor ($d > 40\text{m}$) after debounced hysteresis fixes:
+    - Mark state as `OFF_ROUTE_CONFIRMED`.
+    - Use OSRM **ONLY** to calculate a **recovery route** from `currentPosition` to the nearest point on the original recorded return corridor.
+    - Once user rejoins the corridor ($d \le 40\text{m}$), resume same-path return navigation.
+
+### 3. Arrival State Machine Gap
+- **Problem**: Arrival check was done only when calling `endTrip()`, lacking an active live state transition to `ARRIVED`.
+- **Fix**:
+  - Extend `TripState` to include `'ARRIVED'`: `'IDLE' | 'ACTIVE' | 'PAUSED' | 'RETURNING' | 'ARRIVED' | 'COMPLETED'`.
+  - When `currentPosition` is within $25\text{m}$ of $P_0$ while returning: transition state to `'ARRIVED'`, set `returnedToStart = true`, stop rerouting, and present "ARRIVED AT START" UI.
+
+### 4. Offline Map Screen Hiding Bug
+- **Problem**: `HomeScreen` replaced the entire map UI with an `OfflineScreen` when `networkState === 'offline'`, hiding the map and local recorded path.
+- **Fix**: MapLibre renders vector overlays (recorded path, return corridor, markers) locally using SQLite data. Keep the map visible when offline and display an offline status banner overlay instead.
+
+### 5. Map Layer Ordering & User Marker Heading
+- **Fix**: Render map layers in strict sequence:
+  1. Basemap
+  2. Recorded path (solid blue line)
+  3. Active return corridor (highlighted amber line)
+  4. Recovery route (if off-route and active)
+  5. Start / Destination marker (fixed at $P_0$)
+  6. Current user position marker (moving with real GPS, rotated by course/heading)
+  7. Navigation UI overlays
+
+---
+
+## Proposed Changes
+
+### Component 1: Geometry & Return Corridor Engine
+
+#### [MODIFY] [geo.ts](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/utils/geo.ts)
+- Add `findNearestSegmentAndProjection(point, path)`: finds nearest segment index $k$, projected coordinate $P_{\text{proj}}$, and perpendicular distance $d$.
+- Add `extractSamePathReturnCorridor(recordedPath, currentPosition)`: generates same-path return corridor $[P_{\text{proj}}, P_k, P_{k-1}, \dots, P_1, P_0]$.
+- Add `calculatePathDistance(coords)`: calculates cumulative distance along a sequence of coordinates.
+
+---
+
+### Component 2: Core Domain Types & State Machine
+
+#### [MODIFY] [index.ts](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/types/index.ts)
+- Update `TripState` to include `'ARRIVED'`.
+- Update `ReturnState` to store:
+  - `returnCorridor`: `Coordinate[]` (same-path return corridor)
+  - `recoveryRoute`: `Coordinate[] | null` (temporary OSRM reconnect route)
+  - `reconnectPoint`: `Coordinate | null`
+  - `remainingDistance`: `number` (distance along return corridor)
+
+---
+
+### Component 3: Routing & Location Services
+
+#### [MODIFY] [routing-service.ts](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/services/routing-service.ts)
+- Add `fetchRecoveryRoute(currentPos, reconnectPoint)`: queries OSRM for a recovery route from current GPS to the target point on the recorded corridor.
+
+#### [MODIFY] [trip-service.ts](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/services/trip-service.ts)
+- Update `TripEngine`:
+  - When return begins: set $P_0$ as fixed `navigationDestination`.
+  - On each GPS update while `RETURNING`:
+    1. Determine nearest point on recorded path and distance $d$.
+    2. If $d \le 40\text{m}$: extract same-path return corridor, clear recovery route, set `offRoute = 'ON_ROUTE'`.
+    3. If $d > 40\text{m}$ (hysteresis): trigger recovery routing to nearest corridor point, set `offRoute = 'OFF_ROUTE_CONFIRMED'`.
+    4. Check arrival ($d(P_{\text{curr}}, P_0) \le 25\text{m}$): transition to `'ARRIVED'`.
+  - When cancelling return: transition `RETURNING` -> `ACTIVE` (same trip continues, ID, start location, and recorded path remain intact).
+
+---
+
+### Component 4: Map & UI Components
+
+#### [MODIFY] [TripMap.tsx](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/maps/TripMap.tsx)
+- Add `recoveryRoute` layer props.
+- Ensure strict layer stack: Basemap -> Recorded Path -> Return Corridor -> Recovery Route -> Destination Marker -> User Marker.
+- Ensure camera follow mode centers on user during recording & returning. Recenter button toggles follow mode.
+
+#### [MODIFY] [index.tsx](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/app/(tabs)/index.tsx)
+- Keep map visible during offline mode; display offline banner overlay.
+- Connect `returnCorridor` and `recoveryRoute` to `TripMap`.
+
+#### [MODIFY] [ReturnHUD.tsx](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/components/ReturnHUD.tsx)
+- Display remaining return corridor distance (path distance, not straight-line).
+- Display destination as fixed "START POINT".
+
+#### [MODIFY] [TripControls.tsx](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/components/TripControls.tsx)
+- Handle `ARRIVED` state controls and transitions cleanly.
+
+#### [NEW] [ArrivedBanner.tsx](file:///c:/Users/Admin/OneDrive/Desktop/Path-Tracker/src/components/ArrivedBanner.tsx)
+- Modal / Banner presented when user reaches within 25m of the original start destination.
+
+---
+
+## Verification Plan
+
+### Automated Verification
+1. `npm run typecheck` — verify zero TypeScript errors.
+2. `npm run lint` — verify ESLint passes clean.
+3. `npx expo-doctor` — verify Expo config and native plugin health (18/18 checks pass).
+
+### Manual & Functional Verification
+1. **Trip Recording**:
+   - Verify start trip creates $P_0$, blue path grows with GPS movement, distance accumulates.
+2. **Same-Path Return**:
+   - Verify pressing Return To Start fixes $P_0$ as destination.
+   - Verify return corridor is the exact reversed recorded path from user's current progress to $P_0$.
+   - Verify remaining distance decreases along the recorded path.
+3. **Off-Route Recovery**:
+   - Verify leaving corridor ($>40\text{m}$) triggers off-route state and recovery route to corridor.
+   - Verify rejoining corridor resumes same-path return navigation.
+4. **Arrival**:
+   - Verify reaching within 25m of $P_0$ triggers `ARRIVED AT START`.
+5. **Offline & Recovery**:
+   - Verify same-path return navigation functions offline without network access.
+   - Verify app restart during recording/returning recovers the active trip state from SQLite.

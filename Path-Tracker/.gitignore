@@ -1,0 +1,13 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+.DS_Store
+.expo/types/router.d.ts
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
