@@ -36,7 +36,7 @@ model testimonials{
   specificguide specific_guide? @relation(fields: [specificguideId], references: [id])
   commonGuideId String?
   commonGuide common_guide? @relation(fields: [commonGuideId], references: [id])
-  appConfig   app_config @relation(fields: [appConfigId], references: [id])
+  appConfig   app_config? @relation(fields: [appConfigId], references: [id])
   text        String
   image       String?
   rating      Float
@@ -48,8 +48,8 @@ model admin{
   username      String   @unique
   email         String   @unique
   password      String   
-  appConfigId String
-  appConfig   app_config @relation(fields: [appConfigId], references: [id])
+  appConfigId   String?
+  appConfig   app_config? @relation(fields: [appConfigId], references: [id])
   authprovider      authProviders
   profilepic    String?
 }

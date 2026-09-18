@@ -171,7 +171,7 @@ export type AdminGroupByOutputType = {
   username: string
   email: string
   password: string
-  appConfigId: string
+  appConfigId: string | null
   authprovider: $Enums.authProviders
   profilepic: string | null
   _count: AdminCountAggregateOutputType | null
@@ -203,10 +203,10 @@ export type adminWhereInput = {
   username?: Prisma.StringFilter<"admin"> | string
   email?: Prisma.StringFilter<"admin"> | string
   password?: Prisma.StringFilter<"admin"> | string
-  appConfigId?: Prisma.StringFilter<"admin"> | string
+  appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
-  appConfig?: Prisma.XOR<Prisma.App_configScalarRelationFilter, Prisma.app_configWhereInput>
+  appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
 }
 
 export type adminOrderByWithRelationInput = {
@@ -215,7 +215,7 @@ export type adminOrderByWithRelationInput = {
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  appConfigId?: Prisma.SortOrder
+  appConfigId?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
   appConfig?: Prisma.app_configOrderByWithRelationInput
@@ -230,10 +230,10 @@ export type adminWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.adminWhereInput | Prisma.adminWhereInput[]
   name?: Prisma.StringFilter<"admin"> | string
   password?: Prisma.StringFilter<"admin"> | string
-  appConfigId?: Prisma.StringFilter<"admin"> | string
+  appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
-  appConfig?: Prisma.XOR<Prisma.App_configScalarRelationFilter, Prisma.app_configWhereInput>
+  appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
 }, "id" | "username" | "email">
 
 export type adminOrderByWithAggregationInput = {
@@ -242,7 +242,7 @@ export type adminOrderByWithAggregationInput = {
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  appConfigId?: Prisma.SortOrder
+  appConfigId?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.adminCountOrderByAggregateInput
@@ -259,7 +259,7 @@ export type adminScalarWhereWithAggregatesInput = {
   username?: Prisma.StringWithAggregatesFilter<"admin"> | string
   email?: Prisma.StringWithAggregatesFilter<"admin"> | string
   password?: Prisma.StringWithAggregatesFilter<"admin"> | string
-  appConfigId?: Prisma.StringWithAggregatesFilter<"admin"> | string
+  appConfigId?: Prisma.StringNullableWithAggregatesFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableWithAggregatesFilter<"admin"> | string | null
 }
@@ -272,7 +272,7 @@ export type adminCreateInput = {
   password: string
   authprovider: $Enums.authProviders
   profilepic?: string | null
-  appConfig: Prisma.app_configCreateNestedOneWithoutAdminInput
+  appConfig?: Prisma.app_configCreateNestedOneWithoutAdminInput
 }
 
 export type adminUncheckedCreateInput = {
@@ -281,7 +281,7 @@ export type adminUncheckedCreateInput = {
   username: string
   email: string
   password: string
-  appConfigId: string
+  appConfigId?: string | null
   authprovider: $Enums.authProviders
   profilepic?: string | null
 }
@@ -294,7 +294,7 @@ export type adminUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  appConfig?: Prisma.app_configUpdateOneRequiredWithoutAdminNestedInput
+  appConfig?: Prisma.app_configUpdateOneWithoutAdminNestedInput
 }
 
 export type adminUncheckedUpdateInput = {
@@ -303,7 +303,7 @@ export type adminUncheckedUpdateInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  appConfigId?: Prisma.StringFieldUpdateOperationsInput | string
+  appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -314,7 +314,7 @@ export type adminCreateManyInput = {
   username: string
   email: string
   password: string
-  appConfigId: string
+  appConfigId?: string | null
   authprovider: $Enums.authProviders
   profilepic?: string | null
 }
@@ -335,7 +335,7 @@ export type adminUncheckedUpdateManyInput = {
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
-  appConfigId?: Prisma.StringFieldUpdateOperationsInput | string
+  appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -484,7 +484,7 @@ export type adminScalarWhereInput = {
   username?: Prisma.StringFilter<"admin"> | string
   email?: Prisma.StringFilter<"admin"> | string
   password?: Prisma.StringFilter<"admin"> | string
-  appConfigId?: Prisma.StringFilter<"admin"> | string
+  appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
 }
@@ -540,7 +540,7 @@ export type adminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
 export type adminSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -552,7 +552,7 @@ export type adminSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
 export type adminSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -564,7 +564,7 @@ export type adminSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
 export type adminSelectScalar = {
@@ -580,19 +580,19 @@ export type adminSelectScalar = {
 
 export type adminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "appConfigId" | "authprovider" | "profilepic", ExtArgs["result"]["admin"]>
 export type adminInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }
 export type adminIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }
 export type adminIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }
 
 export type $adminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "admin"
   objects: {
-    appConfig: Prisma.$app_configPayload<ExtArgs>
+    appConfig: Prisma.$app_configPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -600,7 +600,7 @@ export type $adminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     username: string
     email: string
     password: string
-    appConfigId: string
+    appConfigId: string | null
     authprovider: $Enums.authProviders
     profilepic: string | null
   }, ExtArgs["result"]["admin"]>
@@ -997,7 +997,7 @@ readonly fields: adminFieldRefs;
  */
 export interface Prisma__adminClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  appConfig<T extends Prisma.app_configDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.app_configDefaultArgs<ExtArgs>>): Prisma.Prisma__app_configClient<runtime.Types.Result.GetResult<Prisma.$app_configPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  appConfig<T extends Prisma.admin$appConfigArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.admin$appConfigArgs<ExtArgs>>): Prisma.Prisma__app_configClient<runtime.Types.Result.GetResult<Prisma.$app_configPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1433,6 +1433,25 @@ export type adminDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many admins to delete.
    */
   limit?: number
+}
+
+/**
+ * admin.appConfig
+ */
+export type admin$appConfigArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the app_config
+   */
+  select?: Prisma.app_configSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the app_config
+   */
+  omit?: Prisma.app_configOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.app_configInclude<ExtArgs> | null
+  where?: Prisma.app_configWhereInput
 }
 
 /**

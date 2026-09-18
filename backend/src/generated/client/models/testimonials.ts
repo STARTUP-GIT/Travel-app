@@ -243,7 +243,7 @@ export type testimonialsWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
   specificguide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
   commonGuide?: Prisma.XOR<Prisma.Common_guideNullableScalarRelationFilter, Prisma.common_guideWhereInput> | null
-  appConfig?: Prisma.XOR<Prisma.App_configScalarRelationFilter, Prisma.app_configWhereInput>
+  appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
 }
 
 export type testimonialsOrderByWithRelationInput = {
@@ -276,7 +276,7 @@ export type testimonialsWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
   specificguide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
   commonGuide?: Prisma.XOR<Prisma.Common_guideNullableScalarRelationFilter, Prisma.common_guideWhereInput> | null
-  appConfig?: Prisma.XOR<Prisma.App_configScalarRelationFilter, Prisma.app_configWhereInput>
+  appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
 }, "id">
 
 export type testimonialsOrderByWithAggregationInput = {
@@ -317,7 +317,7 @@ export type testimonialsCreateInput = {
   user: Prisma.userCreateNestedOneWithoutTestimonialsInput
   specificguide?: Prisma.specific_guideCreateNestedOneWithoutTestimonialsInput
   commonGuide?: Prisma.common_guideCreateNestedOneWithoutTestimonialsInput
-  appConfig: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
+  appConfig?: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
 }
 
 export type testimonialsUncheckedCreateInput = {
@@ -339,7 +339,7 @@ export type testimonialsUpdateInput = {
   user?: Prisma.userUpdateOneRequiredWithoutTestimonialsNestedInput
   specificguide?: Prisma.specific_guideUpdateOneWithoutTestimonialsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneWithoutTestimonialsNestedInput
-  appConfig?: Prisma.app_configUpdateOneRequiredWithoutTestimonialsNestedInput
+  appConfig?: Prisma.app_configUpdateOneWithoutTestimonialsNestedInput
 }
 
 export type testimonialsUncheckedUpdateInput = {
@@ -680,7 +680,7 @@ export type testimonialsCreateWithoutUserInput = {
   rating: number
   specificguide?: Prisma.specific_guideCreateNestedOneWithoutTestimonialsInput
   commonGuide?: Prisma.common_guideCreateNestedOneWithoutTestimonialsInput
-  appConfig: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
+  appConfig?: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
 }
 
 export type testimonialsUncheckedCreateWithoutUserInput = {
@@ -726,7 +726,7 @@ export type testimonialsCreateWithoutSpecificguideInput = {
   rating: number
   user: Prisma.userCreateNestedOneWithoutTestimonialsInput
   commonGuide?: Prisma.common_guideCreateNestedOneWithoutTestimonialsInput
-  appConfig: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
+  appConfig?: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
 }
 
 export type testimonialsUncheckedCreateWithoutSpecificguideInput = {
@@ -772,7 +772,7 @@ export type testimonialsCreateWithoutCommonGuideInput = {
   rating: number
   user: Prisma.userCreateNestedOneWithoutTestimonialsInput
   specificguide?: Prisma.specific_guideCreateNestedOneWithoutTestimonialsInput
-  appConfig: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
+  appConfig?: Prisma.app_configCreateNestedOneWithoutTestimonialsInput
 }
 
 export type testimonialsUncheckedCreateWithoutCommonGuideInput = {
@@ -868,7 +868,7 @@ export type testimonialsUpdateWithoutUserInput = {
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   specificguide?: Prisma.specific_guideUpdateOneWithoutTestimonialsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneWithoutTestimonialsNestedInput
-  appConfig?: Prisma.app_configUpdateOneRequiredWithoutTestimonialsNestedInput
+  appConfig?: Prisma.app_configUpdateOneWithoutTestimonialsNestedInput
 }
 
 export type testimonialsUncheckedUpdateWithoutUserInput = {
@@ -908,7 +908,7 @@ export type testimonialsUpdateWithoutSpecificguideInput = {
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.userUpdateOneRequiredWithoutTestimonialsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneWithoutTestimonialsNestedInput
-  appConfig?: Prisma.app_configUpdateOneRequiredWithoutTestimonialsNestedInput
+  appConfig?: Prisma.app_configUpdateOneWithoutTestimonialsNestedInput
 }
 
 export type testimonialsUncheckedUpdateWithoutSpecificguideInput = {
@@ -948,7 +948,7 @@ export type testimonialsUpdateWithoutCommonGuideInput = {
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.userUpdateOneRequiredWithoutTestimonialsNestedInput
   specificguide?: Prisma.specific_guideUpdateOneWithoutTestimonialsNestedInput
-  appConfig?: Prisma.app_configUpdateOneRequiredWithoutTestimonialsNestedInput
+  appConfig?: Prisma.app_configUpdateOneWithoutTestimonialsNestedInput
 }
 
 export type testimonialsUncheckedUpdateWithoutCommonGuideInput = {
@@ -985,7 +985,7 @@ export type testimonialsSelect<ExtArgs extends runtime.Types.Extensions.Internal
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["testimonials"]>
 
 export type testimonialsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1000,7 +1000,7 @@ export type testimonialsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["testimonials"]>
 
 export type testimonialsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1015,7 +1015,7 @@ export type testimonialsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["testimonials"]>
 
 export type testimonialsSelectScalar = {
@@ -1034,19 +1034,19 @@ export type testimonialsInclude<ExtArgs extends runtime.Types.Extensions.Interna
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }
 export type testimonialsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }
 export type testimonialsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificguide?: boolean | Prisma.testimonials$specificguideArgs<ExtArgs>
   commonGuide?: boolean | Prisma.testimonials$commonGuideArgs<ExtArgs>
-  appConfig?: boolean | Prisma.app_configDefaultArgs<ExtArgs>
+  appConfig?: boolean | Prisma.testimonials$appConfigArgs<ExtArgs>
 }
 
 export type $testimonialsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1055,7 +1055,7 @@ export type $testimonialsPayload<ExtArgs extends runtime.Types.Extensions.Intern
     user: Prisma.$userPayload<ExtArgs>
     specificguide: Prisma.$specific_guidePayload<ExtArgs> | null
     commonGuide: Prisma.$common_guidePayload<ExtArgs> | null
-    appConfig: Prisma.$app_configPayload<ExtArgs>
+    appConfig: Prisma.$app_configPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1463,7 +1463,7 @@ export interface Prisma__testimonialsClient<T, Null = never, ExtArgs extends run
   user<T extends Prisma.userDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.userDefaultArgs<ExtArgs>>): Prisma.Prisma__userClient<runtime.Types.Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   specificguide<T extends Prisma.testimonials$specificguideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.testimonials$specificguideArgs<ExtArgs>>): Prisma.Prisma__specific_guideClient<runtime.Types.Result.GetResult<Prisma.$specific_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   commonGuide<T extends Prisma.testimonials$commonGuideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.testimonials$commonGuideArgs<ExtArgs>>): Prisma.Prisma__common_guideClient<runtime.Types.Result.GetResult<Prisma.$common_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  appConfig<T extends Prisma.app_configDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.app_configDefaultArgs<ExtArgs>>): Prisma.Prisma__app_configClient<runtime.Types.Result.GetResult<Prisma.$app_configPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  appConfig<T extends Prisma.testimonials$appConfigArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.testimonials$appConfigArgs<ExtArgs>>): Prisma.Prisma__app_configClient<runtime.Types.Result.GetResult<Prisma.$app_configPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1937,6 +1937,25 @@ export type testimonials$commonGuideArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.common_guideInclude<ExtArgs> | null
   where?: Prisma.common_guideWhereInput
+}
+
+/**
+ * testimonials.appConfig
+ */
+export type testimonials$appConfigArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the app_config
+   */
+  select?: Prisma.app_configSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the app_config
+   */
+  omit?: Prisma.app_configOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.app_configInclude<ExtArgs> | null
+  where?: Prisma.app_configWhereInput
 }
 
 /**

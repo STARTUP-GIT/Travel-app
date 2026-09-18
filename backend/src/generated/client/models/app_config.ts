@@ -431,9 +431,9 @@ export type app_configMinOrderByAggregateInput = {
   app_description?: Prisma.SortOrder
 }
 
-export type App_configScalarRelationFilter = {
-  is?: Prisma.app_configWhereInput
-  isNot?: Prisma.app_configWhereInput
+export type App_configNullableScalarRelationFilter = {
+  is?: Prisma.app_configWhereInput | null
+  isNot?: Prisma.app_configWhereInput | null
 }
 
 export type app_configCreateimageBannersInput = {
@@ -455,10 +455,12 @@ export type app_configCreateNestedOneWithoutTestimonialsInput = {
   connect?: Prisma.app_configWhereUniqueInput
 }
 
-export type app_configUpdateOneRequiredWithoutTestimonialsNestedInput = {
+export type app_configUpdateOneWithoutTestimonialsNestedInput = {
   create?: Prisma.XOR<Prisma.app_configCreateWithoutTestimonialsInput, Prisma.app_configUncheckedCreateWithoutTestimonialsInput>
   connectOrCreate?: Prisma.app_configCreateOrConnectWithoutTestimonialsInput
   upsert?: Prisma.app_configUpsertWithoutTestimonialsInput
+  disconnect?: Prisma.app_configWhereInput | boolean
+  delete?: Prisma.app_configWhereInput | boolean
   connect?: Prisma.app_configWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.app_configUpdateToOneWithWhereWithoutTestimonialsInput, Prisma.app_configUpdateWithoutTestimonialsInput>, Prisma.app_configUncheckedUpdateWithoutTestimonialsInput>
 }
@@ -469,10 +471,12 @@ export type app_configCreateNestedOneWithoutAdminInput = {
   connect?: Prisma.app_configWhereUniqueInput
 }
 
-export type app_configUpdateOneRequiredWithoutAdminNestedInput = {
+export type app_configUpdateOneWithoutAdminNestedInput = {
   create?: Prisma.XOR<Prisma.app_configCreateWithoutAdminInput, Prisma.app_configUncheckedCreateWithoutAdminInput>
   connectOrCreate?: Prisma.app_configCreateOrConnectWithoutAdminInput
   upsert?: Prisma.app_configUpsertWithoutAdminInput
+  disconnect?: Prisma.app_configWhereInput | boolean
+  delete?: Prisma.app_configWhereInput | boolean
   connect?: Prisma.app_configWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.app_configUpdateToOneWithWhereWithoutAdminInput, Prisma.app_configUpdateWithoutAdminInput>, Prisma.app_configUncheckedUpdateWithoutAdminInput>
 }
