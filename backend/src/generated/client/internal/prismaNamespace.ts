@@ -1576,7 +1576,8 @@ export type User_fav_placeScalarFieldEnum = (typeof User_fav_placeScalarFieldEnu
 
 export const CountryScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  isServiceAvailable: 'isServiceAvailable'
 } as const
 
 export type CountryScalarFieldEnum = (typeof CountryScalarFieldEnum)[keyof typeof CountryScalarFieldEnum]
@@ -1585,7 +1586,8 @@ export type CountryScalarFieldEnum = (typeof CountryScalarFieldEnum)[keyof typeo
 export const StateScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  countryId: 'countryId'
+  countryId: 'countryId',
+  isServiceAvailable: 'isServiceAvailable'
 } as const
 
 export type StateScalarFieldEnum = (typeof StateScalarFieldEnum)[keyof typeof StateScalarFieldEnum]
@@ -1594,7 +1596,8 @@ export type StateScalarFieldEnum = (typeof StateScalarFieldEnum)[keyof typeof St
 export const DistrictScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  stateId: 'stateId'
+  stateId: 'stateId',
+  isServiceAvailable: 'isServiceAvailable'
 } as const
 
 export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]

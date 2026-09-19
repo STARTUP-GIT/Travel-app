@@ -6,6 +6,9 @@ import commonGuideRoutes from './modules/commonguides/auth/routes/auth.route.js'
 import adminRoutes from './modules/admin/auth/routes/auth.route.js';
 import userProfileRoutes from './modules/user/profile/routes/profile.routes.js';
 import adminProfileRoutes from './modules/admin/profile/routes/profile.routes.js';
+import countryRoutes from './modules/places/country/routes/country.route.js';
+import stateRoutes from './modules/places/state/routes/state.route.js';
+import districtRoutes from './modules/places/district/routes/district.route.js';
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -31,6 +34,9 @@ app.use('/users/profile', userProfileRoutes);
 app.use('/specificguide/profile' ,specificGuideRoutes);
 app.use('/commonguide/profile' ,commonGuideRoutes);
 app.use('/admin/profile' , adminProfileRoutes);
+app.use('/api/admin/countries', countryRoutes);
+app.use('/api/admin/states', stateRoutes);
+app.use('/api/admin/districts', districtRoutes);
 
 
 

@@ -27,16 +27,19 @@ export type AggregateCountry = {
 export type CountryMinAggregateOutputType = {
   id: string | null
   name: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type CountryMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type CountryCountAggregateOutputType = {
   id: number
   name: number
+  isServiceAvailable: number
   _all: number
 }
 
@@ -44,16 +47,19 @@ export type CountryCountAggregateOutputType = {
 export type CountryMinAggregateInputType = {
   id?: true
   name?: true
+  isServiceAvailable?: true
 }
 
 export type CountryMaxAggregateInputType = {
   id?: true
   name?: true
+  isServiceAvailable?: true
 }
 
 export type CountryCountAggregateInputType = {
   id?: true
   name?: true
+  isServiceAvailable?: true
   _all?: true
 }
 
@@ -132,6 +138,7 @@ export type countryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type CountryGroupByOutputType = {
   id: string
   name: string
+  isServiceAvailable: boolean
   _count: CountryCountAggregateOutputType | null
   _min: CountryMinAggregateOutputType | null
   _max: CountryMaxAggregateOutputType | null
@@ -158,12 +165,14 @@ export type countryWhereInput = {
   NOT?: Prisma.countryWhereInput | Prisma.countryWhereInput[]
   id?: Prisma.StringFilter<"country"> | string
   name?: Prisma.StringFilter<"country"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"country"> | boolean
   states?: Prisma.StateListRelationFilter
 }
 
 export type countryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   states?: Prisma.stateOrderByRelationAggregateInput
 }
 
@@ -173,12 +182,14 @@ export type countryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.countryWhereInput[]
   NOT?: Prisma.countryWhereInput | Prisma.countryWhereInput[]
   name?: Prisma.StringFilter<"country"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"country"> | boolean
   states?: Prisma.StateListRelationFilter
 }, "id">
 
 export type countryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   _count?: Prisma.countryCountOrderByAggregateInput
   _max?: Prisma.countryMaxOrderByAggregateInput
   _min?: Prisma.countryMinOrderByAggregateInput
@@ -190,65 +201,80 @@ export type countryScalarWhereWithAggregatesInput = {
   NOT?: Prisma.countryScalarWhereWithAggregatesInput | Prisma.countryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"country"> | string
   name?: Prisma.StringWithAggregatesFilter<"country"> | string
+  isServiceAvailable?: Prisma.BoolWithAggregatesFilter<"country"> | boolean
 }
 
 export type countryCreateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   states?: Prisma.stateCreateNestedManyWithoutCountryInput
 }
 
 export type countryUncheckedCreateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   states?: Prisma.stateUncheckedCreateNestedManyWithoutCountryInput
 }
 
 export type countryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   states?: Prisma.stateUpdateManyWithoutCountryNestedInput
 }
 
 export type countryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   states?: Prisma.stateUncheckedUpdateManyWithoutCountryNestedInput
 }
 
 export type countryCreateManyInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
 }
 
 export type countryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type countryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type countryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type countryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type countryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type CountryScalarRelationFilter = {
   is?: Prisma.countryWhereInput
   isNot?: Prisma.countryWhereInput
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type countryCreateNestedOneWithoutStatesInput = {
@@ -268,11 +294,13 @@ export type countryUpdateOneRequiredWithoutStatesNestedInput = {
 export type countryCreateWithoutStatesInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
 }
 
 export type countryUncheckedCreateWithoutStatesInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
 }
 
 export type countryCreateOrConnectWithoutStatesInput = {
@@ -294,11 +322,13 @@ export type countryUpdateToOneWithWhereWithoutStatesInput = {
 export type countryUpdateWithoutStatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type countryUncheckedUpdateWithoutStatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -335,6 +365,7 @@ export type CountryCountOutputTypeCountStatesArgs<ExtArgs extends runtime.Types.
 export type countrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  isServiceAvailable?: boolean
   states?: boolean | Prisma.country$statesArgs<ExtArgs>
   _count?: boolean | Prisma.CountryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["country"]>
@@ -342,19 +373,22 @@ export type countrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type countrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  isServiceAvailable?: boolean
 }, ExtArgs["result"]["country"]>
 
 export type countrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  isServiceAvailable?: boolean
 }, ExtArgs["result"]["country"]>
 
 export type countrySelectScalar = {
   id?: boolean
   name?: boolean
+  isServiceAvailable?: boolean
 }
 
-export type countryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["country"]>
+export type countryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "isServiceAvailable", ExtArgs["result"]["country"]>
 export type countryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   states?: boolean | Prisma.country$statesArgs<ExtArgs>
   _count?: boolean | Prisma.CountryCountOutputTypeDefaultArgs<ExtArgs>
@@ -370,6 +404,7 @@ export type $countryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    isServiceAvailable: boolean
   }, ExtArgs["result"]["country"]>
   composites: {}
 }
@@ -796,6 +831,7 @@ export interface Prisma__countryClient<T, Null = never, ExtArgs extends runtime.
 export interface countryFieldRefs {
   readonly id: Prisma.FieldRef<"country", 'String'>
   readonly name: Prisma.FieldRef<"country", 'String'>
+  readonly isServiceAvailable: Prisma.FieldRef<"country", 'Boolean'>
 }
     
 

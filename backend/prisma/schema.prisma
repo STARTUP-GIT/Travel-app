@@ -83,6 +83,7 @@ model country {
   id        String   @id @default(uuid())
   name      String
   states    state[]
+  isServiceAvailable Boolean  @default(false)
 }
 
 model state {
@@ -91,6 +92,7 @@ model state {
   countryId String
   country   country  @relation(fields: [countryId], references: [id])
   districts district[]
+  isServiceAvailable Boolean  @default(false)
 }
 
 model district {
@@ -101,6 +103,7 @@ model district {
   places    place[]
   hotels    hotel[]
   restaurent  restaurent[]
+  isServiceAvailable Boolean  @default(false)
 }
 
 model place {

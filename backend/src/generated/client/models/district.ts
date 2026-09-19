@@ -28,18 +28,21 @@ export type DistrictMinAggregateOutputType = {
   id: string | null
   name: string | null
   stateId: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type DistrictMaxAggregateOutputType = {
   id: string | null
   name: string | null
   stateId: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type DistrictCountAggregateOutputType = {
   id: number
   name: number
   stateId: number
+  isServiceAvailable: number
   _all: number
 }
 
@@ -48,18 +51,21 @@ export type DistrictMinAggregateInputType = {
   id?: true
   name?: true
   stateId?: true
+  isServiceAvailable?: true
 }
 
 export type DistrictMaxAggregateInputType = {
   id?: true
   name?: true
   stateId?: true
+  isServiceAvailable?: true
 }
 
 export type DistrictCountAggregateInputType = {
   id?: true
   name?: true
   stateId?: true
+  isServiceAvailable?: true
   _all?: true
 }
 
@@ -139,6 +145,7 @@ export type DistrictGroupByOutputType = {
   id: string
   name: string
   stateId: string
+  isServiceAvailable: boolean
   _count: DistrictCountAggregateOutputType | null
   _min: DistrictMinAggregateOutputType | null
   _max: DistrictMaxAggregateOutputType | null
@@ -166,6 +173,7 @@ export type districtWhereInput = {
   id?: Prisma.StringFilter<"district"> | string
   name?: Prisma.StringFilter<"district"> | string
   stateId?: Prisma.StringFilter<"district"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
   state?: Prisma.XOR<Prisma.StateScalarRelationFilter, Prisma.stateWhereInput>
   places?: Prisma.PlaceListRelationFilter
   hotels?: Prisma.HotelListRelationFilter
@@ -176,6 +184,7 @@ export type districtOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   state?: Prisma.stateOrderByWithRelationInput
   places?: Prisma.placeOrderByRelationAggregateInput
   hotels?: Prisma.hotelOrderByRelationAggregateInput
@@ -189,6 +198,7 @@ export type districtWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.districtWhereInput | Prisma.districtWhereInput[]
   name?: Prisma.StringFilter<"district"> | string
   stateId?: Prisma.StringFilter<"district"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
   state?: Prisma.XOR<Prisma.StateScalarRelationFilter, Prisma.stateWhereInput>
   places?: Prisma.PlaceListRelationFilter
   hotels?: Prisma.HotelListRelationFilter
@@ -199,6 +209,7 @@ export type districtOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   _count?: Prisma.districtCountOrderByAggregateInput
   _max?: Prisma.districtMaxOrderByAggregateInput
   _min?: Prisma.districtMinOrderByAggregateInput
@@ -211,11 +222,13 @@ export type districtScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"district"> | string
   name?: Prisma.StringWithAggregatesFilter<"district"> | string
   stateId?: Prisma.StringWithAggregatesFilter<"district"> | string
+  isServiceAvailable?: Prisma.BoolWithAggregatesFilter<"district"> | boolean
 }
 
 export type districtCreateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
@@ -226,6 +239,7 @@ export type districtUncheckedCreateInput = {
   id?: string
   name: string
   stateId: string
+  isServiceAvailable?: boolean
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
@@ -234,6 +248,7 @@ export type districtUncheckedCreateInput = {
 export type districtUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
@@ -244,6 +259,7 @@ export type districtUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
@@ -253,17 +269,20 @@ export type districtCreateManyInput = {
   id?: string
   name: string
   stateId: string
+  isServiceAvailable?: boolean
 }
 
 export type districtUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type districtUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type DistrictListRelationFilter = {
@@ -280,18 +299,21 @@ export type districtCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type districtMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type districtMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type DistrictScalarRelationFilter = {
@@ -386,6 +408,7 @@ export type districtUpdateOneRequiredWithoutRestaurentNestedInput = {
 export type districtCreateWithoutStateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -394,6 +417,7 @@ export type districtCreateWithoutStateInput = {
 export type districtUncheckedCreateWithoutStateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
@@ -432,11 +456,13 @@ export type districtScalarWhereInput = {
   id?: Prisma.StringFilter<"district"> | string
   name?: Prisma.StringFilter<"district"> | string
   stateId?: Prisma.StringFilter<"district"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
 }
 
 export type districtCreateWithoutPlacesInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -446,6 +472,7 @@ export type districtUncheckedCreateWithoutPlacesInput = {
   id?: string
   name: string
   stateId: string
+  isServiceAvailable?: boolean
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
 }
@@ -469,6 +496,7 @@ export type districtUpdateToOneWithWhereWithoutPlacesInput = {
 export type districtUpdateWithoutPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -478,6 +506,7 @@ export type districtUncheckedUpdateWithoutPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
 }
@@ -485,6 +514,7 @@ export type districtUncheckedUpdateWithoutPlacesInput = {
 export type districtCreateWithoutHotelsInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -494,6 +524,7 @@ export type districtUncheckedCreateWithoutHotelsInput = {
   id?: string
   name: string
   stateId: string
+  isServiceAvailable?: boolean
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
 }
@@ -517,6 +548,7 @@ export type districtUpdateToOneWithWhereWithoutHotelsInput = {
 export type districtUpdateWithoutHotelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -526,6 +558,7 @@ export type districtUncheckedUpdateWithoutHotelsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
 }
@@ -533,6 +566,7 @@ export type districtUncheckedUpdateWithoutHotelsInput = {
 export type districtCreateWithoutRestaurentInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
@@ -542,6 +576,7 @@ export type districtUncheckedCreateWithoutRestaurentInput = {
   id?: string
   name: string
   stateId: string
+  isServiceAvailable?: boolean
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
 }
@@ -565,6 +600,7 @@ export type districtUpdateToOneWithWhereWithoutRestaurentInput = {
 export type districtUpdateWithoutRestaurentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
@@ -574,6 +610,7 @@ export type districtUncheckedUpdateWithoutRestaurentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
 }
@@ -581,11 +618,13 @@ export type districtUncheckedUpdateWithoutRestaurentInput = {
 export type districtCreateManyStateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
 }
 
 export type districtUpdateWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -594,6 +633,7 @@ export type districtUpdateWithoutStateInput = {
 export type districtUncheckedUpdateWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
@@ -602,6 +642,7 @@ export type districtUncheckedUpdateWithoutStateInput = {
 export type districtUncheckedUpdateManyWithoutStateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -657,6 +698,7 @@ export type districtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   stateId?: boolean
+  isServiceAvailable?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
   places?: boolean | Prisma.district$placesArgs<ExtArgs>
   hotels?: boolean | Prisma.district$hotelsArgs<ExtArgs>
@@ -668,6 +710,7 @@ export type districtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   stateId?: boolean
+  isServiceAvailable?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["district"]>
 
@@ -675,6 +718,7 @@ export type districtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   stateId?: boolean
+  isServiceAvailable?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["district"]>
 
@@ -682,9 +726,10 @@ export type districtSelectScalar = {
   id?: boolean
   name?: boolean
   stateId?: boolean
+  isServiceAvailable?: boolean
 }
 
-export type districtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "stateId", ExtArgs["result"]["district"]>
+export type districtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "stateId" | "isServiceAvailable", ExtArgs["result"]["district"]>
 export type districtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
   places?: boolean | Prisma.district$placesArgs<ExtArgs>
@@ -711,6 +756,7 @@ export type $districtPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     name: string
     stateId: string
+    isServiceAvailable: boolean
   }, ExtArgs["result"]["district"]>
   composites: {}
 }
@@ -1141,6 +1187,7 @@ export interface districtFieldRefs {
   readonly id: Prisma.FieldRef<"district", 'String'>
   readonly name: Prisma.FieldRef<"district", 'String'>
   readonly stateId: Prisma.FieldRef<"district", 'String'>
+  readonly isServiceAvailable: Prisma.FieldRef<"district", 'Boolean'>
 }
     
 

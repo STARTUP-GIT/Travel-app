@@ -28,18 +28,21 @@ export type StateMinAggregateOutputType = {
   id: string | null
   name: string | null
   countryId: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type StateMaxAggregateOutputType = {
   id: string | null
   name: string | null
   countryId: string | null
+  isServiceAvailable: boolean | null
 }
 
 export type StateCountAggregateOutputType = {
   id: number
   name: number
   countryId: number
+  isServiceAvailable: number
   _all: number
 }
 
@@ -48,18 +51,21 @@ export type StateMinAggregateInputType = {
   id?: true
   name?: true
   countryId?: true
+  isServiceAvailable?: true
 }
 
 export type StateMaxAggregateInputType = {
   id?: true
   name?: true
   countryId?: true
+  isServiceAvailable?: true
 }
 
 export type StateCountAggregateInputType = {
   id?: true
   name?: true
   countryId?: true
+  isServiceAvailable?: true
   _all?: true
 }
 
@@ -139,6 +145,7 @@ export type StateGroupByOutputType = {
   id: string
   name: string
   countryId: string
+  isServiceAvailable: boolean
   _count: StateCountAggregateOutputType | null
   _min: StateMinAggregateOutputType | null
   _max: StateMaxAggregateOutputType | null
@@ -166,6 +173,7 @@ export type stateWhereInput = {
   id?: Prisma.StringFilter<"state"> | string
   name?: Prisma.StringFilter<"state"> | string
   countryId?: Prisma.StringFilter<"state"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"state"> | boolean
   country?: Prisma.XOR<Prisma.CountryScalarRelationFilter, Prisma.countryWhereInput>
   districts?: Prisma.DistrictListRelationFilter
 }
@@ -174,6 +182,7 @@ export type stateOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   country?: Prisma.countryOrderByWithRelationInput
   districts?: Prisma.districtOrderByRelationAggregateInput
 }
@@ -185,6 +194,7 @@ export type stateWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.stateWhereInput | Prisma.stateWhereInput[]
   name?: Prisma.StringFilter<"state"> | string
   countryId?: Prisma.StringFilter<"state"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"state"> | boolean
   country?: Prisma.XOR<Prisma.CountryScalarRelationFilter, Prisma.countryWhereInput>
   districts?: Prisma.DistrictListRelationFilter
 }, "id">
@@ -193,6 +203,7 @@ export type stateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
   _count?: Prisma.stateCountOrderByAggregateInput
   _max?: Prisma.stateMaxOrderByAggregateInput
   _min?: Prisma.stateMinOrderByAggregateInput
@@ -205,11 +216,13 @@ export type stateScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"state"> | string
   name?: Prisma.StringWithAggregatesFilter<"state"> | string
   countryId?: Prisma.StringWithAggregatesFilter<"state"> | string
+  isServiceAvailable?: Prisma.BoolWithAggregatesFilter<"state"> | boolean
 }
 
 export type stateCreateInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   country: Prisma.countryCreateNestedOneWithoutStatesInput
   districts?: Prisma.districtCreateNestedManyWithoutStateInput
 }
@@ -218,12 +231,14 @@ export type stateUncheckedCreateInput = {
   id?: string
   name: string
   countryId: string
+  isServiceAvailable?: boolean
   districts?: Prisma.districtUncheckedCreateNestedManyWithoutStateInput
 }
 
 export type stateUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.countryUpdateOneRequiredWithoutStatesNestedInput
   districts?: Prisma.districtUpdateManyWithoutStateNestedInput
 }
@@ -232,6 +247,7 @@ export type stateUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   districts?: Prisma.districtUncheckedUpdateManyWithoutStateNestedInput
 }
 
@@ -239,17 +255,20 @@ export type stateCreateManyInput = {
   id?: string
   name: string
   countryId: string
+  isServiceAvailable?: boolean
 }
 
 export type stateUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type stateUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type StateListRelationFilter = {
@@ -266,18 +285,21 @@ export type stateCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type stateMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type stateMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   countryId?: Prisma.SortOrder
+  isServiceAvailable?: Prisma.SortOrder
 }
 
 export type StateScalarRelationFilter = {
@@ -344,12 +366,14 @@ export type stateUpdateOneRequiredWithoutDistrictsNestedInput = {
 export type stateCreateWithoutCountryInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   districts?: Prisma.districtCreateNestedManyWithoutStateInput
 }
 
 export type stateUncheckedCreateWithoutCountryInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   districts?: Prisma.districtUncheckedCreateNestedManyWithoutStateInput
 }
 
@@ -386,11 +410,13 @@ export type stateScalarWhereInput = {
   id?: Prisma.StringFilter<"state"> | string
   name?: Prisma.StringFilter<"state"> | string
   countryId?: Prisma.StringFilter<"state"> | string
+  isServiceAvailable?: Prisma.BoolFilter<"state"> | boolean
 }
 
 export type stateCreateWithoutDistrictsInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
   country: Prisma.countryCreateNestedOneWithoutStatesInput
 }
 
@@ -398,6 +424,7 @@ export type stateUncheckedCreateWithoutDistrictsInput = {
   id?: string
   name: string
   countryId: string
+  isServiceAvailable?: boolean
 }
 
 export type stateCreateOrConnectWithoutDistrictsInput = {
@@ -419,6 +446,7 @@ export type stateUpdateToOneWithWhereWithoutDistrictsInput = {
 export type stateUpdateWithoutDistrictsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.countryUpdateOneRequiredWithoutStatesNestedInput
 }
 
@@ -426,28 +454,33 @@ export type stateUncheckedUpdateWithoutDistrictsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   countryId?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type stateCreateManyCountryInput = {
   id?: string
   name: string
+  isServiceAvailable?: boolean
 }
 
 export type stateUpdateWithoutCountryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   districts?: Prisma.districtUpdateManyWithoutStateNestedInput
 }
 
 export type stateUncheckedUpdateWithoutCountryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   districts?: Prisma.districtUncheckedUpdateManyWithoutStateNestedInput
 }
 
 export type stateUncheckedUpdateManyWithoutCountryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -485,6 +518,7 @@ export type stateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   name?: boolean
   countryId?: boolean
+  isServiceAvailable?: boolean
   country?: boolean | Prisma.countryDefaultArgs<ExtArgs>
   districts?: boolean | Prisma.state$districtsArgs<ExtArgs>
   _count?: boolean | Prisma.StateCountOutputTypeDefaultArgs<ExtArgs>
@@ -494,6 +528,7 @@ export type stateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   countryId?: boolean
+  isServiceAvailable?: boolean
   country?: boolean | Prisma.countryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["state"]>
 
@@ -501,6 +536,7 @@ export type stateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   countryId?: boolean
+  isServiceAvailable?: boolean
   country?: boolean | Prisma.countryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["state"]>
 
@@ -508,9 +544,10 @@ export type stateSelectScalar = {
   id?: boolean
   name?: boolean
   countryId?: boolean
+  isServiceAvailable?: boolean
 }
 
-export type stateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "countryId", ExtArgs["result"]["state"]>
+export type stateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "countryId" | "isServiceAvailable", ExtArgs["result"]["state"]>
 export type stateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   country?: boolean | Prisma.countryDefaultArgs<ExtArgs>
   districts?: boolean | Prisma.state$districtsArgs<ExtArgs>
@@ -533,6 +570,7 @@ export type $statePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     name: string
     countryId: string
+    isServiceAvailable: boolean
   }, ExtArgs["result"]["state"]>
   composites: {}
 }
@@ -961,6 +999,7 @@ export interface stateFieldRefs {
   readonly id: Prisma.FieldRef<"state", 'String'>
   readonly name: Prisma.FieldRef<"state", 'String'>
   readonly countryId: Prisma.FieldRef<"state", 'String'>
+  readonly isServiceAvailable: Prisma.FieldRef<"state", 'Boolean'>
 }
     
 
