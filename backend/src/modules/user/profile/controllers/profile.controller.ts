@@ -76,9 +76,12 @@ export const editProfile = async (req: Request, res: Response) => {
         });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password,salt)
+    let hashedPassword: string | undefined;
 
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(password, salt);
+    }
 
     const updatedUser = await prisma.user.update({
       where: {
@@ -90,7 +93,9 @@ export const editProfile = async (req: Request, res: Response) => {
         email,
         phonenumber,
         profilepic,
-        hashedPassword
+        ...(hashedPassword && {
+          password: hashedPassword,
+        }),
       },
     });
 
