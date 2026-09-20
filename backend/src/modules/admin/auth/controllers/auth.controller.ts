@@ -1,15 +1,24 @@
-
 import prisma from "../../../../db/prisma.js";
 import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { ZodError } from 'zod';
 import { generateSessionToken } from '../../../../services/sessiontoken.js';
 import { authProviders } from "../../../../generated/client/enums.js";
+import { adminSigninSchema, adminSignupSchema } from "../../../../services/zod.js";
 
+const adminSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  appConfigId: true,
+  authprovider: true,
+  profilepic: true,
+} as const;
 
 export const signUp = async (req: Request, res: Response) => {
   try {
-    const { email, username, password, fullname } = req.body;
+    const { email, username, password, fullname } = adminSignupSchema.parse(req.body);
 
     const existingAdmin = await prisma.admin.findFirst({
       where: {
@@ -34,6 +43,7 @@ export const signUp = async (req: Request, res: Response) => {
         name : fullname,
         authprovider: authProviders.EMAIL,
       },
+      select: adminSafeSelect,
     });
 
     return res.status(201).json({
@@ -52,13 +62,13 @@ export const signUp = async (req: Request, res: Response) => {
 
 export const signIn = async (req: Request, res: Response) => {
   try {
-    const { email, username, password, fullname } = req.body;
+    const { email, username, password } = adminSigninSchema.parse(req.body);
 
     const admin = await prisma.admin.findFirst({
       where: {
         OR: [
                 { email: email },
-                { username: username }
+                ...(username ? [{ username: username }] : []),
             ]
         }       
     });
@@ -72,40 +82,37 @@ export const signIn = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid password' });
     }
 
-    const sessionToken = await generateSessionToken(admin.id);
+    const token = await generateSessionToken(admin.id, "admin");
 
-    res.cookie('sessionToken', sessionToken, {
+    res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
 
-    return res.status(200).json({ message: 'Sign-in successful', sessionToken });
+    return res.status(200).json({ message: 'Sign-in successful', token });
 
 
   }catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({ error});
     }
-}
+
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 
 export const signOut = async (req: Request, res: Response) => {
   try {
-    const sessionToken = req.cookies.sessionToken;
-
-    if (!sessionToken) {
-      return res.status(400).json({ error: 'No session token found' });
-    }
-
-    res.clearCookie('sessionToken', {
+    res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
-}catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-}
 
+    return res.status(200).json({ message: 'Sign-out successful' });
+  }catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }

@@ -4,8 +4,8 @@ import { deleteProfile, editProfile, getProfile } from '../controllers/profile.c
 const router = express.Router();
 
 router.get('/api/getprofile' , specificGuideAuthMiddleware , getProfile);
-router.post('api/editprofile' , specificGuideAuthMiddleware , editProfile);
-router.get('/api/deleteprofile' , specificGuideAuthMiddleware , deleteProfile )
+router.patch('/api/editprofile' , specificGuideAuthMiddleware , editProfile);
+router.delete('/api/deleteprofile' , specificGuideAuthMiddleware , deleteProfile )
 
 
 export default router;

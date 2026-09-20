@@ -1,11 +1,22 @@
-
 import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { ZodError } from 'zod';
 import prisma from '../../../../db/prisma.js';
-import {  usersignupSchema } from '../../../../services/zod.js';
+import { userGoogleSigninSchema, userGoogleSignupSchema, usersigninSchema, usersignupSchema } from '../../../../services/zod.js';
 import { authProviders } from '../../../../generated/client/enums.js';
 import { generateSessionToken } from '../../../../services/sessiontoken.js';
+
+const userSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profilepic: true,
+  authprovider: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 export const signUp = async (req: Request, res: Response) => {
   try {
@@ -31,7 +42,7 @@ export const signUp = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         username,
@@ -62,13 +73,7 @@ export const signUp = async (req: Request, res: Response) => {
 
 export const googleSignUp = async (req: Request, res: Response) => {
   try {
-    const { email, fullname, profilepic } = req.body;
-
-    if (!email || !fullname) {
-      return res.status(400).json({
-        message: "Email and name are required",
-      });
-    }
+    const { email, fullname, profilepic } = userGoogleSignupSchema.parse(req.body);
 
     // Check if account already exists
     const userExists = await prisma.user.findUnique({
@@ -85,8 +90,8 @@ export const googleSignUp = async (req: Request, res: Response) => {
     }
 
     // Generate username
-    const baseUsername = email
-      .split("@")[0]
+    const baseUsername = (email
+      .split("@")[0] ?? "")
       .toLowerCase()
       .replace(/[^a-z0-9_]/g, "");
 
@@ -113,6 +118,7 @@ export const googleSignUp = async (req: Request, res: Response) => {
         phonenumber: "",
         authprovider: authProviders.GOOGLE,
       },
+      select: userSafeSelect,
     });
 
     return res.status(201).json({
@@ -121,6 +127,16 @@ export const googleSignUp = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Google signup error:", error);
 
     return res.status(500).json({
@@ -133,20 +149,14 @@ export const googleSignUp = async (req: Request, res: Response) => {
 
 export const signIn = async (req: Request, res: Response) => {
   try {
-    const { email, username, password } = usersignupSchema.parse(req.body);
-
-    const regix = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    const checkemail = regix.test(email);
-    if (!checkemail) {
-      return res.status(400).json({message : "Invalid Email Format"})
-    }
+    const { email, username, password } = usersigninSchema.parse(req.body);
 
 
     const userExists = await prisma.user.findFirst({
       where: {
         OR: [
           { email },
-          { username }
+          ...(username ? [{ username }] : []),
         ]
       }
     });
@@ -164,8 +174,8 @@ export const signIn = async (req: Request, res: Response) => {
       return res.status(400).json("Invalid password")
     }
 
-    const token = generateSessionToken(userExists.id);
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
+    const token = generateSessionToken(userExists.id, "user");
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'strict' });
 
     res.status(200).json({ message: "User signed in successfully", token });
 
@@ -186,13 +196,7 @@ export const signIn = async (req: Request, res: Response) => {
 
 export const googleSignIn = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        message: "Google email is required",
-      });
-    }
+    const { email } = userGoogleSigninSchema.parse(req.body);
 
     // Find existing account using Google email
     const userExists = await prisma.user.findUnique({
@@ -209,18 +213,29 @@ export const googleSignIn = async (req: Request, res: Response) => {
     }
 
     // Generate JWT for existing user
-    const token = generateSessionToken(userExists.id);
+    const token = generateSessionToken(userExists.id, "user");
 
     // Store JWT in cookie
-    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "strict"});
+    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict"});
 
     return res.status(200).json({
       message: "User signed in successfully",
+      token,
     });
 
 
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Google signin error:", error);
 
     return res.status(500).json({
@@ -233,7 +248,7 @@ export const signOut = async (req: Request, res: Response) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
 
@@ -248,4 +263,3 @@ export const signOut = async (req: Request, res: Response) => {
     });
   }
 };
-

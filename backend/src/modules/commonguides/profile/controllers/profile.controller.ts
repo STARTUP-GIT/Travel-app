@@ -1,15 +1,42 @@
 import type { Request, Response } from "express";
 import prisma from "../../../../db/prisma.js";
 import bcrypt from "bcryptjs";
+import { ZodError } from "zod";
+import { commonGuideProfileUpdateSchema } from "../../../../services/zod.js";
+
+const commonGuideSafeSelect = {
+  id: true,
+  full_name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profile_pic: true,
+  tagline: true,
+  authprovider: true,
+  review: true,
+  rating: true,
+  description: true,
+  isReported: true,
+  experience: true,
+  cost: true,
+  language: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const commonGuideId = req.common_guide;
 
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
       },
+      select: commonGuideSafeSelect,
     });
 
     if (!commonGuide) {
@@ -34,6 +61,12 @@ export const editProfile = async (req: Request, res: Response) => {
   try {
     const commonGuideId = req.common_guide;
 
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const data = commonGuideProfileUpdateSchema.parse(req.body);
+
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
@@ -46,23 +79,9 @@ export const editProfile = async (req: Request, res: Response) => {
       });
     }
 
-    const {
-      full_name,
-      username,
-      phonenumber,
-      profile_pic,
-      password,
-      email,
-      tagline,
-      description,
-      experience,
-      cost,
-      language,
-    } = req.body;
-
     const existingEmail = await prisma.common_guide.findFirst({
       where: {
-        email,
+        ...(data.email !== undefined ? { email: data.email } : {}),
       },
     });
 
@@ -74,7 +93,7 @@ export const editProfile = async (req: Request, res: Response) => {
 
     const existingUsername = await prisma.common_guide.findFirst({
       where: {
-        username,
+        ...(data.username !== undefined ? { username: data.username } : {}),
       },
     });
 
@@ -86,9 +105,9 @@ export const editProfile = async (req: Request, res: Response) => {
 
     let hashedPassword: string | undefined;
 
-    if (password) {
+    if (data.password) {
       const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
+      hashedPassword = await bcrypt.hash(data.password, salt);
     }
 
     const updatedCommonGuide = await prisma.common_guide.update({
@@ -96,21 +115,19 @@ export const editProfile = async (req: Request, res: Response) => {
         id: commonGuideId,
       },
       data: {
-        full_name,
-        username,
-        email,
-        phonenumber,
-        profile_pic,
-        tagline,
-        description,
-        experience,
-        cost,
-        language,
-
-        ...(hashedPassword && {
-          password: hashedPassword,
-        }),
+        ...(data.full_name !== undefined ? { full_name: data.full_name } : {}),
+        ...(data.username !== undefined ? { username: data.username } : {}),
+        ...(data.email !== undefined ? { email: data.email } : {}),
+        ...(data.phonenumber !== undefined ? { phonenumber: data.phonenumber } : {}),
+        ...(data.profile_pic !== undefined ? { profile_pic: data.profile_pic } : {}),
+        ...(data.tagline !== undefined ? { tagline: data.tagline } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.experience !== undefined ? { experience: data.experience } : {}),
+        ...(data.cost !== undefined ? { cost: data.cost } : {}),
+        ...(data.language !== undefined ? { language: data.language } : {}),
+        ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
+      select: commonGuideSafeSelect,
     });
 
     return res.status(200).json({
@@ -118,6 +135,16 @@ export const editProfile = async (req: Request, res: Response) => {
       common_guide: updatedCommonGuide,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Edit profile error:", error);
 
     return res.status(500).json({
@@ -129,6 +156,10 @@ export const editProfile = async (req: Request, res: Response) => {
 export const deleteProfile = async (req: Request, res: Response) => {
   try {
     const commonGuideId = req.common_guide;
+
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
     const commonGuide = await prisma.common_guide.findUnique({
       where: {

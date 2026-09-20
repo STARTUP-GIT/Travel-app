@@ -111,3 +111,23 @@ export type hotel = Prisma.hotelModel
  * 
  */
 export type restaurent = Prisma.restaurentModel
+/**
+ * Model hotel_owner
+ * 
+ */
+export type hotel_owner = Prisma.hotel_ownerModel
+/**
+ * Model restaurent_owner
+ * 
+ */
+export type restaurent_owner = Prisma.restaurent_ownerModel
+/**
+ * Model hotel_booking
+ * 
+ */
+export type hotel_booking = Prisma.hotel_bookingModel
+/**
+ * Model restaurant_reservation
+ * 
+ */
+export type restaurant_reservation = Prisma.restaurant_reservationModel

@@ -410,7 +410,11 @@ export const ModelName = {
   common_guide: 'common_guide',
   common_guide_places: 'common_guide_places',
   hotel: 'hotel',
-  restaurent: 'restaurent'
+  restaurent: 'restaurent',
+  hotel_owner: 'hotel_owner',
+  restaurent_owner: 'restaurent_owner',
+  hotel_booking: 'hotel_booking',
+  restaurant_reservation: 'restaurant_reservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "specific_guide" | "common_guide" | "common_guide_places" | "hotel" | "restaurent"
+    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "specific_guide" | "common_guide" | "common_guide_places" | "hotel" | "restaurent" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1466,6 +1470,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    hotel_owner: {
+      payload: Prisma.$hotel_ownerPayload<ExtArgs>
+      fields: Prisma.hotel_ownerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.hotel_ownerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.hotel_ownerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        findFirst: {
+          args: Prisma.hotel_ownerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.hotel_ownerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        findMany: {
+          args: Prisma.hotel_ownerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>[]
+        }
+        create: {
+          args: Prisma.hotel_ownerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        createMany: {
+          args: Prisma.hotel_ownerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.hotel_ownerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>[]
+        }
+        delete: {
+          args: Prisma.hotel_ownerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        update: {
+          args: Prisma.hotel_ownerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        deleteMany: {
+          args: Prisma.hotel_ownerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.hotel_ownerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.hotel_ownerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>[]
+        }
+        upsert: {
+          args: Prisma.hotel_ownerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_ownerPayload>
+        }
+        aggregate: {
+          args: Prisma.Hotel_ownerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHotel_owner>
+        }
+        groupBy: {
+          args: Prisma.hotel_ownerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Hotel_ownerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.hotel_ownerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Hotel_ownerCountAggregateOutputType> | number
+        }
+      }
+    }
+    restaurent_owner: {
+      payload: Prisma.$restaurent_ownerPayload<ExtArgs>
+      fields: Prisma.restaurent_ownerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.restaurent_ownerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.restaurent_ownerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        findFirst: {
+          args: Prisma.restaurent_ownerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.restaurent_ownerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        findMany: {
+          args: Prisma.restaurent_ownerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>[]
+        }
+        create: {
+          args: Prisma.restaurent_ownerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        createMany: {
+          args: Prisma.restaurent_ownerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.restaurent_ownerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>[]
+        }
+        delete: {
+          args: Prisma.restaurent_ownerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        update: {
+          args: Prisma.restaurent_ownerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        deleteMany: {
+          args: Prisma.restaurent_ownerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.restaurent_ownerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.restaurent_ownerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>[]
+        }
+        upsert: {
+          args: Prisma.restaurent_ownerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurent_ownerPayload>
+        }
+        aggregate: {
+          args: Prisma.Restaurent_ownerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRestaurent_owner>
+        }
+        groupBy: {
+          args: Prisma.restaurent_ownerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Restaurent_ownerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.restaurent_ownerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Restaurent_ownerCountAggregateOutputType> | number
+        }
+      }
+    }
+    hotel_booking: {
+      payload: Prisma.$hotel_bookingPayload<ExtArgs>
+      fields: Prisma.hotel_bookingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.hotel_bookingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.hotel_bookingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        findFirst: {
+          args: Prisma.hotel_bookingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.hotel_bookingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        findMany: {
+          args: Prisma.hotel_bookingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>[]
+        }
+        create: {
+          args: Prisma.hotel_bookingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        createMany: {
+          args: Prisma.hotel_bookingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.hotel_bookingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>[]
+        }
+        delete: {
+          args: Prisma.hotel_bookingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        update: {
+          args: Prisma.hotel_bookingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        deleteMany: {
+          args: Prisma.hotel_bookingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.hotel_bookingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.hotel_bookingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>[]
+        }
+        upsert: {
+          args: Prisma.hotel_bookingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$hotel_bookingPayload>
+        }
+        aggregate: {
+          args: Prisma.Hotel_bookingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHotel_booking>
+        }
+        groupBy: {
+          args: Prisma.hotel_bookingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Hotel_bookingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.hotel_bookingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Hotel_bookingCountAggregateOutputType> | number
+        }
+      }
+    }
+    restaurant_reservation: {
+      payload: Prisma.$restaurant_reservationPayload<ExtArgs>
+      fields: Prisma.restaurant_reservationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.restaurant_reservationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.restaurant_reservationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        findFirst: {
+          args: Prisma.restaurant_reservationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.restaurant_reservationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        findMany: {
+          args: Prisma.restaurant_reservationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>[]
+        }
+        create: {
+          args: Prisma.restaurant_reservationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        createMany: {
+          args: Prisma.restaurant_reservationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.restaurant_reservationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>[]
+        }
+        delete: {
+          args: Prisma.restaurant_reservationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        update: {
+          args: Prisma.restaurant_reservationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        deleteMany: {
+          args: Prisma.restaurant_reservationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.restaurant_reservationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.restaurant_reservationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>[]
+        }
+        upsert: {
+          args: Prisma.restaurant_reservationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$restaurant_reservationPayload>
+        }
+        aggregate: {
+          args: Prisma.Restaurant_reservationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRestaurant_reservation>
+        }
+        groupBy: {
+          args: Prisma.restaurant_reservationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Restaurant_reservationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.restaurant_reservationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Restaurant_reservationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1691,6 +1991,12 @@ export const HotelScalarFieldEnum = {
   images: 'images',
   latitude: 'latitude',
   longitude: 'longitude',
+  phone_number: 'phone_number',
+  whatsapp_number: 'whatsapp_number',
+  email: 'email',
+  website: 'website',
+  booking_enabled: 'booking_enabled',
+  hotelOwnerId: 'hotelOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1712,11 +2018,78 @@ export const RestaurentScalarFieldEnum = {
   profile_logo: 'profile_logo',
   latitude: 'latitude',
   longitude: 'longitude',
+  phone_number: 'phone_number',
+  whatsapp_number: 'whatsapp_number',
+  email: 'email',
+  website: 'website',
+  booking_enabled: 'booking_enabled',
+  restaurentOwnerId: 'restaurentOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type RestaurentScalarFieldEnum = (typeof RestaurentScalarFieldEnum)[keyof typeof RestaurentScalarFieldEnum]
+
+
+export const Hotel_ownerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  username: 'username',
+  email: 'email',
+  password: 'password',
+  phone_number: 'phone_number',
+  profile_pic: 'profile_pic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Hotel_ownerScalarFieldEnum = (typeof Hotel_ownerScalarFieldEnum)[keyof typeof Hotel_ownerScalarFieldEnum]
+
+
+export const Restaurent_ownerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  username: 'username',
+  email: 'email',
+  password: 'password',
+  phone_number: 'phone_number',
+  profile_pic: 'profile_pic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Restaurent_ownerScalarFieldEnum = (typeof Restaurent_ownerScalarFieldEnum)[keyof typeof Restaurent_ownerScalarFieldEnum]
+
+
+export const Hotel_bookingScalarFieldEnum = {
+  id: 'id',
+  hotelId: 'hotelId',
+  userId: 'userId',
+  checkIn: 'checkIn',
+  checkOut: 'checkOut',
+  guests: 'guests',
+  rooms: 'rooms',
+  totalAmount: 'totalAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Hotel_bookingScalarFieldEnum = (typeof Hotel_bookingScalarFieldEnum)[keyof typeof Hotel_bookingScalarFieldEnum]
+
+
+export const Restaurant_reservationScalarFieldEnum = {
+  id: 'id',
+  restaurantId: 'restaurantId',
+  userId: 'userId',
+  reservationDate: 'reservationDate',
+  guests: 'guests',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Restaurant_reservationScalarFieldEnum = (typeof Restaurant_reservationScalarFieldEnum)[keyof typeof Restaurant_reservationScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1837,6 +2210,20 @@ export type EnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'Food_Category[]'
  */
 export type ListEnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Food_Category[]'>
+    
+
+
+/**
+ * Reference to a field of type 'bookingStatus'
+ */
+export type EnumbookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'bookingStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'bookingStatus[]'
+ */
+export type ListEnumbookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'bookingStatus[]'>
     
 
 /**
@@ -2004,6 +2391,10 @@ export type GlobalOmitConfig = {
   common_guide_places?: Prisma.common_guide_placesOmit
   hotel?: Prisma.hotelOmit
   restaurent?: Prisma.restaurentOmit
+  hotel_owner?: Prisma.hotel_ownerOmit
+  restaurent_owner?: Prisma.restaurent_ownerOmit
+  hotel_booking?: Prisma.hotel_bookingOmit
+  restaurant_reservation?: Prisma.restaurant_reservationOmit
 }
 
 /* Types for Logging */

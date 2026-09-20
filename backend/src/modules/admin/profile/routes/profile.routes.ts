@@ -4,8 +4,8 @@ import { deleteProfile, editProfile, getProfile } from '../controllers/profile.c
 const router = express.Router();
 
 router.get('/api/getprofile' , adminAuthMiddleware  , getProfile);
-router.post('api/editprofile' , adminAuthMiddleware  , editProfile);
-router.get('/api/deleteprofile' , adminAuthMiddleware  , deleteProfile);
+router.patch('/api/editprofile' , adminAuthMiddleware  , editProfile);
+router.delete('/api/deleteprofile' , adminAuthMiddleware  , deleteProfile);
 
 
 export default router;

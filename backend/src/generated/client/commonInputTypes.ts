@@ -255,6 +255,23 @@ export type EnumFood_CategoryWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumFood_CategoryFilter<$PrismaModel>
 }
 
+export type EnumbookingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.bookingStatus | Prisma.EnumbookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel> | $Enums.bookingStatus
+}
+
+export type EnumbookingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.bookingStatus | Prisma.EnumbookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumbookingStatusWithAggregatesFilter<$PrismaModel> | $Enums.bookingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -496,6 +513,23 @@ export type NestedEnumFood_CategoryWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFood_CategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFood_CategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumbookingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.bookingStatus | Prisma.EnumbookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel> | $Enums.bookingStatus
+}
+
+export type NestedEnumbookingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.bookingStatus | Prisma.EnumbookingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.bookingStatus[] | Prisma.ListEnumbookingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumbookingStatusWithAggregatesFilter<$PrismaModel> | $Enums.bookingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumbookingStatusFilter<$PrismaModel>
 }
 
 

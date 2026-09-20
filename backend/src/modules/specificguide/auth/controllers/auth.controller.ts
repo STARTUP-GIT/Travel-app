@@ -2,28 +2,48 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { ZodError } from "zod";
 import prisma from "../../../../db/prisma.js";
-import { specific_guide_signupSchema } from "../../../../services/zod.js";
+import {
+  specific_guide_googleSigninSchema,
+  specificGuideGoogleSignupSchema,
+  specific_guide_signinSchema,
+  specific_guide_signupSchema,
+} from "../../../../services/zod.js";
 import { authProviders } from "../../../../generated/client/enums.js";
 import { generateSessionToken } from "../../../../services/sessiontoken.js";
+
+const specificGuideSafeSelect = {
+  id: true,
+  full_name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profile_pic: true,
+  tagline: true,
+  authprovider: true,
+  review: true,
+  rating: true,
+  description: true,
+  placeid: true,
+  isReported: true,
+  experience: true,
+  cost: true,
+  language: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 
 
 
 export const signUp = async (req: Request, res: Response) => {
   try {
-    const {
-      email,
-      username,
-      password,
-      fullname,
-    } = specific_guide_signupSchema.parse(req.body);
-
+    const data = specific_guide_signupSchema.parse(req.body);
 
     const specific_guide_exists = await prisma.specific_guide.findFirst({
       where: {
         OR: [
-          { email },
-          { username },
+          { email: data.email },
+          { username: data.username },
         ],
       },
     });
@@ -34,26 +54,40 @@ export const signUp = async (req: Request, res: Response) => {
       });
     }
 
+    const place = await prisma.place.findUnique({
+      where: {
+        id: data.placeid,
+      },
+      select: { id: true },
+    });
+
+    if (!place) {
+      return res.status(400).json({
+        message: "Place does not exist",
+      });
+    }
+
     // Hash password
     const salt = await bcrypt.genSalt(10);
 
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(data.password, salt);
 
     // Create specific guide
     const specific_guide = await prisma.specific_guide.create({
       data: {
-        email,
-        username,
+        email: data.email,
+        username: data.username,
         password: hashedPassword,
-        full_name: fullname,
-        phonenumber : "",
-        profile_pic : "",
-        placeid : "",
-        experience :0,
-        cost : 0,
-        language :[],
+        full_name: data.fullname,
+        phonenumber: data.phonenumber,
+        profile_pic: data.profile_pic ?? "",
+        placeid: data.placeid,
+        experience: data.experience,
+        cost: data.cost,
+        language: data.language,
         authprovider: authProviders.EMAIL,
       },
+      select: specificGuideSafeSelect,
     });
 
     return res.status(201).json({
@@ -71,34 +105,22 @@ export const signUp = async (req: Request, res: Response) => {
         })),
       });
     }
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }  
 };
 
 
 export const googleSignUp = async (req: Request, res: Response) => {
   try {
-    const {
-      email,
-      fullname,
-      profilepic,
-      placeid,
-      phonenumber,
-      experience,
-      cost,
-      language,
-    } = req.body;
-
-    // Required fields
-    if (!email || !fullname || !placeid) {
-      return res.status(400).json({
-        message: "Email, name and place are required",
-      });
-    }
+    const data = specificGuideGoogleSignupSchema.parse(req.body);
 
     // Check whether account already exists
     const specific_guide_exists = await prisma.specific_guide.findUnique({
       where: {
-        email,
+        email: data.email,
       },
     });
 
@@ -110,10 +132,23 @@ export const googleSignUp = async (req: Request, res: Response) => {
       });
     }
 
+    const place = await prisma.place.findUnique({
+      where: {
+        id: data.placeid,
+      },
+      select: { id: true },
+    });
+
+    if (!place) {
+      return res.status(400).json({
+        message: "Place does not exist",
+      });
+    }
+
     // Generate username from Google email
     const baseUsername =
-      email
-        .split("@")[0]
+      (data.email
+        .split("@")[0] ?? "")
         .toLowerCase()
         .replace(/[^a-z0-9_]/g, "") || "guide";
 
@@ -134,18 +169,19 @@ export const googleSignUp = async (req: Request, res: Response) => {
     // Create Google guide
     const specific_guide = await prisma.specific_guide.create({
       data: {
-        email,
-        full_name: fullname,
+        email: data.email,
+        full_name: data.fullname,
         username,
-        profile_pic: profilepic ?? "",
-        phonenumber: phonenumber ?? "",
+        profile_pic: data.profilepic ?? "",
+        phonenumber: data.phonenumber ?? "",
         password: "",
-        placeid,
-        experience: experience ?? 0,
-        cost: cost ?? 0,
-        language: language ?? [],
+        placeid: data.placeid,
+        experience: data.experience ?? 0,
+        cost: data.cost ?? 0,
+        language: data.language ?? [],
         authprovider: authProviders.GOOGLE,
       },
+      select: specificGuideSafeSelect,
     });
 
     return res.status(201).json({
@@ -155,6 +191,16 @@ export const googleSignUp = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Google signup error:", error);
 
     return res.status(500).json({
@@ -167,14 +213,14 @@ export const googleSignUp = async (req: Request, res: Response) => {
 
 export const signIn = async (req: Request, res: Response) => {
   try {
-    const { email, username, password } = specific_guide_signupSchema.parse(req.body);
+    const { email, username, password } = specific_guide_signinSchema.parse(req.body);
 
   
     const specific_guide_exists = await prisma.specific_guide.findFirst({
       where: {
         OR: [
           { email },
-          { username }
+          ...(username ? [{ username }] : []),
         ]
       }
     });
@@ -192,8 +238,8 @@ export const signIn = async (req: Request, res: Response) => {
       return res.status(400).json("Invalid password")
     }
 
-    const token = generateSessionToken(specific_guide_exists.id);
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'strict' });
+    const token = generateSessionToken(specific_guide_exists.id, "specific_guide");
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'strict' });
 
     res.status(200).json({ message: "User signed in successfully", token });
 
@@ -207,6 +253,10 @@ export const signIn = async (req: Request, res: Response) => {
         })),
       });
     }
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -214,13 +264,7 @@ export const signIn = async (req: Request, res: Response) => {
 
 export const googleSignIn = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        message: "Google email is required",
-      });
-    }
+    const { email } = specific_guide_googleSigninSchema.parse(req.body);
 
     // Find existing guide using email
     const specific_guide_exists = await prisma.specific_guide.findUnique({
@@ -238,7 +282,7 @@ export const googleSignIn = async (req: Request, res: Response) => {
     }
 
     // Generate JWT
-    const token = generateSessionToken(specific_guide_exists.id);
+    const token = generateSessionToken(specific_guide_exists.id, "specific_guide");
 
     // Store JWT in cookie
     res.cookie("token", token, {
@@ -253,6 +297,16 @@ export const googleSignIn = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Google signin error:", error);
 
     return res.status(500).json({

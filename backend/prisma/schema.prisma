@@ -67,6 +67,8 @@ model user {
   updatedAt     DateTime @updatedAt
   user_fav_place  user_fav_place[]
   testimonials    testimonials[]
+  hotel_booking   hotel_booking[]
+  restaurant_reservation restaurant_reservation[]
 }
 
 model user_fav_place {
@@ -196,9 +198,17 @@ model hotel {
   images                String[]
   latitude        Float
   longitude       Float
+  phone_number          String?
+  whatsapp_number       String?
+  email                 String?
+  website               String?
+  booking_enabled       Boolean   @default(true)
+  hotelOwnerId          String
+  hotelOwner            hotel_owner @relation(fields: [hotelOwnerId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   district  district @relation(fields: [districtId], references: [id])
+  bookings        hotel_booking[]
 }
 
 model  restaurent {
@@ -215,9 +225,72 @@ model  restaurent {
   profile_logo          String
   latitude        Float
   longitude       Float
+  phone_number          String?
+  whatsapp_number       String?
+  email                 String?
+  website               String?
+  booking_enabled       Boolean   @default(true)
+  restaurentOwnerId     String
+  restaurentOwner       restaurent_owner @relation(fields: [restaurentOwnerId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   district  district @relation(fields: [districtId], references: [id])
+  reservations  restaurant_reservation[]
+}
+
+model hotel_owner {
+  id            String   @id @default(uuid())
+  name          String
+  username      String   @unique
+  email         String   @unique
+  password      String
+  phone_number  String
+  profile_pic   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  hotels        hotel[]
+}
+
+model restaurent_owner {
+  id            String   @id @default(uuid())
+  name          String
+  username      String   @unique
+  email         String   @unique
+  password      String
+  phone_number  String
+  profile_pic   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  restaurents   restaurent[]
+}
+
+model hotel_booking {
+  id            String      @id @default(uuid())
+  hotelId       String
+  userId        String
+  checkIn       DateTime
+  checkOut      DateTime
+  guests        Int
+  rooms         Int
+  totalAmount   Float
+  status        bookingStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  hotel         hotel       @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  user          user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model restaurant_reservation {
+  id            String      @id @default(uuid())
+  restaurantId  String
+  userId        String
+  reservationDate DateTime
+  guests        Int
+  status        bookingStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  restaurent    restaurent  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user          user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // model tranport {
@@ -261,6 +334,13 @@ enum Food_Category{
 enum authProviders{
   GOOGLE
   EMAIL
+}
+
+enum bookingStatus{
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
 
 

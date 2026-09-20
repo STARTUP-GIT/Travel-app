@@ -64,7 +64,11 @@ export const ModelName = {
   common_guide: 'common_guide',
   common_guide_places: 'common_guide_places',
   hotel: 'hotel',
-  restaurent: 'restaurent'
+  restaurent: 'restaurent',
+  hotel_owner: 'hotel_owner',
+  restaurent_owner: 'restaurent_owner',
+  hotel_booking: 'hotel_booking',
+  restaurant_reservation: 'restaurant_reservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -269,6 +273,12 @@ export const HotelScalarFieldEnum = {
   images: 'images',
   latitude: 'latitude',
   longitude: 'longitude',
+  phone_number: 'phone_number',
+  whatsapp_number: 'whatsapp_number',
+  email: 'email',
+  website: 'website',
+  booking_enabled: 'booking_enabled',
+  hotelOwnerId: 'hotelOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -290,11 +300,78 @@ export const RestaurentScalarFieldEnum = {
   profile_logo: 'profile_logo',
   latitude: 'latitude',
   longitude: 'longitude',
+  phone_number: 'phone_number',
+  whatsapp_number: 'whatsapp_number',
+  email: 'email',
+  website: 'website',
+  booking_enabled: 'booking_enabled',
+  restaurentOwnerId: 'restaurentOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type RestaurentScalarFieldEnum = (typeof RestaurentScalarFieldEnum)[keyof typeof RestaurentScalarFieldEnum]
+
+
+export const Hotel_ownerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  username: 'username',
+  email: 'email',
+  password: 'password',
+  phone_number: 'phone_number',
+  profile_pic: 'profile_pic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Hotel_ownerScalarFieldEnum = (typeof Hotel_ownerScalarFieldEnum)[keyof typeof Hotel_ownerScalarFieldEnum]
+
+
+export const Restaurent_ownerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  username: 'username',
+  email: 'email',
+  password: 'password',
+  phone_number: 'phone_number',
+  profile_pic: 'profile_pic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Restaurent_ownerScalarFieldEnum = (typeof Restaurent_ownerScalarFieldEnum)[keyof typeof Restaurent_ownerScalarFieldEnum]
+
+
+export const Hotel_bookingScalarFieldEnum = {
+  id: 'id',
+  hotelId: 'hotelId',
+  userId: 'userId',
+  checkIn: 'checkIn',
+  checkOut: 'checkOut',
+  guests: 'guests',
+  rooms: 'rooms',
+  totalAmount: 'totalAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Hotel_bookingScalarFieldEnum = (typeof Hotel_bookingScalarFieldEnum)[keyof typeof Hotel_bookingScalarFieldEnum]
+
+
+export const Restaurant_reservationScalarFieldEnum = {
+  id: 'id',
+  restaurantId: 'restaurantId',
+  userId: 'userId',
+  reservationDate: 'reservationDate',
+  guests: 'guests',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Restaurant_reservationScalarFieldEnum = (typeof Restaurant_reservationScalarFieldEnum)[keyof typeof Restaurant_reservationScalarFieldEnum]
 
 
 export const SortOrder = {

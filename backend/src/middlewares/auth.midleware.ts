@@ -1,140 +1,74 @@
 import type { Request, Response, NextFunction } from "express";
+import type { SessionRole, SessionPayload } from "../services/sessiontoken.js";
+import { getSessionSecret } from "../services/sessiontoken.js";
 import jwt from "jsonwebtoken";
-import "../types/express.js";
 
+const buildRoleMiddleware = (expectedRole: SessionRole) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const token = req.cookies?.token;
 
-export const userauthMiddleware = (req: Request,res: Response,next: NextFunction) => {
-  const token = req.cookies?.token;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-
-  try {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      console.error("JWT_SECRET is not configured");
-
-      return res.status(500).json({
-        message: "Internal Server Error",
+    if (!token) {
+      return res.status(401).json({
+        message: "Unauthorized",
       });
     }
 
-    const decoded = jwt.verify(token, secret) as {
-      userId: string;
-    };
+    let secret: string;
 
-    req.userId  = decoded.userId ;
-
-    next();
-  } catch {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-};
-
-export const specificGuideAuthMiddleware = (req: Request,res: Response,next: NextFunction) => {
-  const token = req.cookies?.token;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-
-  try {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      console.error("JWT_SECRET is not configured");
-
+    try {
+      secret = getSessionSecret();
+    } catch {
       return res.status(500).json({
-        message: "Internal Server Error",
+        message: "JWT_SECRET is not configured",
       });
     }
 
-    const decoded = jwt.verify(token, secret) as {
-      userId: string;
-    };
+    let decoded: SessionPayload;
 
-    req.specific_guide = decoded.userId;
-
-    next();
-  } catch {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-};
-
-export const commonGuideAuthMiddleware = (req: Request,res: Response,next: NextFunction) => {
-  const token = req.cookies?.token;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-
-  try {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      console.error("JWT_SECRET is not configured");
-
-      return res.status(500).json({
-        message: "Internal Server Error",
+    try {
+      decoded = jwt.verify(token, secret) as SessionPayload;
+    } catch {
+      return res.status(401).json({
+        message: "Unauthorized",
       });
     }
 
-    const decoded = jwt.verify(token, secret) as {
-      userId: string;
-    };
-
-    req.common_guide = decoded.userId;
-
-    next();
-  } catch {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-};
-
-export const adminAuthMiddleware = (req: Request,res: Response,next: NextFunction) => {
-  const token = req.cookies?.token;
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-
-  try {
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      console.error("JWT_SECRET is not configured");
-
-      return res.status(500).json({
-        message: "Internal Server Error",
+    if (decoded.role !== expectedRole) {
+      return res.status(403).json({
+        message: "Forbidden",
       });
     }
 
-    const decoded = jwt.verify(token, secret) as {
-      userId: string;
-    };
+    const identityId = decoded.userId;
 
-    req.admin = decoded.userId;
+    switch (expectedRole) {
+      case "user":
+        req.userId = identityId;
+        break;
+      case "admin":
+        req.admin = identityId;
+        break;
+      case "specific_guide":
+        req.specific_guide = identityId;
+        break;
+      case "common_guide":
+        req.common_guide = identityId;
+        break;
+      case "hotel_owner":
+        req.hotel_owner = identityId;
+        break;
+      case "restaurent_owner":
+        req.restaurent_owner = identityId;
+        break;
+    }
 
     next();
-  } catch {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
+  };
 };
+
+export const userauthMiddleware = buildRoleMiddleware("user");
+export const adminAuthMiddleware = buildRoleMiddleware("admin");
+export const specificGuideAuthMiddleware = buildRoleMiddleware("specific_guide");
+export const commonGuideAuthMiddleware = buildRoleMiddleware("common_guide");
+export const hotelOwnerAuthMiddleware = buildRoleMiddleware("hotel_owner");
+export const restaurentOwnerAuthMiddleware = buildRoleMiddleware("restaurent_owner");

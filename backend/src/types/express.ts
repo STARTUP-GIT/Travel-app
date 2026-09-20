@@ -1,30 +1,12 @@
 declare global {
   namespace Express {
     interface Request {
-      userId: string;
-    }
-  }
-}
-declare global {
-  namespace Express {
-    interface Request {
-      specific_guide: string;
-    }
-  }
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      common_guide: string;
-    }
-  }
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      admin: string;
+      userId?: string;
+      specific_guide?: string;
+      common_guide?: string;
+      admin?: string;
+      hotel_owner?: string;
+      restaurent_owner?: string;
     }
   }
 }

@@ -1,18 +1,34 @@
-
-
 import type { Request, Response } from 'express';
 import prisma from '../../../../db/prisma.js';
-import { use } from 'react';
 import bcrypt from 'bcryptjs';
+import { ZodError } from 'zod';
+import { userProfileUpdateSchema } from '../../../../services/zod.js';
+
+const userSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profilepic: true,
+  authprovider: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 export const getProfile = async (req: Request, res: Response) => {
     try {
         const  userId  = req.userId;
 
+        if (!userId) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
+
         const user = await prisma.user.findFirst({
             where : {
                 id: userId
-            }
+            },
+            select: userSafeSelect,
         })
 
         if(!user){
@@ -37,6 +53,12 @@ export const editProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
 
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const data = userProfileUpdateSchema.parse(req.body);
+
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -49,17 +71,15 @@ export const editProfile = async (req: Request, res: Response) => {
       });
     }
 
-    const { name, username, phonenumber, profilepic ,password,email } = req.body;
-
     const existingUseremail = await prisma.user.findFirst({
       where: {
-         email
+         ...(data.email !== undefined ? { email: data.email } : {}),
       },
     });
 
     const existingUserusername = await prisma.user.findFirst({
       where: {
-        username,
+        ...(data.username !== undefined ? { username: data.username } : {}),
       },
     });
 
@@ -78,9 +98,9 @@ export const editProfile = async (req: Request, res: Response) => {
 
     let hashedPassword: string | undefined;
 
-    if (password) {
+    if (data.password) {
       const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
+      hashedPassword = await bcrypt.hash(data.password, salt);
     }
 
     const updatedUser = await prisma.user.update({
@@ -88,15 +108,14 @@ export const editProfile = async (req: Request, res: Response) => {
         id: userId,
       },
       data: {
-        name,
-        username,
-        email,
-        phonenumber,
-        profilepic,
-        ...(hashedPassword && {
-          password: hashedPassword,
-        }),
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.username !== undefined ? { username: data.username } : {}),
+        ...(data.email !== undefined ? { email: data.email } : {}),
+        ...(data.phonenumber !== undefined ? { phonenumber: data.phonenumber } : {}),
+        ...(data.profilepic !== undefined ? { profilepic: data.profilepic } : {}),
+        ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
+      select: userSafeSelect,
     });
 
     return res.status(200).json({
@@ -104,6 +123,16 @@ export const editProfile = async (req: Request, res: Response) => {
       user: updatedUser,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Edit profile error:", error);
 
     return res.status(500).json({
@@ -116,6 +145,10 @@ export const editProfile = async (req: Request, res: Response) => {
 export const  deleteProfile = async (req: Request , res:Response) => {
     try {
         const userId = req.userId;
+
+        if (!userId) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
 
         const user = await prisma.user.findUnique({
         where: {
@@ -147,4 +180,3 @@ export const  deleteProfile = async (req: Request , res:Response) => {
         });
     }
 }
-

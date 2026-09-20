@@ -1,25 +1,42 @@
 import type { Request, Response } from "express";
 import prisma from "../../../../db/prisma.js";
 import bcrypt from "bcryptjs";
+import { ZodError } from "zod";
+import { adminProfileUpdateSchema } from "../../../../services/zod.js";
+
+const adminSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  appConfigId: true,
+  authprovider: true,
+  profilepic: true,
+} as const;
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.userId;
+    const adminId = req.admin;
 
-    const user = await prisma.user.findUnique({
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const admin = await prisma.admin.findUnique({
       where: {
-        id: userId,
+        id: adminId,
       },
+      select: adminSafeSelect,
     });
 
-    if (!user) {
+    if (!admin) {
       return res.status(404).json({
-        message: "User not found",
+        message: "Admin not found",
       });
     }
 
     return res.status(200).json({
-      user,
+      admin,
     });
   } catch (error) {
     console.error("Get profile error:", error);
@@ -32,48 +49,33 @@ export const getProfile = async (req: Request, res: Response) => {
 
 export const editProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.userId;
+    const adminId = req.admin;
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const {
-      name,
-      username,
-      phonenumber,
-      profilepic,
-      password,
-      email,
-    } = req.body;
+    const data = adminProfileUpdateSchema.parse(req.body);
 
-    const existingUserEmail = await prisma.user.findFirst({
+    const existingAdmin = await prisma.admin.findFirst({
       where: {
-        email,
+        ...(data.email !== undefined ? { email: data.email } : {}),
       },
     });
 
-    if (existingUserEmail && existingUserEmail.id !== userId) {
+    if (existingAdmin && existingAdmin.id !== adminId) {
       return res.status(400).json({
         message: "Email already exists",
       });
     }
 
-    const existingUserUsername = await prisma.user.findFirst({
+    const existingUsername = await prisma.admin.findFirst({
       where: {
-        username,
+        ...(data.username !== undefined ? { username: data.username } : {}),
       },
     });
 
-    if (existingUserUsername && existingUserUsername.id !== userId) {
+    if (existingUsername && existingUsername.id !== adminId) {
       return res.status(400).json({
         message: "Username already exists",
       });
@@ -81,32 +83,40 @@ export const editProfile = async (req: Request, res: Response) => {
 
     let hashedPassword: string | undefined;
 
-    if (password) {
+    if (data.password) {
       const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
+      hashedPassword = await bcrypt.hash(data.password, salt);
     }
 
-    const updatedUser = await prisma.user.update({
+    const updatedAdmin = await prisma.admin.update({
       where: {
-        id: userId,
+        id: adminId,
       },
       data: {
-        name,
-        username,
-        email,
-        phonenumber,
-        profilepic,
-        ...(hashedPassword && {
-          password: hashedPassword,
-        }),
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.username !== undefined ? { username: data.username } : {}),
+        ...(data.email !== undefined ? { email: data.email } : {}),
+        ...(data.profilepic !== undefined ? { profilepic: data.profilepic } : {}),
+        ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
+      select: adminSafeSelect,
     });
 
     return res.status(200).json({
       message: "Profile updated successfully",
-      user: updatedUser,
+      admin: updatedAdmin,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
     console.error("Edit profile error:", error);
 
     return res.status(500).json({
@@ -117,23 +127,27 @@ export const editProfile = async (req: Request, res: Response) => {
 
 export const deleteProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.userId;
+    const adminId = req.admin;
 
-    const user = await prisma.user.findUnique({
+    if (!adminId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const admin = await prisma.admin.findUnique({
       where: {
-        id: userId,
+        id: adminId,
       },
     });
 
-    if (!user) {
+    if (!admin) {
       return res.status(404).json({
-        message: "User not found",
+        message: "Admin not found",
       });
     }
 
-    await prisma.user.delete({
+    await prisma.admin.delete({
       where: {
-        id: userId,
+        id: adminId,
       },
     });
 

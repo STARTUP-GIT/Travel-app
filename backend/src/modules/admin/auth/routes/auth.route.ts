@@ -7,4 +7,3 @@ router.post('api/auth/signin',signIn)
 router.post('api/auth/signout',signOut)
 
 export default router
-

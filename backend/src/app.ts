@@ -1,42 +1,130 @@
 import express from 'express';
 import cors from 'cors';
-import userRoutes from './modules/user/auth/routes/auth.route.js';
-import specificGuideRoutes from './modules/specificguide/auth/routes/auth.route.js';
-import commonGuideRoutes from './modules/commonguides/auth/routes/auth.route.js';
-import adminRoutes from './modules/admin/auth/routes/auth.route.js';
-import userProfileRoutes from './modules/user/profile/routes/profile.routes.js';
-import adminProfileRoutes from './modules/admin/profile/routes/profile.routes.js';
-import countryRoutes from './modules/places/country/routes/country.route.js';
-import stateRoutes from './modules/places/state/routes/state.route.js';
-import districtRoutes from './modules/places/district/routes/district.route.js';
 import cookieParser from "cookie-parser";
-
+import dotenv from 'dotenv';
+dotenv.config();
 const app = express();
 
+/** 
+USERS ROUTES IMPORTS  
+**/
+import userAuthRoutes from './modules/user/auth/routes/auth.route.js';
+import userProfileRoutes from './modules/user/profile/routes/profile.routes.js';
+import userBookingRoutes from './modules/user/booking/routes/booking.routes.js';
+
+/** 
+ADMIN ROUTES IMPORTS
+**/
+import adminAuthRoutes from './modules/admin/auth/routes/auth.route.js';
+import adminProfileRoutes from './modules/admin/profile/routes/profile.routes.js';
+
+/** 
+COMMON GUIDES ROUTES IMPORTS
+**/
+import commonguideAuthRoutes from './modules/commonguides/auth/routes/auth.route.js';
+import commonguideProfileRoutes from './modules/commonguides/profile/routes/profile.routes.js';
+
+/** 
+SPECIFIC GUIDES ROUTES IMPORTS
+**/
+import specificGuideAuthRoutes from './modules/specificguide/auth/routes/auth.route.js';
+import specificGuideProfieRoutes from './modules/specificguide/profile/routes/profile.routes.js';
+
+/** 
+HOTEL ROUTES IMPORTS
+**/
+import hotelAuthRoutes from './modules/services/hotel/auth/routes/auth.routes.js';
+import hotelOwnerProfileRoutes from './modules/services/hotel/owner/routes/profile.routes.js';
+import hotelProfileRoutes from './modules/services/hotel/hotelprofile/routes/profile.routes.js';
+import hotelBookingRoutes from './modules/services/hotel/booking/routes/booking.routes.js';
+
+/** 
+RESTAURANT ROUTES IMPORTS
+**/
+import restaurantAuthRoutes from './modules/services/restaurant/auth/routes/auth.routes.js';
+import restaurantOwnerProfileRoutes from './modules/services/restaurant/owner/routes/profile.routes.js';
+import restaurantProfileRoutes from './modules/services/restaurant/restaurentprofile/routes/profile.routes.js';
+import restaurantReservationRoutes from './modules/services/restaurant/reservation/routes/reservation.routes.js';
+
+
+
+
+
+//middlewares
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(
   cors({
     origin: process.env.CLIENTENDURL ?? "http://localhost:8080",
     credentials: true,
   })
 );
+
+
+
+
+
+
+
+// main route
 app.get('/' , (req,res) => {
     res.send(`Hello`)
 });
 
-app.use('/users', userRoutes);
-app.use('/specificguide' , specificGuideRoutes);
-app.use('/commonguide' , commonGuideRoutes);
-app.use('/admin', adminRoutes);
+
+
+
+
+/** 
+ USERS ROUTES  
+**/
+app.use('/users', userAuthRoutes);
 app.use('/users/profile', userProfileRoutes);
-app.use('/specificguide/profile' ,specificGuideRoutes);
-app.use('/commonguide/profile' ,commonGuideRoutes);
+app.use('/users/booking', userBookingRoutes);
+
+
+/** 
+ADMIN ROUTES  
+**/
+app.use('/admin' , adminAuthRoutes);
 app.use('/admin/profile' , adminProfileRoutes);
-app.use('/api/admin/countries', countryRoutes);
-app.use('/api/admin/states', stateRoutes);
-app.use('/api/admin/districts', districtRoutes);
+
+/** 
+COMMON GUIDES ROUTES  
+**/
+app.use('/services/:districtId/commonguide' , commonguideAuthRoutes);
+app.use('/services/:districtId/commonguide/profile' , commonguideProfileRoutes);
+
+/** 
+SPECIFIC GUIDES ROUTES  
+**/
+
+app.use('/services/:districtId/specificguide' ,specificGuideAuthRoutes); 
+app.use('/services/:districtId/specificguide/profile' ,specificGuideAuthRoutes); 
+
+/** 
+HOTEL ROUTES  
+**/
+app.use('/:districtId/services/hotel', hotelAuthRoutes);
+app.use('/:districtId/services/hotel/profile', hotelOwnerProfileRoutes);
+app.use('/:districtId/services/hotel', hotelProfileRoutes);
+app.use('/:districtId/services/hotel/booking', hotelBookingRoutes);
+
+
+/** 
+RESTAURANT ROUTES  
+**/
+app.use('/:districtId/services/restaurant', restaurantAuthRoutes);
+app.use('/:districtId/services/restaurant/profile', restaurantOwnerProfileRoutes);
+app.use('/:districtId/services/restaurant', restaurantProfileRoutes);
+app.use('/:districtId/services/restaurant/reservation', restaurantReservationRoutes);
+
+
+
+
+
+
+
 
 
 
@@ -44,5 +132,9 @@ app.use('/api/admin/districts', districtRoutes);
 app.get('/api/health', (req, res) => {
     res.json({status:'online' , provider:'Groq' , models :'GROQ_MODELS'})
 });
+
+
+
+
 
 export default app;
