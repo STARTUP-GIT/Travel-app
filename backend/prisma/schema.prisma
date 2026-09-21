@@ -69,6 +69,8 @@ model user {
   testimonials    testimonials[]
   hotel_booking   hotel_booking[]
   restaurant_reservation restaurant_reservation[]
+  specificGuideBookings specific_guide_booking[]
+  commonGuideBookings common_guide_booking[]
 }
 
 model user_fav_place {
@@ -106,6 +108,8 @@ model district {
   hotels    hotel[]
   restaurent  restaurent[]
   isServiceAvailable Boolean  @default(false)
+  autoApprovePlaces   Boolean  @default(false)
+  placeSubmissions place_submission[]
 }
 
 model place {
@@ -116,6 +120,9 @@ model place {
   images          String[]
   specificguide   specific_guide[]
   commonGuidePlaces common_guide_places[]
+  placeSubmissions place_submission[]
+  specificGuideBookings specific_guide_booking[]
+  commonGuideBookingPlaces common_guide_booking_places[]
   entryfee        Float
   category        String
   latitude        Float
@@ -124,6 +131,29 @@ model place {
   updatedAt       DateTime @updatedAt
   district        district @relation(fields: [districtId], references: [id])
   user_fav_place  user_fav_place[]
+}
+
+model place_submission {
+  id              String   @id @default(uuid())
+  placeId         String?
+  name            String
+  description     String
+  districtId      String
+  images          String[]
+  entryfee        Float
+  category        String
+  latitude        Float
+  longitude       Float
+  status          placeSubmissionStatus @default(PENDING)
+  rejectionReason String?
+  specificGuideId String?
+  commonGuideId   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  place           place? @relation(fields: [placeId], references: [id])
+  district        district @relation(fields: [districtId], references: [id])
+  specificGuide   specific_guide? @relation(fields: [specificGuideId], references: [id])
+  commonGuide     common_guide? @relation(fields: [commonGuideId], references: [id])
 }
 
 model specific_guide {
@@ -142,6 +172,8 @@ model specific_guide {
   placeid         String
   place           place @relation(fields: [placeid], references: [id])
   testimonials    testimonials[]
+  placeSubmissions place_submission[]
+  bookings        specific_guide_booking[]
   
   isReported      Boolean @default(false)
   experience      Int
@@ -171,6 +203,8 @@ model common_guide {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
     testimonials    testimonials[]
+  placeSubmissions place_submission[]
+  bookings        common_guide_booking[]
 
 } 
 
@@ -183,6 +217,45 @@ model common_guide_places {
   commonGuide  common_guide @relation(fields: [commonGuideId], references: [id])
 
   @@unique([placeId, commonGuideId])
+}
+
+model specific_guide_booking {
+  id              String   @id @default(uuid())
+  userId          String
+  specificGuideId String
+  placeId         String
+  bookingDate     DateTime
+  bookingTime     String?
+  status          bookingStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specificGuide   specific_guide @relation(fields: [specificGuideId], references: [id], onDelete: Cascade)
+  place           place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+}
+
+model common_guide_booking {
+  id            String   @id @default(uuid())
+  userId        String
+  commonGuideId String
+  bookingDate   DateTime
+  bookingTime   String?
+  status        bookingStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commonGuide   common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
+  selectedPlaces common_guide_booking_places[]
+}
+
+model common_guide_booking_places {
+  id        String   @id @default(uuid())
+  bookingId String
+  placeId   String
+  booking   common_guide_booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  place     place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, placeId])
 }
 
 model hotel {
@@ -339,8 +412,15 @@ enum authProviders{
 enum bookingStatus{
   PENDING
   CONFIRMED
+  REJECTED
   CANCELLED
   COMPLETED
+}
+
+enum placeSubmissionStatus{
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 

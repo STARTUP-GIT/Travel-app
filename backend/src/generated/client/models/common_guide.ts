@@ -322,6 +322,8 @@ export type common_guideWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
   places?: Prisma.Common_guide_placesListRelationFilter
   testimonials?: Prisma.TestimonialsListRelationFilter
+  placeSubmissions?: Prisma.Place_submissionListRelationFilter
+  bookings?: Prisma.Common_guide_bookingListRelationFilter
 }
 
 export type common_guideOrderByWithRelationInput = {
@@ -345,6 +347,8 @@ export type common_guideOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   places?: Prisma.common_guide_placesOrderByRelationAggregateInput
   testimonials?: Prisma.testimonialsOrderByRelationAggregateInput
+  placeSubmissions?: Prisma.place_submissionOrderByRelationAggregateInput
+  bookings?: Prisma.common_guide_bookingOrderByRelationAggregateInput
 }
 
 export type common_guideWhereUniqueInput = Prisma.AtLeast<{
@@ -371,6 +375,8 @@ export type common_guideWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
   places?: Prisma.Common_guide_placesListRelationFilter
   testimonials?: Prisma.TestimonialsListRelationFilter
+  placeSubmissions?: Prisma.Place_submissionListRelationFilter
+  bookings?: Prisma.Common_guide_bookingListRelationFilter
 }, "id" | "username" | "email">
 
 export type common_guideOrderByWithAggregationInput = {
@@ -444,6 +450,8 @@ export type common_guideCreateInput = {
   updatedAt?: Date | string
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideUncheckedCreateInput = {
@@ -467,6 +475,8 @@ export type common_guideUncheckedCreateInput = {
   updatedAt?: Date | string
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideUpdateInput = {
@@ -490,6 +500,8 @@ export type common_guideUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
 }
 
 export type common_guideUncheckedUpdateInput = {
@@ -513,6 +525,8 @@ export type common_guideUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
 }
 
 export type common_guideCreateManyInput = {
@@ -675,6 +689,22 @@ export type common_guideUpdateOneWithoutTestimonialsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.common_guideUpdateToOneWithWhereWithoutTestimonialsInput, Prisma.common_guideUpdateWithoutTestimonialsInput>, Prisma.common_guideUncheckedUpdateWithoutTestimonialsInput>
 }
 
+export type common_guideCreateNestedOneWithoutPlaceSubmissionsInput = {
+  create?: Prisma.XOR<Prisma.common_guideCreateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedCreateWithoutPlaceSubmissionsInput>
+  connectOrCreate?: Prisma.common_guideCreateOrConnectWithoutPlaceSubmissionsInput
+  connect?: Prisma.common_guideWhereUniqueInput
+}
+
+export type common_guideUpdateOneWithoutPlaceSubmissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guideCreateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedCreateWithoutPlaceSubmissionsInput>
+  connectOrCreate?: Prisma.common_guideCreateOrConnectWithoutPlaceSubmissionsInput
+  upsert?: Prisma.common_guideUpsertWithoutPlaceSubmissionsInput
+  disconnect?: Prisma.common_guideWhereInput | boolean
+  delete?: Prisma.common_guideWhereInput | boolean
+  connect?: Prisma.common_guideWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.common_guideUpdateToOneWithWhereWithoutPlaceSubmissionsInput, Prisma.common_guideUpdateWithoutPlaceSubmissionsInput>, Prisma.common_guideUncheckedUpdateWithoutPlaceSubmissionsInput>
+}
+
 export type common_guideCreatereviewInput = {
   set: string[]
 }
@@ -707,6 +737,20 @@ export type common_guideUpdateOneRequiredWithoutPlacesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.common_guideUpdateToOneWithWhereWithoutPlacesInput, Prisma.common_guideUpdateWithoutPlacesInput>, Prisma.common_guideUncheckedUpdateWithoutPlacesInput>
 }
 
+export type common_guideCreateNestedOneWithoutBookingsInput = {
+  create?: Prisma.XOR<Prisma.common_guideCreateWithoutBookingsInput, Prisma.common_guideUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.common_guideCreateOrConnectWithoutBookingsInput
+  connect?: Prisma.common_guideWhereUniqueInput
+}
+
+export type common_guideUpdateOneRequiredWithoutBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guideCreateWithoutBookingsInput, Prisma.common_guideUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.common_guideCreateOrConnectWithoutBookingsInput
+  upsert?: Prisma.common_guideUpsertWithoutBookingsInput
+  connect?: Prisma.common_guideWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.common_guideUpdateToOneWithWhereWithoutBookingsInput, Prisma.common_guideUpdateWithoutBookingsInput>, Prisma.common_guideUncheckedUpdateWithoutBookingsInput>
+}
+
 export type common_guideCreateWithoutTestimonialsInput = {
   id?: string
   full_name: string
@@ -727,6 +771,8 @@ export type common_guideCreateWithoutTestimonialsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideUncheckedCreateWithoutTestimonialsInput = {
@@ -749,6 +795,8 @@ export type common_guideUncheckedCreateWithoutTestimonialsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideCreateOrConnectWithoutTestimonialsInput = {
@@ -787,6 +835,8 @@ export type common_guideUpdateWithoutTestimonialsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
 }
 
 export type common_guideUncheckedUpdateWithoutTestimonialsInput = {
@@ -809,6 +859,120 @@ export type common_guideUncheckedUpdateWithoutTestimonialsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
+}
+
+export type common_guideCreateWithoutPlaceSubmissionsInput = {
+  id?: string
+  full_name: string
+  username: string
+  email: string
+  password: string
+  phonenumber: string
+  profile_pic: string
+  tagline?: string | null
+  authprovider: $Enums.authProviders
+  review?: Prisma.common_guideCreatereviewInput | string[]
+  rating?: number | null
+  description?: string | null
+  isReported?: boolean
+  experience: number
+  cost: number
+  language?: Prisma.common_guideCreatelanguageInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
+  testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
+}
+
+export type common_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
+  id?: string
+  full_name: string
+  username: string
+  email: string
+  password: string
+  phonenumber: string
+  profile_pic: string
+  tagline?: string | null
+  authprovider: $Enums.authProviders
+  review?: Prisma.common_guideCreatereviewInput | string[]
+  rating?: number | null
+  description?: string | null
+  isReported?: boolean
+  experience: number
+  cost: number
+  language?: Prisma.common_guideCreatelanguageInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
+  testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
+}
+
+export type common_guideCreateOrConnectWithoutPlaceSubmissionsInput = {
+  where: Prisma.common_guideWhereUniqueInput
+  create: Prisma.XOR<Prisma.common_guideCreateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedCreateWithoutPlaceSubmissionsInput>
+}
+
+export type common_guideUpsertWithoutPlaceSubmissionsInput = {
+  update: Prisma.XOR<Prisma.common_guideUpdateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedUpdateWithoutPlaceSubmissionsInput>
+  create: Prisma.XOR<Prisma.common_guideCreateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedCreateWithoutPlaceSubmissionsInput>
+  where?: Prisma.common_guideWhereInput
+}
+
+export type common_guideUpdateToOneWithWhereWithoutPlaceSubmissionsInput = {
+  where?: Prisma.common_guideWhereInput
+  data: Prisma.XOR<Prisma.common_guideUpdateWithoutPlaceSubmissionsInput, Prisma.common_guideUncheckedUpdateWithoutPlaceSubmissionsInput>
+}
+
+export type common_guideUpdateWithoutPlaceSubmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  review?: Prisma.common_guideUpdatereviewInput | string[]
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  cost?: Prisma.IntFieldUpdateOperationsInput | number
+  language?: Prisma.common_guideUpdatelanguageInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
+  testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
+}
+
+export type common_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  review?: Prisma.common_guideUpdatereviewInput | string[]
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  cost?: Prisma.IntFieldUpdateOperationsInput | number
+  language?: Prisma.common_guideUpdatelanguageInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
+  testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
 }
 
 export type common_guideCreateWithoutPlacesInput = {
@@ -831,6 +995,8 @@ export type common_guideCreateWithoutPlacesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideUncheckedCreateWithoutPlacesInput = {
@@ -853,6 +1019,8 @@ export type common_guideUncheckedCreateWithoutPlacesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
 }
 
 export type common_guideCreateOrConnectWithoutPlacesInput = {
@@ -891,6 +1059,8 @@ export type common_guideUpdateWithoutPlacesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
 }
 
 export type common_guideUncheckedUpdateWithoutPlacesInput = {
@@ -913,6 +1083,120 @@ export type common_guideUncheckedUpdateWithoutPlacesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
+}
+
+export type common_guideCreateWithoutBookingsInput = {
+  id?: string
+  full_name: string
+  username: string
+  email: string
+  password: string
+  phonenumber: string
+  profile_pic: string
+  tagline?: string | null
+  authprovider: $Enums.authProviders
+  review?: Prisma.common_guideCreatereviewInput | string[]
+  rating?: number | null
+  description?: string | null
+  isReported?: boolean
+  experience: number
+  cost: number
+  language?: Prisma.common_guideCreatelanguageInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
+  testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
+}
+
+export type common_guideUncheckedCreateWithoutBookingsInput = {
+  id?: string
+  full_name: string
+  username: string
+  email: string
+  password: string
+  phonenumber: string
+  profile_pic: string
+  tagline?: string | null
+  authprovider: $Enums.authProviders
+  review?: Prisma.common_guideCreatereviewInput | string[]
+  rating?: number | null
+  description?: string | null
+  isReported?: boolean
+  experience: number
+  cost: number
+  language?: Prisma.common_guideCreatelanguageInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
+  testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
+  placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
+}
+
+export type common_guideCreateOrConnectWithoutBookingsInput = {
+  where: Prisma.common_guideWhereUniqueInput
+  create: Prisma.XOR<Prisma.common_guideCreateWithoutBookingsInput, Prisma.common_guideUncheckedCreateWithoutBookingsInput>
+}
+
+export type common_guideUpsertWithoutBookingsInput = {
+  update: Prisma.XOR<Prisma.common_guideUpdateWithoutBookingsInput, Prisma.common_guideUncheckedUpdateWithoutBookingsInput>
+  create: Prisma.XOR<Prisma.common_guideCreateWithoutBookingsInput, Prisma.common_guideUncheckedCreateWithoutBookingsInput>
+  where?: Prisma.common_guideWhereInput
+}
+
+export type common_guideUpdateToOneWithWhereWithoutBookingsInput = {
+  where?: Prisma.common_guideWhereInput
+  data: Prisma.XOR<Prisma.common_guideUpdateWithoutBookingsInput, Prisma.common_guideUncheckedUpdateWithoutBookingsInput>
+}
+
+export type common_guideUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  review?: Prisma.common_guideUpdatereviewInput | string[]
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  cost?: Prisma.IntFieldUpdateOperationsInput | number
+  language?: Prisma.common_guideUpdatelanguageInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
+  testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
+}
+
+export type common_guideUncheckedUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
+  profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  review?: Prisma.common_guideUpdatereviewInput | string[]
+  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  cost?: Prisma.IntFieldUpdateOperationsInput | number
+  language?: Prisma.common_guideUpdatelanguageInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
+  testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
+  placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
 }
 
 
@@ -923,11 +1207,15 @@ export type common_guideUncheckedUpdateWithoutPlacesInput = {
 export type Common_guideCountOutputType = {
   places: number
   testimonials: number
+  placeSubmissions: number
+  bookings: number
 }
 
 export type Common_guideCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Common_guideCountOutputTypeCountPlacesArgs
   testimonials?: boolean | Common_guideCountOutputTypeCountTestimonialsArgs
+  placeSubmissions?: boolean | Common_guideCountOutputTypeCountPlaceSubmissionsArgs
+  bookings?: boolean | Common_guideCountOutputTypeCountBookingsArgs
 }
 
 /**
@@ -954,6 +1242,20 @@ export type Common_guideCountOutputTypeCountTestimonialsArgs<ExtArgs extends run
   where?: Prisma.testimonialsWhereInput
 }
 
+/**
+ * Common_guideCountOutputType without action
+ */
+export type Common_guideCountOutputTypeCountPlaceSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.place_submissionWhereInput
+}
+
+/**
+ * Common_guideCountOutputType without action
+ */
+export type Common_guideCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.common_guide_bookingWhereInput
+}
+
 
 export type common_guideSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -976,6 +1278,8 @@ export type common_guideSelect<ExtArgs extends runtime.Types.Extensions.Internal
   updatedAt?: boolean
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   testimonials?: boolean | Prisma.common_guide$testimonialsArgs<ExtArgs>
+  placeSubmissions?: boolean | Prisma.common_guide$placeSubmissionsArgs<ExtArgs>
+  bookings?: boolean | Prisma.common_guide$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guideCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide"]>
 
@@ -1046,6 +1350,8 @@ export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type common_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   testimonials?: boolean | Prisma.common_guide$testimonialsArgs<ExtArgs>
+  placeSubmissions?: boolean | Prisma.common_guide$placeSubmissionsArgs<ExtArgs>
+  bookings?: boolean | Prisma.common_guide$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guideCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type common_guideIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1056,6 +1362,8 @@ export type $common_guidePayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     places: Prisma.$common_guide_placesPayload<ExtArgs>[]
     testimonials: Prisma.$testimonialsPayload<ExtArgs>[]
+    placeSubmissions: Prisma.$place_submissionPayload<ExtArgs>[]
+    bookings: Prisma.$common_guide_bookingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1472,6 +1780,8 @@ export interface Prisma__common_guideClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   places<T extends Prisma.common_guide$placesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide$placesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   testimonials<T extends Prisma.common_guide$testimonialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide$testimonialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$testimonialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  placeSubmissions<T extends Prisma.common_guide$placeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide$placeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$place_submissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bookings<T extends Prisma.common_guide$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_bookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1957,6 +2267,54 @@ export type common_guide$testimonialsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.TestimonialsScalarFieldEnum | Prisma.TestimonialsScalarFieldEnum[]
+}
+
+/**
+ * common_guide.placeSubmissions
+ */
+export type common_guide$placeSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the place_submission
+   */
+  select?: Prisma.place_submissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the place_submission
+   */
+  omit?: Prisma.place_submissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.place_submissionInclude<ExtArgs> | null
+  where?: Prisma.place_submissionWhereInput
+  orderBy?: Prisma.place_submissionOrderByWithRelationInput | Prisma.place_submissionOrderByWithRelationInput[]
+  cursor?: Prisma.place_submissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Place_submissionScalarFieldEnum | Prisma.Place_submissionScalarFieldEnum[]
+}
+
+/**
+ * common_guide.bookings
+ */
+export type common_guide$bookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the common_guide_booking
+   */
+  select?: Prisma.common_guide_bookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the common_guide_booking
+   */
+  omit?: Prisma.common_guide_bookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.common_guide_bookingInclude<ExtArgs> | null
+  where?: Prisma.common_guide_bookingWhereInput
+  orderBy?: Prisma.common_guide_bookingOrderByWithRelationInput | Prisma.common_guide_bookingOrderByWithRelationInput[]
+  cursor?: Prisma.common_guide_bookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Common_guide_bookingScalarFieldEnum | Prisma.Common_guide_bookingScalarFieldEnum[]
 }
 
 /**

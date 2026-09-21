@@ -60,9 +60,13 @@ export const ModelName = {
   state: 'state',
   district: 'district',
   place: 'place',
+  place_submission: 'place_submission',
   specific_guide: 'specific_guide',
   common_guide: 'common_guide',
   common_guide_places: 'common_guide_places',
+  specific_guide_booking: 'specific_guide_booking',
+  common_guide_booking: 'common_guide_booking',
+  common_guide_booking_places: 'common_guide_booking_places',
   hotel: 'hotel',
   restaurent: 'restaurent',
   hotel_owner: 'hotel_owner',
@@ -179,7 +183,8 @@ export const DistrictScalarFieldEnum = {
   id: 'id',
   name: 'name',
   stateId: 'stateId',
-  isServiceAvailable: 'isServiceAvailable'
+  isServiceAvailable: 'isServiceAvailable',
+  autoApprovePlaces: 'autoApprovePlaces'
 } as const
 
 export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]
@@ -200,6 +205,28 @@ export const PlaceScalarFieldEnum = {
 } as const
 
 export type PlaceScalarFieldEnum = (typeof PlaceScalarFieldEnum)[keyof typeof PlaceScalarFieldEnum]
+
+
+export const Place_submissionScalarFieldEnum = {
+  id: 'id',
+  placeId: 'placeId',
+  name: 'name',
+  description: 'description',
+  districtId: 'districtId',
+  images: 'images',
+  entryfee: 'entryfee',
+  category: 'category',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  status: 'status',
+  rejectionReason: 'rejectionReason',
+  specificGuideId: 'specificGuideId',
+  commonGuideId: 'commonGuideId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Place_submissionScalarFieldEnum = (typeof Place_submissionScalarFieldEnum)[keyof typeof Place_submissionScalarFieldEnum]
 
 
 export const Specific_guideScalarFieldEnum = {
@@ -258,6 +285,44 @@ export const Common_guide_placesScalarFieldEnum = {
 } as const
 
 export type Common_guide_placesScalarFieldEnum = (typeof Common_guide_placesScalarFieldEnum)[keyof typeof Common_guide_placesScalarFieldEnum]
+
+
+export const Specific_guide_bookingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  specificGuideId: 'specificGuideId',
+  placeId: 'placeId',
+  bookingDate: 'bookingDate',
+  bookingTime: 'bookingTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Specific_guide_bookingScalarFieldEnum = (typeof Specific_guide_bookingScalarFieldEnum)[keyof typeof Specific_guide_bookingScalarFieldEnum]
+
+
+export const Common_guide_bookingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  commonGuideId: 'commonGuideId',
+  bookingDate: 'bookingDate',
+  bookingTime: 'bookingTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Common_guide_bookingScalarFieldEnum = (typeof Common_guide_bookingScalarFieldEnum)[keyof typeof Common_guide_bookingScalarFieldEnum]
+
+
+export const Common_guide_booking_placesScalarFieldEnum = {
+  id: 'id',
+  bookingId: 'bookingId',
+  placeId: 'placeId'
+} as const
+
+export type Common_guide_booking_placesScalarFieldEnum = (typeof Common_guide_booking_placesScalarFieldEnum)[keyof typeof Common_guide_booking_placesScalarFieldEnum]
 
 
 export const HotelScalarFieldEnum = {

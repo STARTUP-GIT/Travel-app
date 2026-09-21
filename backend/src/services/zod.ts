@@ -329,6 +329,34 @@ export const restaurantReservationSchema = z.object({
   guests: z.number().int().positive(),
 });
 
+export const specificGuideBookingSchema = z.object({
+  specificGuideId: z.string().min(1),
+  bookingDate: z.coerce
+    .date()
+    .refine((date) => date >= startOfToday(), {
+      message: "Booking date must not be in the past",
+    }),
+  bookingTime: z.string().min(1).optional(),
+});
+
+export const commonGuideBookingSchema = z.object({
+  commonGuideId: z.string().min(1),
+  placeIds: z.array(z.string().min(1)).min(1),
+  bookingDate: z.coerce
+    .date()
+    .refine((date) => date >= startOfToday(), {
+      message: "Booking date must not be in the past",
+    }),
+  bookingTime: z.string().min(1).optional(),
+});
+
+export const guideBookingStatusSchema = z.enum([
+  "CONFIRMED",
+  "REJECTED",
+  "CANCELLED",
+  "COMPLETED",
+]);
+
 export const bookingStatusSchema = z.enum([
   "PENDING",
   "CONFIRMED",

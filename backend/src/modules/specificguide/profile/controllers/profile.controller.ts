@@ -2,7 +2,19 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import prisma from "../../../../db/prisma.js";
 import { ZodError } from "zod";
-import { specificGuideProfileUpdateSchema } from "../../../../services/zod.js";
+import {
+  specificGuideProfileUpdateSchema,
+  guideBookingStatusSchema,
+} from "../../../../services/zod.js";
+
+const userSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profilepic: true,
+} as const;
 
 const specificGuideSafeSelect = {
   id: true,
@@ -185,6 +197,101 @@ export const deleteProfile = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Delete profile error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getBookings = async (req: Request, res: Response) => {
+  try {
+    const specificGuideId = req.specific_guide;
+
+    if (!specificGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const bookings = await prisma.specific_guide_booking.findMany({
+      where: {
+        specificGuideId,
+      },
+      include: {
+        user: { select: userSafeSelect },
+        place: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json(bookings);
+  } catch (error) {
+    console.error("Get specific guide bookings error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const updateBookingStatus = async (req: Request, res: Response) => {
+  try {
+    const specificGuideId = req.specific_guide;
+
+    if (!specificGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { bookingId } = req.params as { bookingId: string };
+
+    const status = guideBookingStatusSchema.parse(req.body);
+
+    const booking = await prisma.specific_guide_booking.findUnique({
+      where: {
+        id: bookingId,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.specificGuideId !== specificGuideId) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+
+    const updatedBooking = await prisma.specific_guide_booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: { status },
+      include: {
+        user: { select: userSafeSelect },
+        place: true,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Booking status updated successfully",
+      booking: updatedBooking,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    console.error("Update specific guide booking status error:", error);
 
     return res.status(500).json({
       message: "Internal Server Error",

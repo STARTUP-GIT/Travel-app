@@ -3,6 +3,6 @@ import { adminAuthMiddleware } from '../../../../../middlewares/auth.midleware.j
 import { updateCountryService } from '../controllers/country.controller.js';
 const router = express.Router();
 
-router.patch('/:id/service' , adminAuthMiddleware , updateCountryService);
+router.patch('/:id/countryservice' , adminAuthMiddleware , updateCountryService);
 
 export default router;

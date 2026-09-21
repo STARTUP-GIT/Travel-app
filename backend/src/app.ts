@@ -17,6 +17,9 @@ ADMIN ROUTES IMPORTS
 **/
 import adminAuthRoutes from './modules/admin/auth/routes/auth.route.js';
 import adminProfileRoutes from './modules/admin/profile/routes/profile.routes.js';
+import countryRoutes from './modules/admin/location/country/routes/country.route.js';
+import stateRoutes from './modules/admin/location/state/routes/state.route.js';
+import districtsRoutes from './modules/admin/location/district/routes/district.route.js'
 
 /** 
 COMMON GUIDES ROUTES IMPORTS
@@ -38,13 +41,18 @@ import hotelOwnerProfileRoutes from './modules/services/hotel/owner/routes/profi
 import hotelProfileRoutes from './modules/services/hotel/hotelprofile/routes/profile.routes.js';
 import hotelBookingRoutes from './modules/services/hotel/booking/routes/booking.routes.js';
 
-/** 
+/**
 RESTAURANT ROUTES IMPORTS
 **/
 import restaurantAuthRoutes from './modules/services/restaurant/auth/routes/auth.routes.js';
 import restaurantOwnerProfileRoutes from './modules/services/restaurant/owner/routes/profile.routes.js';
 import restaurantProfileRoutes from './modules/services/restaurant/restaurentprofile/routes/profile.routes.js';
 import restaurantReservationRoutes from './modules/services/restaurant/reservation/routes/reservation.routes.js';
+
+/**
+PLACES ROUTES IMPORTS
+**/
+import placeRoutes from './modules/places/routes/places.routes.js';
 
 
 
@@ -88,6 +96,10 @@ ADMIN ROUTES
 **/
 app.use('/admin' , adminAuthRoutes);
 app.use('/admin/profile' , adminProfileRoutes);
+app.use('/admin/location/countries' , countryRoutes);
+app.use('/admin/location',stateRoutes);
+app.use('/admin/location' ,districtsRoutes )
+
 
 /** 
 COMMON GUIDES ROUTES  
@@ -100,7 +112,7 @@ SPECIFIC GUIDES ROUTES
 **/
 
 app.use('/services/:districtId/specificguide' ,specificGuideAuthRoutes); 
-app.use('/services/:districtId/specificguide/profile' ,specificGuideAuthRoutes); 
+app.use('/services/:districtId/specificguide/profile' ,specificGuideProfieRoutes); 
 
 /** 
 HOTEL ROUTES  
@@ -111,13 +123,19 @@ app.use('/:districtId/services/hotel', hotelProfileRoutes);
 app.use('/:districtId/services/hotel/booking', hotelBookingRoutes);
 
 
-/** 
-RESTAURANT ROUTES  
+/**
+RESTAURANT ROUTES
 **/
 app.use('/:districtId/services/restaurant', restaurantAuthRoutes);
 app.use('/:districtId/services/restaurant/profile', restaurantOwnerProfileRoutes);
 app.use('/:districtId/services/restaurant', restaurantProfileRoutes);
 app.use('/:districtId/services/restaurant/reservation', restaurantReservationRoutes);
+
+
+/**
+PLACES ROUTES
+**/
+app.use('/:districtId/services',placeRoutes);
 
 
 

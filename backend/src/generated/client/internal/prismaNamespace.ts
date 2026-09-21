@@ -406,9 +406,13 @@ export const ModelName = {
   state: 'state',
   district: 'district',
   place: 'place',
+  place_submission: 'place_submission',
   specific_guide: 'specific_guide',
   common_guide: 'common_guide',
   common_guide_places: 'common_guide_places',
+  specific_guide_booking: 'specific_guide_booking',
+  common_guide_booking: 'common_guide_booking',
+  common_guide_booking_places: 'common_guide_booking_places',
   hotel: 'hotel',
   restaurent: 'restaurent',
   hotel_owner: 'hotel_owner',
@@ -430,7 +434,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "specific_guide" | "common_guide" | "common_guide_places" | "hotel" | "restaurent" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation"
+    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "restaurent" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1100,6 +1104,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    place_submission: {
+      payload: Prisma.$place_submissionPayload<ExtArgs>
+      fields: Prisma.place_submissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.place_submissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.place_submissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        findFirst: {
+          args: Prisma.place_submissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.place_submissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        findMany: {
+          args: Prisma.place_submissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>[]
+        }
+        create: {
+          args: Prisma.place_submissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        createMany: {
+          args: Prisma.place_submissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.place_submissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>[]
+        }
+        delete: {
+          args: Prisma.place_submissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        update: {
+          args: Prisma.place_submissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.place_submissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.place_submissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.place_submissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.place_submissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_submissionPayload>
+        }
+        aggregate: {
+          args: Prisma.Place_submissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlace_submission>
+        }
+        groupBy: {
+          args: Prisma.place_submissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Place_submissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.place_submissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Place_submissionCountAggregateOutputType> | number
+        }
+      }
+    }
     specific_guide: {
       payload: Prisma.$specific_guidePayload<ExtArgs>
       fields: Prisma.specific_guideFieldRefs
@@ -1319,6 +1397,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.common_guide_placesCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.Common_guide_placesCountAggregateOutputType> | number
+        }
+      }
+    }
+    specific_guide_booking: {
+      payload: Prisma.$specific_guide_bookingPayload<ExtArgs>
+      fields: Prisma.specific_guide_bookingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.specific_guide_bookingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.specific_guide_bookingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        findFirst: {
+          args: Prisma.specific_guide_bookingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.specific_guide_bookingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        findMany: {
+          args: Prisma.specific_guide_bookingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>[]
+        }
+        create: {
+          args: Prisma.specific_guide_bookingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        createMany: {
+          args: Prisma.specific_guide_bookingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.specific_guide_bookingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>[]
+        }
+        delete: {
+          args: Prisma.specific_guide_bookingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        update: {
+          args: Prisma.specific_guide_bookingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        deleteMany: {
+          args: Prisma.specific_guide_bookingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.specific_guide_bookingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.specific_guide_bookingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>[]
+        }
+        upsert: {
+          args: Prisma.specific_guide_bookingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$specific_guide_bookingPayload>
+        }
+        aggregate: {
+          args: Prisma.Specific_guide_bookingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSpecific_guide_booking>
+        }
+        groupBy: {
+          args: Prisma.specific_guide_bookingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Specific_guide_bookingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.specific_guide_bookingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Specific_guide_bookingCountAggregateOutputType> | number
+        }
+      }
+    }
+    common_guide_booking: {
+      payload: Prisma.$common_guide_bookingPayload<ExtArgs>
+      fields: Prisma.common_guide_bookingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.common_guide_bookingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.common_guide_bookingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        findFirst: {
+          args: Prisma.common_guide_bookingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.common_guide_bookingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        findMany: {
+          args: Prisma.common_guide_bookingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>[]
+        }
+        create: {
+          args: Prisma.common_guide_bookingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        createMany: {
+          args: Prisma.common_guide_bookingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.common_guide_bookingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>[]
+        }
+        delete: {
+          args: Prisma.common_guide_bookingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        update: {
+          args: Prisma.common_guide_bookingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        deleteMany: {
+          args: Prisma.common_guide_bookingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.common_guide_bookingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.common_guide_bookingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>[]
+        }
+        upsert: {
+          args: Prisma.common_guide_bookingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_bookingPayload>
+        }
+        aggregate: {
+          args: Prisma.Common_guide_bookingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommon_guide_booking>
+        }
+        groupBy: {
+          args: Prisma.common_guide_bookingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Common_guide_bookingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.common_guide_bookingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Common_guide_bookingCountAggregateOutputType> | number
+        }
+      }
+    }
+    common_guide_booking_places: {
+      payload: Prisma.$common_guide_booking_placesPayload<ExtArgs>
+      fields: Prisma.common_guide_booking_placesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.common_guide_booking_placesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.common_guide_booking_placesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        findFirst: {
+          args: Prisma.common_guide_booking_placesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.common_guide_booking_placesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        findMany: {
+          args: Prisma.common_guide_booking_placesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>[]
+        }
+        create: {
+          args: Prisma.common_guide_booking_placesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        createMany: {
+          args: Prisma.common_guide_booking_placesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.common_guide_booking_placesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>[]
+        }
+        delete: {
+          args: Prisma.common_guide_booking_placesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        update: {
+          args: Prisma.common_guide_booking_placesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        deleteMany: {
+          args: Prisma.common_guide_booking_placesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.common_guide_booking_placesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.common_guide_booking_placesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>[]
+        }
+        upsert: {
+          args: Prisma.common_guide_booking_placesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$common_guide_booking_placesPayload>
+        }
+        aggregate: {
+          args: Prisma.Common_guide_booking_placesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommon_guide_booking_places>
+        }
+        groupBy: {
+          args: Prisma.common_guide_booking_placesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Common_guide_booking_placesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.common_guide_booking_placesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Common_guide_booking_placesCountAggregateOutputType> | number
         }
       }
     }
@@ -1897,7 +2197,8 @@ export const DistrictScalarFieldEnum = {
   id: 'id',
   name: 'name',
   stateId: 'stateId',
-  isServiceAvailable: 'isServiceAvailable'
+  isServiceAvailable: 'isServiceAvailable',
+  autoApprovePlaces: 'autoApprovePlaces'
 } as const
 
 export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]
@@ -1918,6 +2219,28 @@ export const PlaceScalarFieldEnum = {
 } as const
 
 export type PlaceScalarFieldEnum = (typeof PlaceScalarFieldEnum)[keyof typeof PlaceScalarFieldEnum]
+
+
+export const Place_submissionScalarFieldEnum = {
+  id: 'id',
+  placeId: 'placeId',
+  name: 'name',
+  description: 'description',
+  districtId: 'districtId',
+  images: 'images',
+  entryfee: 'entryfee',
+  category: 'category',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  status: 'status',
+  rejectionReason: 'rejectionReason',
+  specificGuideId: 'specificGuideId',
+  commonGuideId: 'commonGuideId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Place_submissionScalarFieldEnum = (typeof Place_submissionScalarFieldEnum)[keyof typeof Place_submissionScalarFieldEnum]
 
 
 export const Specific_guideScalarFieldEnum = {
@@ -1976,6 +2299,44 @@ export const Common_guide_placesScalarFieldEnum = {
 } as const
 
 export type Common_guide_placesScalarFieldEnum = (typeof Common_guide_placesScalarFieldEnum)[keyof typeof Common_guide_placesScalarFieldEnum]
+
+
+export const Specific_guide_bookingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  specificGuideId: 'specificGuideId',
+  placeId: 'placeId',
+  bookingDate: 'bookingDate',
+  bookingTime: 'bookingTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Specific_guide_bookingScalarFieldEnum = (typeof Specific_guide_bookingScalarFieldEnum)[keyof typeof Specific_guide_bookingScalarFieldEnum]
+
+
+export const Common_guide_bookingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  commonGuideId: 'commonGuideId',
+  bookingDate: 'bookingDate',
+  bookingTime: 'bookingTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Common_guide_bookingScalarFieldEnum = (typeof Common_guide_bookingScalarFieldEnum)[keyof typeof Common_guide_bookingScalarFieldEnum]
+
+
+export const Common_guide_booking_placesScalarFieldEnum = {
+  id: 'id',
+  bookingId: 'bookingId',
+  placeId: 'placeId'
+} as const
+
+export type Common_guide_booking_placesScalarFieldEnum = (typeof Common_guide_booking_placesScalarFieldEnum)[keyof typeof Common_guide_booking_placesScalarFieldEnum]
 
 
 export const HotelScalarFieldEnum = {
@@ -2186,6 +2547,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'placeSubmissionStatus'
+ */
+export type EnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeSubmissionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'placeSubmissionStatus[]'
+ */
+export type ListEnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeSubmissionStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -2200,20 +2575,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Food_Category'
- */
-export type EnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Food_Category'>
-    
-
-
-/**
- * Reference to a field of type 'Food_Category[]'
- */
-export type ListEnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Food_Category[]'>
-    
-
-
-/**
  * Reference to a field of type 'bookingStatus'
  */
 export type EnumbookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'bookingStatus'>
@@ -2224,6 +2585,20 @@ export type EnumbookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'bookingStatus[]'
  */
 export type ListEnumbookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'bookingStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Food_Category'
+ */
+export type EnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Food_Category'>
+    
+
+
+/**
+ * Reference to a field of type 'Food_Category[]'
+ */
+export type ListEnumFood_CategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Food_Category[]'>
     
 
 /**
@@ -2386,9 +2761,13 @@ export type GlobalOmitConfig = {
   state?: Prisma.stateOmit
   district?: Prisma.districtOmit
   place?: Prisma.placeOmit
+  place_submission?: Prisma.place_submissionOmit
   specific_guide?: Prisma.specific_guideOmit
   common_guide?: Prisma.common_guideOmit
   common_guide_places?: Prisma.common_guide_placesOmit
+  specific_guide_booking?: Prisma.specific_guide_bookingOmit
+  common_guide_booking?: Prisma.common_guide_bookingOmit
+  common_guide_booking_places?: Prisma.common_guide_booking_placesOmit
   hotel?: Prisma.hotelOmit
   restaurent?: Prisma.restaurentOmit
   hotel_owner?: Prisma.hotel_ownerOmit

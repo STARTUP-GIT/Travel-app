@@ -29,8 +29,18 @@ export type authProviders = (typeof authProviders)[keyof typeof authProviders]
 export const bookingStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
+  REJECTED: 'REJECTED',
   CANCELLED: 'CANCELLED',
   COMPLETED: 'COMPLETED'
 } as const
 
 export type bookingStatus = (typeof bookingStatus)[keyof typeof bookingStatus]
+
+
+export const placeSubmissionStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type placeSubmissionStatus = (typeof placeSubmissionStatus)[keyof typeof placeSubmissionStatus]

@@ -63,6 +63,11 @@ export type district = Prisma.districtModel
  */
 export type place = Prisma.placeModel
 /**
+ * Model place_submission
+ * 
+ */
+export type place_submission = Prisma.place_submissionModel
+/**
  * Model specific_guide
  * 
  */
@@ -77,6 +82,21 @@ export type common_guide = Prisma.common_guideModel
  * 
  */
 export type common_guide_places = Prisma.common_guide_placesModel
+/**
+ * Model specific_guide_booking
+ * 
+ */
+export type specific_guide_booking = Prisma.specific_guide_bookingModel
+/**
+ * Model common_guide_booking
+ * 
+ */
+export type common_guide_booking = Prisma.common_guide_bookingModel
+/**
+ * Model common_guide_booking_places
+ * 
+ */
+export type common_guide_booking_places = Prisma.common_guide_booking_placesModel
 /**
  * Model hotel
  * 

@@ -591,10 +591,6 @@ export type hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput = {
   deleteMany?: Prisma.hotel_bookingScalarWhereInput | Prisma.hotel_bookingScalarWhereInput[]
 }
 
-export type EnumbookingStatusFieldUpdateOperationsInput = {
-  set?: $Enums.bookingStatus
-}
-
 export type hotel_bookingCreateWithoutUserInput = {
   id?: string
   checkIn: Date | string

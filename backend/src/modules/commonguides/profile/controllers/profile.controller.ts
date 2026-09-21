@@ -2,7 +2,19 @@ import type { Request, Response } from "express";
 import prisma from "../../../../db/prisma.js";
 import bcrypt from "bcryptjs";
 import { ZodError } from "zod";
-import { commonGuideProfileUpdateSchema } from "../../../../services/zod.js";
+import {
+  commonGuideProfileUpdateSchema,
+  guideBookingStatusSchema,
+} from "../../../../services/zod.js";
+
+const userSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profilepic: true,
+} as const;
 
 const commonGuideSafeSelect = {
   id: true,
@@ -184,6 +196,107 @@ export const deleteProfile = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Delete profile error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getBookings = async (req: Request, res: Response) => {
+  try {
+    const commonGuideId = req.common_guide;
+
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const bookings = await prisma.common_guide_booking.findMany({
+      where: {
+        commonGuideId,
+      },
+      include: {
+        user: { select: userSafeSelect },
+        selectedPlaces: { include: { place: true } },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json(
+      bookings.map((booking: (typeof bookings)[number]) => ({
+        ...booking,
+        numberOfPlaces: booking.selectedPlaces.length,
+      }))
+    );
+  } catch (error) {
+    console.error("Get common guide bookings error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const updateBookingStatus = async (req: Request, res: Response) => {
+  try {
+    const commonGuideId = req.common_guide;
+
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { bookingId } = req.params as { bookingId: string };
+
+    const status = guideBookingStatusSchema.parse(req.body);
+
+    const booking = await prisma.common_guide_booking.findUnique({
+      where: {
+        id: bookingId,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    if (booking.commonGuideId !== commonGuideId) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+
+    const updatedBooking = await prisma.common_guide_booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: { status },
+      include: {
+        user: { select: userSafeSelect },
+        selectedPlaces: { include: { place: true } },
+      },
+    });
+
+    return res.status(200).json({
+      message: "Booking status updated successfully",
+      numberOfPlaces: updatedBooking.selectedPlaces.length,
+      booking: updatedBooking,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    console.error("Update common guide booking status error:", error);
 
     return res.status(500).json({
       message: "Internal Server Error",
