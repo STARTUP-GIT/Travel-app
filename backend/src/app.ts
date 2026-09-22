@@ -54,6 +54,13 @@ PLACES ROUTES IMPORTS
 **/
 import placeRoutes from './modules/places/routes/places.routes.js';
 
+/**
+ ADMIN PANEL CONFIGURATION ROUTES (isolated 'app config' folder)
+**/
+import appSettingsRoutes from './app_config/routes/appSettings.routes.js';
+import adminConfigRoutes from './app_config/routes/admin.routes.js';
+import googleAdminRoutes from './app_config/routes/googleAdmin.routes.js';
+
 
 
 
@@ -92,8 +99,9 @@ app.use('/users/booking', userBookingRoutes);
 
 
 /** 
-ADMIN ROUTES  
+ ADMIN ROUTES  
 **/
+app.use('/admin/api/auth' , googleAdminRoutes);
 app.use('/admin' , adminAuthRoutes);
 app.use('/admin/profile' , adminProfileRoutes);
 app.use('/admin/location/countries' , countryRoutes);
@@ -136,6 +144,13 @@ app.use('/:districtId/services/restaurant/reservation', restaurantReservationRou
 PLACES ROUTES
 **/
 app.use('/:districtId/services',placeRoutes);
+
+
+/**
+ADMIN PANEL CONFIGURATION ROUTES
+**/
+app.use('/api', appSettingsRoutes);
+app.use('/api/admin', adminConfigRoutes);
 
 
 
