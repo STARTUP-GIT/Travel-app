@@ -70,7 +70,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CLIENTENDURL ?? "http://localhost:8080",
+    origin: [process.env.CLIENTENDURL, process.env.ADMINENDURL].filter(
+      (origin): origin is string => Boolean(origin)
+    ),
     credentials: true,
   })
 );
