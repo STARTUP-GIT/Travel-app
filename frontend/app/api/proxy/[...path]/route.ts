@@ -9,6 +9,15 @@ async function proxy(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params;
   const backendPath = `/${path.join("/")}`;
 
+  // Authentication is handled exclusively by NextAuth at /api/auth/[...nextauth].
+  // Reject any attempt to proxy backend authentication endpoints.
+  if (/\/api\/auth\//i.test(backendPath)) {
+    return new Response(JSON.stringify({ error: "Not Found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
   const session = await auth();
   let token = session?.backendToken;
 

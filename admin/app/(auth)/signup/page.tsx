@@ -12,7 +12,17 @@ import { AdminLogo } from "@/components/admin/admin-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminSessionApi } from "@/lib/api/admin";
+
+const SIGN_UP_ERRORS: Record<string, string> = {
+  invalid_credentials: "Please complete all required fields.",
+  admin_signup_failed: "An admin with this email or username already exists.",
+  backend_unavailable:
+    "The authentication service is unavailable. Please try again later.",
+  Configuration:
+    "Authentication is not configured correctly. Please contact support.",
+  CredentialsSignin: "Unable to create the admin account.",
+  default: "Account creation failed. Please try again.",
+};
 
 function GoogleIcon() {
   return (
@@ -87,18 +97,34 @@ function SignupForm() {
 
     setSubmitting(true);
     try {
-      await adminSessionApi.signUp({
-        fullname: fullname.trim(),
-        username: username.trim(),
+      // Admin sign-up is handled by NextAuth too: the Credentials provider
+      // creates the admin against the real backend (intent "signup") and then
+      // returns a session, so no request ever reaches the old
+      // /api/proxy/admin/api/auth/signup endpoint.
+      const res = await signIn("credentials", {
         email: email.trim(),
+        username: username.trim(),
+        fullname: fullname.trim(),
         password,
+        intent: "signup",
+        redirect: false,
       });
+
+      if (res?.error || res?.code) {
+        toast.error("Account creation failed", {
+          description:
+            SIGN_UP_ERRORS[res?.code ?? res?.error ?? "default"] ??
+            SIGN_UP_ERRORS.default,
+        });
+        return;
+      }
+
       toast.success("Admin account created");
       router.push("/admin");
       router.refresh();
-    } catch (err) {
+    } catch {
       toast.error("Account creation failed", {
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: SIGN_UP_ERRORS.default,
       });
     } finally {
       setSubmitting(false);

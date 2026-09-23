@@ -1,9 +1,23 @@
-import NextAuth, { type NextAuthConfig } from "next-auth";
+import NextAuth, {
+  CredentialsSignin,
+  type NextAuthConfig,
+  type User as AuthUser,
+} from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
 import { syncGoogleAccount } from "@/lib/api/auth-sync";
 import { getApiBaseUrl } from "@/lib/api/client";
+
+/** Wrong email/password (or the account does not exist). */
+class InvalidCredentialsError extends CredentialsSignin {
+  code = "invalid_credentials";
+}
+
+/** The backend could not authenticate the request. */
+class BackendUnavailableError extends CredentialsSignin {
+  code = "backend_unavailable";
+}
 
 export const authConfig = {
   secret: process.env.AUTH_SECRET,
@@ -34,7 +48,7 @@ export const authConfig = {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
 
-        if (!email || !password) return null;
+        if (!email || !password) throw new InvalidCredentialsError();
 
         try {
           const res = await fetch(
@@ -47,10 +61,13 @@ export const authConfig = {
             }
           );
 
-          const data = (await res.json()) as { token?: string; message?: string };
+          const data = (await res.json()) as {
+            token?: string;
+            message?: string;
+          };
 
           if (!res.ok || !data.token) {
-            return null;
+            throw new InvalidCredentialsError();
           }
 
           return {
@@ -58,9 +75,10 @@ export const authConfig = {
             email,
             name: email.split("@")[0] ?? email,
             backendToken: data.token,
-          };
-        } catch {
-          return null;
+          } as unknown as AuthUser;
+        } catch (error) {
+          if (error instanceof CredentialsSignin) throw error;
+          throw new BackendUnavailableError();
         }
       },
     }),

@@ -17,23 +17,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAdminProfile } from "@/lib/hooks/use-admin-profile";
-import { adminSessionApi } from "@/lib/api/admin";
 
 export function AdminHeader() {
   const { profile } = useAdminProfile();
   const router = useRouter();
 
   async function signOutAdmin() {
-    try {
-      // Clear any legacy backend token cookie on the admin origin.
-      await adminSessionApi.signOut();
-    } catch {
-      // ignore
-    }
+    // NextAuth destroys the session; the browser is then redirected to the
+    // login page. No request is sent to any proxy signout endpoint.
     await signOut({ callbackUrl: "/login" });
   }
 
-  const firstName = profile?.name?.split(" ")[0] ?? "Admin";
   const initial = profile?.name?.charAt(0)?.toUpperCase() ?? "A";
 
   return (

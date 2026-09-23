@@ -11,6 +11,15 @@ async function proxy(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params;
   const backendPath = `/${path.join("/")}`;
 
+  // Authentication is handled exclusively by NextAuth at /api/auth/[...nextauth].
+  // Reject any attempt to proxy backend authentication endpoints.
+  if (/\/api\/auth\//i.test(backendPath)) {
+    return new Response(JSON.stringify({ error: "Not Found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
   // Forward the browser's cookies verbatim. When an authorized Auth.js admin
   // session exists, the verified backend admin token inside the encrypted
   // session becomes the `token` cookie sent to the backend so the existing

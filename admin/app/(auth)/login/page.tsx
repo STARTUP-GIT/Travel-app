@@ -12,7 +12,16 @@ import { AdminLogo } from "@/components/admin/admin-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminSessionApi } from "@/lib/api/admin";
+
+const SIGN_IN_ERRORS: Record<string, string> = {
+  invalid_credentials: "Invalid admin email or password.",
+  backend_unavailable:
+    "The authentication service is unavailable. Please try again later.",
+  Configuration:
+    "Authentication is not configured correctly. Please contact support.",
+  CredentialsSignin: "Invalid admin email or password.",
+  default: "Sign-in failed. Please try again.",
+};
 
 function GoogleIcon() {
   return (
@@ -71,13 +80,30 @@ function LoginForm() {
     }
     setSubmitting(true);
     try {
-      await adminSessionApi.signIn({ email, password });
+      // Credential authentication is handled entirely by NextAuth. The
+      // Credentials provider validates against the real backend, so no request
+      // is ever sent to the old /api/proxy/admin/api/auth/signin endpoint.
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error || res?.code) {
+        toast.error("Sign-in failed", {
+          description:
+            SIGN_IN_ERRORS[res?.code ?? res?.error ?? "default"] ??
+            SIGN_IN_ERRORS.default,
+        });
+        return;
+      }
+
       toast.success("Welcome back!");
       router.push("/admin");
       router.refresh();
-    } catch (err) {
+    } catch {
       toast.error("Sign-in failed", {
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: SIGN_IN_ERRORS.default,
       });
     } finally {
       setSubmitting(false);

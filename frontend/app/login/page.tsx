@@ -16,6 +16,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const SIGN_IN_ERRORS: Record<string, string> = {
+  invalid_credentials: "Check your email and password.",
+  backend_unavailable:
+    "The sign-in service is unavailable. Please try again later.",
+  Configuration: "Authentication is not configured correctly.",
+  CredentialsSignin: "Check your email and password.",
+  default: "Sign-in failed. Please try again.",
+};
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -57,8 +66,12 @@ function LoginForm() {
       redirect: false,
     });
     setMode(null);
-    if (res?.error) {
-      toast.error("Sign-in failed", { description: "Check your email and password." });
+    if (res?.error || res?.code) {
+      toast.error("Sign-in failed", {
+        description:
+          SIGN_IN_ERRORS[res?.code ?? res?.error ?? "default"] ??
+          SIGN_IN_ERRORS.default,
+      });
       return;
     }
     toast.success("Welcome back!");

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { adminSessionApi } from "@/lib/api/admin";
+import { adminProfileApi } from "@/lib/api/admin";
 import type { AdminProfile } from "@/lib/types";
 
 type ProfileState = {
@@ -20,8 +20,7 @@ export function AdminProfileProvider({ children }: { children: React.ReactNode }
 
   React.useEffect(() => {
     let active = true;
-    setLoading(true);
-    adminSessionApi
+    adminProfileApi
       .getProfile()
       .then((p) => {
         if (active) setProfile(p);
@@ -38,7 +37,14 @@ export function AdminProfileProvider({ children }: { children: React.ReactNode }
   }, [nonce]);
 
   const value = React.useMemo<ProfileState>(
-    () => ({ profile, loading, refetch: () => setNonce((n) => n + 1) }),
+    () => ({
+      profile,
+      loading,
+      refetch: () => {
+        setLoading(true);
+        setNonce((n) => n + 1);
+      },
+    }),
     [profile, loading]
   );
 

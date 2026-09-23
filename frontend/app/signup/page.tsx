@@ -13,7 +13,7 @@ import { useBranding } from "@/features/app-config/state/app-config-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signupWithEmail } from "@/features/auth/api/auth.api";
+import { signupWithEmail } from "@/features/auth/api/auth.actions";
 
 export default function SignupPage() {
   const router = useRouter();
