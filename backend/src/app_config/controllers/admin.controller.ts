@@ -192,10 +192,19 @@ const getConfig = async () =>
 export const getAppSettings = async (_req: Request, res: Response) => {
   try {
     const config = await getConfig();
-    if (!config) {
-      return res.status(404).json({ message: "Application settings not found" });
-    }
-    return res.status(200).json({ settings: config });
+    const settings = config ?? {
+      id: "",
+      app_name: "",
+      app_description: "",
+      webTitle: "",
+      icon: "",
+      imageBanners: [],
+      text: "",
+      contacts: "",
+      termsandconditions: "",
+      privacy: "",
+    };
+    return res.status(200).json({ settings });
   } catch (error) {
     return handleError(res, error);
   }
