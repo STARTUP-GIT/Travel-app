@@ -2,9 +2,12 @@
 
 import { LogOut, Menu, User } from "lucide-react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { Sidebar } from "@/components/admin/sidebar";
+import { AdminLogo } from "@/components/admin/admin-logo";
+import { SidebarNav } from "@/components/admin/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,6 +24,7 @@ import { useAdminProfile } from "@/lib/hooks/use-admin-profile";
 export function AdminHeader() {
   const { profile } = useAdminProfile();
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   async function signOutAdmin() {
     // NextAuth destroys the session; the browser is then redirected to the
@@ -34,15 +38,22 @@ export function AdminHeader() {
     <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border bg-card px-4 backdrop-blur-md">
       {/* Mobile sidebar trigger */}
       <div className="lg:hidden">
-        <Sheet>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="size-9 rounded-lg" aria-label="Open menu">
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 p-0">
+          <SheetContent side="left" className="w-[85vw] max-w-[280px] p-0 sm:max-w-none">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
-            <Sidebar />
+            <div className="flex h-full flex-col bg-card">
+              <div className="flex h-14 shrink-0 items-center border-b border-border px-5 pr-12">
+                <Link href="/dashboard" className="flex items-center">
+                  <AdminLogo />
+                </Link>
+              </div>
+              <SidebarNav onNavigate={() => setMenuOpen(false)} />
+            </div>
           </SheetContent>
         </Sheet>
       </div>

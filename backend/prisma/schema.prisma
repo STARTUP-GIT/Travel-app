@@ -125,6 +125,7 @@ model place {
   commonGuideBookingPlaces common_guide_booking_places[]
   entryfee        Float
   category        String
+  status          placeSubmissionStatus @default(PENDING)
   latitude        Float
   longitude       Float
   createdAt       DateTime @default(now())
@@ -269,19 +270,20 @@ model hotel {
   review                String[]
   cost_per_night        Int
   images                String[]
-  latitude        Float
-  longitude       Float
+  latitude              Float
+  longitude             Float
   phone_number          String?
   whatsapp_number       String?
   email                 String?
   website               String?
   booking_enabled       Boolean   @default(true)
+  status                placeSubmissionStatus @default(PENDING)
   hotelOwnerId          String
   hotelOwner            hotel_owner @relation(fields: [hotelOwnerId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  district  district @relation(fields: [districtId], references: [id])
-  bookings        hotel_booking[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  district              district @relation(fields: [districtId], references: [id])
+  bookings              hotel_booking[]
 }
 
 model  restaurent {
@@ -296,19 +298,20 @@ model  restaurent {
   food_category         Food_Category @default(VEG_AND_NONVEG)
   images                String[]
   profile_logo          String
-  latitude        Float
-  longitude       Float
+  latitude              Float
+  longitude             Float
   phone_number          String?
   whatsapp_number       String?
   email                 String?
   website               String?
   booking_enabled       Boolean   @default(true)
+  status                placeSubmissionStatus @default(PENDING)
   restaurentOwnerId     String
   restaurentOwner       restaurent_owner @relation(fields: [restaurentOwnerId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  district  district @relation(fields: [districtId], references: [id])
-  reservations  restaurant_reservation[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  district              district @relation(fields: [districtId], references: [id])
+  reservations          restaurant_reservation[]
 }
 
 model hotel_owner {

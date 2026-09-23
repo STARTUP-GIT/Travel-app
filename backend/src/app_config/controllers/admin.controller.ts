@@ -76,6 +76,7 @@ const placeSelect = {
   images: true,
   entryfee: true,
   category: true,
+  status: true,
   latitude: true,
   longitude: true,
   createdAt: true,
@@ -97,6 +98,7 @@ const hotelSelect = {
   email: true,
   website: true,
   booking_enabled: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -117,6 +119,7 @@ const restaurentSelect = {
   email: true,
   website: true,
   booking_enabled: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -627,10 +630,12 @@ export const listHotels = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
     const hotels = await prisma.hotel.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
+        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
       },
       include: {
         district: { include: { state: true } },
@@ -640,6 +645,100 @@ export const listHotels = async (req: Request, res: Response) => {
       orderBy: { createdAt: "desc" },
     });
     return res.status(200).json({ hotels });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createHotelAdmin = async (req: Request, res: Response) => {
+  try {
+    const { name, address, districtId, hotelOwnerId, profile_logo, description, rating, cost_per_night, images, latitude, longitude, phone_number, whatsapp_number, email, website, booking_enabled } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) return res.status(400).json({ message: "name is required" });
+    if (typeof address !== "string" || !address.trim()) return res.status(400).json({ message: "address is required" });
+    if (typeof districtId !== "string" || !districtId.trim()) return res.status(400).json({ message: "districtId is required" });
+    if (typeof hotelOwnerId !== "string" || !hotelOwnerId.trim()) return res.status(400).json({ message: "hotelOwnerId is required" });
+
+    const [district, owner] = await Promise.all([
+      prisma.district.findUnique({ where: { id: districtId }, select: { id: true } }),
+      prisma.hotel_owner.findUnique({ where: { id: hotelOwnerId }, select: { id: true } }),
+    ]);
+
+    if (!district) return res.status(400).json({ message: "District not found" });
+    if (!owner) return res.status(400).json({ message: "Hotel owner not found" });
+
+    const hotel = await prisma.hotel.create({
+      data: {
+        name: name.trim(),
+        address: address.trim(),
+        profile_logo: typeof profile_logo === "string" ? profile_logo : "",
+        districtId,
+        description: typeof description === "string" ? description : null,
+        rating: typeof rating === "number" ? rating : 0,
+        cost_per_night: typeof cost_per_night === "number" ? cost_per_night : 0,
+        images: Array.isArray(images) && images.every((item) => typeof item === "string") ? images : [],
+        latitude: typeof latitude === "number" ? latitude : 0,
+        longitude: typeof longitude === "number" ? longitude : 0,
+        phone_number: typeof phone_number === "string" ? phone_number : null,
+        whatsapp_number: typeof whatsapp_number === "string" ? whatsapp_number : null,
+        email: typeof email === "string" ? email : null,
+        website: typeof website === "string" ? website : null,
+        booking_enabled: typeof booking_enabled === "boolean" ? booking_enabled : true,
+        status: "APPROVED",
+        hotelOwnerId,
+      },
+      include: { district: { include: { state: true } }, hotelOwner: { select: ownerSelect } },
+    });
+
+    return res.status(201).json({ message: "Hotel created", hotel });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updateHotelAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { name, address, districtId, profile_logo, description, rating, cost_per_night, images, latitude, longitude, phone_number, whatsapp_number, email, website, booking_enabled } = req.body ?? {};
+    const existing = await prisma.hotel.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ message: "Hotel not found" });
+
+    const hotel = await prisma.hotel.update({
+      where: { id },
+      data: {
+        ...(typeof name === "string" && name.trim() ? { name: name.trim() } : {}),
+        ...(typeof address === "string" && address.trim() ? { address: address.trim() } : {}),
+        ...(typeof districtId === "string" && districtId.trim() ? { districtId } : {}),
+        ...(typeof profile_logo === "string" ? { profile_logo } : {}),
+        ...(typeof description === "string" ? { description } : {}),
+        ...(typeof rating === "number" ? { rating } : {}),
+        ...(typeof cost_per_night === "number" ? { cost_per_night } : {}),
+        ...(Array.isArray(images) && images.every((item) => typeof item === "string") ? { images } : {}),
+        ...(typeof latitude === "number" ? { latitude } : {}),
+        ...(typeof longitude === "number" ? { longitude } : {}),
+        ...(typeof phone_number === "string" || phone_number === null ? { phone_number } : {}),
+        ...(typeof whatsapp_number === "string" || whatsapp_number === null ? { whatsapp_number } : {}),
+        ...(typeof email === "string" || email === null ? { email } : {}),
+        ...(typeof website === "string" || website === null ? { website } : {}),
+        ...(typeof booking_enabled === "boolean" ? { booking_enabled } : {}),
+      },
+      include: { district: { include: { state: true } }, hotelOwner: { select: ownerSelect } },
+    });
+
+    return res.status(200).json({ message: "Hotel updated", hotel });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updateHotelStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { status } = req.body ?? {};
+    if (status !== "PENDING" && status !== "APPROVED" && status !== "REJECTED") {
+      return res.status(400).json({ message: "Invalid hotel status" });
+    }
+    const hotel = await prisma.hotel.update({ where: { id }, data: { status } });
+    return res.status(200).json({ message: "Hotel status updated", hotel });
   } catch (error) {
     return handleError(res, error);
   }
@@ -666,10 +765,12 @@ export const listRestaurants = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
     const restaurants = await prisma.restaurent.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
+        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
       },
       include: {
         district: { include: { state: true } },
@@ -679,6 +780,102 @@ export const listRestaurants = async (req: Request, res: Response) => {
       orderBy: { createdAt: "desc" },
     });
     return res.status(200).json({ restaurants });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createRestaurantAdmin = async (req: Request, res: Response) => {
+  try {
+    const { name, address, districtId, restaurentOwnerId, profile_logo, description, rating, food_category, images, latitude, longitude, phone_number, whatsapp_number, email, website, booking_enabled, menu } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) return res.status(400).json({ message: "name is required" });
+    if (typeof address !== "string" || !address.trim()) return res.status(400).json({ message: "address is required" });
+    if (typeof districtId !== "string" || !districtId.trim()) return res.status(400).json({ message: "districtId is required" });
+    if (typeof restaurentOwnerId !== "string" || !restaurentOwnerId.trim()) return res.status(400).json({ message: "restaurentOwnerId is required" });
+
+    const [district, owner] = await Promise.all([
+      prisma.district.findUnique({ where: { id: districtId }, select: { id: true } }),
+      prisma.restaurent_owner.findUnique({ where: { id: restaurentOwnerId }, select: { id: true } }),
+    ]);
+
+    if (!district) return res.status(400).json({ message: "District not found" });
+    if (!owner) return res.status(400).json({ message: "Restaurant owner not found" });
+
+    const restaurant = await prisma.restaurent.create({
+      data: {
+        name: name.trim(),
+        address: address.trim(),
+        profile_logo: typeof profile_logo === "string" ? profile_logo : "",
+        districtId,
+        description: typeof description === "string" ? description : null,
+        rating: typeof rating === "number" ? rating : 0,
+        menu: Array.isArray(menu) && menu.every((item) => typeof item === "string") ? menu : [],
+        food_category: typeof food_category === "string" ? (food_category as any) : "VEG_AND_NONVEG",
+        images: Array.isArray(images) && images.every((item) => typeof item === "string") ? images : [],
+        latitude: typeof latitude === "number" ? latitude : 0,
+        longitude: typeof longitude === "number" ? longitude : 0,
+        phone_number: typeof phone_number === "string" ? phone_number : null,
+        whatsapp_number: typeof whatsapp_number === "string" ? whatsapp_number : null,
+        email: typeof email === "string" ? email : null,
+        website: typeof website === "string" ? website : null,
+        booking_enabled: typeof booking_enabled === "boolean" ? booking_enabled : true,
+        status: "APPROVED",
+        restaurentOwnerId,
+      },
+      include: { district: { include: { state: true } }, restaurentOwner: { select: ownerSelect } },
+    });
+
+    return res.status(201).json({ message: "Restaurant created", restaurant });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updateRestaurantAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { name, address, districtId, profile_logo, description, rating, food_category, menu, images, latitude, longitude, phone_number, whatsapp_number, email, website, booking_enabled } = req.body ?? {};
+    const existing = await prisma.restaurent.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ message: "Restaurant not found" });
+
+    const restaurant = await prisma.restaurent.update({
+      where: { id },
+      data: {
+        ...(typeof name === "string" && name.trim() ? { name: name.trim() } : {}),
+        ...(typeof address === "string" && address.trim() ? { address: address.trim() } : {}),
+        ...(typeof districtId === "string" && districtId.trim() ? { districtId } : {}),
+        ...(typeof profile_logo === "string" ? { profile_logo } : {}),
+        ...(typeof description === "string" ? { description } : {}),
+        ...(typeof rating === "number" ? { rating } : {}),
+        ...(typeof food_category === "string" ? { food_category: food_category as any } : {}),
+        ...(Array.isArray(menu) && menu.every((item) => typeof item === "string") ? { menu } : {}),
+        ...(Array.isArray(images) && images.every((item) => typeof item === "string") ? { images } : {}),
+        ...(typeof latitude === "number" ? { latitude } : {}),
+        ...(typeof longitude === "number" ? { longitude } : {}),
+        ...(typeof phone_number === "string" || phone_number === null ? { phone_number } : {}),
+        ...(typeof whatsapp_number === "string" || whatsapp_number === null ? { whatsapp_number } : {}),
+        ...(typeof email === "string" || email === null ? { email } : {}),
+        ...(typeof website === "string" || website === null ? { website } : {}),
+        ...(typeof booking_enabled === "boolean" ? { booking_enabled } : {}),
+      },
+      include: { district: { include: { state: true } }, restaurentOwner: { select: ownerSelect } },
+    });
+
+    return res.status(200).json({ message: "Restaurant updated", restaurant });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updateRestaurantStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { status } = req.body ?? {};
+    if (status !== "PENDING" && status !== "APPROVED" && status !== "REJECTED") {
+      return res.status(400).json({ message: "Invalid restaurant status" });
+    }
+    const restaurant = await prisma.restaurent.update({ where: { id }, data: { status } });
+    return res.status(200).json({ message: "Restaurant status updated", restaurant });
   } catch (error) {
     return handleError(res, error);
   }

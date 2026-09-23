@@ -1,56 +1,48 @@
-import { getHotels } from "@/features/hotels/api/hotels.api";
-import { getRestaurants } from "@/features/restaurants/api/restaurants.api";
-import type { District, DistrictSummary, StateSummary } from "@/features/locations/types";
+import { api } from "@/lib/api/client";
+import { memoizedGet } from "@/lib/api/cache";
+import type {
+  Country,
+  DistrictSummary,
+  StateSummary,
+} from "@/features/locations/types";
 import { slugify } from "@/features/locations/utils/slug";
 
 /**
- * The backend does not currently expose a public "list districts" endpoint.
- * District data is derived from the real hotel and restaurant listings, whose
- * responses include the full district -> state -> country hierarchy. Both
- * listings are memoized (60s TTL), so this coincides with the district page's
- * own hotel/restaurant fetches instead of duplicating them.
+ * Geographic availability is controlled by the admin enable/disable toggles
+ * (state.isServiceAvailable / district.isServiceAvailable) and served by the
+ * public customer endpoints:
+ *
+ *   GET /api/states    -> states that are enabled
+ *   GET /api/districts -> districts that are enabled AND whose state is enabled
+ *
+ * Approved listings never determine whether a state or district appears. Content
+ * counts (places, hotels, restaurants) are real backend aggregates that describe
+ * what exists inside an enabled location.
  */
 export async function getDistricts(): Promise<DistrictSummary[]> {
-  const [hotels, restaurants] = await Promise.all([
-    getHotels(),
-    getRestaurants(),
-  ]);
-
-  const map = new Map<string, DistrictSummary>();
-
-  for (const hotel of hotels) {
-    if (!hotel.district) continue;
-    const district = hotel.district;
-    const existing = map.get(district.id);
-    if (existing) {
-      existing.hotelCount += 1;
-    } else {
-      map.set(district.id, {
-        ...toSummary(district),
-        placeCount: 0,
-        hotelCount: 1,
-        restaurantCount: 0,
-      });
-    }
-  }
-
-  for (const restaurant of restaurants) {
-    if (!restaurant.district) continue;
-    const district = restaurant.district;
-    const existing = map.get(district.id);
-    if (existing) {
-      existing.restaurantCount += 1;
-    } else {
-      map.set(district.id, {
-        ...toSummary(district),
-        placeCount: 0,
-        hotelCount: 0,
-        restaurantCount: 1,
-      });
-    }
-  }
-
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  return memoizedGet("geo:districts", async () => {
+    const data = await api.get<{ districts: ApiDistrict[] }>("/api/districts");
+    return data.districts
+      .map((d) => ({
+        id: d.id,
+        name: d.name,
+        stateId: d.stateId,
+        isServiceAvailable: d.isServiceAvailable,
+        autoApprovePlaces: d.autoApprovePlaces,
+        state: {
+          id: d.state.id,
+          name: d.state.name,
+          countryId: d.state.countryId,
+          isServiceAvailable: d.state.isServiceAvailable,
+          country: d.state.country,
+        },
+        slug: slugify(d.name),
+        placeCount: d._count.places,
+        hotelCount: d._count.hotels,
+        restaurantCount: d._count.restaurent,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
 }
 
 export async function resolveDistrictBySlug(
@@ -68,34 +60,44 @@ export async function resolveDistrictById(
 }
 
 /**
- * States are derived from the real district hierarchy returned by the hotel
- * and restaurant listings (same source as getDistricts), so no state list is
- * hardcoded. A state only appears once at least one of its districts has
- * listings, matching the existing app behavior.
+ * All enabled states. A state appears as soon as the admin enables it, even if
+ * none of its districts or listings are enabled/approved yet.
  */
 export async function getStates(): Promise<StateSummary[]> {
-  const districts = await getDistricts();
-  const map = new Map<string, StateSummary>();
+  return memoizedGet("geo:states", async () => {
+    const [data, districts] = await Promise.all([
+      api.get<{ states: ApiState[] }>("/api/states"),
+      getDistricts(),
+    ]);
 
-  for (const d of districts) {
-    if (!d.state) continue;
-    const state = d.state;
-    const existing = map.get(state.id);
-    const spots = d.placeCount + d.hotelCount + d.restaurantCount;
-    if (existing) {
-      existing.districtCount += 1;
-      existing.placeCount += spots;
-    } else {
-      map.set(state.id, {
-        ...state,
-        slug: slugify(state.name),
-        districtCount: 1,
-        placeCount: spots,
-      });
+    const perState = new Map<string, { districtCount: number; placeCount: number }>();
+    for (const d of districts) {
+      const spots = d.placeCount + d.hotelCount + d.restaurantCount;
+      const existing = perState.get(d.stateId);
+      if (existing) {
+        existing.districtCount += 1;
+        existing.placeCount += spots;
+      } else {
+        perState.set(d.stateId, { districtCount: 1, placeCount: spots });
+      }
     }
-  }
 
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+    return data.states
+      .map((s) => {
+        const counts = perState.get(s.id);
+        return {
+          id: s.id,
+          name: s.name,
+          countryId: s.countryId,
+          country: s.country,
+          isServiceAvailable: s.isServiceAvailable,
+          slug: slugify(s.name),
+          districtCount: counts?.districtCount ?? 0,
+          placeCount: counts?.placeCount ?? 0,
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
 }
 
 export async function getStateBySlug(
@@ -117,16 +119,23 @@ export async function getDistrictsForState(
   return districts.filter((d) => d.stateId === state.id);
 }
 
-function toSummary(district: District): DistrictSummary {
-  return {
-    id: district.id,
-    name: district.name,
-    stateId: district.stateId,
-    state: district.state,
-    isServiceAvailable: district.isServiceAvailable,
-    slug: slugify(district.name),
-    placeCount: 0,
-    hotelCount: 0,
-    restaurantCount: 0,
-  };
-}
+type ApiCountry = Country;
+
+type ApiState = {
+  id: string;
+  name: string;
+  countryId: string;
+  isServiceAvailable: boolean;
+  country: ApiCountry;
+  _count: { districts: number };
+};
+
+type ApiDistrict = {
+  id: string;
+  name: string;
+  stateId: string;
+  isServiceAvailable: boolean;
+  autoApprovePlaces: boolean;
+  state: ApiState;
+  _count: { places: number; hotels: number; restaurent: number };
+};

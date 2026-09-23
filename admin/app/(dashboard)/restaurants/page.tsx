@@ -9,16 +9,18 @@ import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import type { RestaurantAdmin } from "@/lib/types";
+import type { ContentApprovalStatus, RestaurantAdmin } from "@/lib/types";
 
 export default function RestaurantsPage() {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState<"ALL" | ContentApprovalStatus>("ALL");
   const { data, loading, error, refetch } = useAdminData<{ restaurants: RestaurantAdmin[] }>(
     "/admin/api/restaurants",
-    { query: search ? { search } : undefined }
+    { query: { search: search || undefined, status } }
   );
 
   const columns: Column<RestaurantAdmin>[] = [
@@ -46,6 +48,11 @@ export default function RestaurantsPage() {
       cell: (r) => <span className="font-mono text-xs">{r.food_category?.replace(/_/g, " ").toLowerCase() || "—"}</span>,
     },
     {
+      key: "status",
+      header: "Approval",
+      cell: (r) => <StatusBadge status={r.status ?? "PENDING"} />,
+    },
+    {
       key: "reservations",
       header: "Reservations",
       cell: (r) => <span className="font-mono text-sm text-muted-foreground">{r._count?.reservations ?? 0}</span>,
@@ -68,7 +75,19 @@ export default function RestaurantsPage() {
   return (
     <div>
       <PageHeader title="Restaurants" subtitle="Restaurants and their reservation status.">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search restaurants…" className="w-56" />
+        <div className="flex items-center gap-2">
+          <SearchInput value={search} onChange={setSearch} placeholder="Search restaurants…" className="w-56" />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </PageHeader>
       {loading ? (
         <LoadingState />

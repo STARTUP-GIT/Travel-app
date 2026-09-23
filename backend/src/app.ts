@@ -59,6 +59,12 @@ import placeRoutes from './modules/places/routes/places.routes.js';
 **/
 import appSettingsRoutes from './app_config/routes/appSettings.routes.js';
 import adminConfigRoutes from './app_config/routes/admin.routes.js';
+import uploadRoutes from './app_config/routes/upload.routes.js';
+
+/**
+ CUSTOMER (PUBLIC) LOCATION ROUTES
+**/
+import customerLocationRoutes from './modules/user/location/routes/location.routes.js';
 
 
 
@@ -79,6 +85,7 @@ const toOrigin = (url: string): string => {
 const allowedOrigins = [
   process.env.CLIENTENDURL,
   process.env.ADMINENDURL,
+  process.env.SERVICEENDURL
 ]
   .filter((value): value is string => Boolean(value))
   .map(toOrigin);
@@ -168,7 +175,13 @@ app.use('/:districtId/services',placeRoutes);
 ADMIN PANEL CONFIGURATION ROUTES
 **/
 app.use('/api', appSettingsRoutes);
+app.use('/api', customerLocationRoutes);
 app.use('/api/admin', adminConfigRoutes);
+
+/**
+ GENERIC IMAGE UPLOAD (single endpoint → Cloudinary → secure_url)
+**/
+app.use('/api', uploadRoutes);
 
 
 

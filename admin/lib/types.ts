@@ -69,6 +69,8 @@ export type DistrictAdmin = {
   _count: { places: number; hotels: number; restaurent: number };
 };
 
+export type ContentApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export type PlaceAdmin = {
   id: string;
   name: string;
@@ -77,6 +79,7 @@ export type PlaceAdmin = {
   images: string[];
   entryfee: number;
   category: string;
+  status?: ContentApprovalStatus;
   latitude: number;
   longitude: number;
   createdAt: string;
@@ -147,6 +150,7 @@ export type HotelAdmin = {
   email: string | null;
   website: string | null;
   booking_enabled: boolean;
+  status?: ContentApprovalStatus;
   createdAt: string;
   updatedAt: string;
   district?: DistrictAdmin;
@@ -170,6 +174,7 @@ export type RestaurantAdmin = {
   email: string | null;
   website: string | null;
   booking_enabled: boolean;
+  status?: ContentApprovalStatus;
   createdAt: string;
   updatedAt: string;
   district?: DistrictAdmin;

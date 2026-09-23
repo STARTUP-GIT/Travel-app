@@ -9,16 +9,18 @@ import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { formatCurrency } from "@/lib/utils";
-import type { PlaceAdmin } from "@/lib/types";
+import type { ContentApprovalStatus, PlaceAdmin } from "@/lib/types";
 
 export default function PlacesPage() {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState<"ALL" | ContentApprovalStatus>("ALL");
   const { data, loading, error, refetch } = useAdminData<{ places: PlaceAdmin[] }>(
     "/admin/api/places",
-    { query: search ? { search } : undefined }
+    { query: { search: search || undefined, status } }
   );
 
   const columns: Column<PlaceAdmin>[] = [
@@ -49,6 +51,11 @@ export default function PlacesPage() {
       cell: (p) => <span className="font-mono text-sm">{formatCurrency(p.entryfee)}</span>,
     },
     {
+      key: "status",
+      header: "Status",
+      cell: (p) => <StatusBadge status={p.status ?? "PENDING"} />,
+    },
+    {
       key: "saved",
       header: "Saved",
       cell: (p) => (
@@ -67,7 +74,19 @@ export default function PlacesPage() {
   return (
     <div>
       <PageHeader title="Places" subtitle="All places across states and districts.">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search places…" className="w-56" />
+        <div className="flex items-center gap-2">
+          <SearchInput value={search} onChange={setSearch} placeholder="Search places…" className="w-56" />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </PageHeader>
       {loading ? (
         <LoadingState />

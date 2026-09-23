@@ -8,6 +8,11 @@ export const getPlacesByDistrict = async (req: Request, res: Response) => {
     const places = await prisma.place.findMany({
       where: {
         districtId,
+        status: "APPROVED",
+        district: {
+          isServiceAvailable: true,
+          state: { isServiceAvailable: true },
+        },
       },
 
       include: {
@@ -56,6 +61,7 @@ export const addPlace = async (req: Request, res: Response) => {
         category,
         latitude,
         longitude,
+        status: "APPROVED",
       },
     });
 
@@ -102,7 +108,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
       },
     });
 
-    if (!place) {
+    if (!place || place.status !== "APPROVED") {
       return res.status(404).json({
         message: "Place not found",
       });
@@ -343,7 +349,7 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
           where: {
             id: placeId,
           },
-          data: { ...data },
+          data: { ...data, status: "APPROVED" },
         });
 
         const submission = await tx.place_submission.create({
@@ -428,6 +434,7 @@ export const editPlace = async (req: Request, res: Response) => {
         ...(category !== undefined ? { category } : {}),
         ...(latitude !== undefined ? { latitude } : {}),
         ...(longitude !== undefined ? { longitude } : {}),
+        status: "APPROVED",
       },
     });
 
@@ -521,6 +528,7 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
             category: submission.category,
             latitude: submission.latitude,
             longitude: submission.longitude,
+            status: "APPROVED",
           },
         });
 
@@ -553,6 +561,7 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
           category: submission.category,
           latitude: submission.latitude,
           longitude: submission.longitude,
+          status: "APPROVED",
         },
       });
 
@@ -614,6 +623,13 @@ export const rejectPlaceSubmission = async (req: Request, res: Response) => {
         ...(rejectionReason !== undefined ? { rejectionReason } : {}),
       },
     });
+
+    if (submission.placeId) {
+      await prisma.place.update({
+        where: { id: submission.placeId },
+        data: { status: "REJECTED" },
+      });
+    }
 
     return res.status(200).json({
       message: "Place submission rejected",

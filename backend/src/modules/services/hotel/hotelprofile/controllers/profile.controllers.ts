@@ -52,6 +52,7 @@ export const createHotel = async (req: Request, res: Response) => {
         images: data.images ?? [],
         latitude: data.latitude,
         longitude: data.longitude,
+        status: "PENDING",
         ...(data.phone_number !== undefined ? { phone_number: data.phone_number } : {}),
         ...(data.whatsapp_number !== undefined ? { whatsapp_number: data.whatsapp_number } : {}),
         ...(data.email !== undefined ? { email: data.email } : {}),
@@ -88,6 +89,13 @@ export const createHotel = async (req: Request, res: Response) => {
 export const getAllHotels = async (req: Request, res: Response) => {
   try {
     const hotels = await prisma.hotel.findMany({
+      where: {
+        status: "APPROVED",
+        district: {
+          isServiceAvailable: true,
+          state: { isServiceAvailable: true },
+        },
+      },
       include: districtHierarchyInclude,
       orderBy: { createdAt: "desc" },
     });
@@ -110,6 +118,10 @@ export const getHotelById = async (req: Request, res: Response) => {
       where: { id: hotelId },
       include: districtHierarchyInclude,
     });
+
+    if (hotel && hotel.status !== "APPROVED") {
+      return res.status(404).json({ message: "Hotel not found" });
+    }
 
     if (!hotel) {
       return res.status(404).json({

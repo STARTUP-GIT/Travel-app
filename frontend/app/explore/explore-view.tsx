@@ -29,7 +29,7 @@ export function ExploreView({ states }: { states: StateSummary[] }) {
       <EmptyState
         icon={Globe2}
         title="No states yet"
-        description="States show up here once their districts have approved listings."
+        description="States appear here once the admin enables them for the app."
       />
     );
   }

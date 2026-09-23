@@ -87,6 +87,73 @@ export const commonGuideAuthMiddleware = buildRoleMiddleware("common_guide");
 export const hotelOwnerAuthMiddleware = buildRoleMiddleware("hotel_owner");
 export const restaurentOwnerAuthMiddleware = buildRoleMiddleware("restaurent_owner");
 
+/**
+ * Accepts a valid session token of ANY role. Used only by the single generic
+ * image-upload endpoint so one shared capability works for admin, user, guide
+ * and owner features alike. Purely additive: no existing route, login flow or
+ * token format is changed.
+ */
+export const anyAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = extractToken(req);
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  let secret: string;
+
+  try {
+    secret = getSessionSecret();
+  } catch {
+    return res.status(500).json({
+      message: "JWT_SECRET is not configured",
+    });
+  }
+
+  let decoded: SessionPayload;
+
+  try {
+    decoded = jwt.verify(token, secret) as SessionPayload;
+  } catch {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  switch (decoded.role) {
+    case "user":
+      req.userId = decoded.userId;
+      break;
+    case "admin":
+      req.admin = decoded.userId;
+      break;
+    case "specific_guide":
+      req.specific_guide = decoded.userId;
+      break;
+    case "common_guide":
+      req.common_guide = decoded.userId;
+      break;
+    case "hotel_owner":
+      req.hotel_owner = decoded.userId;
+      break;
+    case "restaurent_owner":
+      req.restaurent_owner = decoded.userId;
+      break;
+    default:
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+  }
+
+  next();
+};
+
 export const guideAuthMiddleware = (
   req: Request,
   res: Response,

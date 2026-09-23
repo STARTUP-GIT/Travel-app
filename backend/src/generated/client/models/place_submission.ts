@@ -708,10 +708,6 @@ export type place_submissionUpdateimagesInput = {
   push?: string | string[]
 }
 
-export type EnumplaceSubmissionStatusFieldUpdateOperationsInput = {
-  set?: $Enums.placeSubmissionStatus
-}
-
 export type place_submissionCreateNestedManyWithoutSpecificGuideInput = {
   create?: Prisma.XOR<Prisma.place_submissionCreateWithoutSpecificGuideInput, Prisma.place_submissionUncheckedCreateWithoutSpecificGuideInput> | Prisma.place_submissionCreateWithoutSpecificGuideInput[] | Prisma.place_submissionUncheckedCreateWithoutSpecificGuideInput[]
   connectOrCreate?: Prisma.place_submissionCreateOrConnectWithoutSpecificGuideInput | Prisma.place_submissionCreateOrConnectWithoutSpecificGuideInput[]

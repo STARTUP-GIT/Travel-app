@@ -56,6 +56,7 @@ export type HotelMinAggregateOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean | null
+  status: $Enums.placeSubmissionStatus | null
   hotelOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -77,6 +78,7 @@ export type HotelMaxAggregateOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean | null
+  status: $Enums.placeSubmissionStatus | null
   hotelOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -100,6 +102,7 @@ export type HotelCountAggregateOutputType = {
   email: number
   website: number
   booking_enabled: number
+  status: number
   hotelOwnerId: number
   createdAt: number
   updatedAt: number
@@ -137,6 +140,7 @@ export type HotelMinAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   hotelOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -158,6 +162,7 @@ export type HotelMaxAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   hotelOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -181,6 +186,7 @@ export type HotelCountAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   hotelOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -291,6 +297,7 @@ export type HotelGroupByOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean
+  status: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt: Date
   updatedAt: Date
@@ -337,6 +344,7 @@ export type hotelWhereInput = {
   email?: Prisma.StringNullableFilter<"hotel"> | string | null
   website?: Prisma.StringNullableFilter<"hotel"> | string | null
   booking_enabled?: Prisma.BoolFilter<"hotel"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"hotel"> | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFilter<"hotel"> | string
   createdAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
@@ -363,6 +371,7 @@ export type hotelOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   hotelOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -392,6 +401,7 @@ export type hotelWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringNullableFilter<"hotel"> | string | null
   website?: Prisma.StringNullableFilter<"hotel"> | string | null
   booking_enabled?: Prisma.BoolFilter<"hotel"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"hotel"> | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFilter<"hotel"> | string
   createdAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
@@ -418,6 +428,7 @@ export type hotelOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   hotelOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -449,6 +460,7 @@ export type hotelScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
   website?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
   booking_enabled?: Prisma.BoolWithAggregatesFilter<"hotel"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusWithAggregatesFilter<"hotel"> | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringWithAggregatesFilter<"hotel"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"hotel"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"hotel"> | Date | string
@@ -471,6 +483,7 @@ export type hotelCreateInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
@@ -496,6 +509,7 @@ export type hotelUncheckedCreateInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -519,6 +533,7 @@ export type hotelUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
@@ -544,6 +559,7 @@ export type hotelUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +584,7 @@ export type hotelCreateManyInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -590,6 +607,7 @@ export type hotelUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,6 +630,7 @@ export type hotelUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -645,6 +664,7 @@ export type hotelCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   hotelOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -673,6 +693,7 @@ export type hotelMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   hotelOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -694,6 +715,7 @@ export type hotelMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   hotelOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -844,6 +866,7 @@ export type hotelCreateWithoutDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
@@ -867,6 +890,7 @@ export type hotelUncheckedCreateWithoutDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -920,6 +944,7 @@ export type hotelScalarWhereInput = {
   email?: Prisma.StringNullableFilter<"hotel"> | string | null
   website?: Prisma.StringNullableFilter<"hotel"> | string | null
   booking_enabled?: Prisma.BoolFilter<"hotel"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"hotel"> | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFilter<"hotel"> | string
   createdAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel"> | Date | string
@@ -942,6 +967,7 @@ export type hotelCreateWithoutHotelOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.districtCreateNestedOneWithoutHotelsInput
@@ -966,6 +992,7 @@ export type hotelUncheckedCreateWithoutHotelOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutHotelInput
@@ -1014,6 +1041,7 @@ export type hotelCreateWithoutBookingsInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
@@ -1038,6 +1066,7 @@ export type hotelUncheckedCreateWithoutBookingsInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1076,6 +1105,7 @@ export type hotelUpdateWithoutBookingsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
@@ -1100,6 +1130,7 @@ export type hotelUncheckedUpdateWithoutBookingsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1122,6 +1153,7 @@ export type hotelCreateManyDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   hotelOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1144,6 +1176,7 @@ export type hotelUpdateWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
@@ -1167,6 +1200,7 @@ export type hotelUncheckedUpdateWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1190,6 +1224,7 @@ export type hotelUncheckedUpdateManyWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   hotelOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1213,6 +1248,7 @@ export type hotelCreateManyHotelOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1234,6 +1270,7 @@ export type hotelUpdateWithoutHotelOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.districtUpdateOneRequiredWithoutHotelsNestedInput
@@ -1258,6 +1295,7 @@ export type hotelUncheckedUpdateWithoutHotelOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput
@@ -1281,6 +1319,7 @@ export type hotelUncheckedUpdateManyWithoutHotelOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1334,6 +1373,7 @@ export type hotelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   hotelOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1361,6 +1401,7 @@ export type hotelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   hotelOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1386,6 +1427,7 @@ export type hotelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   hotelOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1411,12 +1453,13 @@ export type hotelSelectScalar = {
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   hotelOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type hotelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "profile_logo" | "districtId" | "description" | "rating" | "review" | "cost_per_night" | "images" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "hotelOwnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["hotel"]>
+export type hotelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "profile_logo" | "districtId" | "description" | "rating" | "review" | "cost_per_night" | "images" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "hotelOwnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["hotel"]>
 export type hotelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hotelOwner?: boolean | Prisma.hotel_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
@@ -1457,6 +1500,7 @@ export type $hotelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     email: string | null
     website: string | null
     booking_enabled: boolean
+    status: $Enums.placeSubmissionStatus
     hotelOwnerId: string
     createdAt: Date
     updatedAt: Date
@@ -1903,6 +1947,7 @@ export interface hotelFieldRefs {
   readonly email: Prisma.FieldRef<"hotel", 'String'>
   readonly website: Prisma.FieldRef<"hotel", 'String'>
   readonly booking_enabled: Prisma.FieldRef<"hotel", 'Boolean'>
+  readonly status: Prisma.FieldRef<"hotel", 'placeSubmissionStatus'>
   readonly hotelOwnerId: Prisma.FieldRef<"hotel", 'String'>
   readonly createdAt: Prisma.FieldRef<"hotel", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"hotel", 'DateTime'>

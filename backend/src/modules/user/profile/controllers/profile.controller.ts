@@ -69,31 +69,35 @@ export const editProfile = async (req: Request, res: Response) => {
       return res.status(404).json({
         message: "User not found",
       });
-    }
-
-    const existingUseremail = await prisma.user.findFirst({
-      where: {
-         ...(data.email !== undefined ? { email: data.email } : {}),
-      },
-    });
-
-    const existingUserusername = await prisma.user.findFirst({
-      where: {
-        ...(data.username !== undefined ? { username: data.username } : {}),
-      },
-    });
-
-    if(existingUseremail && existingUseremail.id !== userId){
-      return res.status(400).json({
-        message: "Email already exists",
+    }    // Duplicate checks only run for fields that are actually being changed.
+    // (An unguarded findFirst({}) would match the first row of the table and
+    // reject every update that omitted email/username.)
+    if (data.email !== undefined) {
+      const existingUseremail = await prisma.user.findFirst({
+        where: {
+          email: data.email,
+        },
       });
+
+      if (existingUseremail && existingUseremail.id !== userId) {
+        return res.status(400).json({
+          message: "Email already exists",
+        });
+      }
     }
 
+    if (data.username !== undefined) {
+      const existingUserusername = await prisma.user.findFirst({
+        where: {
+          username: data.username,
+        },
+      });
 
-    if (existingUserusername && existingUserusername.id !== userId) {
+      if (existingUserusername && existingUserusername.id !== userId) {
         return res.status(400).json({
-            message: "Username already exists",
+          message: "Username already exists",
         });
+      }
     }
 
     let hashedPassword: string | undefined;

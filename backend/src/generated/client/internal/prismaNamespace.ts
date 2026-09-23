@@ -2212,6 +2212,7 @@ export const PlaceScalarFieldEnum = {
   images: 'images',
   entryfee: 'entryfee',
   category: 'category',
+  status: 'status',
   latitude: 'latitude',
   longitude: 'longitude',
   createdAt: 'createdAt',
@@ -2357,6 +2358,7 @@ export const HotelScalarFieldEnum = {
   email: 'email',
   website: 'website',
   booking_enabled: 'booking_enabled',
+  status: 'status',
   hotelOwnerId: 'hotelOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2384,6 +2386,7 @@ export const RestaurentScalarFieldEnum = {
   email: 'email',
   website: 'website',
   booking_enabled: 'booking_enabled',
+  status: 'status',
   restaurentOwnerId: 'restaurentOwnerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -54,6 +54,7 @@ export type RestaurentMinAggregateOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean | null
+  status: $Enums.placeSubmissionStatus | null
   restaurentOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -75,6 +76,7 @@ export type RestaurentMaxAggregateOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean | null
+  status: $Enums.placeSubmissionStatus | null
   restaurentOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -99,6 +101,7 @@ export type RestaurentCountAggregateOutputType = {
   email: number
   website: number
   booking_enabled: number
+  status: number
   restaurentOwnerId: number
   createdAt: number
   updatedAt: number
@@ -134,6 +137,7 @@ export type RestaurentMinAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -155,6 +159,7 @@ export type RestaurentMaxAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -179,6 +184,7 @@ export type RestaurentCountAggregateInputType = {
   email?: true
   website?: true
   booking_enabled?: true
+  status?: true
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
@@ -290,6 +296,7 @@ export type RestaurentGroupByOutputType = {
   email: string | null
   website: string | null
   booking_enabled: boolean
+  status: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt: Date
   updatedAt: Date
@@ -337,6 +344,7 @@ export type restaurentWhereInput = {
   email?: Prisma.StringNullableFilter<"restaurent"> | string | null
   website?: Prisma.StringNullableFilter<"restaurent"> | string | null
   booking_enabled?: Prisma.BoolFilter<"restaurent"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"restaurent"> | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
@@ -364,6 +372,7 @@ export type restaurentOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -394,6 +403,7 @@ export type restaurentWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringNullableFilter<"restaurent"> | string | null
   website?: Prisma.StringNullableFilter<"restaurent"> | string | null
   booking_enabled?: Prisma.BoolFilter<"restaurent"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"restaurent"> | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
@@ -421,6 +431,7 @@ export type restaurentOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -453,6 +464,7 @@ export type restaurentScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
   website?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
   booking_enabled?: Prisma.BoolWithAggregatesFilter<"restaurent"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusWithAggregatesFilter<"restaurent"> | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringWithAggregatesFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"restaurent"> | Date | string
@@ -476,6 +488,7 @@ export type restaurentCreateInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
@@ -502,6 +515,7 @@ export type restaurentUncheckedCreateInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -526,6 +540,7 @@ export type restaurentUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
@@ -552,6 +567,7 @@ export type restaurentUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -577,6 +593,7 @@ export type restaurentCreateManyInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -600,6 +617,7 @@ export type restaurentUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -623,6 +641,7 @@ export type restaurentUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -657,6 +676,7 @@ export type restaurentCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -684,6 +704,7 @@ export type restaurentMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -705,6 +726,7 @@ export type restaurentMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   website?: Prisma.SortOrder
   booking_enabled?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -868,6 +890,7 @@ export type restaurentCreateWithoutDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
@@ -892,6 +915,7 @@ export type restaurentUncheckedCreateWithoutDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -946,6 +970,7 @@ export type restaurentScalarWhereInput = {
   email?: Prisma.StringNullableFilter<"restaurent"> | string | null
   website?: Prisma.StringNullableFilter<"restaurent"> | string | null
   booking_enabled?: Prisma.BoolFilter<"restaurent"> | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"restaurent"> | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
@@ -969,6 +994,7 @@ export type restaurentCreateWithoutRestaurentOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   district: Prisma.districtCreateNestedOneWithoutRestaurentInput
@@ -994,6 +1020,7 @@ export type restaurentUncheckedCreateWithoutRestaurentOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
@@ -1043,6 +1070,7 @@ export type restaurentCreateWithoutReservationsInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
@@ -1068,6 +1096,7 @@ export type restaurentUncheckedCreateWithoutReservationsInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1107,6 +1136,7 @@ export type restaurentUpdateWithoutReservationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
@@ -1132,6 +1162,7 @@ export type restaurentUncheckedUpdateWithoutReservationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1155,6 +1186,7 @@ export type restaurentCreateManyDistrictInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1178,6 +1210,7 @@ export type restaurentUpdateWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
@@ -1202,6 +1235,7 @@ export type restaurentUncheckedUpdateWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1226,6 +1260,7 @@ export type restaurentUncheckedUpdateManyWithoutDistrictInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1250,6 +1285,7 @@ export type restaurentCreateManyRestaurentOwnerInput = {
   email?: string | null
   website?: string | null
   booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1272,6 +1308,7 @@ export type restaurentUpdateWithoutRestaurentOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
@@ -1297,6 +1334,7 @@ export type restaurentUncheckedUpdateWithoutRestaurentOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
@@ -1321,6 +1359,7 @@ export type restaurentUncheckedUpdateManyWithoutRestaurentOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1375,6 +1414,7 @@ export type restaurentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1403,6 +1443,7 @@ export type restaurentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1429,6 +1470,7 @@ export type restaurentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1455,12 +1497,13 @@ export type restaurentSelectScalar = {
   email?: boolean
   website?: boolean
   booking_enabled?: boolean
+  status?: boolean
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type restaurentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "districtId" | "description" | "rating" | "review" | "menu" | "food_category" | "images" | "profile_logo" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "restaurentOwnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["restaurent"]>
+export type restaurentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "districtId" | "description" | "rating" | "review" | "menu" | "food_category" | "images" | "profile_logo" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "restaurentOwnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["restaurent"]>
 export type restaurentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
@@ -1502,6 +1545,7 @@ export type $restaurentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     email: string | null
     website: string | null
     booking_enabled: boolean
+    status: $Enums.placeSubmissionStatus
     restaurentOwnerId: string
     createdAt: Date
     updatedAt: Date
@@ -1949,6 +1993,7 @@ export interface restaurentFieldRefs {
   readonly email: Prisma.FieldRef<"restaurent", 'String'>
   readonly website: Prisma.FieldRef<"restaurent", 'String'>
   readonly booking_enabled: Prisma.FieldRef<"restaurent", 'Boolean'>
+  readonly status: Prisma.FieldRef<"restaurent", 'placeSubmissionStatus'>
   readonly restaurentOwnerId: Prisma.FieldRef<"restaurent", 'String'>
   readonly createdAt: Prisma.FieldRef<"restaurent", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"restaurent", 'DateTime'>

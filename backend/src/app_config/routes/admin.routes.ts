@@ -30,9 +30,15 @@ import {
   deleteCommonGuide,
   listHotels,
   getHotelById,
+  createHotelAdmin,
+  updateHotelAdmin,
+  updateHotelStatus,
   deleteHotel,
   listRestaurants,
   getRestaurantById,
+  createRestaurantAdmin,
+  updateRestaurantAdmin,
+  updateRestaurantStatus,
   deleteRestaurant,
   listHotelOwners,
   deleteHotelOwner,
@@ -100,11 +106,17 @@ router.get("/guides/common/:id", getCommonGuideById);
 router.delete("/guides/common/:id", deleteCommonGuide);
 
 router.get("/hotels", listHotels);
+router.post("/hotels", createHotelAdmin);
 router.get("/hotels/:id", getHotelById);
+router.patch("/hotels/:id", updateHotelAdmin);
+router.patch("/hotels/:id/status", updateHotelStatus);
 router.delete("/hotels/:id", deleteHotel);
 
 router.get("/restaurants", listRestaurants);
+router.post("/restaurants", createRestaurantAdmin);
 router.get("/restaurants/:id", getRestaurantById);
+router.patch("/restaurants/:id", updateRestaurantAdmin);
+router.patch("/restaurants/:id/status", updateRestaurantStatus);
 router.delete("/restaurants/:id", deleteRestaurant);
 
 router.get("/hotel-owners", listHotelOwners);

@@ -9,17 +9,19 @@ import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { formatCurrency } from "@/lib/utils";
-import type { HotelAdmin } from "@/lib/types";
+import type { ContentApprovalStatus, HotelAdmin } from "@/lib/types";
 
 export default function HotelsPage() {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState<"ALL" | ContentApprovalStatus>("ALL");
   const { data, loading, error, refetch } = useAdminData<{ hotels: HotelAdmin[] }>(
     "/admin/api/hotels",
-    { query: search ? { search } : undefined }
+    { query: { search: search || undefined, status } }
   );
 
   const columns: Column<HotelAdmin>[] = [
@@ -47,6 +49,11 @@ export default function HotelsPage() {
       cell: (h) => <span className="font-mono text-sm">{formatCurrency(h.cost_per_night)}</span>,
     },
     {
+      key: "status",
+      header: "Approval",
+      cell: (h) => <StatusBadge status={h.status ?? "PENDING"} />,
+    },
+    {
       key: "bookings",
       header: "Bookings",
       cell: (h) => <span className="font-mono text-sm text-muted-foreground">{h._count?.bookings ?? 0}</span>,
@@ -69,7 +76,19 @@ export default function HotelsPage() {
   return (
     <div>
       <PageHeader title="Hotels" subtitle="Hotels and their booking status.">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search hotels…" className="w-56" />
+        <div className="flex items-center gap-2">
+          <SearchInput value={search} onChange={setSearch} placeholder="Search hotels…" className="w-56" />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
+            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
       </PageHeader>
       {loading ? (
         <LoadingState />

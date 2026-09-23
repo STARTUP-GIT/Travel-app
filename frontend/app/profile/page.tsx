@@ -8,6 +8,7 @@ import {
   Info,
   LogOut,
   MapPin,
+  Pencil,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -17,10 +18,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
+import { EditProfileDialog } from "@/features/profile/components/edit-profile-dialog";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import type { CustomerProfile } from "@/features/profile/types";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { slug } = useCurrentDistrict();
+  const { data: fetchedProfile } = useProfile();
+
+  // Fresh profile from the backend; a successful save takes precedence so the
+  // header updates instantly (no effect needed — derived state).
+  const [savedProfile, setSavedProfile] = React.useState<CustomerProfile | null>(null);
+  const profile = savedProfile ?? fetchedProfile ?? null;
+
+  const [editing, setEditing] = React.useState(false);
+
+  const displayName = profile?.name ?? user?.name ?? "Karnataka traveller";
+  const username = profile?.username ?? "";
+  const displayEmail = profile?.email ?? user?.email ?? "Signed in";
+  const photo = profile?.profilepic ?? user?.image ?? undefined;
 
   const links = [
     { href: "/favorites", label: "Saved places & guides", desc: "Your favourites", icon: Bookmark },
@@ -38,18 +55,39 @@ export default function ProfileScreen() {
           {/* User card */}
           <div className="card-surface flex items-center gap-4 rounded-3xl p-5">
             <Avatar className="size-16">
-              {user?.image ? <AvatarImage src={user.image} alt={user.name ?? "Profile"} /> : null}
+              {photo ? <AvatarImage src={photo} alt={displayName} /> : null}
               <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">
-                {(user?.name ?? "U").charAt(0).toUpperCase()}
+                {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <h1 className="truncate text-lg font-bold">{user?.name ?? "Karnataka traveller"}</h1>
-              <p className="truncate text-sm text-muted-foreground">{user?.email ?? "Signed in"}</p>
+              <h1 className="truncate text-lg font-bold">{displayName}</h1>
+              {username ? (
+                <p className="truncate text-sm text-muted-foreground">@{username}</p>
+              ) : null}
+              <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
             </div>
           </div>
 
           <div className="mt-5 space-y-2.5">
+            {/* Edit Profile action */}
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              disabled={!profile}
+              className="card-surface group flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-colors hover:border-primary/40 disabled:pointer-events-none disabled:opacity-60"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Pencil className="size-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">Edit Profile</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  Update your name, username &amp; photo
+                </span>
+              </span>
+            </button>
+
             {links.map(({ href, label, desc, icon: Icon }) => (
               <Link
                 key={href}
@@ -77,7 +115,7 @@ export default function ProfileScreen() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold">Current district</span>
-                <span className="block text-xs text-muted-foreground">Browsing {slug} — tap to change</span>
+                <span className="block truncate text-xs text-muted-foreground">Browsing {slug} — tap to change</span>
               </span>
             </Link>
           ) : null}
@@ -90,6 +128,15 @@ export default function ProfileScreen() {
             <LogOut className="size-4" /> Log out
           </Button>
         </div>
+
+        {profile ? (
+          <EditProfileDialog
+            profile={profile}
+            open={editing}
+            onOpenChange={setEditing}
+            onSaved={(updated) => setSavedProfile(updated)}
+          />
+        ) : null}
       </div>
     </AuthGate>
   );

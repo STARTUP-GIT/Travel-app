@@ -54,6 +54,7 @@ export const createRestaurent = async (req: Request, res: Response) => {
         images: data.images ?? [],
         latitude: data.latitude,
         longitude: data.longitude,
+        status: "PENDING",
         ...(data.phone_number !== undefined ? { phone_number: data.phone_number } : {}),
         ...(data.whatsapp_number !== undefined ? { whatsapp_number: data.whatsapp_number } : {}),
         ...(data.email !== undefined ? { email: data.email } : {}),
@@ -90,6 +91,13 @@ export const createRestaurent = async (req: Request, res: Response) => {
 export const getAllRestaurents = async (req: Request, res: Response) => {
   try {
     const restaurents = await prisma.restaurent.findMany({
+      where: {
+        status: "APPROVED",
+        district: {
+          isServiceAvailable: true,
+          state: { isServiceAvailable: true },
+        },
+      },
       include: districtHierarchyInclude,
       orderBy: { createdAt: "desc" },
     });
@@ -112,6 +120,10 @@ export const getRestaurentById = async (req: Request, res: Response) => {
       where: { id: restaurentId },
       include: districtHierarchyInclude,
     });
+
+    if (restaurent && restaurent.status !== "APPROVED") {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
 
     if (!restaurent) {
       return res.status(404).json({
