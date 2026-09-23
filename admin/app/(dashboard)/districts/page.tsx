@@ -20,7 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -30,9 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { postJSON } from "@/lib/api/mutate";
+import { patchJSON } from "@/lib/api/mutate";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import type { DistrictAdmin, StateAdmin } from "@/lib/types";
+import type { Country, DistrictAdmin, StateAdmin } from "@/lib/types";
 
 export default function DistrictsPage() {
   const router = useRouter();
@@ -111,40 +110,82 @@ export default function DistrictsPage() {
 function CreateDistrictDialog({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
-  const [name, setName] = React.useState("");
+  const [countryId, setCountryId] = React.useState("");
   const [stateId, setStateId] = React.useState("");
+  const [districtId, setDistrictId] = React.useState("");
   const [available, setAvailable] = React.useState(false);
   const [autoApprove, setAutoApprove] = React.useState(false);
+
+  const {
+    data: countriesData,
+    loading: countriesLoading,
+  } = useAdminData<{ countries: Country[] }>("/admin/api/countries", { enabled: open });
 
   const {
     data: statesData,
     loading: statesLoading,
   } = useAdminData<{ states: StateAdmin[] }>("/admin/api/states", { enabled: open });
 
-  const states = statesData?.states ?? [];
+  const {
+    data: districtsData,
+    loading: districtsLoading,
+  } = useAdminData<{ districts: DistrictAdmin[] }>("/admin/api/districts", { enabled: open });
 
-  async function handleCreate() {
-    if (!name.trim() || !stateId) {
-      toast.error("Enter a name and select a state");
+  const countries = React.useMemo(() => countriesData?.countries ?? [], [countriesData]);
+  const states = React.useMemo(() => statesData?.states ?? [], [statesData]);
+  const districts = React.useMemo(() => districtsData?.districts ?? [], [districtsData]);
+
+  const countryStates = React.useMemo(
+    () => (countryId ? states.filter((s) => s.countryId === countryId) : []),
+    [states, countryId]
+  );
+
+  const stateDistricts = React.useMemo(
+    () => (stateId ? districts.filter((d) => d.stateId === stateId) : []),
+    [districts, stateId]
+  );
+
+  const selectedDistrict = React.useMemo(
+    () => (districtId ? districts.find((d) => d.id === districtId) ?? null : null),
+    [districts, districtId]
+  );
+
+  function reset() {
+    setCountryId("");
+    setStateId("");
+    setDistrictId("");
+    setAvailable(false);
+    setAutoApprove(false);
+  }
+
+  function handleCountryChange(value: string) {
+    setCountryId(value);
+    setStateId("");
+    setDistrictId("");
+  }
+
+  function handleStateChange(value: string) {
+    setStateId(value);
+    setDistrictId("");
+  }
+
+  async function handleSubmit() {
+    if (!countryId || !stateId || !districtId || !selectedDistrict) {
+      toast.error("Select a country, state and district");
       return;
     }
     setSaving(true);
     try {
-      await postJSON("/admin/api/districts", {
-        name: name.trim(),
-        stateId,
+      await patchJSON(`/admin/api/districts/${selectedDistrict.id}`, {
         isServiceAvailable: available,
         autoApprovePlaces: autoApprove,
       });
-      toast.success("District created");
-      setName("");
-      setStateId("");
-      setAvailable(false);
-      setAutoApprove(false);
+      toast.success("District settings updated");
+      reset();
       setOpen(false);
       onCreated();
     } catch (err) {
-      toast.error("Failed to create district", {
+      toast.error("Failed to save district", {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -153,49 +194,101 @@ function CreateDistrictDialog({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(next) => {
+      setOpen(next);
+      if (!next) reset();
+    }}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">Add District</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add district</DialogTitle>
-          <DialogDescription>Create a new district under a state.</DialogDescription>
+          <DialogDescription>
+            Select a country, state and one of its existing districts. District names are locked to canonical database records.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="district-name">District name</Label>
-            <Input
-              id="district-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Bengaluru Urban"
-            />
+            <Label htmlFor="district-country">Country</Label>
+            {countriesLoading ? (
+              <p className="text-sm text-muted-foreground">Loading countries…</p>
+            ) : countries.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No countries available.</p>
+            ) : (
+              <Select value={countryId} onValueChange={handleCountryChange}>
+                <SelectTrigger className="w-full" id="district-country">
+                  <SelectValue placeholder="Select a country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <Label>State</Label>
-            {statesLoading ? (
+            <Label htmlFor="district-state">State</Label>
+            {!countryId ? (
+              <p className="text-sm text-muted-foreground">Select a country first.</p>
+            ) : statesLoading ? (
               <p className="text-sm text-muted-foreground">Loading states…</p>
-            ) : states.length > 0 ? (
-              <Select value={stateId} onValueChange={setStateId}>
-                <SelectTrigger className="w-full">
+            ) : countryStates.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No states available for this country.
+              </p>
+            ) : (
+              <Select value={stateId} onValueChange={handleStateChange}>
+                <SelectTrigger className="w-full" id="district-state">
                   <SelectValue placeholder="Select a state" />
                 </SelectTrigger>
                 <SelectContent>
-                  {states.map((s) => (
+                  {countryStates.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No states yet. Create a state on the States page first.
-              </p>
             )}
           </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="district-district">District</Label>
+            {!stateId ? (
+              <p className="text-sm text-muted-foreground">Select a state first.</p>
+            ) : districtsLoading ? (
+              <p className="text-sm text-muted-foreground">Loading districts…</p>
+            ) : stateDistricts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No districts available for this state.
+              </p>
+            ) : (
+              <Select value={districtId} onValueChange={setDistrictId}>
+                <SelectTrigger className="w-full" id="district-district">
+                  <SelectValue placeholder="Select a district" />
+                </SelectTrigger>
+                <SelectContent>
+                  {stateDistricts.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {selectedDistrict ? (
+            <p className="text-xs text-muted-foreground">
+              &ldquo;{selectedDistrict.name}&rdquo; already exists in the database. Saving updates
+              the existing record — no duplicate district is created.
+            </p>
+          ) : null}
 
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div>
@@ -218,10 +311,10 @@ function CreateDistrictDialog({ onCreated }: { onCreated: () => void }) {
             Cancel
           </Button>
           <Button
-            onClick={handleCreate}
-            disabled={saving || !name.trim() || !stateId}
+            onClick={handleSubmit}
+            disabled={saving || !countryId || !stateId || !districtId}
           >
-            {saving ? "Creating…" : "Create district"}
+            {saving ? "Saving…" : "Save district"}
           </Button>
         </DialogFooter>
       </DialogContent>
