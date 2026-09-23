@@ -14,7 +14,20 @@ type Options = {
   enabled?: boolean;
 };
 
-/** Minimal data-fetching hook that goes through /api/proxy with the token cookie. */
+/**
+ * Minimal data-fetching hook that reads authenticated admin data through the
+ * server-side data route (/api/proxy — a data forwarder only; it rejects every
+ * backend /api/auth/ path. All sign-in/sign-out happens exclusively via
+ * NextAuth at /api/auth/[...nextauth]).
+ *
+ * NOTE: pages address admin data as /admin/api/*, but the backend mounts these
+ * endpoints at /api/admin/* (backend app.ts: app.use('/api/admin', ...)), so
+ * the path is normalised here before proxying — otherwise every authenticated
+ * read 404s and the dashboard can never load.
+ */
+function toBackendPath(path: string): string {
+  return path.replace(/^\/admin\/api\//, "/api/admin/");
+}
 export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> {
   const { query, enabled = true } = opts;
   const [data, setData] = React.useState<T | null>(null);
@@ -38,7 +51,7 @@ export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> 
                 .map(([k, v]) => [k, String(v)])
             ).toString()
           : "";
-        const res = await fetch(`/api/proxy${path}${qs ? `?${qs}` : ""}`, {
+        const res = await fetch(`/api/proxy${toBackendPath(path)}${qs ? `?${qs}` : ""}`, {
           credentials: "same-origin",
           cache: "no-store",
         });

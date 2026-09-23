@@ -8,20 +8,22 @@ import { signIn, signOut } from "next-auth/react";
 import { AtSign, Loader2, Lock, Mail, User } from "lucide-react";
 import { toast } from "sonner";
 
+import { getApiBaseUrl } from "@/lib/api/config";
 import { AdminLogo } from "@/components/admin/admin-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const SIGN_UP_ERRORS: Record<string, string> = {
+const SIGN_IN_ERRORS: Record<string, string> = {
   invalid_credentials: "Please complete all required fields.",
-  admin_signup_failed: "An admin with this email or username already exists.",
+  admin_not_found: "Could not sign in after creating the account.",
+  invalid_password: "Could not sign in after creating the account.",
   backend_unavailable:
     "The authentication service is unavailable. Please try again later.",
   Configuration:
     "Authentication is not configured correctly. Please contact support.",
-  CredentialsSignin: "Unable to create the admin account.",
-  default: "Account creation failed. Please try again.",
+  CredentialsSignin: "Could not sign in after creating the account.",
+  default: "Account created, but signing in failed. Please sign in.",
 };
 
 function GoogleIcon() {
@@ -65,10 +67,10 @@ function SignupForm() {
 
     const message =
       error === "AccessDenied"
-        ? "Google sign-up failed. Please try again."
-        : "Sign-up failed. Please try again.";
+        ? "This Google account is not authorized to access the admin panel."
+        : "Sign-in failed. Please try again.";
 
-    toast.error("Sign-up failed", { description: message });
+    toast.error("Google sign-in failed", { description: message });
 
     void signOut({ redirect: false }).finally(() => {
       router.replace("/signup");
@@ -97,34 +99,58 @@ function SignupForm() {
 
     setSubmitting(true);
     try {
-      // Admin sign-up is handled by NextAuth too: the Credentials provider
-      // creates the admin against the real backend (intent "signup") and then
-      // returns a session, so no request ever reaches the old
-      // /api/proxy/admin/api/auth/signup endpoint.
-      const res = await signIn("credentials", {
-        email: email.trim(),
-        username: username.trim(),
-        fullname: fullname.trim(),
-        password,
-        intent: "signup",
-        redirect: false,
-      });
+      // Create the admin DIRECTLY against the backend (signup is NOT login).
+      // Send email/username/password/fullname to the backend signup endpoint.
+      const res = await fetch(
+        `${getApiBaseUrl()}/admin/api/auth/signup`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: email.trim(),
+            username: username.trim(),
+            password,
+            fullname: fullname.trim(),
+          }),
+        }
+      );
 
-      if (res?.error || res?.code) {
-        toast.error("Account creation failed", {
-          description:
-            SIGN_UP_ERRORS[res?.code ?? res?.error ?? "default"] ??
-            SIGN_UP_ERRORS.default,
-        });
+      const data = (await res.json().catch(() => undefined)) as
+        | { token?: string; admin?: unknown; error?: string }
+        | undefined;
+
+      if (!res.ok || !data?.token) {
+        const message =
+          typeof data?.error === "string"
+            ? data.error
+            : "Account creation failed. Please try again.";
+        toast.error("Account creation failed", { description: message });
         return;
       }
 
-      toast.success("Admin account created");
+      toast.success("Admin account created", {
+        description: "Signing you in\u2026",
+      });
+
+      // The backend created the admin and returned a token. Establish the
+      // NextAuth session through the Credentials flow so the admin lands on
+      // the dashboard. If that fails, drop the user on the login page.
+      const session = await signIn("credentials", {
+        email: email.trim(),
+        password,
+        redirect: false,
+      });
+
+      if (session?.error || session?.code || !session?.ok) {
+        router.push("/login");
+        return;
+      }
+
       router.push("/admin");
       router.refresh();
     } catch {
       toast.error("Account creation failed", {
-        description: SIGN_UP_ERRORS.default,
+        description: SIGN_IN_ERRORS.default,
       });
     } finally {
       setSubmitting(false);
@@ -132,10 +158,10 @@ function SignupForm() {
   }
 
   async function handleGoogleSignIn() {
-    // Tell the backend this OAuth callback is a SIGN-UP: if the verified
-    // Google account is not already an admin, the backend creates an Admin
-    // record using the existing Admin model (never a customer account).
-    document.cookie = `admin_auth_intent=signup; path=/; samesite=lax; max-age=600`;
+    // Google is authorized by the backend during the OAuth callback: the
+    // NextAuth signIn callback sends account.id_token to the backend
+    // /admin/api/auth/google-verify. Only EXISTING admin accounts are
+    // authorized — Google cannot create an admin account.
     setGoogleLoading(true);
     await signIn("google", { callbackUrl: "/admin" });
   }

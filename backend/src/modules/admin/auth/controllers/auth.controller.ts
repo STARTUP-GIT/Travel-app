@@ -181,7 +181,7 @@ export const authorizeGoogleAdmin = async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Not an authorized admin' });
     }
 
-    const token = generateSessionToken(admin.id, 'admin');
+    const token = await generateSessionToken(admin.id, 'admin');
 
     return res.status(200).json({ ok: true, token, admin });
   } catch (error) {

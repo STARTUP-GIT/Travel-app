@@ -14,7 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const SIGN_IN_ERRORS: Record<string, string> = {
-  invalid_credentials: "Invalid admin email or password.",
+  invalid_credentials: "Enter your admin email and password.",
+  admin_not_found: "No admin account exists for this email.",
+  invalid_password: "Incorrect password. Please try again.",
   backend_unavailable:
     "The authentication service is unavailable. Please try again later.",
   Configuration:
@@ -111,9 +113,10 @@ function LoginForm() {
   }
 
   async function handleGoogleSignIn() {
-    // Tell the backend this OAuth callback is a SIGN-IN: the Google account
-    // must already be an existing admin (no admin account is created).
-    document.cookie = `admin_auth_intent=signin; path=/; samesite=lax; max-age=600`;
+    // Google is authorized by the backend during the OAuth callback: the
+    // NextAuth signIn callback sends account.id_token to the backend
+    // /admin/api/auth/google-verify and the backend decides whether the
+    // account is an existing admin.
     setGoogleLoading(true);
     await signIn("google", { callbackUrl: "/admin" });
   }

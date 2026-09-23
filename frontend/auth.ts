@@ -20,7 +20,9 @@ class BackendUnavailableError extends CredentialsSignin {
 }
 
 export const authConfig = {
-  secret: process.env.AUTH_SECRET,
+  // Production requires AUTH_SECRET (or legacy NEXTAUTH_SECRET); Auth.js fails
+  // fast instead of issuing forgeable sessions when it is missing.
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
