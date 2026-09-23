@@ -11,15 +11,9 @@ export class ApiError extends Error {
 }
 
 export function getApiBaseUrl(): string {
+  const fallbackUrl = "https://travel-app-backend-ashen.vercel.app";
   const url =
-    process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL ?? "";
-
-  if (!url) {
-    throw new ApiError(
-      "Backend API URL is not configured. Set BACKEND_URL or NEXT_PUBLIC_API_URL.",
-      500
-    );
-  }
+    process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL ?? fallbackUrl;
 
   return url.replace(/\/+$/, "");
 }
@@ -81,9 +75,11 @@ async function handle<T>(res: Response): Promise<T> {
 }
 
 /**
- * Central API client. On the browser it goes through the server-side proxy
- * (/api/proxy) so the backend token is never exposed to the client. On the
- * server it calls the backend directly (public endpoints only).
+ * Central API client.
+ *
+ * The app uses the existing Express backend directly. There is no /api/proxy
+ * shim or secondary backend layer. This keeps the public and admin data flows
+ * aligned with the deployed backend without introducing a missing routing layer.
  */
 export async function http<T>(
   path: string,
@@ -103,22 +99,10 @@ export async function http<T>(
     body: serializeBody(init.body),
   };
 
-  if (isBrowser()) {
-    const res = await fetch(`/api/proxy${finalPath}`, {
-      ...payload,
-      credentials: "same-origin",
-      cache: "no-store",
-    });
-    return handle<T>(res);
-  }
-
-  if (!process.env.BACKEND_URL && !process.env.NEXT_PUBLIC_API_URL) {
-    throw new ApiError("Backend API URL is not configured.", 500);
-  }
-
   const res = await fetch(`${getApiBaseUrl()}${finalPath}`, {
     ...payload,
     cache: "no-store",
+    credentials: "include",
   });
   return handle<T>(res);
 }
