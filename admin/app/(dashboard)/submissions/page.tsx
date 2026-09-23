@@ -53,7 +53,7 @@ export default function SubmissionsPage() {
     setBusy(true);
     try {
       await patchJSON(
-        `/api/proxy/${submission.districtId}/services/api/places/admin/approve/${submission.id}`,
+        `/${submission.districtId}/services/api/places/admin/approve/${submission.id}`,
         {}
       );
       toast.success("Submission approved");
@@ -73,7 +73,7 @@ export default function SubmissionsPage() {
     setBusy(true);
     try {
       await patchJSON(
-        `/api/proxy/${rejecting.districtId}/services/api/places/admin/reject/${rejecting.id}`,
+        `/${rejecting.districtId}/services/api/places/admin/reject/${rejecting.id}`,
         { rejectionReason: reason || undefined }
       );
       toast.success("Submission rejected");

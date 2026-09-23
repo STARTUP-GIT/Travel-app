@@ -80,7 +80,7 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
     }
     setSaving(true);
     try {
-      await patchJSON(`/api/proxy/${place.districtId}/services/api/places/${place.id}`, body);
+      await patchJSON(`/${place.districtId}/services/api/places/${place.id}`, body);
       toast.success("Place updated");
       setOpen(false);
       refetch();

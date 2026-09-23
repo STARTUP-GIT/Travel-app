@@ -1,19 +1,35 @@
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  clearCachedAdminToken,
+  toBackendPath,
+  withAuthHeaders,
+} from "@/lib/api/client";
+
 /**
- * All admin mutations go through the server-side data route (/api/proxy — a
- * data forwarder only; it rejects backend /api/auth/ paths, and authentication
- * itself happens exclusively via NextAuth at /api/auth/[...nextauth]).
- * Paths written as /admin/api/* are normalised to the backend's real mounts
- * (/api/admin/*) so PATCH/POST requests reach the existing endpoints instead
- * of 404ing on the admin origin.
+ * Admin mutations call the Express backend DIRECTLY. Paths are normalised to
+ * the backend's real mounts (toBackendPath: /admin/api/* -> /api/admin/), and
+ * the admin bearer token from the NextAuth session is attached as an
+ * Authorization header (the backend middleware accepts it as an alternative to
+ * the httpOnly cookie).
  */
-function toProxyUrl(path: string): string {
-  if (path.startsWith("/api/proxy/")) return path;
-  return `/api/proxy${path.replace(/^\/admin\/api\//, "/api/admin/")}`;
+function toDirectUrl(path: string): string {
+  return `${getApiBaseUrl()}${toBackendPath(path)}`;
 }
 
 async function request(path: string, init: RequestInit): Promise<unknown> {
-  const res = await fetch(toProxyUrl(path), { ...init, credentials: "same-origin" });
+  const headers = await withAuthHeaders(init.headers);
+
+  if (init.body && !(init.body instanceof FormData)) {
+    headers.set("content-type", "application/json");
+  }
+
+  const res = await fetch(toDirectUrl(path), {
+    ...init,
+    headers,
+    credentials: "include",
+  });
   if (res.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+    clearCachedAdminToken();
     window.location.assign("/login");
   }
   if (!res.ok) {
@@ -32,7 +48,6 @@ async function request(path: string, init: RequestInit): Promise<unknown> {
 export function patchJSON(path: string, body: unknown): Promise<unknown> {
   return request(path, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
 }
@@ -40,7 +55,6 @@ export function patchJSON(path: string, body: unknown): Promise<unknown> {
 export function postJSON(path: string, body: unknown): Promise<unknown> {
   return request(path, {
     method: "POST",
-    headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
 }

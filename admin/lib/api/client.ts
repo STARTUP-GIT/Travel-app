@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "@/lib/api/config";
+
 export class ApiError extends Error {
   status: number;
   details?: unknown;
@@ -37,6 +39,72 @@ function buildPath(path: string, query?: HttpInit["query"]): string {
   return qs ? `${path}${path.includes("?") ? "&" : "?"}${qs}` : path;
 }
 
+/**
+ * The backend mounts /admin/api/* endpoints under /api/admin/* (backend
+ * app.ts: app.use('/api/admin', adminConfigRoutes)), and places under
+ * /:districtId/services. Paths written as /admin/api/* are normalised to the
+ * backend's real mounts so direct calls reach the existing endpoints.
+ * A leading legacy data-forwarder prefix (if any) is stripped, and /admin/api/*
+ * is normalised to the backend's real mount.
+ */
+export function toBackendPath(path: string): string {
+  return path
+    .replace(/^\/api\/proxy/, "")
+    .replace(/^\/admin\/api\//, "/api/admin/");
+}
+
+// The admin backend token lives inside the encrypted NextAuth JWT. The browser
+// reads it from the existing /api/auth/session route (the ONLY NextAuth route)
+// and presents it as `Authorization: Bearer` on direct backend calls — the
+// backend middleware accepts the header as an alternative to the httpOnly
+// cookie (which the admin browser never receives, since NextAuth consumes the
+// backend Set-Cookie during login).
+let cachedToken: string | null | undefined;
+let tokenPromise: Promise<string | null> | null = null;
+
+async function fetchSessionToken(): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { adminToken?: string } | null;
+    return data?.adminToken ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Returns the backend admin token for the current NextAuth session. */
+export async function getAdminToken(): Promise<string | null> {
+  if (!isBrowser()) return null;
+  if (cachedToken !== undefined) return cachedToken;
+  tokenPromise ??= fetchSessionToken().then(
+    (token) => (cachedToken = token)
+  );
+  await tokenPromise;
+  return cachedToken ?? null;
+}
+
+/** Clears the cached token (e.g. after the session expires / user signs out). */
+export function clearCachedAdminToken(): void {
+  cachedToken = undefined;
+  tokenPromise = null;
+}
+
+/** Builds request headers, attaching the backend bearer token when available. */
+export async function withAuthHeaders(
+  headers?: HeadersInit
+): Promise<Headers> {
+  const finalHeaders = new Headers(headers);
+  if (isBrowser()) {
+    const token = await getAdminToken();
+    if (token) finalHeaders.set("authorization", `Bearer ${token}`);
+  }
+  return finalHeaders;
+}
+
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
     if (
@@ -44,6 +112,7 @@ async function handle<T>(res: Response): Promise<T> {
       isBrowser() &&
       !window.location.pathname.startsWith("/login")
     ) {
+      clearCachedAdminToken();
       window.location.assign("/login");
     }
 
@@ -69,31 +138,34 @@ async function handle<T>(res: Response): Promise<T> {
 }
 
 /**
- * Central API client for the admin panel. Always goes through the server-side
- * proxy (/api/proxy) so the authenticated token cookie never leaves the admin
- * origin. The backend token is an httpOnly cookie that only the proxy reads.
+ * Central API client for the admin panel. The browser calls the Express
+ * backend DIRECTLY: the absolute backend base URL is resolved with
+ * getApiBaseUrl() (the same NEXT_PUBLIC_API_URL ?? BACKEND_URL mechanism used
+ * by the customer frontend) and the admin bearer token from the NextAuth
+ * session is attached as an Authorization header.
  */
 export async function http<T>(
   path: string,
   init: HttpInit = {}
 ): Promise<T> {
-  const headers = new Headers(init.headers);
+  const headers = await withAuthHeaders(init.headers);
 
   if (init.body !== undefined && !(init.body instanceof FormData)) {
     headers.set("content-type", "application/json");
   }
 
-  const finalPath = buildPath(path, init.query);
-  const { query: _query, ...rest } = init;
+  const finalPath = buildPath(toBackendPath(path), init.query);
+  const rest = { ...init };
+  delete rest.query;
   const payload: RequestInit = {
     ...rest,
     headers,
     body: serializeBody(init.body),
   };
 
-  const res = await fetch(`/api/proxy${finalPath}`, {
+  const res = await fetch(`${getApiBaseUrl()}${finalPath}`, {
     ...payload,
-    credentials: "same-origin",
+    credentials: "include",
     cache: "no-store",
   });
   return handle<T>(res);

@@ -17,5 +17,7 @@ import { handlers } from "@/auth";
 //
 // Both flows produce a JWT NextAuth session (user id, name, email, admin) with
 // the backend admin token stored server-side in the encrypted NextAuth JWT.
-// There is no /api/proxy: all backend calls happen server-side from NextAuth.
+// Authenticated dashboard data is fetched directly from the Express backend
+// by the admin data layer (lib/api/*) using the absolute backend URL and the
+// admin bearer token from this session.
 export const { GET, POST } = handlers;

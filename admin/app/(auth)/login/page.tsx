@@ -83,8 +83,9 @@ function LoginForm() {
     setSubmitting(true);
     try {
       // Credential authentication is handled entirely by NextAuth. The
-      // Credentials provider validates against the real backend, so no request
-      // is ever sent to the old /api/proxy/admin/api/auth/signin endpoint.
+      // Credentials provider validates directly against the Express backend
+      // (POST /admin/api/auth/signin), so no separate sign-in request is
+      // needed from this page.
       const res = await signIn("credentials", {
         email,
         password,

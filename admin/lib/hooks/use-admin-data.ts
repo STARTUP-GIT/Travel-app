@@ -2,6 +2,13 @@
 
 import * as React from "react";
 
+import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  clearCachedAdminToken,
+  toBackendPath,
+  withAuthHeaders,
+} from "@/lib/api/client";
+
 export type DataState<T> = {
   data: T | null;
   loading: boolean;
@@ -15,34 +22,27 @@ type Options = {
 };
 
 /**
- * Minimal data-fetching hook that reads authenticated admin data through the
- * server-side data route (/api/proxy — a data forwarder only; it rejects every
- * backend /api/auth/ path. All sign-in/sign-out happens exclusively via
- * NextAuth at /api/auth/[...nextauth]).
- *
- * NOTE: pages address admin data as /admin/api/*, but the backend mounts these
- * endpoints at /api/admin/* (backend app.ts: app.use('/api/admin', ...)), so
- * the path is normalised here before proxying — otherwise every authenticated
- * read 404s and the dashboard can never load.
+ * Minimal data-fetching hook that reads authenticated admin data DIRECTLY from
+ * the Express backend. Pages address admin data as /admin/api/*, but the backend
+ * mounts these endpoints at /api/admin/* (backend app.ts:
+ * app.use('/api/admin', ...)), so toBackendPath normalises the prefix. The
+ * admin bearer token from the NextAuth session is attached as an
+ * Authorization header.
  */
-function toBackendPath(path: string): string {
-  return path.replace(/^\/admin\/api\//, "/api/admin/");
-}
 export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> {
   const { query, enabled = true } = opts;
   const [data, setData] = React.useState<T | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(enabled);
   const [error, setError] = React.useState<string | null>(null);
   const [nonce, setNonce] = React.useState(0);
 
   React.useEffect(() => {
     let active = true;
     if (!enabled) {
-      setLoading(false);
       return;
     }
-    setLoading(true);
     (async () => {
+      setLoading(true);
       try {
         const qs = query
           ? new URLSearchParams(
@@ -51,11 +51,17 @@ export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> 
                 .map(([k, v]) => [k, String(v)])
             ).toString()
           : "";
-        const res = await fetch(`/api/proxy${toBackendPath(path)}${qs ? `?${qs}` : ""}`, {
-          credentials: "same-origin",
-          cache: "no-store",
-        });
+        const headers = await withAuthHeaders();
+        const res = await fetch(
+          `${getApiBaseUrl()}${toBackendPath(path)}${qs ? `?${qs}` : ""}`,
+          {
+            headers,
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
         if (res.status === 401 && typeof window !== "undefined") {
+          clearCachedAdminToken();
           window.location.assign("/login");
           return;
         }

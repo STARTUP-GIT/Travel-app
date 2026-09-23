@@ -3,9 +3,23 @@ import type { SessionRole, SessionPayload } from "../services/sessiontoken.js";
 import { getSessionSecret } from "../services/sessiontoken.js";
 import jwt from "jsonwebtoken";
 
+const extractToken = (req: Request): string | undefined => {
+  // Cookie first (server-to-server calls and the original same-origin flow),
+  // then Authorization: Bearer for direct cross-origin browser calls from the
+  // admin frontend (it never receives the backend's httpOnly cookie because
+  // NextAuth authenticates the login server-side).
+  const cookieToken = req.cookies?.token;
+  if (cookieToken) return cookieToken;
+
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7).trim();
+
+  return undefined;
+};
+
 const buildRoleMiddleware = (expectedRole: SessionRole) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies?.token;
+    const token = extractToken(req);
 
     if (!token) {
       return res.status(401).json({
@@ -78,7 +92,7 @@ export const guideAuthMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies?.token;
+  const token = extractToken(req);
 
   if (!token) {
     return res.status(401).json({
