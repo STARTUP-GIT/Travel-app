@@ -5,36 +5,37 @@ import NextAuth, {
 } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { cookies } from "next/headers";
 
-import { authorizeGoogleAdminByIdToken } from "@/lib/api/admin-google";
+import {
+  adminGoogleSignin,
+  adminGoogleSignup,
+  type GoogleAdminIntent,
+} from "@/lib/api/admin-google";
 import { backendRequest } from "@/lib/api/server";
 import type { AdminProfile } from "@/lib/types";
 
 /**
- * Admin authentication via NextAuth/Auth.js (App Router).
- *
- * Email/password (Credentials) and Google (OAuth) both authenticate against the
- * REAL backend. The backend is the source of truth for admin authorization:
+ * Admin authentication via NextAuth/Auth.js (App Router) — mirrors the WORKING
+ * customer frontend authentication implementation exactly, against the admin
+ * backend endpoints.
  *
  * - Credentials authorize() POSTs { email, password } to the backend
- *   `/admin/api/auth/signin`. The backend validates bcrypt against the admin
- *   table and returns { message, token }. Since sign-in returns only a token
- *   (no admin record), the verified admin profile is then loaded from
- *   `/admin/profile/api/getprofile` using that backend token (server-side, via
- *   the token cookie). The backend token is stored inside the encrypted NextAuth
- *   JWT — never in browser localStorage, and never in a backend cookie the
- *   browser can't see (NextAuth calls the backend server-side, so the backend's
- *   Set-Cookie is not adopted by the browser).
- * - Google sign-in POSTs the real OAuth `id_token` to the backend
- *   `/admin/api/auth/google-verify`. The backend verifies the token with
- *   Google (email_verified + audience) and only then checks the email against
- *   the admin table. A 200 means authorized and the returned { token, admin }
- *   is stored in the NextAuth JWT/session; a 403 (or any error) rejects the
- *   login. The frontend profile email is never trusted — the backend decides.
+ *   `/admin/api/auth/signin` (customer: `/users/api/auth/signin`). The backend
+ *   validates bcrypt against the admin table and returns { message, token }.
+ *   The verified admin profile is then loaded server-side with that token so
+ *   the session carries the admin record.
+ * - Google: NextAuth/GoogleProvider establishes the Google identity. The
+ *   verified Google EMAIL is then sent to the backend `/admin/api/auth/google-signin`
+ *   (customer: `/users/api/auth/google-signin`) — NO ID token is sent and the
+ *   backend performs NO Google token verification. A 200 signs the admin in; a
+ *   404 rejects the login (AccessDenied). The signup page may first call
+ *   `/admin/api/auth/google-signup` (customer: `/users/api/auth/google-signup`)
+ *   with the Google email/fullname/profilepic when a new admin is being created.
  *
- * Sign-up is NOT handled here: the Create Admin Account form calls the backend
- * `/admin/api/auth/signup` directly (server creates the admin, returns a token),
- * then signs in through these Credentials for the session.
+ * Sign-up (email/password) is NOT handled here: the Create Admin Account form
+ * calls the backend `/admin/api/auth/signup` directly, then sends the user to
+ * the login page (signup and signin stay separate).
  */
 
 /** Credentials fields were missing entirely. */
@@ -57,6 +58,13 @@ class BackendUnavailableError extends CredentialsSignin {
   code = "backend_unavailable";
 }
 
+async function resolveGoogleIntent(): Promise<GoogleAdminIntent> {
+  const store = await cookies();
+  return store.get("admin_auth_intent")?.value === "signup"
+    ? "signup"
+    : "signin";
+}
+
 type AuthorizedAdmin = {
   id: string;
   email: string;
@@ -69,7 +77,7 @@ type AuthorizedAdmin = {
  * Calls the real backend sign-in endpoint and loads the admin profile.
  * The backend `/admin/api/auth/signin` returns { message, token } only, so the
  * admin record is fetched from `/admin/profile/api/getprofile` with that token
- * to give the NextAuth session real admin identity.
+ * to give the NextAuth session the admin identity.
  */
 async function adminSignin(input: {
   email: string;
@@ -80,15 +88,19 @@ async function adminSignin(input: {
     body: JSON.stringify(input),
   });
 
-  if (res.status === 404) throw new AdminNotFoundError();
-  if (res.status === 401) throw new InvalidPasswordError();
-  if (!res.ok) throw new BackendUnavailableError();
-
   const data = (await res.json().catch(() => undefined)) as
-    | { token?: string; message?: string; error?: unknown }
+    | { message?: string; token?: string }
     | undefined;
 
-  if (!data?.token) throw new BackendUnavailableError();
+  if (!res.ok) {
+    const message = typeof data === "string" ? data : (data?.message ?? "");
+    if (/admin does not exist/i.test(message)) throw new AdminNotFoundError();
+    if (/invalid password/i.test(message)) throw new InvalidPasswordError();
+    if (res.status === 400) throw new InvalidCredentialsError();
+    throw new BackendUnavailableError();
+  }
+
+  if (!data?.token) throw new InvalidCredentialsError();
 
   // Load the verified admin profile with the fresh backend token.
   const profileRes = await backendRequest("/admin/profile/api/getprofile", {
@@ -112,6 +124,36 @@ async function adminSignin(input: {
     admin,
     adminToken: data.token,
   };
+}
+
+/**
+ * Google authorization gate (mirrors the customer email-based flow): the signup
+ * page (intent "signup") may create the account via google-signup first — a 409
+ * means the account already exists and is treated as a normal sign-in. Either
+ * way the verified Google email is then checked against google-signin, and the
+ * login is rejected (AccessDenied) when the backend cannot authorize the admin.
+ */
+async function authorizeGoogleAdminFlow(profile: {
+  email?: string | null;
+  name?: string | null;
+  picture?: string | null;
+}): Promise<boolean> {
+  const email = profile?.email;
+  if (!email) return false;
+
+  const intent = await resolveGoogleIntent();
+
+  if (intent === "signup") {
+    const status = await adminGoogleSignup({
+      email,
+      fullname: profile?.name ?? "",
+      profilepic: profile?.picture ?? undefined,
+    });
+    if (status !== 201 && status !== 409) return false;
+  }
+
+  const result = await adminGoogleSignin(email);
+  return result.ok;
 }
 
 export const adminAuthConfig = {
@@ -153,7 +195,7 @@ export const adminAuthConfig = {
         if (!email || !password) throw new InvalidCredentialsError();
 
         try {
-          return (await adminSignin({ email, password })) as AuthUser;
+          return (await adminSignin({ email, password })) as unknown as AuthUser;
         } catch (error) {
           if (error instanceof CredentialsSignin) throw error;
           throw new BackendUnavailableError();
@@ -162,19 +204,17 @@ export const adminAuthConfig = {
     }),
   ],
   callbacks: {
-    async signIn({ account }) {
-      // Google authorization gate: the backend is the authority. The REAL
-      // Google ID token is sent to /admin/api/auth/google-verify BEFORE any
-      // decision is made — return false only after the backend rejects.
+    async signIn({ account, profile }) {
+      // Google gate: the backend is the authority (customer email-based flow).
+      // Return false ONLY after the backend rejects the Google email.
       if (account?.provider === "google") {
-        const result = await authorizeGoogleAdminByIdToken({
-          idToken: account.id_token,
-        });
-        if (!result.ok) return false;
+        return authorizeGoogleAdminFlow(
+          profile as { email?: string | null; name?: string | null; picture?: string | null }
+        );
       }
       return true;
     },
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user, profile }) {
       // Runs once at sign-in (user present); binds the verified admin identity
       // and the backend admin token into the encrypted session token.
       if (user) {
@@ -184,12 +224,13 @@ export const adminAuthConfig = {
       }
 
       if (account?.provider === "google" && user) {
-        const result = await authorizeGoogleAdminByIdToken({
-          idToken: account.id_token,
-        });
-        if (result.ok && result.admin && result.adminToken) {
-          token.admin = result.admin;
-          token.adminToken = result.adminToken;
+        const email = profile?.email ?? user.email;
+        if (email) {
+          const result = await adminGoogleSignin(email);
+          if (result.ok) {
+            token.admin = result.admin;
+            token.adminToken = result.token;
+          }
         }
       }
       return token;

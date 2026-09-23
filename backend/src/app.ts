@@ -59,7 +59,6 @@ import placeRoutes from './modules/places/routes/places.routes.js';
 **/
 import appSettingsRoutes from './app_config/routes/appSettings.routes.js';
 import adminConfigRoutes from './app_config/routes/admin.routes.js';
-import googleAdminRoutes from './app_config/routes/googleAdmin.routes.js';
 
 
 
@@ -100,10 +99,9 @@ app.use('/users/profile', userProfileRoutes);
 app.use('/users/booking', userBookingRoutes);
 
 
-/** 
+/**
  ADMIN ROUTES  
 **/
-app.use('/admin/api/auth' , googleAdminRoutes);
 app.use('/admin' , adminAuthRoutes);
 app.use('/admin/profile' , adminProfileRoutes);
 app.use('/admin/location/countries' , countryRoutes);

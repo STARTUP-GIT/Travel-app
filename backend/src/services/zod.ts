@@ -68,6 +68,16 @@ export const adminSigninSchema = z.object({
   password: z.string().min(6),
 });
 
+export const adminGoogleSignupSchema = z.object({
+  email: z.string().email(),
+  fullname: z.string().min(1),
+  profilepic: z.string().optional(),
+});
+
+export const adminGoogleSigninSchema = z.object({
+  email: z.string().email(),
+});
+
 export const userProfileUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   username: z.string().min(3).optional(),

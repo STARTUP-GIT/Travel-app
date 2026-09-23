@@ -14,16 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const SIGN_IN_ERRORS: Record<string, string> = {
-  invalid_credentials: "Please complete all required fields.",
-  admin_not_found: "Could not sign in after creating the account.",
-  invalid_password: "Could not sign in after creating the account.",
-  backend_unavailable:
-    "The authentication service is unavailable. Please try again later.",
-  Configuration:
-    "Authentication is not configured correctly. Please contact support.",
-  CredentialsSignin: "Could not sign in after creating the account.",
-  default: "Account created, but signing in failed. Please sign in.",
+const SIGN_UP_MESSAGES: Record<string, string> = {
+  network: "Cannot reach the authentication service. Please try again later.",
+  default: "Account creation failed. Please try again.",
 };
 
 function GoogleIcon() {
@@ -116,41 +109,30 @@ function SignupForm() {
       );
 
       const data = (await res.json().catch(() => undefined)) as
-        | { token?: string; admin?: unknown; error?: string }
+        | { message?: string; admin?: unknown; error?: string }
         | undefined;
 
-      if (!res.ok || !data?.token) {
+      if (!res.ok) {
         const message =
           typeof data?.error === "string"
             ? data.error
-            : "Account creation failed. Please try again.";
+            : typeof data?.message === "string"
+              ? data.message
+              : SIGN_UP_MESSAGES.default;
         toast.error("Account creation failed", { description: message });
         return;
       }
 
+      // Signup and signin are separate operations (customer pattern): the
+      // backend created the admin and returned a token, but we do NOT
+      // auto-login here — send the admin to the login page.
       toast.success("Admin account created", {
-        description: "Signing you in\u2026",
+        description: "Please sign in with your new credentials.",
       });
-
-      // The backend created the admin and returned a token. Establish the
-      // NextAuth session through the Credentials flow so the admin lands on
-      // the dashboard. If that fails, drop the user on the login page.
-      const session = await signIn("credentials", {
-        email: email.trim(),
-        password,
-        redirect: false,
-      });
-
-      if (session?.error || session?.code || !session?.ok) {
-        router.push("/login");
-        return;
-      }
-
-      router.push("/admin");
-      router.refresh();
+      router.push("/login");
     } catch {
       toast.error("Account creation failed", {
-        description: SIGN_IN_ERRORS.default,
+        description: SIGN_UP_MESSAGES.network,
       });
     } finally {
       setSubmitting(false);
@@ -158,10 +140,11 @@ function SignupForm() {
   }
 
   async function handleGoogleSignIn() {
-    // Google is authorized by the backend during the OAuth callback: the
-    // NextAuth signIn callback sends account.id_token to the backend
-    // /admin/api/auth/google-verify. Only EXISTING admin accounts are
-    // authorized — Google cannot create an admin account.
+    // Signal the NextAuth callback that this is a SIGN-UP: the verified Google
+    // email/fullname/profilepic are sent to the backend
+    // /admin/api/auth/google-signup (customer pattern). If the account already
+    // exists (409) it is treated as an existing account and signed in.
+    document.cookie = `admin_auth_intent=signup; path=/; samesite=lax; max-age=600`;
     setGoogleLoading(true);
     await signIn("google", { callbackUrl: "/admin" });
   }

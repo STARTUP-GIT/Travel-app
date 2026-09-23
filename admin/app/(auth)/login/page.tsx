@@ -113,10 +113,10 @@ function LoginForm() {
   }
 
   async function handleGoogleSignIn() {
-    // Google is authorized by the backend during the OAuth callback: the
-    // NextAuth signIn callback sends account.id_token to the backend
-    // /admin/api/auth/google-verify and the backend decides whether the
-    // account is an existing admin.
+    // Signal the NextAuth callback that this is a SIGN-IN: the verified Google
+    // email is sent to the backend /admin/api/auth/google-signin and the
+    // backend decides whether the account is an existing admin (404 rejects).
+    document.cookie = `admin_auth_intent=signin; path=/; samesite=lax; max-age=600`;
     setGoogleLoading(true);
     await signIn("google", { callbackUrl: "/admin" });
   }
