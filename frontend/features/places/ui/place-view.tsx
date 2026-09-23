@@ -41,11 +41,14 @@ import { formatCurrency } from "@/lib/utils";
 export function PlaceView({
   place,
   districtSlug,
+  stateSlug,
 }: {
   place: Place;
   districtSlug: string;
+  stateSlug?: string;
 }) {
   const [service, setService] = React.useState<ServiceItem | null>(null);
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
 
   const specificGuides: GuideWithContext[] = (place.specificguide ?? []).map((g) => ({
     type: "specific",
@@ -67,7 +70,7 @@ export function PlaceView({
       icon: UtensilsCrossed,
       title: "Restaurant",
       subtitle: "Dine near this place",
-      href: `/${districtSlug}/restaurants`,
+      href: `${districtBase}/restaurants`,
       accent: "green",
     },
     {
@@ -75,7 +78,7 @@ export function PlaceView({
       icon: Coffee,
       title: "Cafe",
       subtitle: "Coffee & quick bites",
-      href: `/${districtSlug}/restaurants`,
+      href: `${districtBase}/restaurants`,
       accent: "amber",
     },
     {
@@ -83,7 +86,7 @@ export function PlaceView({
       icon: Compass,
       title: "Guide Service",
       subtitle: "Expert guides here",
-      href: `/${districtSlug}/guides`,
+      href: `${districtBase}/guides`,
       accent: "blue",
     },
     {
@@ -99,7 +102,7 @@ export function PlaceView({
       title: "Restrooms",
       subtitle: "Facilities",
       accent: "green",
-      href: `/${districtSlug}/places`,
+      href: `${districtBase}/places`,
     },
     {
       id: "souvenirs",
@@ -161,12 +164,12 @@ export function PlaceView({
           size="lg"
           className="rounded-2xl shadow-float"
         >
-          <Link href={`/${districtSlug}/places/${place.id}/transport`}>
+          <Link href={`${districtBase}/places/${place.id}/transport`}>
             <CarTaxiFront className="size-5" /> Go To
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="rounded-2xl bg-card">
-          <Link href={`/${districtSlug}/guides`}>
+          <Link href={`${districtBase}/guides`}>
             <Compass className="size-5" /> Book Guide
           </Link>
         </Button>

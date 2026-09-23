@@ -40,15 +40,18 @@ const FOOD_LABEL: Record<FoodCategory, string> = {
 export function RestaurantView({
   restaurant,
   districtSlug,
+  stateSlug,
 }: {
   restaurant: Restaurent;
   districtSlug: string;
+  stateSlug?: string;
 }) {
   const [resOpen, setResOpen] = React.useState(false);
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
 
   return (
     <div className="pb-8">
-      <ScreenHeader title="Restaurant" subtitle={restaurant.name} backHref={`/${districtSlug}`} />
+      <ScreenHeader title="Restaurant" subtitle={restaurant.name} backHref={districtBase} />
 
       {/* Hero */}
       <div className="relative -mx-4 overflow-hidden bg-blue-900 sm:rounded-b-[2rem]">

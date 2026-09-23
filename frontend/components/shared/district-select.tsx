@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { DistrictSummary } from "@/features/locations/types";
+import { slugify } from "@/features/locations/utils/slug";
 
 export function DistrictSelect({
   districts,
@@ -26,7 +27,9 @@ export function DistrictSelect({
   const router = useRouter();
 
   function handleChange(slug: string) {
-    router.push(`/${slug}`);
+    const district = districts.find((item) => item.slug === slug);
+    const stateSlug = district ? slugify(district.state.name) : null;
+    router.push(stateSlug ? `/${stateSlug}/${slug}` : `/${slug}`);
   }
 
   return (

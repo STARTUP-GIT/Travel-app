@@ -32,12 +32,13 @@ import { createHotelBooking } from "@/features/hotels/api/hotels.api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { formatCurrency } from "@/lib/utils";
 
-export function HotelView({ hotel, districtSlug }: { hotel: Hotel; districtSlug: string }) {
+export function HotelView({ hotel, districtSlug, stateSlug }: { hotel: Hotel; districtSlug: string; stateSlug?: string }) {
   const [bookingOpen, setBookingOpen] = React.useState(false);
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
 
   return (
     <div className="pb-8">
-      <ScreenHeader title="Hotel" subtitle={hotel.name} backHref={`/${districtSlug}`} />
+      <ScreenHeader title="Hotel" subtitle={hotel.name} backHref={districtBase} />
 
       {/* Hero */}
       <div className="relative -mx-4 overflow-hidden bg-blue-900 sm:rounded-b-[2rem]">

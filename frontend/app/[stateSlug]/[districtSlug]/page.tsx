@@ -211,6 +211,7 @@ export default async function StateDistrictPage({
                   key={place.id}
                   place={place}
                   districtSlug={districtSlug}
+                  stateSlug={stateSlug}
                   showFavorite
                 />
               ))}

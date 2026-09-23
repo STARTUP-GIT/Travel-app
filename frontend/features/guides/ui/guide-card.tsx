@@ -32,11 +32,13 @@ export function GuideAvatar({
 export function GuideCard({
   guide,
   districtSlug,
+  stateSlug,
   className,
   showFavorite = false,
 }: {
   guide: GuideWithContext;
   districtSlug: string;
+  stateSlug?: string;
   className?: string;
   showFavorite?: boolean;
 }) {
@@ -45,11 +47,12 @@ export function GuideCard({
   const subtitle = isSpecific
     ? guide.place.name
     : `${guide.places.length} places covered`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
 
   return (
     <GlassCard hover className={cn("group", className)}>
       <Link
-        href={`/${districtSlug}/guides/${person.id}`}
+        href={`${districtBase}/guides/${person.id}`}
         className="flex flex-1 flex-col gap-3 p-4"
       >
         <div className="flex items-start gap-3">

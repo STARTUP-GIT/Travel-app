@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 export default function SearchScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { slug } = useCurrentDistrict();
+  const { slug, stateSlug } = useCurrentDistrict();
 
   const initialQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = React.useState(initialQuery);
@@ -28,6 +28,8 @@ export default function SearchScreen() {
   const [searching, setSearching] = React.useState(false);
   const [districtName, setDistrictName] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+
+  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
 
   React.useEffect(() => {
     if (!slug) {
@@ -151,7 +153,7 @@ export default function SearchScreen() {
                         {group.items.map((p) => (
                           <MediaRowCard
                             key={p.id}
-                            href={`/${slug}/places/${p.id}`}
+                            href={districtBase ? `${districtBase}/places/${p.id}` : `/${slug}/places/${p.id}`}
                             image={p.images?.[0]}
                             title={p.name}
                             subtitle={p.category ?? p.district?.name ?? "Place"}
@@ -164,7 +166,7 @@ export default function SearchScreen() {
                         {group.items.map((h) => (
                           <MediaRowCard
                             key={h.id}
-                            href={`/${slug}/hotels/${h.id}`}
+                            href={districtBase ? `${districtBase}/hotels/${h.id}` : `/${slug}/hotels/${h.id}`}
                             image={h.images?.[0] ?? h.profile_logo}
                             title={h.name}
                             subtitle={h.address}
@@ -177,7 +179,7 @@ export default function SearchScreen() {
                         {group.items.map((r) => (
                           <MediaRowCard
                             key={r.id}
-                            href={`/${slug}/restaurants/${r.id}`}
+                            href={districtBase ? `${districtBase}/restaurants/${r.id}` : `/${slug}/restaurants/${r.id}`}
                             image={r.images?.[0] ?? r.profile_logo}
                             title={r.name}
                             subtitle={r.address}
@@ -187,7 +189,12 @@ export default function SearchScreen() {
                     ) : (
                       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                         {group.items.map((g) => (
-                          <GuideCard key={g.guide.id} guide={g} districtSlug={slug!} />
+                          <GuideCard
+                            key={g.guide.id}
+                            guide={g}
+                            districtSlug={slug!}
+                            stateSlug={stateSlug ?? undefined}
+                          />
                         ))}
                       </div>
                     )}

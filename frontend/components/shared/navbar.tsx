@@ -40,6 +40,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
 import type { DistrictSummary } from "@/features/locations/types";
+import { slugify } from "@/features/locations/utils/slug";
 import { cn } from "@/lib/utils";
 
 const NAV_RESOURCES = [
@@ -52,7 +53,7 @@ const NAV_RESOURCES = [
 export function Navbar({ districts }: { districts: DistrictSummary[] }) {
   const pathname = usePathname();
   const { isAuthenticated, user, isLoading, logout } = useAuth();
-  const { slug: districtSlug, stateSlug, setSlug } = useCurrentDistrict();
+  const { slug: districtSlug, stateSlug, setSlug, setDestination } = useCurrentDistrict();
 
   const districtPath = (segment: string) => {
     if (stateSlug && districtSlug) {
@@ -100,7 +101,19 @@ export function Navbar({ districts }: { districts: DistrictSummary[] }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <DistrictMenu districts={districts} currentSlug={districtSlug} onSelect={setSlug} />
+          <DistrictMenu
+            districts={districts}
+            currentSlug={districtSlug}
+            onSelect={(slug) => {
+              const district = districts.find((item) => item.slug === slug);
+              if (district) {
+                const nextStateSlug = slugify(district.state.name);
+                setDestination(nextStateSlug, slug);
+                return;
+              }
+              setSlug(slug);
+            }}
+          />
 
           {isLoading ? null : isAuthenticated ? (
             <>
@@ -248,7 +261,15 @@ export function Navbar({ districts }: { districts: DistrictSummary[] }) {
                 <DistrictMenu
                   districts={districts}
                   currentSlug={districtSlug}
-                  onSelect={setSlug}
+                  onSelect={(slug) => {
+                    const district = districts.find((item) => item.slug === slug);
+                    if (district) {
+                      const nextStateSlug = slugify(district.state.name);
+                      setDestination(nextStateSlug, slug);
+                      return;
+                    }
+                    setSlug(slug);
+                  }}
                   sidebar
                 />
               </div>
@@ -322,12 +343,15 @@ function DistrictMenu({
   const router = useRouter();
 
   function handleSelect(slug: string) {
+    const district = districts.find((d) => d.slug === slug);
+    const nextStateSlug = district ? slugify(district.state.name) : null;
+    const basePath = nextStateSlug ? `/${nextStateSlug}/${slug}` : `/${slug}`;
     onSelect(slug);
     const segment = pathname
       .split("/")
       .filter(Boolean)
       .find((part): part is string => part === "places" || part === "hotels" || part === "restaurants" || part === "guides");
-    router.push(segment ? `/${slug}/${segment}` : `/${slug}`);
+    router.push(segment ? `${basePath}/${segment}` : basePath);
   }
 
   return (

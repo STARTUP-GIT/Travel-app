@@ -47,14 +47,16 @@ const ITEMS = [
  */
 export function BottomNavigation() {
   const pathname = usePathname();
-  const { slug } = useCurrentDistrict();
+  const { slug, stateSlug } = useCurrentDistrict();
+
+  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
 
   const resolved = ITEMS.map((item) => {
     if (item.label === "Places") {
-      return { ...item, href: slug ? `/${slug}/places` : "/explore" };
+      return { ...item, href: districtBase ? `${districtBase}/places` : "/explore" };
     }
     if (item.label === "Guides") {
-      return { ...item, href: slug ? `/${slug}/guides` : "/explore" };
+      return { ...item, href: districtBase ? `${districtBase}/guides` : "/explore" };
     }
     return item;
   });

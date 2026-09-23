@@ -12,17 +12,20 @@ import { cn } from "@/lib/utils";
 export function PlaceCard({
   place,
   districtSlug,
+  stateSlug,
   className,
   horizontal = false,
   showFavorite = false,
 }: {
   place: Place;
   districtSlug: string;
+  stateSlug?: string;
   className?: string;
   horizontal?: boolean;
   showFavorite?: boolean;
 }) {
-  const href = `/${districtSlug}/places/${place.id}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const href = `${districtBase}/places/${place.id}`;
 
   if (horizontal) {
     return (

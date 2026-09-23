@@ -58,14 +58,17 @@ const TIME_OPTIONS = [
 export function GuideProfile({
   guide,
   districtSlug,
+  stateSlug,
   districtId,
 }: {
   guide: GuideWithContext;
   districtSlug: string;
+  stateSlug?: string;
   districtId: string;
 }) {
   const person = guide.guide;
   const [bookingOpen, setBookingOpen] = React.useState(false);
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
 
   const isSpecific = guide.type === "specific";
   const placesForGuide = isSpecific
@@ -156,7 +159,7 @@ export function GuideProfile({
             {placesForGuide.map((place) => (
               <MediaRowCard
                 key={place.id}
-                href={`/${districtSlug}/places/${place.id}`}
+                href={`${districtBase}/places/${place.id}`}
                 title={place.name}
                 subtitle={`${place.districtName} · ${districtSlug}`}
                 icon={<MapPin className="size-4" />}

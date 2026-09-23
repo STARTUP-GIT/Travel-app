@@ -79,19 +79,23 @@ export function LocationPicker({
     if (chosenSlug) {
       const chosenDistrict = districts.find((d) => d.slug === chosenSlug);
       const selectedState = states.find((s) => s.id === selectedStateId) ?? null;
-      const selectedStateSlug = selectedState ? slugify(selectedState.name) : null;
+      const nextStateSlug = selectedState
+        ? slugify(selectedState.name)
+        : chosenDistrict?.state
+          ? slugify(chosenDistrict.state.name)
+          : null;
 
-      if (chosenDistrict && selectedStateSlug) {
-        setDestination(selectedStateSlug, chosenDistrict.slug);
+      if (chosenDistrict && nextStateSlug) {
+        setDestination(nextStateSlug, chosenDistrict.slug);
       } else if (chosenDistrict) {
         setSlug(chosenSlug);
-        if (chosenDistrict?.stateId) {
-          setStateSlug(chosenDistrict.stateId);
+        if (chosenDistrict.state) {
+          setStateSlug(slugify(chosenDistrict.state.name));
         }
       }
 
       onOpenChange(false);
-      router.push(selectedStateSlug ? `/${selectedStateSlug}/${chosenSlug}` : `/${chosenSlug}`);
+      router.push(nextStateSlug ? `/${nextStateSlug}/${chosenSlug}` : `/${chosenSlug}`);
     }
   }
 

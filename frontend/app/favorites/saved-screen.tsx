@@ -14,8 +14,9 @@ import { useCurrentDistrict } from "@/features/locations/state/current-district-
 
 export default function SavedScreen() {
   const { snapshots, toggle } = useFavorites();
-  const { slug } = useCurrentDistrict();
+  const { slug, stateSlug } = useCurrentDistrict();
 
+  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
   const { places, guides } = snapshots;
   const total = places.length + guides.length;
 
@@ -28,7 +29,7 @@ export default function SavedScreen() {
           <NoSavedState
             action={
               <Button asChild variant="outline">
-                <Link href={slug ? `/${slug}/places` : "/explore"}>Browse places</Link>
+                <Link href={districtBase ? `${districtBase}/places` : "/explore"}>Browse places</Link>
               </Button>
             }
           />
@@ -38,7 +39,10 @@ export default function SavedScreen() {
               title="Places"
               label="Saved places"
               items={places}
-              hrefBase={(s) => `/${s?.districtSlug ?? slug}/${s.id}`}
+              hrefBase={(s) => {
+                const base = stateSlug && (s?.districtSlug ?? slug) ? `/${stateSlug}/${s?.districtSlug ?? slug}` : `/${s?.districtSlug ?? slug}`;
+                return `${base}/${s.id}`;
+              }}
               onRemove={(item) => toggle(item.id, "place")}
               icon={<MapPin className="size-4" />}
             />
@@ -46,7 +50,10 @@ export default function SavedScreen() {
               title="Guides"
               label="Saved guides"
               items={guides}
-              hrefBase={(s) => `/${s?.districtSlug ?? slug}/guides/${s.id}`}
+              hrefBase={(s) => {
+                const base = stateSlug && (s?.districtSlug ?? slug) ? `/${stateSlug}/${s?.districtSlug ?? slug}` : `/${s?.districtSlug ?? slug}`;
+                return `${base}/guides/${s.id}`;
+              }}
               onRemove={(item) => toggle(item.id, "guide")}
               icon={<Heart className="size-4" />}
             />

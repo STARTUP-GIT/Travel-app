@@ -12,16 +12,20 @@ import { cn } from "@/lib/utils";
 export function HotelCard({
   hotel,
   districtSlug,
+  stateSlug,
   className,
 }: {
   hotel: Hotel;
   districtSlug: string;
+  stateSlug?: string;
   className?: string;
 }) {
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+
   return (
     <GlassCard hover className={cn("group", className)}>
       <Link
-        href={`/${districtSlug}/hotels/${hotel.id}`}
+        href={`${districtBase}/hotels/${hotel.id}`}
         className="flex flex-1 flex-col"
       >
         <div className="relative aspect-[4/3] overflow-hidden">

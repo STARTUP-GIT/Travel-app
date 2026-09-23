@@ -184,7 +184,7 @@ export default async function DistrictPage({
             your visit memorable.
           </p>
 
-          <DistrictSearchForm districtSlug={slug} />
+          <DistrictSearchForm stateSlug={stateSlug} districtSlug={slug} />
 
           <div className="mt-4 flex flex-wrap gap-2">
             <StatPill label={`${places.length} places`} />

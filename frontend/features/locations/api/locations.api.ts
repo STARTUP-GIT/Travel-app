@@ -34,6 +34,7 @@ export async function getDistricts(): Promise<DistrictSummary[]> {
           name: d.state.name,
           countryId: d.state.countryId,
           isServiceAvailable: d.state.isServiceAvailable,
+          primaryImage: d.state.primaryImage ?? null,
           country: d.state.country,
         },
         slug: slugify(d.name),
@@ -91,6 +92,7 @@ export async function getStates(): Promise<StateSummary[]> {
           countryId: s.countryId,
           country: s.country,
           isServiceAvailable: s.isServiceAvailable,
+          primaryImage: s.primaryImage ?? null,
           slug: slugify(s.name),
           districtCount: counts?.districtCount ?? 0,
           placeCount: counts?.placeCount ?? 0,
@@ -126,6 +128,7 @@ type ApiState = {
   name: string;
   countryId: string;
   isServiceAvailable: boolean;
+  primaryImage?: string | null;
   country: ApiCountry;
   _count: { districts: number };
 };

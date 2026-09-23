@@ -24,7 +24,7 @@ import type { CustomerProfile } from "@/features/profile/types";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
-  const { slug } = useCurrentDistrict();
+  const { slug, stateSlug } = useCurrentDistrict();
   const { data: fetchedProfile } = useProfile();
 
   // Fresh profile from the backend; a successful save takes precedence so the
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
 
           {slug ? (
             <Link
-              href={`/${slug}`}
+              href={stateSlug ? `/${stateSlug}/${slug}` : `/${slug}`}
               className="card-surface group mt-2.5 flex items-center gap-3 rounded-2xl p-4 transition-colors hover:border-primary/40"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success/12 text-emerald-700">

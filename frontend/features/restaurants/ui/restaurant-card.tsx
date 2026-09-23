@@ -23,16 +23,20 @@ const FOOD_TONE: Record<FoodCategory, "success" | "warning" | "info"> = {
 export function RestaurantCard({
   restaurant,
   districtSlug,
+  stateSlug,
   className,
 }: {
   restaurant: Restaurent;
   districtSlug: string;
+  stateSlug?: string;
   className?: string;
 }) {
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+
   return (
     <GlassCard hover className={cn("group", className)}>
       <Link
-        href={`/${districtSlug}/restaurants/${restaurant.id}`}
+        href={`${districtBase}/restaurants/${restaurant.id}`}
         className="flex flex-1 flex-col"
       >
         <div className="relative aspect-[4/3] overflow-hidden">
