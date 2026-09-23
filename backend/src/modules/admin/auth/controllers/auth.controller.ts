@@ -46,13 +46,31 @@ export const signUp = async (req: Request, res: Response) => {
       select: adminSafeSelect,
     });
 
+    // Authenticate immediately after signup: issue the same admin session
+    // token (role=admin) as signIn so the admin frontend lands on /admin with
+    // a working session. adminAuthMiddleware stays untouched.
+    const token = await generateSessionToken(newAdmin.id, "admin");
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
     return res.status(201).json({
       message: 'Sign-up successful',
       admin: newAdmin,
+      token,
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return res.status(400).json({ error });
+      // Keep the existing { error } contract but make the details readable so
+      // the admin frontend toast can display the actual validation message.
+      const message = (error.issues ?? [])
+        .map((issue) => issue.message)
+        .filter(Boolean)
+        .join(', ');
+      return res.status(400).json({ error: message || 'Validation failed' });
     }
 
     return res.status(500).json({ error: 'Internal server error' });

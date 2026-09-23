@@ -93,10 +93,9 @@ function SignupForm() {
         email: email.trim(),
         password,
       });
-      toast.success("Admin account created", {
-        description: "You can now sign in with your credentials.",
-      });
-      router.push("/login");
+      toast.success("Admin account created");
+      router.push("/admin");
+      router.refresh();
     } catch (err) {
       toast.error("Account creation failed", {
         description: err instanceof Error ? err.message : "Please try again.",

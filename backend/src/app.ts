@@ -85,7 +85,7 @@ app.use(
 
 // main route
 app.get('/' , (req,res) => {
-    res.send(`Hello`)
+    res.send(`Hello from slash route by Sathwik , this is coming from app.ts `);
 });
 
 
