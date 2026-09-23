@@ -9,6 +9,7 @@ import { AtSign, Loader2, Lock, Mail, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { getApiBaseUrl } from "@/lib/api/config";
+import { ApiError } from "@/lib/api/client";
 import { AdminLogo } from "@/components/admin/admin-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,10 +131,14 @@ function SignupForm() {
         description: "Please sign in with your new credentials.",
       });
       router.push("/login");
-    } catch {
-      toast.error("Account creation failed", {
-        description: SIGN_UP_MESSAGES.network,
-      });
+    } catch (error) {
+      // Missing/misconfigured backend URL is a real config error — surface it
+      // instead of hiding it behind the generic network message.
+      const msg =
+        error instanceof ApiError
+          ? error.message
+          : SIGN_UP_MESSAGES.network;
+      toast.error("Account creation failed", { description: msg });
     } finally {
       setSubmitting(false);
     }
