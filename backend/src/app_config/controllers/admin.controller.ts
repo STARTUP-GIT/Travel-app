@@ -425,11 +425,13 @@ export const listPlaces = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
     const places = await prisma.place.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
         ...(stateId ? { district: { stateId } } : {}),
+        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
       },
       include: {
         district: { include: { state: { include: { country: true } } } },
@@ -1227,6 +1229,7 @@ export const createPlace = async (req: Request, res: Response) => {
         category: typeof category === "string" ? category : "",
         latitude: typeof latitude === "number" ? latitude : 0,
         longitude: typeof longitude === "number" ? longitude : 0,
+        status: "APPROVED",
       },
       include: { district: { include: { state: { include: { country: true } } } } },
     });
