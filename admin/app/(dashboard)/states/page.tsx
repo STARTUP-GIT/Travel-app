@@ -1,26 +1,26 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { AlertTriangle, Inbox, Loader2 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { DataTable, type Column } from "@/components/admin/data-table";
-import { DeleteButton } from "@/components/admin/delete-button";
+import {
+  CardDot,
+  GeoCardSkeletonGrid,
+  GeoMessageCard,
+  GeoRetryButton,
+  ServiceStatusBadge,
+} from "@/components/admin/geo-card";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
-import { ErrorState, LoadingState } from "@/components/admin/state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -28,225 +28,181 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { patchJSON } from "@/lib/api/mutate";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import type { Country, StateAdmin } from "@/lib/types";
+import type { StateAdmin } from "@/lib/types";
+
+type StatusFilter = "all" | "active" | "offline";
 
 export default function StatesPage() {
-  const router = useRouter();
   const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
+  const [savingIds, setSavingIds] = React.useState<Set<string>>(new Set());
+  const [patches, setPatches] = React.useState<Record<string, boolean>>({});
+
   const { data, loading, error, refetch } = useAdminData<{ states: StateAdmin[] }>(
-    "/admin/api/states",
-    { query: search ? { search } : undefined }
+    "/admin/api/states"
   );
 
-  const columns: Column<StateAdmin>[] = [
-    { key: "name", header: "State", cell: (s) => <span className="font-medium">{s.name}</span> },
-    {
-      key: "country",
-      header: "Country",
-      cell: (s) => <span className="text-muted-foreground">{s.country?.name ?? "—"}</span>,
-    },
-    {
-      key: "districts",
-      header: "Districts",
-      cell: (s) => (
-        <span className="font-mono text-sm text-muted-foreground">{s._count.districts}</span>
+  const displayStates = React.useMemo(
+    () =>
+      (data?.states ?? []).map((s) =>
+        patches[s.id] !== undefined ? { ...s, isServiceAvailable: patches[s.id] } : s
       ),
-      className: "text-center",
-    },
-    {
-      key: "service",
-      header: "Service",
-      cell: (s) =>
-        s.isServiceAvailable ? (
-          <Badge className="bg-zinc-900 text-white">Available</Badge>
-        ) : (
-          <Badge variant="outline">Offline</Badge>
-        ),
-    },
-    {
-      key: "actions",
-      header: "",
-      cell: (s) => <DeleteButton url={`/admin/api/states/${s.id}`} onDeleted={refetch} />,
-      className: "text-right",
-    },
-  ];
+    [data, patches]
+  );
+
+  const filteredStates = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return displayStates.filter((s) => {
+      const matchesSearch = !q || s.name.toLowerCase().includes(q);
+      const matchesStatus =
+        statusFilter === "all"
+          ? true
+          : statusFilter === "active"
+            ? s.isServiceAvailable
+            : !s.isServiceAvailable;
+      return matchesSearch && matchesStatus;
+    });
+  }, [displayStates, search, statusFilter]);
+
+  async function toggle(id: string, next: boolean) {
+    setSavingIds((prev) => new Set(prev).add(id));
+    setPatches((prev) => ({ ...prev, [id]: next }));
+    try {
+      await patchJSON(`/admin/api/states/${id}`, { isServiceAvailable: next });
+      toast.success(next ? "State service enabled" : "State service disabled");
+    } catch (err) {
+      setPatches((prev) => {
+        const nextPatches = { ...prev };
+        delete nextPatches[id];
+        return nextPatches;
+      });
+      toast.error("Failed to update state", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setSavingIds((prev) => {
+        const nextIds = new Set(prev);
+        nextIds.delete(id);
+        return nextIds;
+      });
+    }
+  }
 
   return (
     <div>
-      <PageHeader title="States" subtitle="Manage states and their service availability.">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search states…" className="w-56" />
-        <CreateStateDialog onCreated={refetch} />
-      </PageHeader>
-      {loading ? (
-        <LoadingState />
-      ) : error ? (
-        <ErrorState message={error} onRetry={refetch} />
-      ) : (
-        <DataTable
-          columns={columns}
-          rows={data?.states ?? []}
-          onRowClick={(s) => router.push(`/states/${s.id}`)}
+      <PageHeader
+        title="States"
+        subtitle="Manage service availability for all supported states."
+      />
+
+      <div className="mb-6 grid gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search states…"
+          className="w-full sm:w-72"
         />
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+        >
+          <SelectTrigger className="w-full sm:w-44" aria-label="Filter by service status">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="offline">Offline</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {loading ? (
+        <GeoCardSkeletonGrid />
+      ) : error ? (
+        <GeoMessageCard
+          tone="danger"
+          icon={AlertTriangle}
+          title="Unable to load states"
+          description={error}
+          action={<GeoRetryButton onRetry={refetch} />}
+        />
+      ) : filteredStates.length === 0 ? (
+        <GeoMessageCard
+          icon={Inbox}
+          title="No states found"
+          description="There are no states matching your current filters."
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredStates.map((state) => (
+            <StateCard
+              key={state.id}
+              state={state}
+              saving={savingIds.has(state.id)}
+              onToggle={(next) => toggle(state.id, next)}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-function CreateStateDialog({ onCreated }: { onCreated: () => void }) {
-  const [open, setOpen] = React.useState(false);
-  const [saving, setSaving] = React.useState(false);
-  const [countryId, setCountryId] = React.useState("");
-  const [stateId, setStateId] = React.useState("");
-  const [available, setAvailable] = React.useState(false);
-
-  const {
-    data: countriesData,
-    loading: countriesLoading,
-  } = useAdminData<{ countries: Country[] }>("/admin/api/countries", { enabled: open });
-
-  const {
-    data: statesData,
-    loading: statesLoading,
-  } = useAdminData<{ states: StateAdmin[] }>("/admin/api/states", { enabled: open });
-
-  const countries = React.useMemo(() => countriesData?.countries ?? [], [countriesData]);
-  const states = React.useMemo(() => statesData?.states ?? [], [statesData]);
-
-  const countryStates = React.useMemo(
-    () => (countryId ? states.filter((s) => s.countryId === countryId) : []),
-    [states, countryId]
-  );
-
-  const selectedState = React.useMemo(
-    () => (stateId ? states.find((s) => s.id === stateId) ?? null : null),
-    [states, stateId]
-  );
-
-  function reset() {
-    setCountryId("");
-    setStateId("");
-    setAvailable(false);
-  }
-
-  function handleCountryChange(value: string) {
-    setCountryId(value);
-    setStateId("");
-  }
-
-  async function handleSubmit() {
-    if (!countryId || !stateId || !selectedState) {
-      toast.error("Select a country and a state");
-      return;
-    }
-    setSaving(true);
-    try {
-      await patchJSON(`/admin/api/states/${selectedState.id}`, {
-        isServiceAvailable: available,
-      });
-      toast.success("State settings updated");
-      reset();
-      setOpen(false);
-      onCreated();
-    } catch (err) {
-      toast.error("Failed to save state", {
-        description: err instanceof Error ? err.message : undefined,
-      });
-    } finally {
-      setSaving(false);
-    }
-  }
-
+function StateCard({
+  state,
+  saving,
+  onToggle,
+}: {
+  state: StateAdmin;
+  saving: boolean;
+  onToggle: (next: boolean) => void;
+}) {
   return (
-    <Dialog open={open} onOpenChange={(next) => {
-      setOpen(next);
-      if (!next) reset();
-    }}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Add State</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add state</DialogTitle>
-          <DialogDescription>
-            Select a country and one of its existing states. State names are locked to canonical database records.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="state-country">Country</Label>
-            {countriesLoading ? (
-              <p className="text-sm text-muted-foreground">Loading countries…</p>
-            ) : countries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No countries available.</p>
-            ) : (
-              <Select value={countryId} onValueChange={handleCountryChange}>
-                <SelectTrigger className="w-full" id="state-country">
-                  <SelectValue placeholder="Select a country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+    <Card className="flex h-full flex-col gap-0 transition-colors hover:border-white/25">
+      <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 p-5 pb-0">
+        <div className="min-w-0 space-y-1">
+          <CardTitle className="truncate" title={state.name}>
+            {state.name}
+          </CardTitle>
+          <CardDescription className="truncate" title={state.country?.name}>
+            {state.country?.name ?? "—"}
+          </CardDescription>
+        </div>
+        <ServiceStatusBadge active={state.isServiceAvailable} />
+      </CardHeader>
+      <Separator className="mt-4" />
+      <CardContent className="flex flex-1 items-center p-5">
+        <div className="flex w-full items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">Service availability</p>
+            <p className="text-xs text-muted-foreground">Offline until enabled.</p>
           </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="state-state">State</Label>
-            {!countryId ? (
-              <p className="text-sm text-muted-foreground">Select a country first.</p>
-            ) : statesLoading ? (
-              <p className="text-sm text-muted-foreground">Loading states…</p>
-            ) : countryStates.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No states available for this country.
-              </p>
-            ) : (
-              <Select value={stateId} onValueChange={setStateId}>
-                <SelectTrigger className="w-full" id="state-state">
-                  <SelectValue placeholder="Select a state" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryStates.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          {selectedState ? (
-            <p className="text-xs text-muted-foreground">
-              &ldquo;{selectedState.name}&rdquo; already exists in the database. Saving updates the
-              existing record — no duplicate state is created.
-            </p>
-          ) : null}
-
-          <div className="flex items-center justify-between rounded-lg border border-border p-3">
-            <div>
-              <p className="text-sm font-medium">Service available</p>
-              <p className="text-xs text-muted-foreground">Defaults to offline until enabled.</p>
-            </div>
-            <Switch checked={available} onCheckedChange={setAvailable} />
+          <div className="flex shrink-0 items-center gap-2">
+            {saving ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
+            <Switch
+              checked={state.isServiceAvailable}
+              disabled={saving}
+              onCheckedChange={onToggle}
+              aria-label={`Service availability for ${state.name}`}
+            />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={saving || !countryId || !stateId}>
-            {saving ? "Saving…" : "Save state"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+      <Separator />
+      <CardFooter className="flex flex-wrap items-center gap-x-3 gap-y-1 p-5 pt-4">
+        <span className="text-xs text-muted-foreground">
+          {state._count.districts} district{state._count.districts === 1 ? "" : "s"}
+        </span>
+        <CardDot />
+        <code className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={state.id}>
+          {state.id}
+        </code>
+      </CardFooter>
+    </Card>
   );
 }
