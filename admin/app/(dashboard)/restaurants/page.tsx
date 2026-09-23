@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
@@ -55,6 +56,12 @@ export default function RestaurantsPage() {
       header: "Booking",
       cell: (r) =>
         r.booking_enabled ? <Badge className="bg-zinc-900 text-white">Enabled</Badge> : <Badge variant="outline">Off</Badge>,
+    },
+    {
+      key: "actions",
+      header: "",
+      cell: (r) => <DeleteButton url={`/admin/api/restaurants/${r.id}`} onDeleted={refetch} />,
+      className: "text-right",
     },
   ];
 

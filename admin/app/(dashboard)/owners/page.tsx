@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { ErrorState, LoadingState, EmptyState } from "@/components/admin/state";
@@ -54,6 +55,17 @@ export default function OwnersPage() {
       className: "text-center",
     },
     { key: "joined", header: "Joined", cell: (o) => <span className="text-xs text-muted-foreground">{formatDate(o.createdAt)}</span> },
+    {
+      key: "actions",
+      header: "",
+      cell: (o) => (
+        <DeleteButton
+          url={`/admin/api/${kind === "hotel" ? "hotel-owners" : "restaurant-owners"}/${o.id}`}
+          onDeleted={state.refetch}
+        />
+      ),
+      className: "text-right",
+    },
   ];
 
   return (

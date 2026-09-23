@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
@@ -54,6 +55,12 @@ export default function PlacesPage() {
         <span className="font-mono text-sm text-muted-foreground">{p._count?.user_fav_place ?? 0}</span>
       ),
       className: "text-center",
+    },
+    {
+      key: "actions",
+      header: "",
+      cell: (p) => <DeleteButton url={`/admin/api/places/${p.id}`} onDeleted={refetch} />,
+      className: "text-right",
     },
   ];
 

@@ -58,3 +58,9 @@ export function postJSON(path: string, body: unknown): Promise<unknown> {
     body: JSON.stringify(body),
   });
 }
+
+export function deleteJSON(path: string): Promise<unknown> {
+  return request(path, {
+    method: "DELETE",
+  });
+}

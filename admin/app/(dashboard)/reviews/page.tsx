@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import * as React from "react";
 
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { ErrorState, LoadingState, EmptyState } from "@/components/admin/state";
@@ -52,6 +53,12 @@ export default function ReviewsPage() {
       key: "text",
       header: "Review",
       cell: (t) => <p className="line-clamp-2 max-w-md text-sm text-muted-foreground">{t.text}</p>,
+    },
+    {
+      key: "actions",
+      header: "",
+      cell: (t) => <DeleteButton url={`/admin/api/testimonials/${t.id}`} onDeleted={refetch} />,
+      className: "text-right",
     },
   ];
 

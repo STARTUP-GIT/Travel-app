@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { DataTable, type Column } from "@/components/admin/data-table";
+import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
@@ -55,6 +56,12 @@ export default function UsersPage() {
       className: "text-center",
     },
     { key: "joined", header: "Joined", cell: (u) => <span className="text-xs text-muted-foreground">{formatDate(u.createdAt)}</span> },
+    {
+      key: "actions",
+      header: "",
+      cell: (u) => <DeleteButton url={`/admin/api/users/${u.id}`} onDeleted={refetch} />,
+      className: "text-right",
+    },
   ];
 
   return (

@@ -273,15 +273,29 @@ export const updateAppSettings = async (req: Request, res: Response) => {
 export const updateState = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { isServiceAvailable } = req.body ?? {};
+    const { name, isServiceAvailable } = req.body ?? {};
 
-    if (typeof isServiceAvailable !== "boolean") {
-      return res.status(400).json({ message: "isServiceAvailable must be a boolean" });
+    const data: Record<string, unknown> = {};
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({ message: "name must be a non-empty string" });
+      }
+      data.name = name.trim();
+    }
+    if (isServiceAvailable !== undefined) {
+      if (typeof isServiceAvailable !== "boolean") {
+        return res.status(400).json({ message: "isServiceAvailable must be a boolean" });
+      }
+      data.isServiceAvailable = isServiceAvailable;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
     }
 
     const updated = await prisma.state.update({
       where: { id },
-      data: { isServiceAvailable },
+      data,
       include: { country: true, _count: { select: { districts: true } } },
     });
     return res.status(200).json({ message: "State updated", state: updated });
@@ -293,9 +307,15 @@ export const updateState = async (req: Request, res: Response) => {
 export const updateDistrict = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { isServiceAvailable, autoApprovePlaces } = req.body ?? {};
+    const { name, isServiceAvailable, autoApprovePlaces } = req.body ?? {};
 
     const data: Record<string, unknown> = {};
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({ message: "name must be a non-empty string" });
+      }
+      data.name = name.trim();
+    }
     if (isServiceAvailable !== undefined) {
       if (typeof isServiceAvailable !== "boolean") {
         return res.status(400).json({ message: "isServiceAvailable must be a boolean" });
@@ -839,6 +859,305 @@ export const listTestimonials = async (req: Request, res: Response) => {
       orderBy: { id: "asc" },
     });
     return res.status(200).json({ testimonials });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const listCountries = async (_req: Request, res: Response) => {
+  try {
+    const countries = await prisma.country.findMany({
+      include: { _count: { select: { states: true } } },
+      orderBy: { name: "asc" },
+    });
+    return res.status(200).json({ countries });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createCountry = async (req: Request, res: Response) => {
+  try {
+    const { name, isServiceAvailable } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "name is required" });
+    }
+    const country = await prisma.country.create({
+      data: {
+        name: name.trim(),
+        isServiceAvailable: typeof isServiceAvailable === "boolean" ? isServiceAvailable : false,
+      },
+      include: { _count: { select: { states: true } } },
+    });
+    return res.status(201).json({ message: "Country created", country });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteCountry = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const states = await prisma.state.count({ where: { countryId: id } });
+    if (states > 0) {
+      return res
+        .status(409)
+        .json({ message: `Cannot delete country: it still has ${states} state(s). Delete them first.` });
+    }
+    await prisma.country.delete({ where: { id } });
+    return res.status(200).json({ message: "Country deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createState = async (req: Request, res: Response) => {
+  try {
+    const { name, countryId, isServiceAvailable } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "name is required" });
+    }
+    if (typeof countryId !== "string" || !countryId.trim()) {
+      return res.status(400).json({ message: "countryId is required" });
+    }
+    const country = await prisma.country.findUnique({ where: { id: countryId } });
+    if (!country) {
+      return res.status(400).json({ message: "Country not found" });
+    }
+    const state = await prisma.state.create({
+      data: {
+        name: name.trim(),
+        countryId,
+        isServiceAvailable: typeof isServiceAvailable === "boolean" ? isServiceAvailable : false,
+      },
+      include: { country: true, _count: { select: { districts: true } } },
+    });
+    return res.status(201).json({ message: "State created", state });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteState = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const districts = await prisma.district.count({ where: { stateId: id } });
+    if (districts > 0) {
+      return res
+        .status(409)
+        .json({ message: `Cannot delete state: it still has ${districts} district(s). Delete them first.` });
+    }
+    await prisma.state.delete({ where: { id } });
+    return res.status(200).json({ message: "State deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createDistrict = async (req: Request, res: Response) => {
+  try {
+    const { name, stateId, isServiceAvailable, autoApprovePlaces } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "name is required" });
+    }
+    if (typeof stateId !== "string" || !stateId.trim()) {
+      return res.status(400).json({ message: "stateId is required" });
+    }
+    const state = await prisma.state.findUnique({ where: { id: stateId } });
+    if (!state) {
+      return res.status(400).json({ message: "State not found" });
+    }
+    const district = await prisma.district.create({
+      data: {
+        name: name.trim(),
+        stateId,
+        isServiceAvailable: typeof isServiceAvailable === "boolean" ? isServiceAvailable : false,
+        autoApprovePlaces: typeof autoApprovePlaces === "boolean" ? autoApprovePlaces : false,
+      },
+      include: { state: { include: { country: true } } },
+    });
+    return res.status(201).json({ message: "District created", district });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteDistrict = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const [places, hotels, restaurants, submissions] = await Promise.all([
+      prisma.place.count({ where: { districtId: id } }),
+      prisma.hotel.count({ where: { districtId: id } }),
+      prisma.restaurent.count({ where: { districtId: id } }),
+      prisma.place_submission.count({ where: { districtId: id } }),
+    ]);
+    if (places + hotels + restaurants + submissions > 0) {
+      return res.status(409).json({
+        message: `Cannot delete district: it still has ${places} place(s), ${hotels} hotel(s), ${restaurants} restaurant(s) and ${submissions} submission(s).`,
+      });
+    }
+    await prisma.district.delete({ where: { id } });
+    return res.status(200).json({ message: "District deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const createPlace = async (req: Request, res: Response) => {
+  try {
+    const { name, description, districtId, images, entryfee, category, latitude, longitude } = req.body ?? {};
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "name is required" });
+    }
+    if (typeof districtId !== "string" || !districtId.trim()) {
+      return res.status(400).json({ message: "districtId is required" });
+    }
+    const district = await prisma.district.findUnique({ where: { id: districtId } });
+    if (!district) {
+      return res.status(400).json({ message: "District not found" });
+    }
+    const place = await prisma.place.create({
+      data: {
+        name: name.trim(),
+        description: typeof description === "string" ? description : "",
+        districtId,
+        images: Array.isArray(images) && images.every((i) => typeof i === "string") ? images : [],
+        entryfee: typeof entryfee === "number" ? entryfee : 0,
+        category: typeof category === "string" ? category : "",
+        latitude: typeof latitude === "number" ? latitude : 0,
+        longitude: typeof longitude === "number" ? longitude : 0,
+      },
+      include: { district: { include: { state: { include: { country: true } } } } },
+    });
+    return res.status(201).json({ message: "Place created", place });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deletePlace = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const [guides, bookings, submissions, favs] = await Promise.all([
+      prisma.specific_guide.count({ where: { placeid: id } }),
+      prisma.common_guide_places.count({ where: { placeId: id } }),
+      prisma.place_submission.count({ where: { placeId: id } }),
+      prisma.user_fav_place.count({ where: { placeId: id } }),
+    ]);
+    if (guides + bookings + submissions + favs > 0) {
+      return res.status(409).json({
+        message: `Cannot delete place: it still has ${guides} guide(s), ${bookings} booking reference(s), ${submissions} submission(s) and ${favs} favourite(s).`,
+      });
+    }
+    await prisma.place.delete({ where: { id } });
+    return res.status(200).json({ message: "Place deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteHotel = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.hotel.delete({ where: { id } });
+    return res.status(200).json({ message: "Hotel deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteRestaurant = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.restaurent.delete({ where: { id } });
+    return res.status(200).json({ message: "Restaurant deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteSpecificGuide = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const [testimonials, submissions] = await Promise.all([
+      prisma.testimonials.count({ where: { specificguideId: id } }),
+      prisma.place_submission.count({ where: { specificGuideId: id } }),
+    ]);
+    if (testimonials + submissions > 0) {
+      return res.status(409).json({
+        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} submission(s) first.`,
+      });
+    }
+    await prisma.specific_guide.delete({ where: { id } });
+    return res.status(200).json({ message: "Guide deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteCommonGuide = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const [testimonials, submissions] = await Promise.all([
+      prisma.testimonials.count({ where: { commonGuideId: id } }),
+      prisma.place_submission.count({ where: { commonGuideId: id } }),
+    ]);
+    if (testimonials + submissions > 0) {
+      return res.status(409).json({
+        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} submission(s) first.`,
+      });
+    }
+    await prisma.common_guide.delete({ where: { id } });
+    return res.status(200).json({ message: "Guide deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteHotelOwner = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.hotel_owner.delete({ where: { id } });
+    return res.status(200).json({ message: "Hotel owner deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteRestaurantOwner = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.restaurent_owner.delete({ where: { id } });
+    return res.status(200).json({ message: "Restaurant owner deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const [testimonials, favs] = await Promise.all([
+      prisma.testimonials.count({ where: { userId: id } }),
+      prisma.user_fav_place.count({ where: { userId: id } }),
+    ]);
+    if (testimonials + favs > 0) {
+      return res.status(409).json({
+        message: `Cannot delete user: remove its ${testimonials} review(s) and ${favs} favourite(s) first.`,
+      });
+    }
+    await prisma.user.delete({ where: { id } });
+    return res.status(200).json({ message: "User deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteTestimonial = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await prisma.testimonials.delete({ where: { id } });
+    return res.status(200).json({ message: "Review deleted" });
   } catch (error) {
     return handleError(res, error);
   }
