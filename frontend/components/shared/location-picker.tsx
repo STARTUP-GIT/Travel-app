@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
 import type { DistrictSummary, State } from "@/features/locations/types";
+import { slugify } from "@/features/locations/utils/slug";
 import { cn } from "@/lib/utils";
 
 type LocationPickerProps = {
@@ -77,16 +78,20 @@ export function LocationPicker({
   function handleContinue() {
     if (chosenSlug) {
       const chosenDistrict = districts.find((d) => d.slug === chosenSlug);
-      if (chosenDistrict?.stateId && selectedStateId) {
-        setDestination(selectedStateId, chosenSlug);
-      } else {
+      const selectedState = states.find((s) => s.id === selectedStateId) ?? null;
+      const selectedStateSlug = selectedState ? slugify(selectedState.name) : null;
+
+      if (chosenDistrict && selectedStateSlug) {
+        setDestination(selectedStateSlug, chosenDistrict.slug);
+      } else if (chosenDistrict) {
         setSlug(chosenSlug);
         if (chosenDistrict?.stateId) {
           setStateSlug(chosenDistrict.stateId);
         }
       }
+
       onOpenChange(false);
-      router.push(`/${chosenSlug}`);
+      router.push(selectedStateSlug ? `/${selectedStateSlug}/${chosenSlug}` : `/${chosenSlug}`);
     }
   }
 

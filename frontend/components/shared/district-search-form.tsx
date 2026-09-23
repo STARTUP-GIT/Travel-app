@@ -7,14 +7,21 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 
 /** District-scoped search that always searches within the selected district. */
-export function DistrictSearchForm({ districtSlug }: { districtSlug: string }) {
+export function DistrictSearchForm({
+  stateSlug,
+  districtSlug,
+}: {
+  stateSlug?: string;
+  districtSlug: string;
+}) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    router.push(`/${districtSlug}/places?q=${encodeURIComponent(query.trim())}`);
+    const base = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+    router.push(`${base}/places?q=${encodeURIComponent(query.trim())}`);
   }
 
   return (

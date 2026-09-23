@@ -13,7 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { SectionHeader } from "@/components/shared/section-header";
@@ -22,61 +22,62 @@ import { AppImage } from "@/components/shared/app-image";
 import { DistrictSearchForm } from "@/components/shared/district-search-form";
 import { MediaRowCard } from "@/components/shared/media-row-card";
 import { DestinationLink } from "@/components/shared/destination-link";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/states";
 import { PlaceCard } from "@/features/places/ui/place-card";
 import { getPlacesByDistrict } from "@/features/places/api/places.api";
 import { getHotelsForDistrict } from "@/features/hotels/api/hotels.api";
 import { getRestaurantsForDistrict } from "@/features/restaurants/api/restaurants.api";
-import { getDistricts } from "@/features/locations/api/locations.api";
+import { getDistrictsForState, getStateBySlug } from "@/features/locations/api/locations.api";
 import { slugify } from "@/features/locations/utils/slug";
-import { requireDistrict } from "@/features/locations/server";
 import { formatCurrency } from "@/lib/utils";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ district: string }>;
+  params: Promise<{ stateSlug: string; districtSlug: string }>;
 }): Promise<Metadata> {
-  const { district: slug } = await params;
-  try {
-    const district = await requireDistrict(slug);
-    return {
-      title: `${district.name} · Famous Places & Guides`,
-      description: `Discover the famous places, expert guides, hotels and restaurants of ${district.name}, ${district.state?.name ?? "India"}.`,
-    };
-  } catch {
+  const { stateSlug, districtSlug } = await params;
+  const state = await getStateBySlug(stateSlug).catch(() => null);
+  if (!state) {
     return { title: "District" };
   }
+
+  const district = (await getDistrictsForState(stateSlug).catch(() => [])).find(
+    (item) => item.slug === districtSlug
+  );
+
+  return {
+    title: district ? `${district.name} · Famous Places & Guides` : `${state.name} · District`,
+    description: district
+      ? `Discover the famous places, expert guides, hotels and restaurants of ${district.name}, ${state.name}.`
+      : `Choose a district in ${state.name} to explore its places.`,
+  };
 }
 
-export default async function DistrictPage({
+export default async function StateDistrictPage({
   params,
 }: {
-  params: Promise<{ district: string }>;
+  params: Promise<{ stateSlug: string; districtSlug: string }>;
 }) {
-  const { district: slug } = await params;
-  const district = await requireDistrict(slug);
-  const stateSlug = slugify(district.state?.name ?? "india");
+  const { stateSlug, districtSlug } = await params;
+  const [state, districts] = await Promise.all([
+    getStateBySlug(stateSlug).catch(() => null),
+    getDistrictsForState(stateSlug).catch(() => []),
+  ]);
 
-  redirect(`/${stateSlug}/${district.slug}`);
+  if (!state) notFound();
 
-  const [places, hotels, restaurants, districts] = await Promise.all([
+  const district = districts.find((item) => item.slug === districtSlug) ?? null;
+  if (!district) notFound();
+
+  const [places, hotels, restaurants] = await Promise.all([
     getPlacesByDistrict(district.id).catch(() => []),
     getHotelsForDistrict(district.id).catch(() => []),
     getRestaurantsForDistrict(district.id).catch(() => []),
-    getDistricts().catch(() => []),
   ]);
 
-  const stateName = district.state?.name ?? "India";
-
-  // "More districts" is kept scoped to the selected state only, matching the
-  // state → district selection flow of the whole app.
-  const moreDistricts = districts.filter((d) => d.stateId === district.stateId);
-
-  // Admin-selected state image drives the hero; falls back to a district
-  // representative image (first place) so the transition away from the
-  // generic landing slideshow always feels intentional.
+  const stateName = state.name;
+  const moreDistricts = districts.filter((item) => item.stateId === state.id);
   const heroImage =
     district.state?.primaryImage ??
     (places[0]?.images?.[0] as string | undefined) ??
@@ -88,7 +89,7 @@ export default async function DistrictPage({
       icon: Compass,
       title: "Guides",
       subtitle: "Local experts & storytellers",
-      href: `/${slug}/guides`,
+      href: `/${stateSlug}/${districtSlug}/guides`,
       accent: "amber",
     },
     {
@@ -96,7 +97,7 @@ export default async function DistrictPage({
       icon: Hotel,
       title: "Hotels",
       subtitle: `${hotels.length} stays in ${district.name}`,
-      href: `/${slug}/hotels`,
+      href: `/${stateSlug}/${districtSlug}/hotels`,
       accent: "blue",
     },
     {
@@ -104,7 +105,7 @@ export default async function DistrictPage({
       icon: Soup,
       title: "Restaurants",
       subtitle: `${restaurants.length} places to eat`,
-      href: `/${slug}/restaurants`,
+      href: `/${stateSlug}/${districtSlug}/restaurants`,
       accent: "green",
     },
     {
@@ -112,7 +113,7 @@ export default async function DistrictPage({
       icon: CarTaxiFront,
       title: "Path Tracker",
       subtitle: "Plan & follow a route here",
-      href: `/${slug}/path-tracker`,
+      href: `/${stateSlug}/${districtSlug}/path-tracker`,
       accent: "green",
     },
     {
@@ -156,7 +157,6 @@ export default async function DistrictPage({
         subtitle={`${stateName} · District`}
       />
 
-      {/* Hero — state-specific image behind the welcome area */}
       <section className="relative -mx-4 overflow-hidden px-5 pb-7 pt-6 text-white sm:mx-4 sm:mt-4 sm:rounded-3xl">
         {heroImage ? (
           <AppImage
@@ -179,12 +179,10 @@ export default async function DistrictPage({
             {district.name}
           </h1>
           <p className="mt-1 line-clamp-2 max-w-xl text-sm text-white/90">
-            Explore {places.length} famous places, {hotels.length} stays and{" "}
-            {restaurants.length} restaurants — with local guides ready to make
-            your visit memorable.
+            Explore {places.length} famous places, {hotels.length} stays and {restaurants.length} restaurants — with local guides ready to make your visit memorable.
           </p>
 
-          <DistrictSearchForm districtSlug={slug} />
+          <DistrictSearchForm stateSlug={stateSlug} districtSlug={districtSlug} />
 
           <div className="mt-4 flex flex-wrap gap-2">
             <StatPill label={`${places.length} places`} />
@@ -195,12 +193,11 @@ export default async function DistrictPage({
       </section>
 
       <div className="app-container mt-7 space-y-8">
-        {/* Famous places */}
         <section id="famous-places" aria-labelledby="famous-heading" className="scroll-mt-28">
           <SectionHeader
             title={`Places in ${district.name}`}
             subtitle="Famous places to visit"
-            href={`/${slug}/places`}
+            href={`/${stateSlug}/${districtSlug}/places`}
           />
           {places.length === 0 ? (
             <EmptyState
@@ -213,7 +210,7 @@ export default async function DistrictPage({
                 <PlaceCard
                   key={place.id}
                   place={place}
-                  districtSlug={slug}
+                  districtSlug={districtSlug}
                   showFavorite
                 />
               ))}
@@ -221,7 +218,6 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* Services */}
         <section aria-labelledby="district-services-heading">
           <SectionHeader
             title="Explore & services"
@@ -230,12 +226,11 @@ export default async function DistrictPage({
           <ServiceGrid items={services} />
         </section>
 
-        {/* Where to stay */}
         <section aria-labelledby="stays-heading">
           <SectionHeader
             title="Where to stay"
             subtitle="Hotels across the district"
-            href={`/${slug}/hotels`}
+            href={`/${stateSlug}/${districtSlug}/hotels`}
           />
           {hotels.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -246,7 +241,7 @@ export default async function DistrictPage({
               {hotels.slice(0, 6).map((hotel) => (
                 <MediaRowCard
                   key={hotel.id}
-                  href={`/${slug}/hotels/${hotel.id}`}
+                  href={`/${stateSlug}/${districtSlug}/hotels/${hotel.id}`}
                   image={hotel.images?.[0] ?? hotel.profile_logo}
                   title={hotel.name}
                   subtitle={hotel.address}
@@ -259,12 +254,11 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* Where to dine */}
         <section aria-labelledby="dine-heading">
           <SectionHeader
             title="Where to dine"
             subtitle="Restaurants & cafés"
-            href={`/${slug}/restaurants`}
+            href={`/${stateSlug}/${districtSlug}/restaurants`}
           />
           {restaurants.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -275,7 +269,7 @@ export default async function DistrictPage({
               {restaurants.slice(0, 6).map((restaurant) => (
                 <MediaRowCard
                   key={restaurant.id}
-                  href={`/${slug}/restaurants/${restaurant.id}`}
+                  href={`/${stateSlug}/${districtSlug}/restaurants/${restaurant.id}`}
                   image={restaurant.images?.[0] ?? restaurant.profile_logo}
                   title={restaurant.name}
                   subtitle={restaurant.address}
@@ -294,7 +288,6 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* More districts */}
         <section aria-labelledby="more-heading">
           <SectionHeader
             title={`More of ${stateName}`}
@@ -310,23 +303,26 @@ export default async function DistrictPage({
           </Link>
           {moreDistricts.length > 0 ? (
             <div className="mt-3 scroll-row -mx-4 px-4 pb-1 lg:mx-0 lg:px-0">
-              {moreDistricts.slice(0, 8).map((d) => (
-                <DestinationLink
-                  key={d.id}
-                  stateSlug={slugify(d.state?.name ?? "india")}
-                  districtSlug={d.slug}
-                  href={`/${d.slug}`}
-                  className="card-surface card-surface-hover flex w-28 flex-col items-center gap-1 rounded-2xl p-3 text-center"
-                >
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <MapPin className="size-5" />
-                  </span>
-                  <span className="line-clamp-2 text-xs font-semibold leading-tight">{d.name}</span>
-                  <span className="inline-flex items-center gap-0.5 text-[0.65rem] text-primary">
-                    Visit <ArrowRight className="size-3" />
-                  </span>
-                </DestinationLink>
-              ))}
+              {moreDistricts.slice(0, 8).map((item) => {
+                const destinationStateSlug = slugify(item.state?.name ?? stateName);
+                return (
+                  <DestinationLink
+                    key={item.id}
+                    stateSlug={destinationStateSlug}
+                    districtSlug={item.slug}
+                    href={`/${destinationStateSlug}/${item.slug}`}
+                    className="card-surface card-surface-hover flex w-28 flex-col items-center gap-1 rounded-2xl p-3 text-center"
+                  >
+                    <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <MapPin className="size-5" />
+                    </span>
+                    <span className="line-clamp-2 text-xs font-semibold leading-tight">{item.name}</span>
+                    <span className="inline-flex items-center gap-0.5 text-[0.65rem] text-primary">
+                      Visit <ArrowRight className="size-3" />
+                    </span>
+                  </DestinationLink>
+                );
+              })}
             </div>
           ) : null}
         </section>

@@ -466,9 +466,13 @@ export const getPlaceById = async (req: Request, res: Response) => {
 
 export const listPlaceSubmissions = async (req: Request, res: Response) => {
   try {
-    const status = typeof req.query.status === "string" ? req.query.status : "PENDING";
+    const rawStatus = typeof req.query.status === "string" ? req.query.status : "PENDING";
+    const status = ["PENDING", "APPROVED", "REJECTED"].includes(rawStatus)
+      ? (rawStatus as "PENDING" | "APPROVED" | "REJECTED")
+      : undefined;
+
     const submissions = await prisma.place_submission.findMany({
-      where: { status: status as "PENDING" },
+      where: status ? { status } : {},
       include: {
         district: { include: { state: true } },
         place: { select: placeSelect },

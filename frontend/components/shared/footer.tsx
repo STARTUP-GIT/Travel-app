@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { slugify } from "@/features/locations/utils/slug";
 import type { DistrictSummary } from "@/features/locations/types";
 
 export function Footer({
@@ -51,16 +52,19 @@ export function Footer({
               Popular Districts
             </h3>
             <ul className="space-y-2 text-sm">
-              {districts.slice(0, 5).map((d) => (
-                <li key={d.id}>
-                  <Link
-                    href={`/${d.slug}`}
-                    className="text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {d.name}
-                  </Link>
-                </li>
-              ))}
+              {districts.slice(0, 5).map((d) => {
+                const districtPath = `/${slugify(d.state?.name ?? "india")}/${d.slug}`;
+                return (
+                  <li key={d.id}>
+                    <Link
+                      href={districtPath}
+                      className="text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {d.name}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

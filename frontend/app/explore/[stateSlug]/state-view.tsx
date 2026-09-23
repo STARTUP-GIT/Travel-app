@@ -30,7 +30,7 @@ export function StateDistrictsView({
   function pick(d: DistrictSummary) {
     setDestination(state.slug, d.slug);
     toast.success("District selected", { description: d.name });
-    router.push(`/${d.slug}`);
+    router.push(`/${state.slug}/${d.slug}`);
   }
 
   return (

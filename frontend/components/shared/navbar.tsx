@@ -52,10 +52,14 @@ const NAV_RESOURCES = [
 export function Navbar({ districts }: { districts: DistrictSummary[] }) {
   const pathname = usePathname();
   const { isAuthenticated, user, isLoading, logout } = useAuth();
-  const { slug: districtSlug, setSlug } = useCurrentDistrict();
+  const { slug: districtSlug, stateSlug, setSlug } = useCurrentDistrict();
 
-  const districtPath = (segment: string) =>
-    districtSlug ? `/${districtSlug}/${segment}` : "/districts";
+  const districtPath = (segment: string) => {
+    if (stateSlug && districtSlug) {
+      return `/${stateSlug}/${districtSlug}/${segment}`;
+    }
+    return districtSlug ? `/${districtSlug}/${segment}` : "/districts";
+  };
 
   const firstName = user?.name?.split(" ")[0] ?? "Customer";
 
