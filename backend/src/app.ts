@@ -67,11 +67,29 @@ import adminConfigRoutes from './app_config/routes/admin.routes.js';
 //middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+const toOrigin = (url: string): string => {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url.replace(/\/+$/, '');
+  }
+};
+
+const allowedOrigins = [
+  process.env.CLIENTENDURL,
+  process.env.ADMINENDURL,
+]
+  .filter((value): value is string => Boolean(value))
+  .map(toOrigin);
+
 app.use(
   cors({
-    origin: [process.env.CLIENTENDURL, process.env.ADMINENDURL].filter(
-      (origin): origin is string => Boolean(origin)
-    ),
+    origin(origin, callback) {
+      // Allow server-to-server and same-origin requests.
+      if (!origin) return callback(null, true);
+      callback(null, allowedOrigins.includes(toOrigin(origin)));
+    },
     credentials: true,
   })
 );
