@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "Pick a state to start exploring its districts, places, guides, hotels and restaurants.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ExplorePage() {
   const states: StateSummary[] = await getStates().catch(() => []);
   return (

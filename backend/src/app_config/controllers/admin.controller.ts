@@ -132,6 +132,15 @@ const BOOKING_STATUSES = [
   "COMPLETED",
 ] as const;
 
+const CONTENT_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;
+type ContentStatus = (typeof CONTENT_STATUSES)[number];
+
+function getContentStatus(value: unknown): ContentStatus | undefined {
+  return typeof value === "string" && CONTENT_STATUSES.includes(value as ContentStatus)
+    ? (value as ContentStatus)
+    : undefined;
+}
+
 const handleError = (res: Response, error: unknown) => {
   console.error("Admin API error:", error);
   return res.status(500).json({ message: "Internal Server Error" });
@@ -425,13 +434,13 @@ export const listPlaces = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
-    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const status = getContentStatus(req.query.status);
     const places = await prisma.place.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
         ...(stateId ? { district: { stateId } } : {}),
-        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
+        ...(status ? { status } : {}),
       },
       include: {
         district: { include: { state: { include: { country: true } } } },
@@ -636,12 +645,12 @@ export const listHotels = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
-    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const status = getContentStatus(req.query.status);
     const hotels = await prisma.hotel.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
-        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
+        ...(status ? { status } : {}),
       },
       include: {
         district: { include: { state: true } },
@@ -771,12 +780,12 @@ export const listRestaurants = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
-    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const status = getContentStatus(req.query.status);
     const restaurants = await prisma.restaurent.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(districtId ? { districtId } : {}),
-        ...(status && status !== "ALL" ? { status: status as "PENDING" | "APPROVED" | "REJECTED" } : {}),
+        ...(status ? { status } : {}),
       },
       include: {
         district: { include: { state: true } },
