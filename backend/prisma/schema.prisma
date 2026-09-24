@@ -91,12 +91,13 @@ model country {
 }
 
 model state {
-  id        String   @id @default(uuid())
-  name      String
-  countryId String
-  country   country  @relation(fields: [countryId], references: [id])
-  districts district[]
-  isServiceAvailable Boolean  @default(false)
+  id                  String    @id @default(uuid())
+  name                String
+  countryId           String
+  country             country   @relation(fields: [countryId], references: [id])
+  districts           district[]
+  isServiceAvailable  Boolean   @default(false)
+  primaryImage        String?
 }
 
 model district {

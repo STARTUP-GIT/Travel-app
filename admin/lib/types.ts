@@ -48,6 +48,7 @@ export type StateAdmin = {
   name: string;
   countryId: string;
   isServiceAvailable: boolean;
+  primaryImage?: string | null;
   country: Country;
   _count: { districts: number };
 };

@@ -285,7 +285,7 @@ export const updateAppSettings = async (req: Request, res: Response) => {
 export const updateState = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { name, isServiceAvailable } = req.body ?? {};
+    const { name, isServiceAvailable, primaryImage } = req.body ?? {};
 
     const data: Record<string, unknown> = {};
     if (name !== undefined) {
@@ -299,6 +299,13 @@ export const updateState = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "isServiceAvailable must be a boolean" });
       }
       data.isServiceAvailable = isServiceAvailable;
+    }
+    if (primaryImage !== undefined) {
+      if (primaryImage !== null && (typeof primaryImage !== "string" || !primaryImage.trim())) {
+        return res.status(400).json({ message: "primaryImage must be a non-empty string or null" });
+      }
+      data.primaryImage =
+        primaryImage === null ? null : primaryImage.trim().length > 0 ? primaryImage.trim() : null;
     }
 
     if (Object.keys(data).length === 0) {
@@ -1125,7 +1132,7 @@ export const deleteCountry = async (req: Request, res: Response) => {
 
 export const createState = async (req: Request, res: Response) => {
   try {
-    const { name, countryId, isServiceAvailable } = req.body ?? {};
+    const { name, countryId, isServiceAvailable, primaryImage } = req.body ?? {};
     if (typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ message: "name is required" });
     }
@@ -1141,6 +1148,10 @@ export const createState = async (req: Request, res: Response) => {
         name: name.trim(),
         countryId,
         isServiceAvailable: typeof isServiceAvailable === "boolean" ? isServiceAvailable : false,
+        primaryImage:
+          typeof primaryImage === "string" && primaryImage.trim().length > 0
+            ? primaryImage.trim()
+            : null,
       },
       include: { country: true, _count: { select: { districts: true } } },
     });

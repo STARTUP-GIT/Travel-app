@@ -2187,7 +2187,8 @@ export const StateScalarFieldEnum = {
   id: 'id',
   name: 'name',
   countryId: 'countryId',
-  isServiceAvailable: 'isServiceAvailable'
+  isServiceAvailable: 'isServiceAvailable',
+  primaryImage: 'primaryImage'
 } as const
 
 export type StateScalarFieldEnum = (typeof StateScalarFieldEnum)[keyof typeof StateScalarFieldEnum]
