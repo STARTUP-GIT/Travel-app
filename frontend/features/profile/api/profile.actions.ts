@@ -28,7 +28,10 @@ const CLOUDINARY_URL_PREFIX = "https://res.cloudinary.com/";
 
 async function getBackendToken(): Promise<string | null> {
   const session = await auth();
-  return session?.backendToken ?? null;
+  // Credentials login stores the backend JWT in both backendToken and the
+  // Auth.js user id. The latter keeps existing sessions created before the
+  // custom backendToken claim was added usable after a deployment.
+  return session?.backendToken ?? session?.user?.id ?? null;
 }
 
 function failureMessage(error: unknown, fallback: string): string {
