@@ -178,10 +178,10 @@ export default async function DistrictPage({
         <div className="relative">
           <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider backdrop-blur-md">
             <Sparkles className="size-3.5 text-amber-200" />
-            Welcome to {district.name}
+            {state.name} · {district.name}
           </div>
           <h1 className="text-[1.9rem] font-bold leading-tight tracking-tight">
-            {district.name}
+            Welcome to {district.name}
           </h1>
           <p className="mt-1 text-sm font-medium text-white/80">
             {state.name} · India

@@ -7,9 +7,9 @@ import prisma from "../../../../db/prisma.js";
  * These endpoints are the single source of truth for "where can a customer
  * explore" and are driven purely by the admin enable/disable controls:
  *
- * - GET /api/states    -> states where state.isServiceAvailable === true
+ * - GET /api/states    -> enabled states in enabled countries
  * - GET /api/districts -> districts where district.isServiceAvailable === true
- *                          AND parent state.isServiceAvailable === true
+ *                          AND parent state and country are enabled
  *
  * Availability never depends on approved listings, places, hotels,
  * restaurants or guides. Content counts are reported separately below each
@@ -20,11 +20,18 @@ export const getCustomerStates = async (_req: Request, res: Response) => {
     const states = await prisma.state.findMany({
       where: {
         isServiceAvailable: true,
+        country: {
+          isServiceAvailable: true,
+        },
       },
       include: {
         country: true,
         _count: {
-          select: { districts: true },
+          select: {
+            districts: {
+              where: { isServiceAvailable: true },
+            },
+          },
         },
       },
       orderBy: { name: "asc" },
@@ -44,6 +51,9 @@ export const getCustomerDistricts = async (_req: Request, res: Response) => {
         isServiceAvailable: true,
         state: {
           isServiceAvailable: true,
+          country: {
+            isServiceAvailable: true,
+          },
         },
       },
       include: {
@@ -53,7 +63,11 @@ export const getCustomerDistricts = async (_req: Request, res: Response) => {
           },
         },
         _count: {
-          select: { places: true, hotels: true, restaurent: true },
+          select: {
+            places: { where: { status: "APPROVED" } },
+            hotels: { where: { status: "APPROVED" } },
+            restaurent: { where: { status: "APPROVED" } },
+          },
         },
       },
       orderBy: { name: "asc" },

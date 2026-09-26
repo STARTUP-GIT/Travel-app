@@ -56,10 +56,14 @@ export function Navbar({ districts }: { districts: DistrictSummary[] }) {
   const { slug: districtSlug, stateSlug, setSlug, setDestination } = useCurrentDistrict();
 
   const districtPath = (segment: string) => {
-    if (stateSlug && districtSlug) {
-      return `/${stateSlug}/${districtSlug}/${segment}`;
+    const district = districts.find((item) => item.slug === districtSlug);
+    const resolvedStateSlug = district
+      ? slugify(district.state.name)
+      : stateSlug;
+    if (resolvedStateSlug && districtSlug) {
+      return `/${resolvedStateSlug}/${districtSlug}/${segment}`;
     }
-    return districtSlug ? `/${districtSlug}/${segment}` : "/districts";
+    return "/districts";
   };
 
   const firstName = user?.name?.split(" ")[0] ?? "Customer";
@@ -364,7 +368,7 @@ function DistrictMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-80 w-60 overflow-y-auto">
-        <DropdownMenuLabel>Districts in Karnataka</DropdownMenuLabel>
+        <DropdownMenuLabel>Available districts</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {districts.length === 0 ? (
           <p className="px-2 py-2 text-xs text-muted-foreground">
