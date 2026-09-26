@@ -1,7 +1,5 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  ArrowRight,
   Bookmark,
   CarTaxiFront,
   Compass,
@@ -14,71 +12,69 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { SectionHeader } from "@/components/shared/section-header";
-import { ServiceGrid, type ServiceItem } from "@/components/shared/service-card";
-import { MediaRowCard } from "@/components/shared/media-row-card";
 import { DestinationLink } from "@/components/shared/destination-link";
 import { EmptyState, ErrorState } from "@/components/shared/states";
-import { PlaceCard } from "@/features/places/ui/place-card";
+import { MediaRowCard } from "@/components/shared/media-row-card";
+import { SectionHeader } from "@/components/shared/section-header";
+import { ServiceGrid, type ServiceItem } from "@/components/shared/service-card";
 import { loadDistrictContent } from "@/features/locations/api/destination.api";
-import { DistrictHero } from "./district-hero";
 import {
-  getSiblingDistricts,
-  resolveStateDistrict,
-  tryStateDistrict,
-} from "@/features/locations/server";
+  getDistricts,
+  getStates,
+} from "@/features/locations/api/locations.api";
+import { slugify } from "@/features/locations/utils/slug";
+import { PlaceCard } from "@/features/places/ui/place-card";
 import { formatCurrency } from "@/lib/utils";
-import { DistrictUnavailable } from "@/components/shared/district-unavailable";
 
-type RouteParams = { stateSlug: string; districtSlug: string };
+import { DistrictHero } from "./district-hero";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<RouteParams>;
-}): Promise<Metadata> {
-  const { stateSlug, districtSlug } = await params;
-  const resolved = await tryStateDistrict(stateSlug, districtSlug);
-  if (!resolved) return { title: "District" };
+type DistrictPageProps = {
+  params: Promise<{ stateSlug: string; districtSlug: string }>;
+};
 
-  const { state, district } = resolved;
-  return {
-    title: `${district.name} · Famous Places & Guides`,
-    description: `Discover the famous places, expert guides, hotels and restaurants of ${district.name}, ${state.name}.`,
-  };
+function firstImage(images: unknown): string | null {
+  if (!Array.isArray(images)) return null;
+  const image = images.find(
+    (candidate): candidate is string =>
+      typeof candidate === "string" && candidate.trim().length > 0
+  );
+  return image?.trim() ?? null;
 }
 
-/**
- * /{stateSlug}/{districtSlug}
- *
- * The state and the district are both resolved from the URL, and the district is
- * only ever looked up inside the resolved state. Content comes from the backend
- * already restricted to APPROVED rows inside enabled districts, and is filtered
- * again on `districtId` here, so a page can only ever show its own district.
- */
-export default async function DistrictPage({
-  params,
-}: {
-  params: Promise<RouteParams>;
-}) {
+export default async function DistrictPage({ params }: DistrictPageProps) {
   const { stateSlug, districtSlug } = await params;
+  const normalizedStateSlug = slugify(stateSlug);
+  const normalizedDistrictSlug = slugify(districtSlug);
 
-  const resolution = await resolveStateDistrict(stateSlug, districtSlug);
-  if (resolution.status === "error") {
-    return <DistrictUnavailable message={resolution.message} />;
-  }
-  if (resolution.status === "missing") notFound();
-  const { state, district } = resolution;
+  if (!normalizedStateSlug || !normalizedDistrictSlug) notFound();
 
-  const [content, siblings] = await Promise.all([
-    loadDistrictContent(district),
-    getSiblingDistricts(state.slug, district.id),
-  ]);
+  const [states, districts] = await Promise.all([getStates(), getDistricts()]);
+  const state = states.find((item) => item.slug === normalizedStateSlug);
 
-  const { places, hotels, restaurants, loadErrors } = content;
+  if (!state || !state.isServiceAvailable) notFound();
+
+  const district = districts.find(
+    (item) =>
+      item.slug === normalizedDistrictSlug &&
+      item.stateId === state.id &&
+      item.isServiceAvailable
+  );
+
+  if (!district) notFound();
+
+  const { places, hotels, restaurants, loadErrors } =
+    await loadDistrictContent(district);
   const base = `/${state.slug}/${district.slug}`;
+  const heroImage =
+    (typeof state.primaryImage === "string" && state.primaryImage.trim()) ||
+    firstImage(places.flatMap((place) => place.images)) ||
+    firstImage(hotels.flatMap((hotel) => hotel.images)) ||
+    firstImage(restaurants.flatMap((restaurant) => restaurant.images)) ||
+    null;
+  const siblings = districts.filter(
+    (item) => item.stateId === state.id && item.id !== district.id
+  );
 
-  // The state's own image, straight from the state record.
   const services: ServiceItem[] = [
     {
       id: "guides",
@@ -146,9 +142,6 @@ export default async function DistrictPage({
     },
   ];
 
-  const contentError =
-    loadErrors.places ?? loadErrors.hotels ?? loadErrors.restaurants ?? null;
-
   return (
     <div className="pb-6">
       <DistrictHero
@@ -156,21 +149,24 @@ export default async function DistrictPage({
         stateSlug={state.slug}
         districtName={district.name}
         districtSlug={district.slug}
-        stateImage={state.primaryImage}
+        stateImage={heroImage}
         placeCount={places.length}
         hotelCount={hotels.length}
         restaurantCount={restaurants.length}
       />
 
       <div className="app-container mt-7 space-y-8">
-        {contentError ? (
-          <ErrorState
-            title="Some listings couldn't load"
-            description={`${contentError} Everything else on this page is up to date.`}
+        <section aria-labelledby="district-info-heading">
+          <SectionHeader
+            title={`${district.name}, ${state.name}`}
+            subtitle="District information"
           />
-        ) : null}
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Explore approved places, hotels and restaurants available in{" "}
+            {district.name}, {state.name}.
+          </p>
+        </section>
 
-        {/* Approved places of this district */}
         <section aria-labelledby="places-heading" className="scroll-mt-28">
           <SectionHeader
             title={`Places in ${district.name}`}
@@ -202,7 +198,6 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* District services */}
         <section aria-labelledby="services-heading">
           <SectionHeader
             title="Explore & services"
@@ -211,7 +206,6 @@ export default async function DistrictPage({
           <ServiceGrid items={services} />
         </section>
 
-        {/* Approved hotels of this district */}
         <section aria-labelledby="stays-heading">
           <SectionHeader
             title="Where to stay"
@@ -227,7 +221,7 @@ export default async function DistrictPage({
             <EmptyState
               icon={Hotel}
               title="No hotels published yet"
-              description={`There are no approved hotels in ${district.name} right now. Check back soon!`}
+              description={`There are no approved hotels in ${district.name} right now.`}
             />
           ) : (
             <div className="scroll-row -mx-4 px-4 pb-1 lg:mx-0 lg:px-0">
@@ -235,7 +229,7 @@ export default async function DistrictPage({
                 <MediaRowCard
                   key={hotel.id}
                   href={`${base}/hotels/${hotel.id}`}
-                  image={hotel.images?.[0] ?? hotel.profile_logo}
+                  image={firstImage(hotel.images) ?? hotel.profile_logo}
                   title={hotel.name}
                   subtitle={hotel.address}
                   rating={hotel.rating}
@@ -247,7 +241,6 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* Approved restaurants of this district */}
         <section aria-labelledby="dine-heading">
           <SectionHeader
             title="Where to dine"
@@ -263,7 +256,7 @@ export default async function DistrictPage({
             <EmptyState
               icon={Soup}
               title="No restaurants published yet"
-              description={`There are no approved restaurants in ${district.name} right now. Check back soon!`}
+              description={`There are no approved restaurants in ${district.name} right now.`}
             />
           ) : (
             <div className="scroll-row -mx-4 px-4 pb-1 lg:mx-0 lg:px-0">
@@ -271,7 +264,7 @@ export default async function DistrictPage({
                 <MediaRowCard
                   key={restaurant.id}
                   href={`${base}/restaurants/${restaurant.id}`}
-                  image={restaurant.images?.[0] ?? restaurant.profile_logo}
+                  image={firstImage(restaurant.images) ?? restaurant.profile_logo}
                   title={restaurant.name}
                   subtitle={restaurant.address}
                   rating={restaurant.rating}
@@ -289,7 +282,6 @@ export default async function DistrictPage({
           )}
         </section>
 
-        {/* Other districts of the same state */}
         <section aria-labelledby="more-heading">
           <SectionHeader
             title={`More of ${state.name}`}
@@ -301,7 +293,6 @@ export default async function DistrictPage({
             className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-sm font-semibold transition-colors hover:bg-accent/50"
           >
             <span>Choose another state or district</span>
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
           {siblings.length > 0 ? (
             <div className="mt-3 scroll-row -mx-4 px-4 pb-1 lg:mx-0 lg:px-0">
@@ -318,9 +309,6 @@ export default async function DistrictPage({
                   </span>
                   <span className="line-clamp-2 text-xs font-semibold leading-tight">
                     {item.name}
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 text-[0.65rem] text-primary">
-                    Visit <ArrowRight className="size-3" />
                   </span>
                 </DestinationLink>
               ))}
