@@ -174,8 +174,15 @@ function ProfileEditForm({
       });
       onOpenChange(false);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Please try again.";
+      if (message.toLowerCase().includes("username already exists")) {
+        setErrors((current) => ({
+          ...current,
+          username: "That username is already in use.",
+        }));
+      }
       toast.error("Couldn't update profile", {
-        description: error instanceof Error ? error.message : undefined,
+        description: message,
       });
     } finally {
       setSaving(false);

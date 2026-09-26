@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { toast } from "sonner";
 import {
   Bookmark,
   CalendarDays,
@@ -17,13 +18,16 @@ import { ScreenHeader } from "@/components/shared/screen-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useSession } from "next-auth/react";
 import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
 import { EditProfileDialog } from "@/features/profile/components/edit-profile-dialog";
+import { getProfile } from "@/features/profile/api/profile.api";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import type { CustomerProfile } from "@/features/profile/types";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { update: updateSession } = useSession();
   const { slug, stateSlug } = useCurrentDistrict();
   const { data: fetchedProfile } = useProfile();
 
@@ -33,6 +37,27 @@ export default function ProfileScreen() {
   const profile = savedProfile ?? fetchedProfile ?? null;
 
   const [editing, setEditing] = React.useState(false);
+  const [loadingEditor, setLoadingEditor] = React.useState(false);
+
+  async function openEditor() {
+    if (profile) {
+      setEditing(true);
+      return;
+    }
+
+    setLoadingEditor(true);
+    try {
+      const current = await getProfile();
+      setSavedProfile(current);
+      setEditing(true);
+    } catch (error) {
+      toast.error("Couldn't load your profile", {
+        description: error instanceof Error ? error.message : "Please sign in again.",
+      });
+    } finally {
+      setLoadingEditor(false);
+    }
+  }
 
   const displayName = profile?.name ?? user?.name ?? "Karnataka traveller";
   const username = profile?.username ?? "";
@@ -73,8 +98,8 @@ export default function ProfileScreen() {
             {/* Edit Profile action */}
             <button
               type="button"
-              onClick={() => setEditing(true)}
-              disabled={!profile}
+              onClick={openEditor}
+              disabled={loadingEditor}
               className="card-surface group flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-colors hover:border-primary/40 disabled:pointer-events-none disabled:opacity-60"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -134,7 +159,16 @@ export default function ProfileScreen() {
             profile={profile}
             open={editing}
             onOpenChange={setEditing}
-            onSaved={(updated) => setSavedProfile(updated)}
+            onSaved={(updated) => {
+              setSavedProfile(updated);
+              void updateSession({
+                user: {
+                  name: updated.name,
+                  email: updated.email,
+                  image: updated.profilepic ?? null,
+                },
+              });
+            }}
           />
         ) : null}
       </div>
