@@ -13,10 +13,10 @@ export class ApiError extends Error {
 export function getApiBaseUrl(): string {
   const fallbackUrl = "https://travel-app-backend-ashen.vercel.app";
   const configured = (
-    process.env.NEXT_PUBLIC_API_URL ??
-    process.env.BACKEND_URL ??
-    ""
-  ).trim();
+    typeof window === "undefined"
+      ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
+      : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
+  )?.trim() ?? "";
 
   // A malformed/relative env value must not turn every request into a broken
   // URL (e.g. "api" or "https://"): fall back to the deployed backend instead.
