@@ -25,7 +25,7 @@ export function DistrictSearchForm({
   }
 
   return (
-    <form onSubmit={submit} className="mt-4">
+    <form onSubmit={submit} className="w-full sm:max-w-sm">
       <label className="sr-only" htmlFor={`search-${districtSlug}`}>
         Search places in this district
       </label>
@@ -36,7 +36,7 @@ export function DistrictSearchForm({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search places in this district…"
-          className="h-12 rounded-2xl border-0 bg-white/12 pl-11 text-white placeholder:text-white/75 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-white/60"
+          className="h-10 rounded-xl border-white/20 bg-white/15 pl-11 text-white placeholder:text-white/70 backdrop-blur-md focus-visible:border-white/30 focus-visible:ring-2 focus-visible:ring-white/40"
         />
       </div>
     </form>
