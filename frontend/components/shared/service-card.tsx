@@ -73,6 +73,16 @@ export function ServiceCard({
   );
 }
 
+/**
+ * `next/link` is a Client Component, so an `onClick` built inside a Server
+ * Component (as this grid used to do unconditionally) cannot cross the RSC
+ * boundary and aborted the whole route with
+ * "Event handlers cannot be passed to Client Component props."
+ *
+ * The handler is now created only when a caller actually asked for one, which
+ * is only possible from a Client Component (Server Components can never pass
+ * `onSelect` here). A pure server render therefore emits plain links.
+ */
 export function ServiceGrid({
   items,
   onSelect,
@@ -85,7 +95,11 @@ export function ServiceGrid({
   return (
     <div className={cn("grid grid-cols-1 gap-3 sm:grid-cols-2", className)}>
       {items.map((item) => (
-        <ServiceCard key={item.id} item={item} onClick={() => onSelect?.(item)} />
+        <ServiceCard
+          key={item.id}
+          item={item}
+          onClick={onSelect ? () => onSelect(item) : undefined}
+        />
       ))}
     </div>
   );
