@@ -58,10 +58,10 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
     await loadDistrictContent(district);
   const base = `/${state.slug}/${district.slug}`;
   const heroImage =
-    (typeof state.primaryImage === "string" && state.primaryImage.trim()) ||
     firstImage(places.flatMap((place) => place.images)) ||
     firstImage(hotels.flatMap((hotel) => hotel.images)) ||
     firstImage(restaurants.flatMap((restaurant) => restaurant.images)) ||
+    (typeof state.primaryImage === "string" && state.primaryImage.trim()) ||
     null;
   const services: ServiceItem[] = [
     {
@@ -91,7 +91,7 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
   ];
 
   return (
-    <div className="pb-6">
+    <div className="pb-6 pt-3 sm:pt-4">
       <DistrictHero
         stateName={state.name}
         stateSlug={state.slug}

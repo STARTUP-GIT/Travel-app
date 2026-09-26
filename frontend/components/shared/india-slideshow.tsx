@@ -32,7 +32,7 @@ export function IndiaSlideshow({
   const reduceMotion = useReducedMotion();
 
   const slides = React.useMemo<LandingSlide[]>(() => {
-    if (providedSlides) {
+    if (providedSlides?.length) {
       return providedSlides.filter((slide) => Boolean(slide.src));
     }
     const configured = (bannerImages ?? []).filter(Boolean);
@@ -117,7 +117,7 @@ export function IndiaSlideshow({
       {/* Subtle readability overlay — keeps the photograph clearly visible */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-b from-black/35 via-black/5 to-black/75",
+          "absolute inset-0 bg-gradient-to-b from-black/30 via-black/0 to-black/60",
           overlayClassName
         )}
         aria-hidden
