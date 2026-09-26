@@ -34,7 +34,7 @@ import { formatCurrency } from "@/lib/utils";
 
 export function HotelView({ hotel, districtSlug, stateSlug }: { hotel: Hotel; districtSlug: string; stateSlug?: string }) {
   const [bookingOpen, setBookingOpen] = React.useState(false);
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   return (
     <div className="pb-8">

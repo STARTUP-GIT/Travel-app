@@ -16,19 +16,21 @@ export function DestinationView() {
   const { stateSlug } = useCurrentDistrict();
   const reduceMotion = useReducedMotion();
 
+  // /explore is the single destination flow: state step, then district step.
+  // It remembers the chosen state, so both entries land there safely.
   function goState() {
     router.push("/explore");
   }
 
   function goDistrict() {
     if (stateSlug) {
-      router.push(`/explore/${stateSlug}`);
-    } else {
-      toast.info("Please select a state first", {
-        description: "Choose your state to view its available districts.",
-      });
       router.push("/explore");
+      return;
     }
+    toast.info("Please select a state first", {
+      description: "Choose your state to view its available districts.",
+    });
+    router.push("/explore");
   }
 
   const options = [

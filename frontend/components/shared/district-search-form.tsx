@@ -20,7 +20,7 @@ export function DistrictSearchForm({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    const base = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+    const base = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
     router.push(`${base}/places?q=${encodeURIComponent(query.trim())}`);
   }
 

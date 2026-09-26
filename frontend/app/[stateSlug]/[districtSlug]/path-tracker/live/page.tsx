@@ -37,9 +37,11 @@ const TRACK_W = 320;
 const TRACK_H = 220;
 
 export default function LiveTrackerPage() {
-  const params = useParams<{ district: string }>();
+  const params = useParams<{ stateSlug: string; districtSlug: string }>();
   const searchParams = useSearchParams();
-  const districtSlug = params.district;
+  const stateSlug = params.stateSlug;
+  const districtSlug = params.districtSlug;
+  const districtBase = `/${stateSlug}/${districtSlug}`;
   const placeId = searchParams.get("placeId") ?? "";
   const placeName = searchParams.get("name") ?? "Destination";
 
@@ -138,7 +140,7 @@ export default function LiveTrackerPage() {
       <ScreenHeader
         title="Path Tracker"
         subtitle={place.data?.name ?? placeName}
-        backHref={`/${districtSlug}/path-tracker`}
+        backHref={`${districtBase}/path-tracker`}
       />
 
       <div className="app-container mt-2">
@@ -172,7 +174,7 @@ export default function LiveTrackerPage() {
 
             <div className="grid grid-cols-2 gap-2">
               <Button asChild variant="outline" className="rounded-xl">
-                <Link href={`/${districtSlug}/path-tracker`}>Back to Path Tracker</Link>
+                <Link href={`${districtBase}/path-tracker`}>Back to Path Tracker</Link>
               </Button>
               <Button variant="action" className="rounded-xl" onClick={() => setFinished(null)}>
                 <Route className="size-4" /> Track again

@@ -47,7 +47,7 @@ export function RestaurantView({
   stateSlug?: string;
 }) {
   const [resOpen, setResOpen] = React.useState(false);
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   return (
     <div className="pb-8">

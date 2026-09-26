@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Search, X } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -8,37 +9,51 @@ import { EmptyState } from "@/components/shared/states";
 import { LoadingState } from "@/components/shared/loading-state";
 import { PlaceCard } from "@/features/places/ui/place-card";
 import { getPlacesByDistrict } from "@/features/places/api/places.api";
-import { requireDistrict } from "@/features/locations/server";
+import { resolveStateDistrict, tryStateDistrict } from "@/features/locations/server";
+import { DistrictUnavailable } from "@/components/shared/district-unavailable";
+
+type RouteParams = { stateSlug: string; districtSlug: string };
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ district: string }>;
+  params: Promise<RouteParams>;
 }): Promise<Metadata> {
-  const { district: slug } = await params;
-  try {
-    const district = await requireDistrict(slug);
-    return {
-      title: `Famous Places in ${district.name}`,
-      description: `Explore the famous places in ${district.name}, Karnataka.`,
-    };
-  } catch {
-    return { title: "Famous Places" };
-  }
+  const { stateSlug, districtSlug } = await params;
+  const resolved = await tryStateDistrict(stateSlug, districtSlug);
+  if (!resolved) return { title: "Famous Places" };
+  const { state, district } = resolved;
+  return {
+    title: `Famous Places in ${district.name}`,
+    description: `Explore the famous places in ${district.name}, ${state.name}.`,
+  };
 }
 
 export default async function PlacesPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ district: string }>;
-  searchParams: Promise<{ q?: string }>;
+  params: Promise<RouteParams>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
-  const { district: slug } = await params;
-  const { q } = await searchParams;
-  const district = await requireDistrict(slug);
+  const { stateSlug, districtSlug } = await params;
+  const resolution = await resolveStateDistrict(stateSlug, districtSlug);
+  if (resolution.status === "error") {
+    return <DistrictUnavailable message={resolution.message} />;
+  }
+  if (resolution.status === "missing") notFound();
+  const { state, district } = resolution;
+  const base = `/${state.slug}/${district.slug}`;
 
-  const all = await getPlacesByDistrict(district.id).catch(() => []);
+  const raw = await searchParams;
+  const q = Array.isArray(raw?.q) ? raw.q[0] : raw?.q;
+
+  const all = (await getPlacesByDistrict(district.id).catch(() => [])).filter(
+    (place) =>
+      place.status === "APPROVED" &&
+      (place.districtId ?? place.district?.id) === district.id
+  );
+
   const query = (q ?? "").trim().toLowerCase();
   const places = query
     ? all.filter((p) =>
@@ -55,7 +70,7 @@ export default async function PlacesPage({
       <ScreenHeader
         title={query ? `Results for “${q}”` : "Famous Places"}
         subtitle={`${district.name} district · ${places.length} place${places.length === 1 ? "" : "s"}`}
-        backHref={`/${slug}?focus=places`}
+        backHref={base}
       />
 
       {query ? (
@@ -65,7 +80,7 @@ export default async function PlacesPage({
             Searching within {district.name}
           </span>
           <Link
-            href={`/${slug}/places`}
+            href={`${base}/places`}
             className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <X className="size-3.5" /> Clear search
@@ -96,7 +111,8 @@ export default async function PlacesPage({
               <PlaceCard
                 key={place.id}
                 place={place}
-                districtSlug={slug}
+                districtSlug={district.slug}
+                stateSlug={state.slug}
                 showFavorite
               />
             ))}

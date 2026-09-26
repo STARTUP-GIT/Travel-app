@@ -4,7 +4,10 @@ import { useAsync } from "@/lib/hooks/use-async";
 import { getHotelById, getHotels } from "../api/hotels.api";
 
 export function useHotels(districtId?: string) {
-  return useAsync(() => getHotels(districtId).catch(() => []), [districtId]);
+  return useAsync(
+    () => (districtId ? getHotels(districtId).catch(() => []) : Promise.resolve([])),
+    [districtId]
+  );
 }
 
 export function useHotel(districtId: string | undefined, hotelId: string | undefined) {

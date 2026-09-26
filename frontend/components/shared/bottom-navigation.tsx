@@ -17,8 +17,7 @@ const ITEMS = [
       p.includes("/places") ||
       p.includes("/hotels") ||
       p.includes("/restaurants") ||
-      p.startsWith("/explore") ||
-      (p === "/explore-karnataka" && false),
+      p.startsWith("/explore"),
   },
   {
     href: "/guides",
@@ -43,13 +42,14 @@ const ITEMS = [
 /**
  * Persistent mobile bottom navigation. The district-aware entries (Places,
  * Guides) resolve to the currently selected district; they fall back to the
- * Explore Karnataka screen when no district has been chosen yet.
+ * destination picker when no district has been chosen yet. District routes
+ * always carry the state segment, so /explore is the only safe fallback.
  */
 export function BottomNavigation() {
   const pathname = usePathname();
   const { slug, stateSlug } = useCurrentDistrict();
 
-  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
+  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : null;
 
   const resolved = ITEMS.map((item) => {
     if (item.label === "Places") {

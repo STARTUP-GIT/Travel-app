@@ -29,7 +29,10 @@ export default function SearchScreen() {
   const [districtName, setDistrictName] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
+  // District routes always carry the state segment, so a district without a
+  // state cannot produce a valid link. Treat that as "nothing selected".
+  const hasDistrict = Boolean(slug && stateSlug);
+  const districtBase = hasDistrict ? `/${stateSlug}/${slug}` : null;
 
   React.useEffect(() => {
     if (!slug) {
@@ -54,7 +57,7 @@ export default function SearchScreen() {
       setError(null);
       return;
     }
-    if (!slug) {
+    if (!slug || !stateSlug) {
       setError("Pick a district first");
       return;
     }
@@ -87,18 +90,22 @@ export default function SearchScreen() {
     <div className="pb-6">
       <ScreenHeader
         title="Search"
-        subtitle={slug ? `Searching within ${districtName ?? slug}` : "Choose a district to search"}
+        subtitle={
+          hasDistrict
+            ? `Searching within ${districtName ?? slug}`
+            : "Choose a district to search"
+        }
       />
 
       <div className="app-container">
-        {!slug ? (
+        {!hasDistrict ? (
           <EmptyState
             icon={Search}
             title="Pick a district first"
-            description="Search finds results inside one district at a time."
+            description="Search finds results inside one district at a time. Choose your destination to start."
             action={
               <Button asChild variant="action" className="rounded-xl">
-                <Link href="/explore">Explore districts</Link>
+                <Link href="/explore">Choose destination</Link>
               </Button>
             }
           />
@@ -127,7 +134,7 @@ export default function SearchScreen() {
               description={error}
               action={
                 <Button asChild variant="outline" className="rounded-xl">
-                  <Link href="/explore">{slug ? "Change district" : "Explore districts"}</Link>
+                  <Link href="/explore">Change destination</Link>
                 </Button>
               }
             />
@@ -153,7 +160,7 @@ export default function SearchScreen() {
                         {group.items.map((p) => (
                           <MediaRowCard
                             key={p.id}
-                            href={districtBase ? `${districtBase}/places/${p.id}` : `/${slug}/places/${p.id}`}
+                            href={districtBase ? `${districtBase}/places/${p.id}` : `/explore`}
                             image={p.images?.[0]}
                             title={p.name}
                             subtitle={p.category ?? p.district?.name ?? "Place"}
@@ -166,7 +173,7 @@ export default function SearchScreen() {
                         {group.items.map((h) => (
                           <MediaRowCard
                             key={h.id}
-                            href={districtBase ? `${districtBase}/hotels/${h.id}` : `/${slug}/hotels/${h.id}`}
+                            href={districtBase ? `${districtBase}/hotels/${h.id}` : `/explore`}
                             image={h.images?.[0] ?? h.profile_logo}
                             title={h.name}
                             subtitle={h.address}
@@ -179,7 +186,7 @@ export default function SearchScreen() {
                         {group.items.map((r) => (
                           <MediaRowCard
                             key={r.id}
-                            href={districtBase ? `${districtBase}/restaurants/${r.id}` : `/${slug}/restaurants/${r.id}`}
+                            href={districtBase ? `${districtBase}/restaurants/${r.id}` : `/explore`}
                             image={r.images?.[0] ?? r.profile_logo}
                             title={r.name}
                             subtitle={r.address}

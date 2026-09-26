@@ -1,10 +1,11 @@
 import { api } from "@/lib/api/client";
 import type { Place } from "@/features/places/types";
 
-const SERVICE_SEGMENT = "karnataka";
-
 function servicesPath(districtId: string): string {
-  return `/${districtId || SERVICE_SEGMENT}/services`;
+  if (!districtId) {
+    throw new Error("Places require a real district id");
+  }
+  return `/${districtId}/services`;
 }
 
 /**

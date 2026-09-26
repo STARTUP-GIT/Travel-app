@@ -5,7 +5,8 @@ import { getRestaurantById, getRestaurants } from "../api/restaurants.api";
 
 export function useRestaurants(districtId?: string) {
   return useAsync(
-    () => getRestaurants(districtId).catch(() => []),
+    () =>
+      districtId ? getRestaurants(districtId).catch(() => []) : Promise.resolve([]),
     [districtId]
   );
 }

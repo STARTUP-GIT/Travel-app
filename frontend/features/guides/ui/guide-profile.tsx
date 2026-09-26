@@ -68,7 +68,7 @@ export function GuideProfile({
 }) {
   const person = guide.guide;
   const [bookingOpen, setBookingOpen] = React.useState(false);
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   const isSpecific = guide.type === "specific";
   const placesForGuide = isSpecific
@@ -200,6 +200,7 @@ export function GuideProfile({
         onOpenChange={setBookingOpen}
         guide={guide}
         districtSlug={districtSlug}
+        stateSlug={stateSlug}
         districtId={districtId}
         placesForGuide={placesForGuide}
       />
@@ -212,6 +213,7 @@ export function GuideBookingSheet({
   onOpenChange,
   guide,
   districtSlug,
+  stateSlug,
   districtId,
   placesForGuide,
   defaultSelectedPlaceIds = [],
@@ -220,6 +222,7 @@ export function GuideBookingSheet({
   onOpenChange: (o: boolean) => void;
   guide: GuideWithContext;
   districtSlug: string;
+  stateSlug?: string;
   districtId: string;
   placesForGuide: { id: string; name: string; slug: string; districtName: string }[];
   defaultSelectedPlaceIds?: string[];
@@ -227,6 +230,7 @@ export function GuideBookingSheet({
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
   const isCommon = guide.type === "common";
   const [selectedPlaces, setSelectedPlaces] = React.useState<string[]>(
     isCommon ? defaultSelectedPlaceIds : []
@@ -362,7 +366,7 @@ export function GuideBookingSheet({
                         <p className="text-xs text-muted-foreground">{place.districtName}</p>
                       </div>
                       <Link
-                        href={`/${districtSlug}/places/${place.id}`}
+                        href={`${districtBase}/places/${place.id}`}
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs font-semibold text-primary"
                       >

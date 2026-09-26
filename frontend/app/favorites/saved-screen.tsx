@@ -16,7 +16,7 @@ export default function SavedScreen() {
   const { snapshots, toggle } = useFavorites();
   const { slug, stateSlug } = useCurrentDistrict();
 
-  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : slug ? `/${slug}` : null;
+  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : null;
   const { places, guides } = snapshots;
   const total = places.length + guides.length;
 
@@ -40,8 +40,8 @@ export default function SavedScreen() {
               label="Saved places"
               items={places}
               hrefBase={(s) => {
-                const base = stateSlug && (s?.districtSlug ?? slug) ? `/${stateSlug}/${s?.districtSlug ?? slug}` : `/${s?.districtSlug ?? slug}`;
-                return `${base}/${s.id}`;
+                const d = s?.districtSlug ?? slug;
+                return stateSlug && d ? `/${stateSlug}/${d}/places/${s.id}` : "/explore";
               }}
               onRemove={(item) => toggle(item.id, "place")}
               icon={<MapPin className="size-4" />}
@@ -51,8 +51,8 @@ export default function SavedScreen() {
               label="Saved guides"
               items={guides}
               hrefBase={(s) => {
-                const base = stateSlug && (s?.districtSlug ?? slug) ? `/${stateSlug}/${s?.districtSlug ?? slug}` : `/${s?.districtSlug ?? slug}`;
-                return `${base}/guides/${s.id}`;
+                const d = s?.districtSlug ?? slug;
+                return stateSlug && d ? `/${stateSlug}/${d}/guides/${s.id}` : "/explore";
               }}
               onRemove={(item) => toggle(item.id, "guide")}
               icon={<Heart className="size-4" />}

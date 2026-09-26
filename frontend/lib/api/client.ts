@@ -12,10 +12,18 @@ export class ApiError extends Error {
 
 export function getApiBaseUrl(): string {
   const fallbackUrl = "https://travel-app-backend-ashen.vercel.app";
-  const url =
-    process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL ?? fallbackUrl;
+  const configured = (
+    process.env.NEXT_PUBLIC_API_URL ??
+    process.env.BACKEND_URL ??
+    ""
+  ).trim();
 
-  return url.replace(/\/+$/, "");
+  // A malformed/relative env value must not turn every request into a broken
+  // URL (e.g. "api" or "https://"): fall back to the deployed backend instead.
+  const isUsable =
+    configured.length > 0 && /^https?:\/\/[^\s/]+/i.test(configured);
+
+  return (isUsable ? configured : fallbackUrl).replace(/\/+$/, "");
 }
 
 export function isBrowser(): boolean {

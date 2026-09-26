@@ -1,4 +1,4 @@
-import type { District } from "@/features/locations/types";
+import type { ContentStatus, District } from "@/features/locations/types";
 import type { CommonGuide, SpecificGuide } from "@/features/guides/types";
 
 export type Place = {
@@ -9,6 +9,8 @@ export type Place = {
   images: string[];
   entryfee: number;
   category: string;
+  /** Approval state; only APPROVED content is customer visible. */
+  status?: ContentStatus;
   latitude: number;
   longitude: number;
   createdAt: string;

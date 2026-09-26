@@ -3,18 +3,19 @@ import { memoizedGet } from "@/lib/api/cache";
 import type { Hotel, CreateHotelBookingInput } from "@/features/hotels/types";
 import type { HotelBooking } from "@/features/bookings/types";
 
-const SERVICE_SEGMENT = "karnataka";
-
 /**
- * Hotel list endpoint ignores the district param and returns all hotels with
- * their district hierarchy, so any consistent segment works. Cached with a
- * short TTL so every consumer (district page, district list, landing shell)
- * shares one request instead of duplicating the same heavy listing.
+ * Hotel list endpoint is mounted under `/:districtId/services/hotel`, so a
+ * real district id is required (no hardcoded state segment). The handler
+ * returns every approved hotel with its district hierarchy, so callers still
+ * scope the result themselves. Cached with a short TTL so multiple consumers
+ * share one request instead of duplicating the same heavy listing.
  */
-export async function getHotels(districtId?: string): Promise<Hotel[]> {
-  const segment = districtId ?? SERVICE_SEGMENT;
-  return memoizedGet(`hotels:${segment}`, () =>
-    api.get<Hotel[]>(`/${segment}/services/hotel/api/getallhotels`)
+export async function getHotels(districtId: string): Promise<Hotel[]> {
+  if (!districtId) {
+    throw new Error("getHotels requires a district id");
+  }
+  return memoizedGet(`hotels:${districtId}`, () =>
+    api.get<Hotel[]>(`/${districtId}/services/hotel/api/getallhotels`)
   );
 }
 
@@ -22,8 +23,11 @@ export async function getHotels(districtId?: string): Promise<Hotel[]> {
 export async function getHotelsForDistrict(
   districtId: string
 ): Promise<Hotel[]> {
-  const hotels = await getHotels();
-  return hotels.filter((h) => h.districtId === districtId);
+  if (!districtId) return [];
+  const hotels = await getHotels(districtId);
+  return hotels.filter(
+    (h) => (h.districtId ?? h.district?.id) === districtId
+  );
 }
 
 export async function getHotelById(

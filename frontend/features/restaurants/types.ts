@@ -1,4 +1,4 @@
-import type { District } from "@/features/locations/types";
+import type { ContentStatus, District } from "@/features/locations/types";
 
 export type FoodCategory = "PUREVEG" | "NONVEG" | "VEG_AND_NONVEG";
 
@@ -21,6 +21,8 @@ export type Restaurent = {
   email?: string | null;
   website?: string | null;
   booking_enabled: boolean;
+  /** Approval state; only APPROVED content is customer visible. */
+  status?: ContentStatus;
   createdAt: string;
   updatedAt: string;
   district?: District;

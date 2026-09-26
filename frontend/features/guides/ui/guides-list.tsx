@@ -12,10 +12,12 @@ import { Compass } from "lucide-react";
 export function GuidesList({
   guides,
   districtSlug,
+  stateSlug,
   isLoading,
 }: {
   guides: GuideWithContext[];
   districtSlug: string;
+  stateSlug?: string;
   isLoading?: boolean;
 }) {
   const specific = guides.filter((g) => g.type === "specific");
@@ -44,15 +46,16 @@ export function GuidesList({
       </TabsList>
 
       <TabsContent value="all" className="pt-4 animate-fade-in">
-        <GuideGrid guides={guides} districtSlug={districtSlug} />
+        <GuideGrid guides={guides} districtSlug={districtSlug} stateSlug={stateSlug} />
       </TabsContent>
       <TabsContent value="specific" className="pt-4 animate-fade-in">
-        <GuideGrid guides={specific} districtSlug={districtSlug} />
+        <GuideGrid guides={specific} districtSlug={districtSlug} stateSlug={stateSlug} />
       </TabsContent>
       <TabsContent value="common" className="pt-4 animate-fade-in">
         <GuideGrid
           guides={common}
           districtSlug={districtSlug}
+          stateSlug={stateSlug}
           desc="Common guides cover multiple places in one trip."
         />
       </TabsContent>
@@ -63,10 +66,12 @@ export function GuidesList({
 function GuideGrid({
   guides,
   districtSlug,
+  stateSlug,
   desc,
 }: {
   guides: GuideWithContext[];
   districtSlug: string;
+  stateSlug?: string;
   desc?: string;
 }) {
   if (guides.length === 0) {
@@ -80,7 +85,13 @@ function GuideGrid({
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {guides.map((guide) => (
-        <GuideCard key={guide.guide.id} guide={guide} districtSlug={districtSlug} showFavorite />
+        <GuideCard
+          key={guide.guide.id}
+          guide={guide}
+          districtSlug={districtSlug}
+          stateSlug={stateSlug}
+          showFavorite
+        />
       ))}
     </div>
   );

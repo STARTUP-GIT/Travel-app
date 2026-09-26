@@ -24,7 +24,7 @@ export function PlaceCard({
   horizontal?: boolean;
   showFavorite?: boolean;
 }) {
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
   const href = `${districtBase}/places/${place.id}`;
 
   if (horizontal) {

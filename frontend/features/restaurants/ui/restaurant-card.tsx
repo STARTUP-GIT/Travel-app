@@ -31,7 +31,7 @@ export function RestaurantCard({
   stateSlug?: string;
   className?: string;
 }) {
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   return (
     <GlassCard hover className={cn("group", className)}>

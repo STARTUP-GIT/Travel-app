@@ -1,3 +1,9 @@
+/**
+ * Mirrors the backend `placeSubmissionStatus` enum. Content is only visible to
+ * customers while it is APPROVED.
+ */
+export type ContentStatus = "PENDING" | "APPROVED" | "REJECTED";
+
 export type Country = {
   id: string;
   name: string;
@@ -26,6 +32,8 @@ export type District = {
   stateId: string;
   state: State;
   isServiceAvailable: boolean;
+  /** Backend flag: submissions in this district are published immediately. */
+  autoApprovePlaces?: boolean;
 };
 
 export type DistrictSummary = District & {

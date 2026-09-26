@@ -40,9 +40,11 @@ const MODES: {
 ];
 
 export default function TransportPage() {
-  const params = useParams<{ district: string; placeId: string }>();
-  const districtSlug = params.district;
+  const params = useParams<{ stateSlug: string; districtSlug: string; placeId: string }>();
+  const stateSlug = params.stateSlug;
+  const districtSlug = params.districtSlug;
   const placeId = params.placeId;
+  const districtBase = `/${stateSlug}/${districtSlug}`;
 
   const place = usePlace(placeId ? districtSlug : undefined, placeId);
   const { supported, status, position, start, error } = useGeolocation();
@@ -97,7 +99,7 @@ export default function TransportPage() {
       <ScreenHeader
         title="Go To"
         subtitle={place.data?.name ?? "Choose transport"}
-        backHref={`/${districtSlug}/places/${placeId}`}
+        backHref={`${districtBase}/places/${placeId}`}
       />
 
       <div className="app-container mt-2">

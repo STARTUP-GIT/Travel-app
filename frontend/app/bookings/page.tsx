@@ -178,14 +178,21 @@ function ReservationRow({ booking }: { booking: RestaurantReservation }) {
 }
 
 function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
-  const slug = booking.place?.district ? slugify(booking.place.district.name) : null;
+  // District routes need both slugs; without the state we link to /explore.
+  const district = booking.place?.district;
+  const districtSlug = district ? slugify(district.name) : null;
+  const stateSlug = district?.state?.name ? slugify(district.state.name) : null;
+  const href =
+    districtSlug && stateSlug
+      ? `/${stateSlug}/${districtSlug}/guides/${booking.specificGuideId}`
+      : null;
   return (
     <RowShell
       image={booking.specificGuide?.profile_pic}
       title={booking.specificGuide?.full_name ?? "Specific guide"}
       subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
       status={booking.status}
-      href={slug ? `/${slug}/guides/${booking.specificGuideId}` : null}
+      href={href}
     />
   );
 }

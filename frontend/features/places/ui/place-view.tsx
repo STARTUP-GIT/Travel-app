@@ -48,7 +48,7 @@ export function PlaceView({
   stateSlug?: string;
 }) {
   const [service, setService] = React.useState<ServiceItem | null>(null);
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   const specificGuides: GuideWithContext[] = (place.specificguide ?? []).map((g) => ({
     type: "specific",
@@ -231,11 +231,17 @@ export function PlaceView({
                   <SectionHeader
                     title="Guides for this place"
                     subtitle="Book directly with a local guide"
-                    href={`/${districtSlug}/guides`}
+                    href={`${districtBase}/guides`}
                   />
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {specificGuides.map((guide) => (
-                      <GuideCard key={guide.guide.id} guide={guide} districtSlug={districtSlug} showFavorite />
+                      <GuideCard
+                      key={guide.guide.id}
+                      guide={guide}
+                      districtSlug={districtSlug}
+                      stateSlug={stateSlug}
+                      showFavorite
+                    />
                     ))}
                   </div>
                 </section>
@@ -247,7 +253,7 @@ export function PlaceView({
                   <SectionHeader
                     title="Common guides covering this place"
                     subtitle="Guides who can take you to several places"
-                    href={`/${districtSlug}/guides`}
+                    href={`${districtBase}/guides`}
                   />
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {commonGuides.map((g) => (
@@ -255,6 +261,7 @@ export function PlaceView({
                         key={g.id}
                         guide={{ type: "common", guide: g, places: [] }}
                         districtSlug={districtSlug}
+                        stateSlug={stateSlug}
                         showFavorite
                       />
                     ))}

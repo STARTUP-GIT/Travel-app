@@ -20,13 +20,16 @@ import { cn } from "@/lib/utils";
 
 export function PathTrackerHub({
   districtSlug,
+  stateSlug,
   districtId,
   places,
 }: {
   districtSlug: string;
+  stateSlug: string;
   districtId: string;
   places: Place[];
 }) {
+  const districtBase = `/${stateSlug}/${districtSlug}`;
   const router = useRouter();
   const [selected, setSelected] = React.useState<Place | null>(places[0] ?? null);
   const [trips, setTrips] = React.useState<SavedTrip[]>([]);
@@ -38,7 +41,7 @@ export function PathTrackerHub({
   function start() {
     if (!selected) return;
     router.push(
-      `/${districtSlug}/path-tracker/live?placeId=${encodeURIComponent(selected.id)}&name=${encodeURIComponent(selected.name)}`
+      `${districtBase}/path-tracker/live?placeId=${encodeURIComponent(selected.id)}&name=${encodeURIComponent(selected.name)}`
     );
   }
 
@@ -47,7 +50,7 @@ export function PathTrackerHub({
       <ScreenHeader
         title="Path Tracker"
         subtitle={`${districtSlug} · real GPS, never simulated`}
-        backHref={`/${districtSlug}`}
+        backHref={districtBase}
       />
 
       <div className="app-container">

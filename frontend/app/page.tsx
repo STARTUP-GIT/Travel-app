@@ -57,7 +57,7 @@ export default function HomePage() {
               variant="action"
               size="lg"
               className="w-full max-w-xs rounded-2xl text-sm sm:max-w-sm sm:text-base"
-              onClick={() => router.push("/destination")}
+              onClick={() => router.push("/explore")}
             >
               <MapPinned className="size-4 sm:size-5" />
               CHOOSE DESTINATION

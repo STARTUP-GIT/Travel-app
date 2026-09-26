@@ -47,7 +47,7 @@ export function GuideCard({
   const subtitle = isSpecific
     ? guide.place.name
     : `${guide.places.length} places covered`;
-  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : `/${districtSlug}`;
+  const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
   return (
     <GlassCard hover className={cn("group", className)}>
