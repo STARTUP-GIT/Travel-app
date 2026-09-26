@@ -11,20 +11,17 @@ import {
   MapPin,
   Smartphone,
   Soup,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
-import { ScreenHeader } from "@/components/shared/screen-header";
 import { SectionHeader } from "@/components/shared/section-header";
 import { ServiceGrid, type ServiceItem } from "@/components/shared/service-card";
-import { AppImage } from "@/components/shared/app-image";
-import { DistrictSearchForm } from "@/components/shared/district-search-form";
 import { MediaRowCard } from "@/components/shared/media-row-card";
 import { DestinationLink } from "@/components/shared/destination-link";
 import { EmptyState, ErrorState } from "@/components/shared/states";
 import { PlaceCard } from "@/features/places/ui/place-card";
 import { loadDistrictContent } from "@/features/locations/api/destination.api";
+import { DistrictHero } from "./district-hero";
 import {
   getSiblingDistricts,
   resolveStateDistrict,
@@ -82,8 +79,6 @@ export default async function DistrictPage({
   const base = `/${state.slug}/${district.slug}`;
 
   // The state's own image, straight from the state record.
-  const heroImage = state.primaryImage ?? null;
-
   const services: ServiceItem[] = [
     {
       id: "guides",
@@ -156,51 +151,16 @@ export default async function DistrictPage({
 
   return (
     <div className="pb-6">
-      <ScreenHeader title={district.name} subtitle={`${state.name} · District`} />
-
-      {/* Hero — the selected state's image from the database */}
-      <section className="relative -mx-4 overflow-hidden px-5 pb-7 pt-6 text-white sm:mx-4 sm:mt-4 sm:rounded-3xl">
-        {heroImage ? (
-          <AppImage
-            src={heroImage}
-            alt={`${state.name} — ${district.name}`}
-            className="absolute inset-0"
-            fallbackClassName="absolute inset-0 bg-gradient-to-br from-blue-800 via-primary to-indigo-800"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-800 via-primary to-indigo-800" />
-        )}
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/60"
-          aria-hidden
-        />
-
-        <div className="relative">
-          <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider backdrop-blur-md">
-            <Sparkles className="size-3.5 text-amber-200" />
-            {state.name} · {district.name}
-          </div>
-          <h1 className="text-[1.9rem] font-bold leading-tight tracking-tight">
-            Welcome to {district.name}
-          </h1>
-          <p className="mt-1 text-sm font-medium text-white/80">
-            {state.name} · India
-          </p>
-          <p className="mt-1.5 line-clamp-2 max-w-xl text-sm text-white/90">
-            Explore {places.length} famous places, {hotels.length} stays and{" "}
-            {restaurants.length} restaurants — with local guides ready to make
-            your visit memorable.
-          </p>
-
-          <DistrictSearchForm stateSlug={state.slug} districtSlug={district.slug} />
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <StatPill label={`${places.length} places`} />
-            <StatPill label={`${hotels.length} hotels`} />
-            <StatPill label={`${restaurants.length} restaurants`} />
-          </div>
-        </div>
-      </section>
+      <DistrictHero
+        stateName={state.name}
+        stateSlug={state.slug}
+        districtName={district.name}
+        districtSlug={district.slug}
+        stateImage={state.primaryImage}
+        placeCount={places.length}
+        hotelCount={hotels.length}
+        restaurantCount={restaurants.length}
+      />
 
       <div className="app-container mt-7 space-y-8">
         {contentError ? (
@@ -369,14 +329,5 @@ export default async function DistrictPage({
         </section>
       </div>
     </div>
-  );
-}
-
-function StatPill({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-xs font-medium backdrop-blur-md">
-      <MapPin className="size-3.5 text-amber-200" />
-      {label}
-    </span>
   );
 }

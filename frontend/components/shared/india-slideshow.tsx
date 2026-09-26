@@ -22,19 +22,24 @@ const SLIDE_INTERVAL = 6000;
 export function IndiaSlideshow({
   className,
   overlayClassName,
+  slides: providedSlides,
 }: {
   className?: string;
   overlayClassName?: string;
+  slides?: LandingSlide[];
 }) {
   const { bannerImages } = useBranding();
   const reduceMotion = useReducedMotion();
 
   const slides = React.useMemo<LandingSlide[]>(() => {
+    if (providedSlides) {
+      return providedSlides.filter((slide) => Boolean(slide.src));
+    }
     const configured = (bannerImages ?? []).filter(Boolean);
     return configured.length > 0
       ? configured.map((src) => ({ src, alt: "" }))
       : FALLBACK_LANDING_SLIDES;
-  }, [bannerImages]);
+  }, [bannerImages, providedSlides]);
 
   const [index, setIndex] = React.useState(0);
   const [failed, setFailed] = React.useState<Set<string>>(new Set());
