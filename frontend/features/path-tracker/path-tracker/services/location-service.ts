@@ -51,7 +51,19 @@ export function filterFix(fix: Coordinate, prev: Coordinate | null): Coordinate 
   return fix;
 }
 
-export function startGPSStream(callback: LocationCallback): () => void {
+/**
+ * Start the location watcher.
+ *
+ * `onError` is an optional, additive platform-boundary hook: the original
+ * signature is unchanged and the default behaviour is identical (errors are
+ * ignored). It exists so the UI can report a lost GPS signal during a trip
+ * instead of silently freezing on stale coordinates. It never alters which
+ * fixes are accepted, how distance is computed, or when the trip ends.
+ */
+export function startGPSStream(
+  callback: LocationCallback,
+  onError?: (error: GeoFailure) => void
+): () => void {
   let id: number | null = null;
   let prev: Coordinate | null = null;
 
@@ -66,7 +78,9 @@ export function startGPSStream(callback: LocationCallback): () => void {
       lastFix = filtered;
       callback(filtered);
     },
-    () => {},
+    (error) => {
+      onError?.(mapPositionError(error));
+    },
     {
       enableHighAccuracy: true,
       maximumAge: 3000,
@@ -155,4 +169,133 @@ export function startHeadingStream(callback: (heading: number) => void): () => v
     }
     BUFFER.length = 0;
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Platform boundary: observable geolocation status
+//
+// The original web service collapses every failure into `resolve(null)` and
+// drops the GeolocationPositionError, so the UI has no way to distinguish
+// "permission denied" from "no GPS hardware" from "timed out" — and therefore
+// no terminating state. These helpers expose the same acquisition with the same
+// options and the same accuracy filter, but report WHY it failed. No tracking
+// calculation is involved.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type GeoPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
+
+export type GeoErrorKind =
+  | 'PERMISSION_DENIED'
+  | 'POSITION_UNAVAILABLE'
+  | 'TIMEOUT'
+  | 'UNSUPPORTED';
+
+export interface GeoFailure {
+  kind: GeoErrorKind;
+  message: string;
+}
+
+export type GeoAcquisition =
+  | { ok: true; fix: Coordinate }
+  | { ok: false; error: GeoFailure };
+
+function mapPositionError(error: GeolocationPositionError): GeoFailure {
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+    case 1:
+      return {
+        kind: 'PERMISSION_DENIED',
+        message: 'Location permission was denied for this site.',
+      };
+    case error.TIMEOUT:
+    case 3:
+      return {
+        kind: 'TIMEOUT',
+        message: 'Timed out waiting for a GPS position.',
+      };
+    case error.POSITION_UNAVAILABLE:
+    case 2:
+    default:
+      return {
+        kind: 'POSITION_UNAVAILABLE',
+        message: error.message || 'Your device could not determine a position.',
+      };
+  }
+}
+
+/** True when the runtime exposes the browser Geolocation API at all. */
+export function isGeolocationSupported(): boolean {
+  return typeof navigator !== 'undefined' && !!navigator.geolocation;
+}
+
+/**
+ * Real permission state via the Permissions API.
+ *
+ * The original `hasPermissions()` only checks `!!navigator.geolocation`, which
+ * is true even when the user has blocked location, so it cannot be used to
+ * decide whether to show the tracker. Falls back to the original check when the
+ * Permissions API is unavailable (older Safari / insecure contexts).
+ */
+export async function queryGeolocationPermission(): Promise<GeoPermissionState> {
+  if (!isGeolocationSupported()) return 'unsupported';
+  if (typeof navigator === 'undefined' || !navigator.permissions?.query) {
+    return (await hasPermissions()) ? 'prompt' : 'unsupported';
+  }
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    if (status.state === 'granted') return 'granted';
+    if (status.state === 'denied') return 'denied';
+    return 'prompt';
+  } catch {
+    return (await hasPermissions()) ? 'prompt' : 'unsupported';
+  }
+}
+
+/**
+ * One-shot position acquisition with a reported outcome.
+ *
+ * Uses exactly the original options (`enableHighAccuracy: true`,
+ * `timeout: 10000`) and exactly the original `filterFix(fix, null)` accuracy
+ * rule, so the accepted fix is identical to what `getCurrentLocation()` would
+ * return. The only difference is that a failure is classified instead of being
+ * swallowed, and an over-accurate rejected fix is reported as unavailable
+ * rather than silently becoming `null`.
+ */
+export function getCurrentLocationDetailed(): Promise<GeoAcquisition> {
+  return new Promise<GeoAcquisition>((resolve) => {
+    if (!isGeolocationSupported()) {
+      resolve({
+        ok: false,
+        error: {
+          kind: 'UNSUPPORTED',
+          message: 'This browser does not provide location services.',
+        },
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const fix = toFix(pos);
+        // Same accuracy gate as the original.
+        if (!filterFix(fix, null)) {
+          resolve({
+            ok: false,
+            error: {
+              kind: 'POSITION_UNAVAILABLE',
+              message: `Received a position with ${Math.round(fix.accuracy ?? 999)} m accuracy, which is too poor to track.`,
+            },
+          });
+          return;
+        }
+        lastFix = fix;
+        resolve({ ok: true, fix });
+      },
+      (error) => {
+        const mapped = mapPositionError(error);
+        resolve({ ok: false, error: mapped });
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
 }

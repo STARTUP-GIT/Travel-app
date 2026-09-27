@@ -6,10 +6,11 @@ import {
   Check,
   Flag,
   Loader2,
-  MapPin,
+  MapPinOff,
   Pause,
   Play,
   RotateCcw,
+  Satellite,
   Signal,
   Square,
   Undo2,
@@ -45,7 +46,7 @@ import {
   triggerTap,
   vibrateOffRoute,
 } from "../services/alert-service";
-import { TrackCanvas } from "./track-canvas";
+import { GoogleTripMap } from "./google-trip-map";
 import { RecoveryPrompt } from "./recovery-prompt";
 import { TripCompleteModal } from "./trip-complete-modal";
 
@@ -67,11 +68,13 @@ export function LiveTracker({
   districtBase,
   placeName,
   placeCoordinate,
+  googleMapsApiKey,
   onTrackAgain,
 }: {
   districtBase: string;
   placeName: string;
   placeCoordinate: { latitude: number; longitude: number } | null;
+  googleMapsApiKey: string;
   onTrackAgain: () => void;
 }) {
   const session = useTripSession();
@@ -140,31 +143,115 @@ export function LiveTracker({
     });
   }, [placeCoordinate, currentPosition]);
 
-  if (session.permissionLoading) return <StatusScreen message="Checking location permission…" />;
+  if (session.permissionLoading) {
+    return <StatusScreen busy message="Checking location permission…" />;
+  }
 
-  if (!session.permissionGranted) {
+  /**
+   * Terminating GPS states. Each branch either proceeds to the tracker or
+   * offers a retry — there is no path that can render an endless loading state.
+   */
+  switch (session.gpsPhase) {
+    case "initializing":
+      return (
+        <StatusScreen
+          busy
+          title="Getting GPS"
+          message="Waiting for your device to report a position. This can take a few seconds, especially indoors."
+        />
+      );
+
+    case "denied":
+      return (
+        <StatusScreen
+          icon={<MapPinOff className="size-7 text-destructive" />}
+          title="Location permission denied"
+          message={
+            session.gpsError?.message ??
+            "Path Tracker cannot record a route without your location."
+          }
+          hint="Allow location for this site in your browser's address-bar permissions, then retry."
+          action={
+            <Button
+              variant="action"
+              size="lg"
+              className="rounded-xl"
+              onClick={() => {
+                triggerMediumTap();
+                void session.retryGps();
+              }}
+            >
+              <RotateCcw className="size-4" /> Retry
+            </Button>
+          }
+        />
+      );
+
+    case "timeout":
+      return (
+        <StatusScreen
+          icon={<Satellite className="size-7 text-warning" />}
+          title="GPS timed out"
+          message={session.gpsError?.message ?? "Timed out waiting for a GPS position."}
+          hint="Move somewhere with a clearer view of the sky, or turn location services on, then retry."
+          action={
+            <Button
+              variant="action"
+              size="lg"
+              className="rounded-xl"
+              onClick={() => {
+                triggerMediumTap();
+                void session.retryGps();
+              }}
+            >
+              <RotateCcw className="size-4" /> Retry
+            </Button>
+          }
+        />
+      );
+
+    case "unavailable":
+      return (
+        <StatusScreen
+          icon={<Satellite className="size-7 text-destructive" />}
+          title="GPS unavailable"
+          message={session.gpsError?.message ?? "Your device could not determine a position."}
+          hint="Make sure location services are enabled on your device, then retry."
+          action={
+            <Button
+              variant="action"
+              size="lg"
+              className="rounded-xl"
+              onClick={() => {
+                triggerMediumTap();
+                void session.retryGps();
+              }}
+            >
+              <RotateCcw className="size-4" /> Retry
+            </Button>
+          }
+        />
+      );
+
+    case "ready":
+      break;
+  }
+
+  // Defensive: a ready acquisition always carries a position. If it ever does
+  // not, fall back to retry rather than rendering a permanent loader.
+  if (!hasInitialPosition) {
     return (
       <StatusScreen
-        message="Path Tracker needs your location to record a real trip on your device."
+        icon={<Satellite className="size-7 text-warning" />}
+        title="No position yet"
+        message="A GPS position was reported but it was not usable for tracking."
         action={
-          <Button
-            variant="action"
-            size="lg"
-            className="rounded-xl"
-            onClick={() => {
-              triggerMediumTap();
-              session.requestPermission();
-            }}
-          >
-            <MapPin className="size-4" /> Enable location
+          <Button variant="action" className="rounded-xl" onClick={() => void session.retryGps()}>
+            <RotateCcw className="size-4" /> Retry
           </Button>
         }
       />
     );
-  }
-
-  if (!hasInitialPosition) {
-    return <StatusScreen busy message="Searching for a GPS fix…" />;
   }
 
   const isReturning = state === "RETURNING";
@@ -226,6 +313,17 @@ export function LiveTracker({
         </div>
       ) : null}
 
+      {session.gpsSignalLost ? (
+        <div className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/8 px-3 py-2 text-xs text-warning-foreground">
+          <Satellite className="size-3.5 shrink-0" />
+          <span>
+            GPS signal lost
+            {session.gpsError ? ` — ${session.gpsError.message}` : ""}. Tracking resumes
+            automatically when a position returns.
+          </span>
+        </div>
+      ) : null}
+
       {offRoute ? (
         <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/8 px-3 py-2 text-xs text-destructive">
           <Signal className="size-3.5 shrink-0" />
@@ -242,11 +340,12 @@ export function LiveTracker({
 
       {recoveredActive ? <p className="text-xs text-muted-foreground">Active trip found.</p> : null}
 
-      <TrackCanvas
+      <GoogleTripMap
         points={activeTrip?.points ?? []}
         currentPosition={currentPosition}
         returnCorridor={isReturning ? returnState.returnCorridor : null}
         recording={isActive}
+        apiKey={googleMapsApiKey}
       />
 
       <div className="grid grid-cols-3 gap-2">
@@ -479,18 +578,30 @@ function MiniStat({ value, label }: { value: string; label: string }) {
 }
 
 function StatusScreen({
+  title,
   message,
+  hint,
+  icon,
   action,
   busy,
 }: {
+  title?: string;
   message: string;
+  hint?: string;
+  icon?: React.ReactNode;
   action?: React.ReactNode;
   busy?: boolean;
 }) {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
-      {busy ? <Activity className="size-7 animate-pulse text-primary" /> : null}
+    <div className="flex min-h-[55vh] flex-col items-center justify-center gap-3 px-2 text-center">
+      {busy ? (
+        <Activity className="size-7 animate-pulse text-primary" />
+      ) : (
+        icon ?? null
+      )}
+      {title ? <h2 className="text-base font-semibold">{title}</h2> : null}
       <p className="max-w-xs text-sm text-muted-foreground">{message}</p>
+      {hint ? <p className="max-w-xs text-xs text-muted-foreground/80">{hint}</p> : null}
       {action}
     </div>
   );

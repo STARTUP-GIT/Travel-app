@@ -35,6 +35,7 @@ export default async function PathTrackerLivePage({
       <LiveTrackerScreen
         districtId={resolution.district.id}
         districtBase={`/${resolution.state.slug}/${resolution.district.slug}`}
+        googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY ?? ""}
       />
     </React.Suspense>
   );

@@ -14,9 +14,11 @@ import { LiveTracker } from "./live-tracker";
 export function LiveTrackerScreen({
   districtId,
   districtBase,
+  googleMapsApiKey,
 }: {
   districtId: string;
   districtBase: string;
+  googleMapsApiKey: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,6 +40,7 @@ export function LiveTrackerScreen({
       districtBase={districtBase}
       placeName={placeData?.name ?? fallbackName}
       placeCoordinate={placeCoordinate}
+      googleMapsApiKey={googleMapsApiKey}
       onTrackAgain={() => router.replace(`${districtBase}/path-tracker/live`)}
     />
   );

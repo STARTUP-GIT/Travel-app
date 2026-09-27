@@ -9,7 +9,11 @@ import {
   stopBackgroundLocationTask,
   getCurrentLocation,
   requestBackgroundPermission,
+  isGeolocationSupported,
+  queryGeolocationPermission,
+  getCurrentLocationDetailed,
 } from '../services/location-service';
+import type { GeoFailure } from '../services/location-service';
 import {
   initializeNetworkState,
   startNetworkListener,
@@ -17,6 +21,17 @@ import {
 import { tripEngine } from '../services/trip-service';
 import { sensorService } from '../services/sensor-service';
 import { Branding } from '../constants/theme';
+
+/**
+ * Resolved, always-terminating GPS acquisition state for the UI.
+ * - `initializing` a request is in flight (bounded by the service timeout)
+ * - `ready`       a valid position was accepted; the tracker is usable
+ * - `denied`      the user or the browser blocked location
+ * - `unavailable` no geolocation support, or no acceptable fix
+ * - `timeout`     the acquisition timed out
+ * `error` carries the reason so the screen can show a real message + retry.
+ */
+export type GpsPhase = 'initializing' | 'ready' | 'denied' | 'unavailable' | 'timeout';
 
 /**
  * Session host: wires the low-level location/network services to the TripEngine
@@ -33,6 +48,16 @@ export function useTripSession() {
 
   const [permissionLoading, setPermissionLoading] = useState(true);
   const [permissionGranted, setPermissionGranted] = useState(false);
+
+  /**
+   * Resolved acquisition state. Every path below terminates in `ready`,
+   * `denied`, `unavailable` or `timeout` — there is no branch that leaves the
+   * screen waiting indefinitely.
+   */
+  const [gpsPhase, setGpsPhase] = useState<GpsPhase>('initializing');
+  const [gpsError, setGpsError] = useState<GeoFailure | null>(null);
+  const [gpsSignalLost, setGpsSignalLost] = useState(false);
+  const acquisitionRef = useRef(0);
 
   /**
    * Deliberate deviation from the original (confirmed with the product owner).
@@ -55,6 +80,45 @@ export function useTripSession() {
   const mountedRef = useRef(true);
 
   /**
+   * ONE-SHOT position acquisition used to prepare the tracker.
+   *
+   * This is `getCurrentPosition`, not `watchPosition`, so opening the screen
+   * does not start a persistent location watcher. The accepted fix is pushed
+   * through the original store entry point (`setCurrentPosition` → engine
+   * `ingestFix`) so accuracy and validity follow the original rules. Because
+   * the engine has no trip in state IDLE, this cannot accumulate distance,
+   * start the trip timer, record route points or compute speed.
+   *
+   * Every outcome sets a terminal phase; `acquisitionRef` guards against a
+   * stale response overwriting a newer retry.
+   */
+  const acquireInitialFix = useCallback(async () => {
+    const token = ++acquisitionRef.current;
+    setGpsPhase('initializing');
+    setGpsError(null);
+
+    const result = await getCurrentLocationDetailed();
+    if (!mountedRef.current || token !== acquisitionRef.current) return;
+
+    if (result.ok) {
+      useTripStore.getState().setCurrentPosition(result.fix);
+      setHasInitialPosition(true);
+      setGpsPhase('ready');
+      setGpsError(null);
+      return;
+    }
+
+    setGpsPhase(
+      result.error.kind === 'PERMISSION_DENIED'
+        ? 'denied'
+        : result.error.kind === 'TIMEOUT'
+          ? 'timeout'
+          : 'unavailable'
+    );
+    setGpsError(result.error);
+  }, [setHasInitialPosition]);
+
+  /**
    * Check location permission. When `prompt` is true and access is not yet
    * granted, show the OS permission dialog. Runs automatically on mount with
    * prompt=false so the app never deadlocks waiting for a button press.
@@ -64,23 +128,58 @@ export function useTripSession() {
     requestingRef.current = true;
     if (mountedRef.current) setPermissionLoading(true);
     try {
-      let ok = await hasPermissions();
-      if (!ok && prompt) {
-        ok = await ensurePermissions();
+      if (!isGeolocationSupported()) {
+        if (!mountedRef.current) return;
+        setPermissionGranted(false);
+        setGpsPhase('unavailable');
+        setGpsError({
+          kind: 'UNSUPPORTED',
+          message: 'This browser does not provide location services.',
+        });
+        return;
       }
-      if (ok && prompt) {
-        // Best-effort background access; not required for foreground tracking.
+
+      // Real permission state. The original `hasPermissions()` only checks that
+      // the API exists, which is true even when the user has blocked location,
+      // so it cannot decide whether to show the tracker.
+      let state = await queryGeolocationPermission();
+
+      if (state === 'prompt' && prompt) {
+        // Trigger the OS/browser permission dialog, then re-read the state.
+        await ensurePermissions();
         await requestBackgroundPermission().catch(() => {});
+        state = await queryGeolocationPermission();
       }
+
       if (!mountedRef.current) return;
-      setPermissionGranted(ok);
+
+      if (state === 'denied') {
+        setPermissionGranted(false);
+        setGpsPhase('denied');
+        setGpsError({
+          kind: 'PERMISSION_DENIED',
+          message: 'Location permission is blocked for this site.',
+        });
+        return;
+      }
+
+      setPermissionGranted(true);
+      // 'granted' and 'prompt' both proceed to the one-shot acquisition below,
+      // which is what actually raises the browser prompt and reports the result.
+      void acquireInitialFix();
     } catch {
-      if (mountedRef.current) setPermissionGranted(false);
+      if (!mountedRef.current) return;
+      setPermissionGranted(false);
+      setGpsPhase('unavailable');
+      setGpsError({
+        kind: 'POSITION_UNAVAILABLE',
+        message: 'Location could not be initialised.',
+      });
     } finally {
       if (mountedRef.current) setPermissionLoading(false);
       requestingRef.current = false;
     }
-  }, []);
+  }, [acquireInitialFix]);
 
   // Auto-check existing permission on mount (no OS dialog yet).
   useEffect(() => {
@@ -102,10 +201,20 @@ export function useTripSession() {
 
     // GPS stream → store → engine (source of truth). GPS keeps running even
     // when the network or the map fails.
-    const cleanup = startGPSStream((fix) => {
-      setGPSActive(true);
-      useTripStore.getState().setCurrentPosition(fix);
-    });
+    const cleanup = startGPSStream(
+      (fix) => {
+        setGPSActive(true);
+        if (mountedRef.current) setGpsSignalLost(false);
+        useTripStore.getState().setCurrentPosition(fix);
+      },
+      (error) => {
+        // Report a lost signal so the UI can warn. Does not change tracking.
+        if (mountedRef.current) {
+          setGpsSignalLost(true);
+          setGpsError(error);
+        }
+      }
+    );
     gpsCleanupRef.current = cleanup;
 
     // Compass heading → engine (for return direction guidance)
@@ -134,6 +243,9 @@ export function useTripSession() {
   }, [setNetwork, setHasInitialPosition, setGPSActive]);
 
   const stop = useCallback(() => {
+    // Invalidate any in-flight one-shot acquisition so a late callback cannot
+    // set state after teardown.
+    acquisitionRef.current++;
     gpsCleanupRef.current?.();
     gpsCleanupRef.current = null;
     headingCleanupRef.current?.();
@@ -206,11 +318,65 @@ export function useTripSession() {
     });
   }, []);
 
+  /**
+   * Re-run the one-shot acquisition after a permission-denied / unavailable /
+   * timeout outcome. Re-checks permission first, because the user may have just
+   * re-enabled location in the browser's site settings.
+   */
+  const retryGps = useCallback(async () => {
+    if (requestingRef.current) return;
+    requestingRef.current = true;
+    if (mountedRef.current) {
+      setPermissionLoading(true);
+      setGpsPhase('initializing');
+      setGpsError(null);
+    }
+    try {
+      const state = await queryGeolocationPermission();
+      if (!mountedRef.current) return;
+      if (state === 'unsupported') {
+        setPermissionGranted(false);
+        setGpsPhase('unavailable');
+        setGpsError({
+          kind: 'UNSUPPORTED',
+          message: 'This browser does not provide location services.',
+        });
+        return;
+      }
+      if (state === 'denied') {
+        setPermissionGranted(false);
+        setGpsPhase('denied');
+        setGpsError({
+          kind: 'PERMISSION_DENIED',
+          message: 'Location permission is blocked for this site.',
+        });
+        return;
+      }
+      // 'granted' or 'prompt' — the acquisition below raises the prompt if needed.
+      setPermissionGranted(true);
+      await acquireInitialFix();
+    } catch {
+      if (!mountedRef.current) return;
+      setGpsPhase('unavailable');
+      setGpsError({
+        kind: 'POSITION_UNAVAILABLE',
+        message: 'Location could not be read. Please try again.',
+      });
+    } finally {
+      if (mountedRef.current) setPermissionLoading(false);
+      requestingRef.current = false;
+    }
+  }, [acquireInitialFix]);
+
   return {
     permissionLoading,
     permissionGranted,
     requestPermission,
     armTracking,
+    retryGps,
+    gpsPhase,
+    gpsError,
+    gpsSignalLost,
     online,
   };
 }
