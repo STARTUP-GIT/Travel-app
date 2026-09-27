@@ -402,10 +402,17 @@ export const listDistricts = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const countryId = typeof req.query.countryId === "string" ? req.query.countryId : undefined;
+    const status =
+      typeof req.query.status === "string" && (req.query.status === "active" || req.query.status === "offline")
+        ? req.query.status
+        : undefined;
     const districts = await prisma.district.findMany({
       where: {
         ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
         ...(stateId ? { stateId } : {}),
+        ...(countryId ? { state: { countryId } } : {}),
+        ...(status ? { isServiceAvailable: status === "active" } : {}),
       },
       include: {
         state: { include: { country: true } },
@@ -565,17 +572,21 @@ export const getUserById = async (req: Request, res: Response) => {
 export const listSpecificGuides = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
+    const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
     const guides = await prisma.specific_guide.findMany({
-      ...(search
-        ? {
-            where: {
+      where: {
+        ...(search
+          ? {
               OR: [
                 { full_name: { contains: search, mode: "insensitive" } },
                 { email: { contains: search, mode: "insensitive" } },
               ],
-            },
-          }
-        : {}),
+            }
+          : {}),
+        ...(districtId ? { place: { districtId } } : {}),
+        ...(stateId ? { place: { district: { stateId } } } : {}),
+      },
       select: {
         ...specificGuideSelect,
         place: { select: { id: true, name: true, images: true, district: { select: { id: true, name: true } } } },
@@ -606,17 +617,21 @@ export const getSpecificGuideById = async (req: Request, res: Response) => {
 export const listCommonGuides = async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
+    const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
     const guides = await prisma.common_guide.findMany({
-      ...(search
-        ? {
-            where: {
+      where: {
+        ...(search
+          ? {
               OR: [
                 { full_name: { contains: search, mode: "insensitive" } },
                 { email: { contains: search, mode: "insensitive" } },
               ],
-            },
-          }
-        : {}),
+            }
+          : {}),
+        ...(districtId ? { places: { some: { place: { districtId } } } } : {}),
+        ...(stateId ? { places: { some: { place: { district: { stateId } } } } } : {}),
+      },
       select: {
         ...commonGuideSelect,
         places: { include: { place: { select: { id: true, name: true, images: true, district: { select: { id: true, name: true } } } } } },
@@ -1307,20 +1322,24 @@ export const updatePlaceStatus = async (req: Request, res: Response) => {
 
 export const createPlace = async (req: Request, res: Response) => {
   try {
-    const { name, description, districtId, images, entryfee, category, latitude, longitude } = req.body ?? {};
+    const { name, description, districtId, images, entryfee, category, latitude, longitude, status } = req.body ?? {};
     if (typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ message: "name is required" });
     }
     if (typeof districtId !== "string" || !districtId.trim()) {
       return res.status(400).json({ message: "districtId is required" });
     }
-    const district = await prisma.district.findUnique({ where: { id: districtId } });
+    const district = await prisma.district.findUnique({
+      where: { id: districtId },
+      include: { state: true },
+    });
     if (!district) {
       return res.status(400).json({ message: "District not found" });
     }
-    const requestedStatus = getContentStatus(
-      (typeof status === "string" ? status : "") as string
-    );
+    if (!district.isServiceAvailable || !district.state.isServiceAvailable) {
+      return res.status(400).json({ message: "Selected district is currently disabled. Enable the state and district before creating new content." });
+    }
+    const requestedStatus = getContentStatus(status);
     const place = await prisma.place.create({
       data: {
         name: name.trim(),

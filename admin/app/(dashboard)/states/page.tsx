@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Inbox, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -37,6 +38,7 @@ import type { StateAdmin } from "@/lib/types";
 type StatusFilter = "all" | "active" | "offline";
 
 export default function StatesPage() {
+  const router = useRouter();
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [savingIds, setSavingIds] = React.useState<Set<string>>(new Set());
@@ -145,6 +147,7 @@ export default function StatesPage() {
               state={state}
               saving={savingIds.has(state.id)}
               onToggle={(next) => toggle(state.id, next)}
+              onViewDistricts={() => router.push(`/districts?stateId=${state.id}`)}
             />
           ))}
         </div>
@@ -157,13 +160,18 @@ function StateCard({
   state,
   saving,
   onToggle,
+  onViewDistricts,
 }: {
   state: StateAdmin;
   saving: boolean;
   onToggle: (next: boolean) => void;
+  onViewDistricts: () => void;
 }) {
   return (
-    <Card className="flex h-full flex-col gap-0 transition-colors hover:border-white/25">
+    <Card
+      className="flex h-full cursor-pointer flex-col gap-0 transition-colors hover:border-white/25"
+      onClick={onViewDistricts}
+    >
       <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 p-5 pb-0">
         <div className="min-w-0 space-y-1">
           <CardTitle className="truncate" title={state.name}>
@@ -182,7 +190,10 @@ function StateCard({
             <p className="text-sm font-medium">Service availability</p>
             <p className="text-xs text-muted-foreground">Offline until enabled.</p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div
+            className="flex shrink-0 items-center gap-2"
+            onClick={(event) => event.stopPropagation()}
+          >
             {saving ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
             <Switch
               checked={state.isServiceAvailable}
@@ -194,14 +205,27 @@ function StateCard({
         </div>
       </CardContent>
       <Separator />
-      <CardFooter className="flex flex-wrap items-center gap-x-3 gap-y-1 p-5 pt-4">
-        <span className="text-xs text-muted-foreground">
-          {state._count.districts} district{state._count.districts === 1 ? "" : "s"}
-        </span>
-        <CardDot />
-        <code className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={state.id}>
-          {state.id}
-        </code>
+      <CardFooter className="flex flex-col items-stretch gap-3 p-5 pt-4">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>
+            {state._count.districts} district{state._count.districts === 1 ? "" : "s"}
+          </span>
+          <CardDot />
+          <code className="min-w-0 truncate font-mono text-xs text-muted-foreground" title={state.id}>
+            {state.id}
+          </code>
+        </div>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onViewDistricts();
+          }}
+          className="inline-flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition hover:border-white/30 hover:bg-muted/30"
+        >
+          View Districts
+          <span aria-hidden="true">→</span>
+        </button>
       </CardFooter>
     </Card>
   );

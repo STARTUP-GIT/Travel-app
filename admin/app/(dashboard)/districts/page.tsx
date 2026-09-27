@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertTriangle, Inbox, Loader2 } from "lucide-react";
+import { AlertTriangle, ChevronRight, Inbox, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -37,23 +38,51 @@ import type { Country, DistrictAdmin, StateAdmin } from "@/lib/types";
 type StatusFilter = "all" | "active" | "offline";
 
 export default function DistrictsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = React.useState("");
   const [stateFilter, setStateFilter] = React.useState("all");
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [savingIds, setSavingIds] = React.useState<Set<string>>(new Set());
   const [patches, setPatches] = React.useState<Record<string, boolean>>({});
 
-  const { data: countriesData } = useAdminData<{ countries: Country[] }>("/admin/api/countries");
-  const { data: statesData } = useAdminData<{ states: StateAdmin[] }>("/admin/api/states");
+  const routeStateId = searchParams.get("stateId") ?? "";
+
+  const { data: countriesData } = useAdminData<{ countries: Country[] }>('/admin/api/countries');
+  const { data: statesData } = useAdminData<{ states: StateAdmin[] }>('/admin/api/states');
   const { data, loading, error, refetch } = useAdminData<{ districts: DistrictAdmin[] }>(
-    "/admin/api/districts"
+    "/admin/api/districts",
+    { query: routeStateId ? { stateId: routeStateId } : undefined }
   );
 
   const countries = React.useMemo(() => countriesData?.countries ?? [], [countriesData]);
   const states = React.useMemo(() => statesData?.states ?? [], [statesData]);
 
+  React.useEffect(() => {
+    if (routeStateId) {
+      setStateFilter(routeStateId);
+      setStatusFilter("all");
+      return;
+    }
+
+    const karnataka = states.find((state) => state.name.toLowerCase() === "karnataka");
+    if (karnataka) {
+      setStateFilter(karnataka.id);
+      router.replace(`/districts?stateId=${encodeURIComponent(karnataka.id)}`);
+      setStatusFilter("all");
+      return;
+    }
+
+    setStateFilter("all");
+  }, [routeStateId, states, router]);
+
   const india = countries.find((c) => c.name.toLowerCase() === "india");
   const countryValue = india ? india.id : "india";
+  const activeState = React.useMemo(
+    () => states.find((state) => state.id === stateFilter) ?? null,
+    [states, stateFilter]
+  );
+  const countryLabel = activeState?.country?.name ?? india?.name ?? "India";
 
   const displayDistricts = React.useMemo(
     () =>
@@ -106,8 +135,33 @@ export default function DistrictsPage() {
     <div>
       <PageHeader
         title="Districts"
-        subtitle="Manage service availability for all supported districts."
+        subtitle={routeStateId ? `Districts in ${activeState?.name ?? "selected state"}` : "Manage service availability for all supported districts."}
       />
+
+      <nav className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <button type="button" className="hover:text-foreground" onClick={() => router.push("/states")}>
+          Locations
+        </button>
+        <ChevronRight className="size-3.5" />
+        <button type="button" className="hover:text-foreground" onClick={() => router.push("/states")}>
+          States
+        </button>
+        {activeState ? (
+          <>
+            <ChevronRight className="size-3.5" />
+            <button type="button" className="hover:text-foreground" onClick={() => router.push(`/districts?stateId=${activeState.id}`)}>
+              {activeState.name}
+            </button>
+            <ChevronRight className="size-3.5" />
+            <span className="text-foreground">Districts</span>
+          </>
+        ) : (
+          <>
+            <ChevronRight className="size-3.5" />
+            <span className="text-foreground">Districts</span>
+          </>
+        )}
+      </nav>
 
       <div className="mb-6 grid gap-2 md:flex md:flex-wrap md:items-center">
         <SearchInput
@@ -124,7 +178,17 @@ export default function DistrictsPage() {
             <SelectItem value={countryValue}>{india?.name ?? "India"}</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={stateFilter} onValueChange={setStateFilter}>
+        <Select
+          value={stateFilter}
+          onValueChange={(next) => {
+            setStateFilter(next);
+            if (next === "all") {
+              router.replace("/districts");
+              return;
+            }
+            router.replace(`/districts?stateId=${encodeURIComponent(next)}`);
+          }}
+        >
           <SelectTrigger className="w-full md:w-44" aria-label="Filter by state">
             <SelectValue placeholder="All States" />
           </SelectTrigger>

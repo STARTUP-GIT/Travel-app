@@ -33,3 +33,44 @@ export function formatDateTime(value: string | Date | null | undefined): string 
     minute: "2-digit",
   });
 }
+
+export function parseGoogleMapsUrl(url: string): { latitude: number; longitude: number } | null {
+  if (!url || !url.includes("maps")) return null;
+
+  const normalized = url.trim();
+
+  try {
+    const match = normalized.match(/@(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)/i);
+    if (match) {
+      const latitude = Number(match[1]);
+      const longitude = Number(match[2]);
+      if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+        return { latitude, longitude };
+      }
+    }
+
+    const params = new URL(normalized);
+    const lat = Number(params.searchParams.get("lat") ?? params.searchParams.get("latitude"));
+    const lng = Number(
+      params.searchParams.get("lng") ??
+        params.searchParams.get("lon") ??
+        params.searchParams.get("longitude")
+    );
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return { latitude: lat, longitude: lng };
+    }
+  } catch {
+    // Fall through to a text-based parse below.
+  }
+
+  const textMatch = normalized.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/i);
+  if (textMatch) {
+    const latitude = Number(textMatch[1]);
+    const longitude = Number(textMatch[2]);
+    if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+      return { latitude, longitude };
+    }
+  }
+
+  return null;
+}
