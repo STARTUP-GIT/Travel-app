@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ import { ErrorState, LoadingState } from "@/components/admin/state";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { PlacePhotosField, type PlacePhoto } from "@/components/admin/place-photos-field";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import { cn, formatCurrency, parseGoogleMapsUrl } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 function Field({
   label,
@@ -82,6 +82,13 @@ export default function PlacesPage() {
   const [customCategory, setCustomCategory] = React.useState(false);
   const [entryfee, setEntryfee] = React.useState("");
   const [mapsUrl, setMapsUrl] = React.useState("");
+  const [resolvedLocation, setResolvedLocation] = React.useState<{
+    url: string;
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [resolvingLocation, setResolvingLocation] = React.useState(false);
+  const [locationResolutionFailed, setLocationResolutionFailed] = React.useState(false);
   const [photos, setPhotos] = React.useState<PlacePhoto[]>([]);
   const [stateId, setStateId] = React.useState("");
   const [districtId, setDistrictId] = React.useState("");
@@ -97,7 +104,7 @@ export default function PlacesPage() {
   const states = statesData?.states ?? [];
   const availableDistricts = (districtsData?.districts ?? []).filter((district) => district.isServiceAvailable);
   const lockedDistrict = contextDistrictData?.district;
-  const mapsCoordinates = React.useMemo(() => parseGoogleMapsUrl(mapsUrl), [mapsUrl]);
+  const mapsCoordinates = resolvedLocation?.url === mapsUrl.trim() ? resolvedLocation : null;
   const categories = React.useMemo(
     () => Array.from(new Set((data?.places ?? []).map((place) => place.category.trim()).filter(Boolean))),
     [data]
@@ -108,6 +115,45 @@ export default function PlacesPage() {
     setStateId(lockedDistrict.stateId);
     setDistrictId(lockedDistrict.id);
   }, [lockedDistrict]);
+
+  React.useEffect(() => {
+    const url = mapsUrl.trim();
+    setResolvedLocation(null);
+    setLocationResolutionFailed(false);
+    setResolvingLocation(false);
+    if (!url) return;
+
+    let active = true;
+    const timeout = window.setTimeout(() => {
+      setResolvingLocation(true);
+      void postJSON("/admin/api/places/resolve-location", { url })
+        .then((response) => {
+          if (!active || typeof response !== "object" || response === null) return;
+          const result = response as { latitude?: unknown; longitude?: unknown };
+          if (
+            typeof result.latitude !== "number" ||
+            typeof result.longitude !== "number" ||
+            !Number.isFinite(result.latitude) ||
+            !Number.isFinite(result.longitude)
+          ) {
+            setLocationResolutionFailed(true);
+            return;
+          }
+          setResolvedLocation({ url, latitude: result.latitude, longitude: result.longitude });
+        })
+        .catch(() => {
+          if (active) setLocationResolutionFailed(true);
+        })
+        .finally(() => {
+          if (active) setResolvingLocation(false);
+        });
+    }, 500);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [mapsUrl]);
 
   async function createPlace() {
     const selectedDistrictId = lockedDistrict?.id ?? districtId;
@@ -160,6 +206,8 @@ export default function PlacesPage() {
       setCustomCategory(false);
       setEntryfee("");
       setMapsUrl("");
+      setResolvedLocation(null);
+      setLocationResolutionFailed(false);
       photos.forEach((photo) => {
         if (photo.preview.startsWith("blob:")) URL.revokeObjectURL(photo.preview);
       });
@@ -418,16 +466,18 @@ export default function PlacesPage() {
                       type="url"
                       value={mapsUrl}
                       onChange={(e) => setMapsUrl(e.target.value)}
-                      placeholder="https://www.google.com/maps/@12.2958,76.6394,15z"
+                      placeholder="Paste Google Maps location link"
                       required
                     />
-                    {mapsCoordinates ? (
+                    {resolvingLocation ? (
+                      <p role="status" className="text-xs text-muted-foreground">Resolving Google Maps link…</p>
+                    ) : mapsCoordinates ? (
                       <div role="status" className="space-y-0.5 text-xs text-emerald-600">
-                        <p className="font-medium">Location detected</p>
+                        <p className="flex items-center gap-1 font-medium"><Check className="size-3.5" /> Location detected</p>
                         <p>Latitude: {mapsCoordinates.latitude}</p>
                         <p>Longitude: {mapsCoordinates.longitude}</p>
                       </div>
-                    ) : mapsUrl.trim() ? (
+                    ) : locationResolutionFailed ? (
                       <p role="alert" className="text-xs text-destructive">Could not determine coordinates from this Google Maps link.</p>
                     ) : null}
                   </Field>
@@ -443,7 +493,7 @@ export default function PlacesPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setCreating(false)}
-                    disabled={creating}
+                    disabled={creating || resolvingLocation || !mapsCoordinates}
                   >
                     Cancel
                   </Button>

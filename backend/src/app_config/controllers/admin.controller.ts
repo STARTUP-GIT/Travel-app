@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import prisma from "../../db/prisma.js";
+import { resolveGoogleMapsShortLink } from "../services/location-resolver.js";
 
 /**
  * Admin-only management endpoints. Everything in this folder is isolated to
@@ -423,6 +424,22 @@ export const listDistricts = async (req: Request, res: Response) => {
     return res.status(200).json({ districts });
   } catch (error) {
     return handleError(res, error);
+  }
+};
+
+export const resolvePlaceLocation = async (req: Request, res: Response) => {
+  const { url } = req.body ?? {};
+  if (typeof url !== "string") {
+    return res.status(400).json({ message: "A Google Maps short link is required" });
+  }
+
+  try {
+    const coordinates = await resolveGoogleMapsShortLink(url);
+    return res.status(200).json(coordinates);
+  } catch {
+    return res.status(422).json({
+      message: "Could not determine coordinates from this Google Maps link.",
+    });
   }
 };
 

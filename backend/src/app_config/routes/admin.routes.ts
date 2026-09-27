@@ -10,6 +10,7 @@ import {
   createState,
   deleteState,
   listDistricts,
+  resolvePlaceLocation,
   getDistrictById,
   updateDistrict,
   createDistrict,
@@ -90,6 +91,7 @@ router.patch("/districts/:id", updateDistrict);
 router.delete("/districts/:id", deleteDistrict);
 
 router.get("/places", listPlaces);
+router.post("/places/resolve-location", resolvePlaceLocation);
 router.get("/places/:id", getPlaceById);
 router.post("/places", createPlace);
 router.patch("/places/:id", updatePlace);
