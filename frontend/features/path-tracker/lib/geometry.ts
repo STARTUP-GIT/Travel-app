@@ -1,34 +1,76 @@
-import { haversineMeters, type GeoPoint } from "@/features/maps/lib/geo";
-import type { TripPoint } from "@/features/path-tracker/types";
+import { haversineDistance } from "./geo";
+import type { TripPoint } from "../types";
 
-export function toGeoPoint(p: TripPoint): GeoPoint {
-  return { latitude: p.lat, longitude: p.lng };
+export function toGeoPoint(p: TripPoint): { latitude: number; longitude: number } {
+  return { latitude: p.latitude, longitude: p.longitude };
 }
 
 export function toTripPoint(g: {
   latitude: number;
   longitude: number;
+  altitude?: number;
   accuracy?: number | null;
+  heading?: number;
+  speed?: number;
   timestamp: number;
 }): TripPoint {
   return {
-    lat: g.latitude,
-    lng: g.longitude,
+    latitude: g.latitude,
+    longitude: g.longitude,
+    altitude: g.altitude,
     accuracy: g.accuracy ?? null,
+    heading: g.heading,
+    speed: g.speed,
     timestamp: g.timestamp,
+    index: 0,
+  };
+}
+
+export function toTripPointWithIndex(g: {
+  latitude: number;
+  longitude: number;
+  altitude?: number;
+  accuracy?: number | null;
+  heading?: number;
+  speed?: number;
+  timestamp: number;
+}, index: number): TripPoint {
+  return {
+    latitude: g.latitude,
+    longitude: g.longitude,
+    altitude: g.altitude,
+    accuracy: g.accuracy ?? null,
+    heading: g.heading,
+    speed: g.speed,
+    timestamp: g.timestamp,
+    index,
   };
 }
 
 /**
- * Orthodrome-based helpers for drawing a real recorded route onto a canvas
- * without a map tile provider. Coordinates are projected with a simple
- * equirectangular approximation scoped to the route's bounding box.
+ * Cumulative distance along a path using Haversine formula.
  */
 export function cumulativeDistance(points: TripPoint[]): number | null {
   if (points.length < 2) return null;
   let total = 0;
   for (let i = 1; i < points.length; i++) {
-    const d = haversineMeters(toGeoPoint(points[i - 1]), toGeoPoint(points[i]));
+    const d = haversineDistance(
+      { latitude: points[i - 1].latitude, longitude: points[i - 1].longitude },
+      { latitude: points[i].latitude, longitude: points[i].longitude }
+    );
+    if (Number.isFinite(d) && d > 0) total += d;
+  }
+  return Math.round(total);
+}
+
+export function cumulativeDistanceLegacy(points: { lat: number; lng: number }[]): number | null {
+  if (points.length < 2) return null;
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    const d = haversineDistance(
+      { latitude: points[i - 1].lat, longitude: points[i - 1].lng },
+      { latitude: points[i].lat, longitude: points[i].lng }
+    );
     if (Number.isFinite(d) && d > 0) total += d;
   }
   return Math.round(total);
@@ -42,8 +84,8 @@ export function projectPoints(
   height = 100
 ): ProjectedPoint[] {
   if (points.length === 0) return [];
-  const lats = points.map((p) => p.lat);
-  const lngs = points.map((p) => p.lng);
+  const lats = points.map((p) => p.latitude);
+  const lngs = points.map((p) => p.longitude);
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
   const minLng = Math.min(...lngs);
@@ -56,8 +98,8 @@ export function projectPoints(
   const lngScale = width / dLng;
 
   return points.map((p) => ({
-    x: +(((p.lng - minLng) * lngScale).toFixed(2)),
-    y: +((height - (p.lat - minLat) * latScale).toFixed(2)),
+    x: +(((p.longitude - minLng) * lngScale).toFixed(2)),
+    y: +((height - (p.latitude - minLat) * latScale).toFixed(2)),
   }));
 }
 

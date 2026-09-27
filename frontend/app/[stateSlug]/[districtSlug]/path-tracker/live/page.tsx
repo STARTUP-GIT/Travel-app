@@ -18,19 +18,20 @@ import { toast } from "sonner";
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { BookingSummary } from "@/components/shared/booking-summary";
 import { Button } from "@/components/ui/button";
-import { useGeolocation, type GeoSnapshot } from "@/lib/hooks/use-geolocation";
+import { useGeolocation } from "@/lib/hooks/use-geolocation";
 import { usePlace } from "@/features/places/hooks/usePlaces";
-import { haversineMeters } from "@/features/maps/lib/geo";
+import { haversineDistance } from "@/features/path-tracker/lib/geo";
 import {
-  cumulativeDistance,
   formatDistance,
   formatDuration,
   projectPoints,
-  toGeoPoint,
-  toTripPoint,
 } from "@/features/path-tracker/lib/geometry";
 import { saveTrip } from "@/features/path-tracker/api/path-tracker.api";
-import type { TripDestination, TripPoint } from "@/features/path-tracker/types";
+import {
+  tripEngine,
+  type Coordinate,
+  type TripPoint,
+} from "@/features/path-tracker/lib/trip-engine";
 import { cn } from "@/lib/utils";
 
 const TRACK_W = 320;
@@ -48,46 +49,66 @@ export default function LiveTrackerPage() {
   const place = usePlace(districtSlug, placeId.length ? placeId : undefined);
   const { supported, status, position, start, stop, error } = useGeolocation();
 
-  const pointsRef = React.useRef<TripPoint[]>([]);
-  const [points, setPoints] = React.useState<TripPoint[]>([]);
-  const [recording, setRecording] = React.useState(false);
-  const [startedAt, setStartedAt] = React.useState<string | null>(null);
-  const [elapsed, setElapsed] = React.useState(0);
+  // Get trip state from the engine
+  const trip = tripEngine.getTrip();
+  const stats = trip ? tripEngine.getSnapshot().stats : null;
+  const movementState = tripEngine.getMovementState();
+  const isCalibrating = tripEngine.getIsCalibrating();
+
   const [finished, setFinished] = React.useState<{
     distanceMeters: number | null;
     duration: string;
     pointCount: number;
   } | null>(null);
 
+  // Keep a ref to the points for the finished state display
+  const pointsRef = React.useRef<TripPoint[]>([]);
+
+  // Subscribe to engine updates
+  React.useEffect(() => {
+    const unsubscribe = tripEngine.subscribe(() => {
+      // Update points ref and trigger re-render
+      pointsRef.current = tripEngine.getTrip()?.points ?? [];
+    });
+    return unsubscribe;
+  }, []);
+
+  // Get current points from engine (synced via ref)
+  const points = pointsRef.current;
   const lastPoint = points[points.length - 1] ?? null;
+
+  // Distance to destination
   const distanceToDest =
     place.data && lastPoint
-      ? haversineMeters(toGeoPoint(lastPoint), place.data)
+      ? haversineDistance(
+          { latitude: lastPoint.latitude, longitude: lastPoint.longitude },
+          { latitude: place.data.latitude, longitude: place.data.longitude }
+        )
       : null;
 
-  // Keep a live clock while recording.
+  // Prepare the GPS watch - only start when user explicitly starts tracking
   React.useEffect(() => {
-    if (!recording || !startedAt) return;
-    const t = setInterval(() => setElapsed(Date.now() - new Date(startedAt).getTime()), 1000);
-    return () => clearInterval(t);
-  }, [recording, startedAt]);
+    // Do NOT start GPS automatically - wait for user to press Start
+  }, []);
 
-  // Watch the GPS fix and append it while recording.
-  const lastPush = React.useRef<string>("");
+  // Feed GPS fixes to the engine when recording
   React.useEffect(() => {
-    if (!recording || !position) return;
-    const key = `${position.latitude.toFixed(6)},${position.longitude.toFixed(6)},${Math.round(position.timestamp / 1000)}`;
-    if (lastPush.current === key) return;
-    lastPush.current = key;
-    const next = [...pointsRef.current, toTripPoint(position)];
-    pointsRef.current = next;
-    setPoints(next);
-  }, [recording, position]);
+    if (!trip || trip.state !== 'ACTIVE' && trip.state !== 'RETURNING') return;
+    if (!position) return;
 
-  // Prepare the GPS watch on mount.
-  React.useEffect(() => {
-    if (supported && status === "idle") start();
-  }, [supported, status, start]);
+    // Convert browser GeolocationPosition to Coordinate
+    const coord: Coordinate = {
+      latitude: position.latitude,
+      longitude: position.longitude,
+      accuracy: position.accuracy ?? undefined,
+      speed: position.speed ?? undefined,
+      heading: position.heading ?? undefined,
+      timestamp: position.timestamp,
+    };
+
+    // Feed to engine (non-blocking)
+    tripEngine.ingestFix(coord);
+  }, [position, trip]);
 
   function beginRecording() {
     if (!supported) {
@@ -99,40 +120,88 @@ export default function LiveTrackerPage() {
       start();
       return;
     }
-    pointsRef.current = [];
-    lastPush.current = "";
-    if (position) pointsRef.current = [toTripPoint(position)];
-    setPoints(pointsRef.current);
-    setStartedAt(new Date().toISOString());
-    setElapsed(0);
-    setRecording(true);
-    toast.success("Tracking started", { description: "Keep the app open — we're recording your real route." });
+
+    // Start GPS tracking first
+    start();
+
+    // Give GPS a moment to get initial position, then start the trip
+    setTimeout(() => {
+      if (position) {
+        // Feed the initial position to the engine
+        tripEngine.setCurrentPosition(position as unknown as Coordinate);
+        tripEngine.ingestFix(position as unknown as Coordinate);
+      }
+      // Start the trip in the engine
+      tripEngine.createTrip();
+      toast.success("Tracking started", { description: "Keep the app open — we're recording your real route." });
+    }, 500);
   }
 
-  function endRecording() {
-    setRecording(false);
-    const travelled = cumulativeDistance(pointsRef.current);
-    const destination: TripDestination = {
-      id: place.data?.id ?? placeId,
-      name: place.data?.name ?? placeName,
-      districtSlug,
-    };
-    saveTrip({
-      id: crypto.randomUUID(),
-      destination,
-      startedAt: startedAt ?? new Date().toISOString(),
-      endedAt: new Date().toISOString(),
-      distanceMeters: travelled,
-      points: pointsRef.current,
-      status: "completed",
-    });
-    setFinished({
-      distanceMeters: travelled,
-      duration: formatDuration(startedAt),
-      pointCount: pointsRef.current.length,
-    });
+  async function endRecording() {
+    // Stop the trip in the engine first
+    const completedTrip = await tripEngine.endTrip();
+
+    // Stop GPS
     stop();
+
+    // Save the trip
+    if (completedTrip) {
+      const destination: any = {
+        id: place.data?.id ?? placeId,
+        name: place.data?.name ?? placeName,
+        districtSlug,
+        latitude: place.data?.latitude,
+        longitude: place.data?.longitude,
+      };
+      saveTrip({
+        id: completedTrip.id,
+        destination,
+        startedAt: new Date(completedTrip.startTime).toISOString(),
+        endedAt: new Date().toISOString(),
+        distanceMeters: completedTrip.totalDistance,
+        points: completedTrip.points.map((p, i) => ({
+          latitude: p.latitude,
+          longitude: p.longitude,
+          altitude: p.altitude,
+          accuracy: p.accuracy,
+          heading: p.heading,
+          speed: p.speed,
+          timestamp: p.timestamp,
+          index: i,
+        })),
+        status: "completed",
+      });
+
+      setFinished({
+        distanceMeters: completedTrip.totalDistance,
+        duration: formatDuration(completedTrip.activeDurationMs),
+        pointCount: completedTrip.points.length,
+      });
+    } else {
+      // Fallback if engine returned null
+      const points = pointsRef.current;
+      const travelled = points.length > 1
+        ? calculateDistance(points)
+        : 0;
+      setFinished({
+        distanceMeters: travelled,
+        duration: "00:00",
+        pointCount: points.length,
+      });
+    }
+
     toast.success("Trip saved", { description: "Your completed route is under Path Tracker." });
+  }
+
+  function calculateDistance(points: TripPoint[]): number {
+    let total = 0;
+    for (let i = 1; i < points.length; i++) {
+      total += haversineDistance(
+        { latitude: points[i-1].latitude, longitude: points[i-1].longitude },
+        { latitude: points[i].latitude, longitude: points[i].longitude }
+      );
+    }
+    return total;
   }
 
   return (
@@ -166,7 +235,7 @@ export default function LiveTrackerPage() {
               title="Trip details"
               rows={[
                 { label: "Destination", value: place.data?.name ?? placeName, strong: true },
-                { label: "Distance travelled", value: formatDistance(finished.distanceMeters) || "—" },
+                { label: "Distance travelled", value: formatDistance(finished.distanceMeters ?? 0) || "—" },
                 { label: "Duration", value: finished.duration },
                 { label: "Track points", value: `${finished.pointCount}` },
               ]}
@@ -184,7 +253,7 @@ export default function LiveTrackerPage() {
         ) : (
           <div className="space-y-4">
             {/* Status card */}
-            {!recording ? (
+            {!trip || trip.state === 'IDLE' ? (
               <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4">
                 <span className={cn(
                   "flex size-10 shrink-0 items-center justify-center rounded-xl",
@@ -207,8 +276,8 @@ export default function LiveTrackerPage() {
 
             {/* Route drawing */}
             <div className="card-surface relative overflow-hidden rounded-3xl p-3">
-              <TrackSvg points={points} recording={recording} />
-              {recording && lastPoint ? (
+              <TrackSvg points={points} recording={!!trip && (trip.state === 'ACTIVE' || trip.state === 'RETURNING')} />
+              {trip && (trip.state === 'ACTIVE' || trip.state === 'RETURNING') && lastPoint ? (
                 <span className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-primary-foreground shadow">
                   ● Recording
                 </span>
@@ -216,29 +285,37 @@ export default function LiveTrackerPage() {
             </div>
 
             {/* Live stats */}
-            {recording ? (
+            {trip && (trip.state === 'ACTIVE' || trip.state === 'RETURNING') ? (
               <div className="grid grid-cols-2 gap-2 text-center">
-                <Stat label="Distance travelled" value={formatDistance(cumulativeDistance(points)) || "0 m"} />
-                <Stat label="Time elapsed" value={formatDuration(startedAt && new Date(startedAt).toISOString())} />
+                <Stat label="Distance travelled" value={formatDistance(stats?.distance ?? 0) || "0 m"} />
+                <Stat label="Time elapsed" value={formatDuration(stats?.activeDurationMs ?? 0)} />
               </div>
             ) : null}
 
-            {lastPoint && !recording ? (
+            {lastPoint && trip && (trip.state === 'IDLE' || trip.state === 'COMPLETED') ? (
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm">
                 <span className="text-muted-foreground">Distance to {place.data?.name ?? placeName}</span>
-                <span className="font-semibold text-primary">{formatDistance(distanceToDest)}</span>
+                <span className="font-semibold text-primary">{formatDistance(distanceToDest ?? 0)}</span>
               </div>
             ) : null}
 
-            {recording ? (
+            {trip && (trip.state === 'ACTIVE' || trip.state === 'RETURNING') ? (
               <p className="text-center text-xs text-muted-foreground">
                 Accuracy:{" "}
                 {lastPoint?.accuracy ? `±${Math.round(lastPoint.accuracy)} m` : "…"}
               </p>
             ) : null}
 
+            {/* Movement state indicator */}
+            {trip && (trip.state === 'ACTIVE' || trip.state === 'RETURNING') && (
+              <div className="text-center text-xs text-muted-foreground">
+                Status: {movementState}
+                {isCalibrating && <span className="ml-2">(calibrating…)</span>}
+              </div>
+            )}
+
             {/* Controls */}
-            {!recording ? (
+            {!trip || trip.state === 'IDLE' ? (
               <Button variant="action" size="lg" className="w-full rounded-2xl" onClick={beginRecording}>
                 <Play className="size-5" /> Start tracking
               </Button>
@@ -248,7 +325,7 @@ export default function LiveTrackerPage() {
               </Button>
             )}
 
-            {!recording && status === "error" ? (
+            {!trip && status === "error" ? (
               <div className="flex items-center gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
                 <AlertTriangle className="size-4 shrink-0" />
                 Enable location permission in your browser to track your route.

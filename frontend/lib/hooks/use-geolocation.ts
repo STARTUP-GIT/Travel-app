@@ -5,8 +5,9 @@ import * as React from "react";
 export type GeoSnapshot = {
   latitude: number;
   longitude: number;
-  accuracy?: number | null;
-  speed?: number | null;
+  accuracy?: number;
+  speed?: number;
+  heading?: number;
   timestamp: number;
 };
 
@@ -52,8 +53,9 @@ export function useGeolocation(options?: PositionOptions) {
           position: {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            speed: pos.coords.speed,
+            accuracy: pos.coords.accuracy ?? undefined,
+            speed: pos.coords.speed ?? undefined,
+            heading: pos.coords.heading ?? undefined,
             timestamp: pos.timestamp,
           },
           error: null,
