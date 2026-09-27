@@ -193,7 +193,12 @@ class TripEngine {
 
     // Update centroid and spread
     if (this.positionHistory.length >= 3) {
-      this.positionCentroid = computeCentroid(this.positionHistory);
+      const centroid = computeCentroid(this.positionHistory);
+      this.positionCentroid = {
+        latitude: centroid.latitude,
+        longitude: centroid.longitude,
+        timestamp: centroid.timestamp ?? this.positionHistory[this.positionHistory.length - 1].timestamp,
+      };
       this.positionSpreadM = averageDistanceFromCentroid(
         this.positionHistory,
         this.positionCentroid
@@ -606,7 +611,7 @@ class TripEngine {
       this.returnState.reconnectPoint = {
         latitude: res.projectedPoint.latitude,
         longitude: res.projectedPoint.longitude,
-        timestamp: res.projectedPoint.timestamp ?? Date.now(),
+        timestamp: res.projectedPoint.timestamp ?? pos.timestamp,
       };
 
       // Route progress continuity constraint
@@ -649,7 +654,11 @@ class TripEngine {
           res.distanceToCorridor > OffRouteConfig.thresholdMeters;
       }
 
-      this.evaluateOffRoute(deviated, pos, res.projectedPoint);
+      this.evaluateOffRoute(deviated, pos, {
+        latitude: res.projectedPoint.latitude,
+        longitude: res.projectedPoint.longitude,
+        timestamp: res.projectedPoint.timestamp ?? pos.timestamp,
+      });
     }
   }
 

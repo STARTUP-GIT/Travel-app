@@ -102,10 +102,10 @@ export function pointToSegmentDistance(
 
 /** Project a point onto line segment [a, b]. */
 export function projectPointOnSegment(
-  point: { latitude: number; longitude: number; timestamp: number },
+  point: { latitude: number; longitude: number; timestamp?: number },
   a: { latitude: number; longitude: number },
   b: { latitude: number; longitude: number }
-): { projectedPoint: { latitude: number; longitude: number; timestamp: number }; t: number; distanceMeters: number } {
+): { projectedPoint: { latitude: number; longitude: number; timestamp?: number }; t: number; distanceMeters: number } {
   const Ax = toRad(a.latitude);
   const Ay = toRad(a.longitude);
   const Bx = toRad(b.latitude);
@@ -126,7 +126,7 @@ export function projectPointOnSegment(
 
   const projLat = a.latitude + t * (b.latitude - a.latitude);
   const projLng = a.longitude + t * (b.longitude - a.longitude);
-  const projectedPoint: { latitude: number; longitude: number; timestamp: number } = {
+  const projectedPoint: { latitude: number; longitude: number; timestamp?: number } = {
     latitude: projLat,
     longitude: projLng,
     timestamp: point.timestamp,
@@ -139,8 +139,8 @@ export function projectPointOnSegment(
 /** Find nearest segment of a polyline corridor to a given point. */
 export function findNearestSegmentAndProjection(
   point: { latitude: number; longitude: number },
-  line: { latitude: number; longitude: number }[]
-): { segmentIndex: number; projectedPoint: { latitude: number; longitude: number }; distanceMeters: number } | null {
+  line: { latitude: number; longitude: number; timestamp?: number }[]
+): { segmentIndex: number; projectedPoint: { latitude: number; longitude: number; timestamp?: number }; distanceMeters: number } | null {
   if (!line || line.length === 0) return null;
   if (line.length === 1) {
     return {
@@ -152,7 +152,7 @@ export function findNearestSegmentAndProjection(
 
   let minDistance = Infinity;
   let bestSegment = 0;
-  let bestProj: { latitude: number; longitude: number } = line[0];
+  let bestProj: { latitude: number; longitude: number; timestamp?: number } = line[0];
 
   for (let i = 0; i < line.length - 1; i++) {
     const { projectedPoint, distanceMeters } = projectPointOnSegment(point, line[i], line[i + 1]);
@@ -177,9 +177,9 @@ export function extractSamePathReturnCorridor(
   recordedPath: { latitude: number; longitude: number; timestamp?: number }[],
   currentPosition: { latitude: number; longitude: number }
 ): {
-  returnCorridor: { latitude: number; longitude: number }[];
+  returnCorridor: { latitude: number; longitude: number; timestamp?: number }[];
   remainingDistance: number;
-  projectedPoint: { latitude: number; longitude: number; timestamp: number };
+  projectedPoint: { latitude: number; longitude: number; timestamp?: number };
   segmentIndex: number;
   distanceToCorridor: number;
 } | null {
@@ -202,13 +202,13 @@ export function extractSamePathReturnCorridor(
   const { segmentIndex, projectedPoint, distanceMeters } = nearest;
 
   // recordedPath slice from P0 up to segmentIndex
-  const slicedForward: { latitude: number; longitude: number; timestamp: number }[] = [];
+  const slicedForward: { latitude: number; longitude: number; timestamp?: number }[] = [];
   for (let i = 0; i <= segmentIndex; i++) {
     const pt = recordedPath[i];
     slicedForward.push({
       latitude: pt.latitude,
       longitude: pt.longitude,
-      timestamp: pt.timestamp ?? Date.now(),
+      timestamp: pt.timestamp,
     });
   }
   slicedForward.push(projectedPoint);
@@ -334,7 +334,7 @@ export function formatDuration(ms: number): string {
 // Movement-confidence helpers
 
 /** Geographic centroid (mean lat/lng) of a set of coordinates. */
-export function computeCentroid(coords: { latitude: number; longitude: number }[]): { latitude: number; longitude: number; timestamp: number } {
+export function computeCentroid(coords: { latitude: number; longitude: number; timestamp?: number }[]): { latitude: number; longitude: number; timestamp?: number } {
   if (coords.length === 0) return { latitude: 0, longitude: 0, timestamp: 0 };
   let latSum = 0;
   let lngSum = 0;
@@ -345,7 +345,7 @@ export function computeCentroid(coords: { latitude: number; longitude: number }[
   return {
     latitude: latSum / coords.length,
     longitude: lngSum / coords.length,
-    timestamp: coords[coords.length - 1].timestamp,
+    timestamp: coords[coords.length - 1].timestamp ?? 0,
   };
 }
 

@@ -20,10 +20,9 @@ import { BookingSummary } from "@/components/shared/booking-summary";
 import { Button } from "@/components/ui/button";
 import { useGeolocation } from "@/lib/hooks/use-geolocation";
 import { usePlace } from "@/features/places/hooks/usePlaces";
-import { haversineDistance } from "@/features/path-tracker/lib/geo";
+import { haversineDistance, formatDuration } from "@/features/path-tracker/lib/geo";
 import {
   formatDistance,
-  formatDuration,
   projectPoints,
 } from "@/features/path-tracker/lib/geometry";
 import { saveTrip } from "@/features/path-tracker/api/path-tracker.api";

@@ -99,8 +99,8 @@ export async function getCurrentPosition(): Promise<GeoSnapshot | null> {
     return {
       latitude: pos.coords.latitude,
       longitude: pos.coords.longitude,
-      accuracy: pos.coords.accuracy,
-      speed: pos.coords.speed,
+      accuracy: pos.coords.accuracy ?? undefined,
+      speed: pos.coords.speed ?? undefined,
       timestamp: pos.timestamp,
     };
   } catch {
