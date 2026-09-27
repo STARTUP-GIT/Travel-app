@@ -22,9 +22,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PlacePhotosField, photosFromUrls, type PlacePhoto } from "@/components/admin/place-photos-field";
 import { patchJSON } from "@/lib/api/mutate";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, parseGoogleMapsUrl } from "@/lib/utils";
 import type { PlaceAdminDetail } from "@/lib/types";
 
 export default function PlaceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,9 +40,9 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
   const [description, setDescription] = React.useState("");
   const [category, setCategory] = React.useState("");
   const [entryfee, setEntryfee] = React.useState("");
-  const [latitude, setLatitude] = React.useState("");
-  const [longitude, setLongitude] = React.useState("");
-  const [images, setImages] = React.useState("");
+  const [mapsUrl, setMapsUrl] = React.useState("");
+  const [photos, setPhotos] = React.useState<PlacePhoto[]>([]);
+  const mapsCoordinates = React.useMemo(() => parseGoogleMapsUrl(mapsUrl), [mapsUrl]);
 
   React.useEffect(() => {
     if (!data?.place) return;
@@ -50,9 +51,8 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
     setDescription(p.description);
     setCategory(p.category);
     setEntryfee(String(p.entryfee ?? 0));
-    setLatitude(String(p.latitude ?? ""));
-    setLongitude(String(p.longitude ?? ""));
-    setImages((p.images ?? []).join("\n"));
+    setMapsUrl("");
+    setPhotos(photosFromUrls(p.images ?? []));
   }, [data]);
 
   const place = data?.place;
@@ -60,18 +60,31 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!place) return;
-    const imageList = images
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const fee = Number(entryfee);
+    if (!Number.isFinite(fee) || fee < 0) {
+      toast.error("Entry fee must be zero or greater");
+      return;
+    }
+    if (mapsUrl.trim() && !mapsCoordinates) {
+      toast.error("Could not determine coordinates from this Google Maps link.");
+      return;
+    }
+    if (photos.some((photo) => photo.uploading || photo.error || !photo.url)) {
+      toast.error("Wait for all photos to upload successfully");
+      return;
+    }
+    const imageList = photos.map((photo) => photo.url);
     const body: Record<string, unknown> = {
       ...(name !== place.name ? { name } : {}),
       ...(description !== place.description ? { description } : {}),
       ...(category !== place.category ? { category } : {}),
-      ...(trimNum(entryfee) !== place.entryfee ? { entryfee: Number(entryfee) } : {}),
-      ...(trimNum(latitude) !== place.latitude ? { latitude: Number(latitude) } : {}),
-      ...(trimNum(longitude) !== place.longitude ? { longitude: Number(longitude) } : {}),
-      ...(images !== (place.images ?? []).join("\n") ? { images: imageList } : {}),
+      ...(fee !== place.entryfee ? { entryfee: fee } : {}),
+      ...(mapsCoordinates && (mapsCoordinates.latitude !== place.latitude || mapsCoordinates.longitude !== place.longitude)
+        ? { latitude: mapsCoordinates.latitude, longitude: mapsCoordinates.longitude }
+        : {}),
+      ...(imageList.length !== (place.images ?? []).length || imageList.some((image, index) => image !== place.images[index])
+        ? { images: imageList }
+        : {}),
     };
     if (Object.keys(body).length === 0) {
       toast.info("No changes to save");
@@ -118,24 +131,45 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
                   <Field label="Name" className="sm:col-span-2">
                     <Input value={name} onChange={(e) => setName(e.target.value)} required />
                   </Field>
+                  <Field label="State">
+                    <Input value={place.district?.state?.name ?? "—"} readOnly />
+                  </Field>
+                  <Field label="District">
+                    <Input value={place.district?.name ?? "—"} readOnly />
+                  </Field>
                   <Field label="Category">
                     <Input value={category} onChange={(e) => setCategory(e.target.value)} />
                   </Field>
                   <Field label="Entry fee (₹)">
-                    <Input type="number" step="any" value={entryfee} onChange={(e) => setEntryfee(e.target.value)} />
+                    <Input type="number" min="0" step="any" value={entryfee} onChange={(e) => setEntryfee(e.target.value)} />
                   </Field>
-                  <Field label="Latitude">
-                    <Input type="number" step="any" value={latitude} onChange={(e) => setLatitude(e.target.value)} />
-                  </Field>
-                  <Field label="Longitude">
-                    <Input type="number" step="any" value={longitude} onChange={(e) => setLongitude(e.target.value)} />
+                  <Field label="Google Maps Location" className="sm:col-span-2">
+                    <Input
+                      type="url"
+                      value={mapsUrl}
+                      onChange={(e) => setMapsUrl(e.target.value)}
+                      placeholder="Paste a Google Maps location link to update coordinates"
+                    />
+                    {mapsCoordinates ? (
+                      <div role="status" className="space-y-0.5 text-xs text-emerald-600">
+                        <p className="font-medium">Location detected</p>
+                        <p>Latitude: {mapsCoordinates.latitude}</p>
+                        <p>Longitude: {mapsCoordinates.longitude}</p>
+                      </div>
+                    ) : mapsUrl.trim() ? (
+                      <p role="alert" className="text-xs text-destructive">Could not determine coordinates from this Google Maps link.</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        Saved coordinates: {place.latitude}, {place.longitude}
+                      </p>
+                    )}
                   </Field>
                 </div>
                 <Field label="Description">
                   <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
                 </Field>
-                <Field label="Image URLs (one per line)">
-                  <Textarea value={images} onChange={(e) => setImages(e.target.value)} rows={4} />
+                <Field label="Photos">
+                  <PlacePhotosField value={photos} onChange={setPhotos} />
                 </Field>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={saving}>
@@ -286,8 +320,4 @@ function Field({
       {children}
     </div>
   );
-}
-
-function trimNum(v: string | number): number | "" {
-  return v === "" || v === null || v === undefined ? "" : Number(v);
 }

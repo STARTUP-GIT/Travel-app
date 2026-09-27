@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -46,6 +46,13 @@ export default function DistrictDetailPage({ params }: { params: Promise<{ id: s
             <ArrowLeft className="size-4" /> All districts
           </Link>
         </Button>
+        {district ? (
+          <Button asChild size="sm" className="bg-zinc-900 text-white hover:bg-zinc-800">
+            <Link href={`/places?districtId=${encodeURIComponent(district.id)}`}>
+              <Plus className="size-4" /> Add place
+            </Link>
+          </Button>
+        ) : null}
       </PageHeader>
 
       {loading ? (

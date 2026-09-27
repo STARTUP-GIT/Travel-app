@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -18,6 +18,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { patchJSON, postJSON } from "@/lib/api/mutate";
 import { DataTable, type Column } from "@/components/admin/data-table";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -26,8 +33,9 @@ import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { PlacePhotosField, type PlacePhoto } from "@/components/admin/place-photos-field";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, parseGoogleMapsUrl } from "@/lib/utils";
 
 function Field({
   label,
@@ -54,9 +62,12 @@ function Field({
 }
 
 import type { ContentApprovalStatus, PlaceAdmin } from "@/lib/types";
+import type { DistrictAdmin, StateAdmin } from "@/lib/types";
 
 export default function PlacesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const routeDistrictId = searchParams.get("districtId") ?? "";
   const [search, setSearch] = React.useState("");
   const [status, setStatus] = React.useState<"ALL" | ContentApprovalStatus>("ALL");
   const { data, loading, error, refetch } = useAdminData<{ places: PlaceAdmin[] }>(
@@ -68,32 +79,70 @@ export default function PlacesPage() {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [category, setCategory] = React.useState("");
+  const [customCategory, setCustomCategory] = React.useState(false);
   const [entryfee, setEntryfee] = React.useState("");
-  const [latitude, setLatitude] = React.useState("");
-  const [longitude, setLongitude] = React.useState("");
-  const [images, setImages] = React.useState("");
+  const [mapsUrl, setMapsUrl] = React.useState("");
+  const [photos, setPhotos] = React.useState<PlacePhoto[]>([]);
+  const [stateId, setStateId] = React.useState("");
   const [districtId, setDistrictId] = React.useState("");
+  const { data: statesData } = useAdminData<{ states: StateAdmin[] }>("/admin/api/states");
+  const { data: districtsData, loading: districtsLoading } = useAdminData<{ districts: DistrictAdmin[] }>(
+    "/admin/api/districts",
+    { query: stateId ? { stateId } : undefined, enabled: Boolean(stateId) }
+  );
+  const { data: contextDistrictData } = useAdminData<{ district: DistrictAdmin }>(
+    `/admin/api/districts/${routeDistrictId}`,
+    { enabled: Boolean(routeDistrictId) }
+  );
+  const states = statesData?.states ?? [];
+  const availableDistricts = (districtsData?.districts ?? []).filter((district) => district.isServiceAvailable);
+  const lockedDistrict = contextDistrictData?.district;
+  const mapsCoordinates = React.useMemo(() => parseGoogleMapsUrl(mapsUrl), [mapsUrl]);
+  const categories = React.useMemo(
+    () => Array.from(new Set((data?.places ?? []).map((place) => place.category.trim()).filter(Boolean))),
+    [data]
+  );
+
+  React.useEffect(() => {
+    if (!lockedDistrict) return;
+    setStateId(lockedDistrict.stateId);
+    setDistrictId(lockedDistrict.id);
+  }, [lockedDistrict]);
 
   async function createPlace() {
-    if (!name.trim() || !districtId.trim()) {
+    const selectedDistrictId = lockedDistrict?.id ?? districtId;
+    const fee = Number(entryfee);
+    if (!name.trim() || !selectedDistrictId) {
       toast.error("Name and district are required");
+      return;
+    }
+    if (!category.trim()) {
+      toast.error("Category is required");
+      return;
+    }
+    if (entryfee === "" || !Number.isFinite(fee) || fee < 0) {
+      toast.error("Entry fee must be zero or greater");
+      return;
+    }
+    if (!mapsCoordinates) {
+      toast.error("Enter a valid Google Maps location link");
+      return;
+    }
+    if (photos.some((photo) => photo.uploading || photo.error || !photo.url)) {
+      toast.error("Wait for all photos to upload successfully");
       return;
     }
     setCreating(true);
     try {
-      const imageList = images
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean);
       await postJSON("/admin/api/places", {
         name: name.trim(),
         description: description.trim(),
-        districtId: districtId.trim(),
-        images: imageList,
-        entryfee: Number(entryfee),
+        districtId: selectedDistrictId,
+        images: photos.map((photo) => photo.url),
+        entryfee: fee,
         category: category.trim(),
-        latitude: Number(latitude),
-        longitude: Number(longitude),
+        latitude: mapsCoordinates.latitude,
+        longitude: mapsCoordinates.longitude,
       } as {
         name: string;
         description: string;
@@ -108,11 +157,17 @@ export default function PlacesPage() {
       setName("");
       setDescription("");
       setCategory("");
+      setCustomCategory(false);
       setEntryfee("");
-      setLatitude("");
-      setLongitude("");
-      setImages("");
-      setDistrictId("");
+      setMapsUrl("");
+      photos.forEach((photo) => {
+        if (photo.preview.startsWith("blob:")) URL.revokeObjectURL(photo.preview);
+      });
+      setPhotos([]);
+      if (!lockedDistrict) {
+        setStateId("");
+        setDistrictId("");
+      }
       setCreating(false);
       refetch();
     } catch (err) {
@@ -276,47 +331,112 @@ export default function PlacesPage() {
                   <Field label="Name" className="sm:col-span-2">
                     <Input value={name} onChange={(e) => setName(e.target.value)} required />
                   </Field>
-                  <Field label="District" tooltip="District ID">
-                    <Input
-                      value={districtId}
-                      onChange={(e) => setDistrictId(e.target.value)}
-                      placeholder="district id"
-                      required
-                    />
+                  <Field label="State">
+                    <Select
+                      value={stateId || undefined}
+                      disabled={Boolean(routeDistrictId)}
+                      onValueChange={(value) => {
+                        setStateId(value);
+                        setDistrictId("");
+                      }}
+                    >
+                      <SelectTrigger aria-label="State" className="w-full">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state.id} value={state.id}>{state.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="District">
+                    <Select
+                      value={(lockedDistrict?.id ?? districtId) || undefined}
+                      disabled={Boolean(routeDistrictId) || !stateId || districtsLoading}
+                      onValueChange={setDistrictId}
+                    >
+                      <SelectTrigger aria-label="District" className="w-full">
+                        <SelectValue
+                          placeholder={!stateId ? "Select a state first" : districtsLoading ? "Loading districts…" : "Select district"}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {lockedDistrict ? (
+                          <SelectItem value={lockedDistrict.id}>{lockedDistrict.name}</SelectItem>
+                        ) : availableDistricts.map((district) => (
+                          <SelectItem key={district.id} value={district.id}>{district.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {stateId && !districtsLoading && availableDistricts.length === 0 && !lockedDistrict ? (
+                      <p className="text-xs text-muted-foreground">No enabled districts for this state.</p>
+                    ) : null}
                   </Field>
                   <Field label="Category">
-                    <Input value={category} onChange={(e) => setCategory(e.target.value)} />
+                    {categories.length > 0 && !customCategory ? (
+                      <Select
+                        value={category || undefined}
+                        onValueChange={(value) => {
+                          if (value === "__custom") {
+                            setCategory("");
+                            setCustomCategory(true);
+                          } else {
+                            setCategory(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger aria-label="Category" className="w-full">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
+                          <SelectItem value="__custom">Other…</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Enter category" required />
+                        {categories.length > 0 ? (
+                          <Button type="button" variant="outline" onClick={() => { setCustomCategory(false); setCategory(""); }}>Choose</Button>
+                        ) : null}
+                      </div>
+                    )}
                   </Field>
-                  <Field label="Entry fee (₹)">
+                  <Field label="Entry Fee (₹)">
                     <Input
                       type="number"
+                      min="0"
                       step="any"
                       value={entryfee}
                       onChange={(e) => setEntryfee(e.target.value)}
+                      required
                     />
                   </Field>
-                  <Field label="Latitude">
+                  <Field label="Google Maps Location" className="sm:col-span-2">
                     <Input
-                      type="number"
-                      step="any"
-                      value={latitude}
-                      onChange={(e) => setLatitude(e.target.value)}
+                      type="url"
+                      value={mapsUrl}
+                      onChange={(e) => setMapsUrl(e.target.value)}
+                      placeholder="https://www.google.com/maps/@12.2958,76.6394,15z"
+                      required
                     />
-                  </Field>
-                  <Field label="Longitude">
-                    <Input
-                      type="number"
-                      step="any"
-                      value={longitude}
-                      onChange={(e) => setLongitude(e.target.value)}
-                    />
+                    {mapsCoordinates ? (
+                      <div role="status" className="space-y-0.5 text-xs text-emerald-600">
+                        <p className="font-medium">Location detected</p>
+                        <p>Latitude: {mapsCoordinates.latitude}</p>
+                        <p>Longitude: {mapsCoordinates.longitude}</p>
+                      </div>
+                    ) : mapsUrl.trim() ? (
+                      <p role="alert" className="text-xs text-destructive">Could not determine coordinates from this Google Maps link.</p>
+                    ) : null}
                   </Field>
                 </div>
                 <Field label="Description">
                   <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
                 </Field>
-                <Field label="Image URLs (one per line)">
-                  <Textarea value={images} onChange={(e) => setImages(e.target.value)} rows={4} />
+                <Field label="Photos">
+                  <PlacePhotosField value={photos} onChange={setPhotos} />
                 </Field>
                 <DialogFooter>
                   <Button

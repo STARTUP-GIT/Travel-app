@@ -35,42 +35,71 @@ export function formatDateTime(value: string | Date | null | undefined): string 
 }
 
 export function parseGoogleMapsUrl(url: string): { latitude: number; longitude: number } | null {
-  if (!url || !url.includes("maps")) return null;
-
+  if (!url) return null;
   const normalized = url.trim();
 
   try {
-    const match = normalized.match(/@(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)/i);
+    const parsedUrl = new URL(normalized);
+    const isGoogleHost =
+      parsedUrl.hostname === "maps.app.goo.gl" ||
+      parsedUrl.hostname === "goo.gl" ||
+      /(^|\.)google\.(com|[a-z]{2,3}(?:\.[a-z]{2})?)$/i.test(parsedUrl.hostname);
+    if (!isGoogleHost || !parsedUrl.pathname.toLowerCase().includes("map")) return null;
+  } catch {
+    return null;
+  }
+
+  const coordinatePatterns = [
+    /@(-?\d{1,3}(?:\.\d+)?),\s*(-?\d{1,3}(?:\.\d+)?)/i,
+    /!3d(-?\d{1,3}(?:\.\d+)?)!4d(-?\d{1,3}(?:\.\d+)?)/i,
+  ];
+  for (const pattern of coordinatePatterns) {
+    const match = normalized.match(pattern);
     if (match) {
-      const latitude = Number(match[1]);
-      const longitude = Number(match[2]);
-      if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-        return { latitude, longitude };
+      const coordinates = validCoordinates(Number(match[1]), Number(match[2]));
+      if (coordinates) return coordinates;
+    }
+  }
+
+  try {
+    const params = new URL(normalized);
+    const coordinateText =
+      params.searchParams.get("q") ??
+      params.searchParams.get("query") ??
+      params.searchParams.get("ll") ??
+      params.searchParams.get("center");
+    if (coordinateText) {
+      const match = coordinateText.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);
+      if (match) {
+        const coordinates = validCoordinates(Number(match[1]), Number(match[2]));
+        if (coordinates) return coordinates;
       }
     }
 
-    const params = new URL(normalized);
-    const lat = Number(params.searchParams.get("lat") ?? params.searchParams.get("latitude"));
-    const lng = Number(
+    const latitudeText = params.searchParams.get("lat") ?? params.searchParams.get("latitude");
+    const longitudeText =
       params.searchParams.get("lng") ??
-        params.searchParams.get("lon") ??
-        params.searchParams.get("longitude")
-    );
-    if (Number.isFinite(lat) && Number.isFinite(lng)) {
-      return { latitude: lat, longitude: lng };
+      params.searchParams.get("lon") ??
+      params.searchParams.get("longitude");
+    if (latitudeText && longitudeText) {
+      const coordinates = validCoordinates(Number(latitudeText), Number(longitudeText));
+      if (coordinates) return coordinates;
     }
   } catch {
     // Fall through to a text-based parse below.
   }
 
-  const textMatch = normalized.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/i);
-  if (textMatch) {
-    const latitude = Number(textMatch[1]);
-    const longitude = Number(textMatch[2]);
-    if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-      return { latitude, longitude };
-    }
-  }
-
   return null;
+}
+
+function validCoordinates(latitude: number, longitude: number) {
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 || latitude > 90 ||
+    longitude < -180 || longitude > 180
+  ) {
+    return null;
+  }
+  return { latitude, longitude };
 }
