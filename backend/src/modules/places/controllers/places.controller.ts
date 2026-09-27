@@ -145,9 +145,8 @@ export const submitPlace = async (req: Request, res: Response) => {
       typeof districtId !== "string" ||
       !districtId ||
       !Array.isArray(images) ||
-      typeof entryfee !== "number" ||
+      (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) ||
       typeof category !== "string" ||
-      !category ||
       typeof latitude !== "number" ||
       typeof longitude !== "number"
     ) {
@@ -173,7 +172,7 @@ export const submitPlace = async (req: Request, res: Response) => {
       description,
       districtId,
       images,
-      entryfee,
+      entryfee: typeof entryfee === "number" ? entryfee : null,
       category,
       latitude,
       longitude,
@@ -189,7 +188,7 @@ export const submitPlace = async (req: Request, res: Response) => {
             description,
             districtId,
             images,
-            entryfee,
+            entryfee: typeof entryfee === "number" ? entryfee : null,
             category,
             latitude,
             longitude,
@@ -292,18 +291,18 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
     }
 
     if (entryfee !== undefined) {
-      if (typeof entryfee !== "number") {
+      if (entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
         return res.status(400).json({
-          message: "entryfee must be a number",
+          message: "entryfee must be a non-negative number or null",
         });
       }
       data.entryfee = entryfee;
     }
 
     if (category !== undefined) {
-      if (typeof category !== "string" || !category) {
+      if (typeof category !== "string") {
         return res.status(400).json({
-          message: "category must be a non-empty string",
+          message: "category must be a string",
         });
       }
       data.category = category;
@@ -337,7 +336,7 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       name: (data.name as string) ?? place.name,
       description: (data.description as string) ?? place.description,
       images: (data.images as string[]) ?? place.images,
-      entryfee: (data.entryfee as number) ?? place.entryfee,
+      entryfee: data.entryfee !== undefined ? data.entryfee as number | null : place.entryfee,
       category: (data.category as string) ?? place.category,
       latitude: (data.latitude as number) ?? place.latitude,
       longitude: (data.longitude as number) ?? place.longitude,

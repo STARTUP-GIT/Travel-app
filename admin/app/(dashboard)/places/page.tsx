@@ -159,16 +159,12 @@ export default function PlacesPage() {
 
   async function createPlace() {
     const selectedDistrictId = lockedDistrict?.id ?? districtId;
-    const fee = Number(entryfee);
+    const fee = entryfee.trim() === "" ? null : Number(entryfee);
     if (!name.trim() || !selectedDistrictId) {
       toast.error("Name and district are required");
       return;
     }
-    if (!category.trim()) {
-      toast.error("Category is required");
-      return;
-    }
-    if (entryfee === "" || !Number.isFinite(fee) || fee < 0) {
+    if (fee !== null && (!Number.isFinite(fee) || fee < 0)) {
       toast.error("Entry fee must be zero or greater");
       return;
     }
@@ -202,7 +198,7 @@ export default function PlacesPage() {
         description: string;
         districtId: string;
         images: string[];
-        entryfee: number;
+        entryfee: number | null;
         category: string;
         latitude: number;
         longitude: number;
@@ -452,7 +448,7 @@ export default function PlacesPage() {
                       </Select>
                     ) : (
                       <div className="flex gap-2">
-                        <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Enter category" required />
+                        <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Enter category" />
                         {categories.length > 0 ? (
                           <Button type="button" variant="outline" onClick={() => { setCustomCategory(false); setCategory(""); }}>Choose</Button>
                         ) : null}
@@ -466,7 +462,6 @@ export default function PlacesPage() {
                       step="any"
                       value={entryfee}
                       onChange={(e) => setEntryfee(e.target.value)}
-                      required
                     />
                   </Field>
                   <Field label="Google Maps Location" className="sm:col-span-2">

@@ -78,7 +78,7 @@ export type PlaceAdmin = {
   description: string;
   districtId: string;
   images: string[];
-  entryfee: number;
+  entryfee: number | null;
   category: string;
   status?: ContentApprovalStatus;
   latitude: number;
@@ -283,7 +283,7 @@ export type PlaceSubmission = {
   description: string;
   districtId: string;
   images: string[];
-  entryfee: number;
+  entryfee: number | null;
   category: string;
   latitude: number;
   longitude: number;

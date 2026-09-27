@@ -51,7 +51,7 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
     setName(p.name);
     setDescription(p.description);
     setCategory(p.category);
-    setEntryfee(String(p.entryfee ?? 0));
+    setEntryfee(p.entryfee === null ? "" : String(p.entryfee));
     setMapsUrl("");
     setPhotos(photosFromUrls(p.images ?? []));
   }, [data]);
@@ -61,8 +61,8 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!place) return;
-    const fee = Number(entryfee);
-    if (!Number.isFinite(fee) || fee < 0) {
+    const fee = entryfee.trim() === "" ? null : Number(entryfee);
+    if (fee !== null && (!Number.isFinite(fee) || fee < 0)) {
       toast.error("Entry fee must be zero or greater");
       return;
     }

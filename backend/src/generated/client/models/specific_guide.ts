@@ -787,14 +787,6 @@ export type specific_guideUpdatereviewInput = {
   push?: string | string[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number

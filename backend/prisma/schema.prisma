@@ -124,7 +124,7 @@ model place {
   placeSubmissions place_submission[]
   specificGuideBookings specific_guide_booking[]
   commonGuideBookingPlaces common_guide_booking_places[]
-  entryfee        Float
+  entryfee        Float?
   category        String
   status          placeSubmissionStatus @default(PENDING)
   latitude        Float
@@ -142,7 +142,7 @@ model place_submission {
   description     String
   districtId      String
   images          String[]
-  entryfee        Float
+  entryfee        Float?
   category        String
   latitude        Float
   longitude       Float

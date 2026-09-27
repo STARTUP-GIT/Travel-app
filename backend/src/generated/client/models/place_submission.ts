@@ -256,7 +256,7 @@ export type Place_submissionGroupByOutputType = {
   description: string
   districtId: string
   images: string[]
-  entryfee: number
+  entryfee: number | null
   category: string
   latitude: number
   longitude: number
@@ -298,7 +298,7 @@ export type place_submissionWhereInput = {
   description?: Prisma.StringFilter<"place_submission"> | string
   districtId?: Prisma.StringFilter<"place_submission"> | string
   images?: Prisma.StringNullableListFilter<"place_submission">
-  entryfee?: Prisma.FloatFilter<"place_submission"> | number
+  entryfee?: Prisma.FloatNullableFilter<"place_submission"> | number | null
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
@@ -321,7 +321,7 @@ export type place_submissionOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
   images?: Prisma.SortOrder
-  entryfee?: Prisma.SortOrder
+  entryfee?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -347,7 +347,7 @@ export type place_submissionWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"place_submission"> | string
   districtId?: Prisma.StringFilter<"place_submission"> | string
   images?: Prisma.StringNullableListFilter<"place_submission">
-  entryfee?: Prisma.FloatFilter<"place_submission"> | number
+  entryfee?: Prisma.FloatNullableFilter<"place_submission"> | number | null
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
@@ -370,7 +370,7 @@ export type place_submissionOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   districtId?: Prisma.SortOrder
   images?: Prisma.SortOrder
-  entryfee?: Prisma.SortOrder
+  entryfee?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
@@ -397,7 +397,7 @@ export type place_submissionScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"place_submission"> | string
   districtId?: Prisma.StringWithAggregatesFilter<"place_submission"> | string
   images?: Prisma.StringNullableListFilter<"place_submission">
-  entryfee?: Prisma.FloatWithAggregatesFilter<"place_submission"> | number
+  entryfee?: Prisma.FloatNullableWithAggregatesFilter<"place_submission"> | number | null
   category?: Prisma.StringWithAggregatesFilter<"place_submission"> | string
   latitude?: Prisma.FloatWithAggregatesFilter<"place_submission"> | number
   longitude?: Prisma.FloatWithAggregatesFilter<"place_submission"> | number
@@ -414,7 +414,7 @@ export type place_submissionCreateInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -435,7 +435,7 @@ export type place_submissionUncheckedCreateInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -452,7 +452,7 @@ export type place_submissionUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -473,7 +473,7 @@ export type place_submissionUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -492,7 +492,7 @@ export type place_submissionCreateManyInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -509,7 +509,7 @@ export type place_submissionUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -526,7 +526,7 @@ export type place_submissionUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -797,7 +797,7 @@ export type place_submissionCreateWithoutDistrictInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -816,7 +816,7 @@ export type place_submissionUncheckedCreateWithoutDistrictInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -864,7 +864,7 @@ export type place_submissionScalarWhereInput = {
   description?: Prisma.StringFilter<"place_submission"> | string
   districtId?: Prisma.StringFilter<"place_submission"> | string
   images?: Prisma.StringNullableListFilter<"place_submission">
-  entryfee?: Prisma.FloatFilter<"place_submission"> | number
+  entryfee?: Prisma.FloatNullableFilter<"place_submission"> | number | null
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
@@ -881,7 +881,7 @@ export type place_submissionCreateWithoutPlaceInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -900,7 +900,7 @@ export type place_submissionUncheckedCreateWithoutPlaceInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -943,7 +943,7 @@ export type place_submissionCreateWithoutSpecificGuideInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -963,7 +963,7 @@ export type place_submissionUncheckedCreateWithoutSpecificGuideInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1005,7 +1005,7 @@ export type place_submissionCreateWithoutCommonGuideInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1025,7 +1025,7 @@ export type place_submissionUncheckedCreateWithoutCommonGuideInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1068,7 +1068,7 @@ export type place_submissionCreateManyDistrictInput = {
   name: string
   description: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1085,7 +1085,7 @@ export type place_submissionUpdateWithoutDistrictInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1104,7 +1104,7 @@ export type place_submissionUncheckedUpdateWithoutDistrictInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1122,7 +1122,7 @@ export type place_submissionUncheckedUpdateManyWithoutDistrictInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1140,7 +1140,7 @@ export type place_submissionCreateManyPlaceInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1157,7 +1157,7 @@ export type place_submissionUpdateWithoutPlaceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1176,7 +1176,7 @@ export type place_submissionUncheckedUpdateWithoutPlaceInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1194,7 +1194,7 @@ export type place_submissionUncheckedUpdateManyWithoutPlaceInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1213,7 +1213,7 @@ export type place_submissionCreateManySpecificGuideInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1229,7 +1229,7 @@ export type place_submissionUpdateWithoutSpecificGuideInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1249,7 +1249,7 @@ export type place_submissionUncheckedUpdateWithoutSpecificGuideInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1267,7 +1267,7 @@ export type place_submissionUncheckedUpdateManyWithoutSpecificGuideInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1285,7 +1285,7 @@ export type place_submissionCreateManyCommonGuideInput = {
   description: string
   districtId: string
   images?: Prisma.place_submissionCreateimagesInput | string[]
-  entryfee: number
+  entryfee?: number | null
   category: string
   latitude: number
   longitude: number
@@ -1301,7 +1301,7 @@ export type place_submissionUpdateWithoutCommonGuideInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1321,7 +1321,7 @@ export type place_submissionUncheckedUpdateWithoutCommonGuideInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1339,7 +1339,7 @@ export type place_submissionUncheckedUpdateManyWithoutCommonGuideInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   districtId?: Prisma.StringFieldUpdateOperationsInput | string
   images?: Prisma.place_submissionUpdateimagesInput | string[]
-  entryfee?: Prisma.FloatFieldUpdateOperationsInput | number
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1475,7 +1475,7 @@ export type $place_submissionPayload<ExtArgs extends runtime.Types.Extensions.In
     description: string
     districtId: string
     images: string[]
-    entryfee: number
+    entryfee: number | null
     category: string
     latitude: number
     longitude: number

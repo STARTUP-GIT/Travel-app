@@ -1286,7 +1286,8 @@ export const updatePlace = async (req: Request, res: Response) => {
       data.districtId = districtId;
     }
     if (Array.isArray(images) && images.every((i) => typeof i === "string")) data.images = images;
-    if (typeof entryfee === "number") data.entryfee = entryfee;
+    if (entryfee === null) data.entryfee = null;
+    else if (typeof entryfee === "number" && Number.isFinite(entryfee) && entryfee >= 0) data.entryfee = entryfee;
     if (typeof category === "string") data.category = category;
     if (typeof latitude === "number") data.latitude = latitude;
     if (typeof longitude === "number") data.longitude = longitude;
@@ -1356,6 +1357,9 @@ export const createPlace = async (req: Request, res: Response) => {
     if (!district.isServiceAvailable || !district.state.isServiceAvailable) {
       return res.status(400).json({ message: "Selected district is currently disabled. Enable the state and district before creating new content." });
     }
+    if (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
+      return res.status(400).json({ message: "entryfee must be a non-negative number or null" });
+    }
     const requestedStatus = getContentStatus(status);
     const place = await prisma.place.create({
       data: {
@@ -1363,7 +1367,7 @@ export const createPlace = async (req: Request, res: Response) => {
         description: typeof description === "string" ? description : "",
         districtId,
         images: Array.isArray(images) && images.every((i) => typeof i === "string") ? images : [],
-        entryfee: typeof entryfee === "number" ? entryfee : 0,
+        entryfee: typeof entryfee === "number" ? entryfee : null,
         category: typeof category === "string" ? category : "",
         latitude: typeof latitude === "number" ? latitude : 0,
         longitude: typeof longitude === "number" ? longitude : 0,
