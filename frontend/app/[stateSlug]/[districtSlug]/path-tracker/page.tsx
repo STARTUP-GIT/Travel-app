@@ -46,7 +46,6 @@ export default async function PathTrackerPage({
     <PathTrackerHub
       districtSlug={district.slug}
       stateSlug={state.slug}
-      districtId={district.id}
       places={places}
     />
   );

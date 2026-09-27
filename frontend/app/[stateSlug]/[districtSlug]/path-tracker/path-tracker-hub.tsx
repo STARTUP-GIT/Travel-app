@@ -1,45 +1,52 @@
 "use client";
 
-import * as React from "react";
 import { Flag, Route, Satellite, Trash2, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as React from "react";
 
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { SectionHeader } from "@/components/shared/section-header";
 import { EmptyState } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import type { Place } from "@/features/places/types";
-import { deleteTrip, listTrips } from "@/features/path-tracker/api/path-tracker.api";
-import {
-  formatDistance,
-  formatDuration,
-} from "@/features/path-tracker/lib/geometry";
-import type { SavedTrip } from "@/features/path-tracker/types";
+import { useTripStore } from "@/features/path-tracker/path-tracker/store/trip-store";
+import { formatDistance, formatDuration } from "@/features/path-tracker/path-tracker/utils/geo";
+import { triggerMediumTap, triggerTap } from "@/features/path-tracker/path-tracker/services/alert-service";
 import { cn } from "@/lib/utils";
 
+/**
+ * Path Tracker hub. The saved-trips list is the Path Tracker's own trip history
+ * (`loadTripSummaries` from the original database service) — distance, duration
+ * and point counts are the engine's values, not re-derived here.
+ */
 export function PathTrackerHub({
   districtSlug,
   stateSlug,
-  districtId,
   places,
 }: {
   districtSlug: string;
   stateSlug: string;
-  districtId: string;
   places: Place[];
 }) {
   const districtBase = `/${stateSlug}/${districtSlug}`;
   const router = useRouter();
   const [selected, setSelected] = React.useState<Place | null>(places[0] ?? null);
-  const [trips, setTrips] = React.useState<SavedTrip[]>([]);
+
+  const tripHistory = useTripStore((s) => s.tripHistory);
+  const loadHistory = useTripStore((s) => s.loadHistory);
+  const deleteTrip = useTripStore((s) => s.deleteTrip);
+  const bootstrap = useTripStore((s) => s.bootstrap);
+  const recoveredActive = useTripStore((s) => s.recoveredActive);
 
   React.useEffect(() => {
-    setTrips(listTrips());
-  }, []);
+    void bootstrap();
+    void loadHistory();
+  }, [bootstrap, loadHistory]);
 
   function start() {
     if (!selected) return;
+    triggerMediumTap();
     router.push(
       `${districtBase}/path-tracker/live?placeId=${encodeURIComponent(selected.id)}&name=${encodeURIComponent(selected.name)}`
     );
@@ -67,6 +74,14 @@ export function PathTrackerHub({
             </p>
           </div>
         </div>
+
+        {recoveredActive ? (
+          <div className="mt-4 rounded-2xl border border-warning/30 bg-warning/8 p-4 text-sm">
+            You have an unfinished trip ({formatDistance(recoveredActive.totalDistance)}) from{" "}
+            {new Date(recoveredActive.startTime).toLocaleString()}. Open Path Tracker to
+            continue or discard it.
+          </div>
+        ) : null}
 
         {/* Choose destination */}
         <section className="mt-6">
@@ -125,14 +140,14 @@ export function PathTrackerHub({
         {/* Saved trips */}
         <section className="mt-8">
           <SectionHeader title="Your trips" subtitle="Completed routes on this device" />
-          {trips.length === 0 ? (
+          {tripHistory.length === 0 ? (
             <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border p-5 text-sm text-muted-foreground">
               <Trophy className="size-5 shrink-0" />
               Complete a route and it will be saved here.
             </div>
           ) : (
             <div className="space-y-2.5">
-              {trips.map((trip) => (
+              {tripHistory.map((trip) => (
                 <div
                   key={trip.id}
                   className="card-surface group flex items-center gap-3 rounded-2xl p-3.5"
@@ -141,18 +156,20 @@ export function PathTrackerHub({
                     <Route className="size-5" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{trip.destination.name}</p>
+                    <p className="truncate text-sm font-semibold">
+                      {new Date(trip.startTime).toLocaleString()}
+                    </p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {formatDistance(trip.distanceMeters)} ·{" "}
-                      {formatDuration(trip.startedAt, trip.endedAt)} ·{" "}
-                      {trip.points.length} points
+                      {formatDistance(trip.totalDistance)} ·{" "}
+                      {formatDuration(trip.activeDurationMs)} · {trip.pointCount} points
+                      {trip.returnedToStart ? " · returned" : ""}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      deleteTrip(trip.id);
-                      setTrips(listTrips());
+                      triggerTap();
+                      void deleteTrip(trip.id);
                     }}
                     aria-label="Delete trip"
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
