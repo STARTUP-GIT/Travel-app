@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PlacePhotosField, photosFromUrls, type PlacePhoto } from "@/components/admin/place-photos-field";
 import { patchJSON } from "@/lib/api/mutate";
+import { describeUploadError, uploadImage } from "@/lib/api/upload";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { cn, formatCurrency, formatDate, parseGoogleMapsUrl } from "@/lib/utils";
 import type { PlaceAdminDetail } from "@/lib/types";
@@ -69,11 +70,22 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
       toast.error("Could not determine coordinates from this Google Maps link.");
       return;
     }
-    if (photos.some((photo) => photo.uploading || photo.error || !photo.url)) {
-      toast.error("Wait for all photos to upload successfully");
+    let imageList: string[];
+    try {
+      imageList = await Promise.all(
+        photos.map(async (photo) => {
+          if (!photo.file) return photo.url;
+          try {
+            return (await uploadImage(photo.file, "places")).url;
+          } catch (error) {
+            throw new Error(`Image upload failed: ${describeUploadError(error)}`);
+          }
+        })
+      );
+    } catch (error) {
+      toast.error("Update failed", { description: error instanceof Error ? error.message : undefined });
       return;
     }
-    const imageList = photos.map((photo) => photo.url);
     const body: Record<string, unknown> = {
       ...(name !== place.name ? { name } : {}),
       ...(description !== place.description ? { description } : {}),

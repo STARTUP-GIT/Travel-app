@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { patchJSON, postJSON } from "@/lib/api/mutate";
+import { describeUploadError, uploadImage } from "@/lib/api/upload";
 import { DataTable, type Column } from "@/components/admin/data-table";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { ImageThumb } from "@/components/admin/image-thumb";
@@ -75,6 +76,7 @@ export default function PlacesPage() {
     { query: { search: search || undefined, status } }
   );
 
+  const [open, setOpen] = React.useState(false);
   const [creating, setCreating] = React.useState(false);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -174,17 +176,23 @@ export default function PlacesPage() {
       toast.error("Enter a valid Google Maps location link");
       return;
     }
-    if (photos.some((photo) => photo.uploading || photo.error || !photo.url)) {
-      toast.error("Wait for all photos to upload successfully");
-      return;
-    }
     setCreating(true);
     try {
+      const images = await Promise.all(
+        photos.map(async (photo) => {
+          if (!photo.file) return photo.url;
+          try {
+            return (await uploadImage(photo.file, "places")).url;
+          } catch (error) {
+            throw new Error(`Image upload failed: ${describeUploadError(error)}`);
+          }
+        })
+      );
       await postJSON("/admin/api/places", {
         name: name.trim(),
         description: description.trim(),
         districtId: selectedDistrictId,
-        images: photos.map((photo) => photo.url),
+        images,
         entryfee: fee,
         category: category.trim(),
         latitude: mapsCoordinates.latitude,
@@ -199,7 +207,7 @@ export default function PlacesPage() {
         latitude: number;
         longitude: number;
       });
-      toast.success("Place created");
+      toast.success("Place created successfully.");
       setName("");
       setDescription("");
       setCategory("");
@@ -212,11 +220,11 @@ export default function PlacesPage() {
         if (photo.preview.startsWith("blob:")) URL.revokeObjectURL(photo.preview);
       });
       setPhotos([]);
+      setOpen(false);
       if (!lockedDistrict) {
         setStateId("");
         setDistrictId("");
       }
-      setCreating(false);
       refetch();
     } catch (err) {
       toast.error("Create failed", {
@@ -355,7 +363,7 @@ export default function PlacesPage() {
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <Dialog open={creating} onOpenChange={setCreating}>
+          <Dialog open={open} onOpenChange={(nextOpen) => { if (!creating) setOpen(nextOpen); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800">
                 <Plus className="size-4" /> New place
@@ -492,7 +500,7 @@ export default function PlacesPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setCreating(false)}
+                    onClick={() => setOpen(false)}
                     disabled={creating || resolvingLocation || !mapsCoordinates}
                   >
                     Cancel

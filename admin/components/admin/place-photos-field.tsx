@@ -3,16 +3,14 @@
 import { ArrowDown, ArrowUp, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import * as React from "react";
 
-import {
-  describeUploadError,
-  uploadImage,
-  validateImageFile,
-} from "@/lib/api/upload";
+import { validateImageFile } from "@/lib/api/upload";
 
 export type PlacePhoto = {
   id: string;
   url: string;
   preview: string;
+  file?: File;
+  sourceKey?: string;
   uploading?: boolean;
   error?: string;
 };
@@ -42,41 +40,20 @@ export function PlacePhotosField({
         nextErrors.push(`${file.name}: ${error}`);
         continue;
       }
+      const sourceKey = `${file.name}:${file.size}:${file.lastModified}`;
+      if (value.some((photo) => photo.sourceKey === sourceKey)) continue;
       nextItems.push({
         id: crypto.randomUUID(),
         url: "",
         preview: URL.createObjectURL(file),
-        uploading: true,
+        file,
+        sourceKey,
       });
     }
 
     setValidationErrors(nextErrors);
     if (!nextItems.length) return;
     onChange((current) => [...current, ...nextItems]);
-
-    Array.from(files).forEach(async (file) => {
-      if (validateImageFile(file)) return;
-      const item = nextItems.shift();
-      if (!item) return;
-      try {
-        const uploaded = await uploadImage(file, "places");
-        onChange((current) =>
-          current.map((photo) =>
-            photo.id === item.id
-              ? { ...photo, url: uploaded.url, uploading: false }
-              : photo
-          )
-        );
-      } catch (error) {
-        onChange((current) =>
-          current.map((photo) =>
-            photo.id === item.id
-              ? { ...photo, uploading: false, error: describeUploadError(error) }
-              : photo
-          )
-        );
-      }
-    });
   }
 
   function removePhoto(photo: PlacePhoto) {
@@ -126,7 +103,7 @@ export function PlacePhotosField({
               <img src={photo.preview} alt={`Place photo ${index + 1}`} className="aspect-square w-full object-cover" />
               <div className="flex items-center justify-between gap-1 p-2">
                 <span className="min-w-0 truncate text-xs text-muted-foreground">
-                  {photo.uploading ? "Uploading…" : photo.error ? "Upload failed" : index === 0 ? "Primary photo" : `Photo ${index + 1}`}
+                  {photo.uploading ? "Uploading…" : photo.error ? "Upload failed" : photo.file?.name ?? (index === 0 ? "Primary photo" : `Photo ${index + 1}`)}
                 </span>
                 <div className="flex shrink-0 items-center">
                   {photo.uploading ? <Loader2 className="mr-1 size-4 animate-spin" /> : null}
