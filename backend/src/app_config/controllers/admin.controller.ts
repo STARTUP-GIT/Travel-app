@@ -1226,6 +1226,85 @@ export const deleteDistrict = async (req: Request, res: Response) => {
   }
 };
 
+export const updatePlace = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const {
+      name,
+      description,
+      districtId,
+      images,
+      entryfee,
+      category,
+      latitude,
+      longitude,
+      status,
+    } = req.body ?? {};
+
+    const existing = await prisma.place.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ message: "Place not found" });
+
+    const data: Record<string, unknown> = {};
+
+    if (typeof name === "string" && name.trim()) data.name = name.trim();
+    if (typeof description === "string") data.description = description;
+    if (typeof districtId === "string" && districtId.trim()) {
+      const district = await prisma.district.findUnique({ where: { id: districtId }, select: { id: true } });
+      if (!district) return res.status(400).json({ message: "District not found" });
+      data.districtId = districtId;
+    }
+    if (Array.isArray(images) && images.every((i) => typeof i === "string")) data.images = images;
+    if (typeof entryfee === "number") data.entryfee = entryfee;
+    if (typeof category === "string") data.category = category;
+    if (typeof latitude === "number") data.latitude = latitude;
+    if (typeof longitude === "number") data.longitude = longitude;
+    if (typeof status === "string") {
+      const normalised = getContentStatus(status);
+      if (!normalised) return res.status(400).json({ message: "Invalid place status" });
+      data.status = normalised;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    const place = await prisma.place.update({
+      where: { id },
+      data,
+      include: {
+        district: { include: { state: { include: { country: true } } } },
+        _count: { select: { specificguide: true, commonGuidePlaces: true, user_fav_place: true } },
+      },
+    });
+
+    return res.status(200).json({ message: "Place updated", place });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updatePlaceStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { status } = req.body ?? {};
+    const normalised = getContentStatus(status);
+    if (!normalised) return res.status(400).json({ message: "Invalid place status" });
+
+    const place = await prisma.place.update({
+      where: { id },
+      data: { status: normalised },
+      include: {
+        district: { include: { state: { include: { country: true } } } },
+        _count: { select: { specificguide: true, commonGuidePlaces: true, user_fav_place: true } },
+      },
+    });
+
+    return res.status(200).json({ message: "Place status updated", place });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
 export const createPlace = async (req: Request, res: Response) => {
   try {
     const { name, description, districtId, images, entryfee, category, latitude, longitude } = req.body ?? {};
@@ -1239,6 +1318,9 @@ export const createPlace = async (req: Request, res: Response) => {
     if (!district) {
       return res.status(400).json({ message: "District not found" });
     }
+    const requestedStatus = getContentStatus(
+      (typeof status === "string" ? status : "") as string
+    );
     const place = await prisma.place.create({
       data: {
         name: name.trim(),
@@ -1249,7 +1331,7 @@ export const createPlace = async (req: Request, res: Response) => {
         category: typeof category === "string" ? category : "",
         latitude: typeof latitude === "number" ? latitude : 0,
         longitude: typeof longitude === "number" ? longitude : 0,
-        status: "APPROVED",
+        status: requestedStatus ?? "APPROVED",
       },
       include: { district: { include: { state: { include: { country: true } } } } },
     });

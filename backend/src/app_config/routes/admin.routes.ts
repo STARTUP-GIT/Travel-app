@@ -55,6 +55,8 @@ import {
   listCountries,
   createCountry,
   deleteCountry,
+  updatePlaceStatus,
+  updatePlace
 } from "../controllers/admin.controller.js";
 
 /**
@@ -90,6 +92,8 @@ router.delete("/districts/:id", deleteDistrict);
 router.get("/places", listPlaces);
 router.get("/places/:id", getPlaceById);
 router.post("/places", createPlace);
+router.patch("/places/:id", updatePlace);
+router.patch("/places/:id/status", updatePlaceStatus);
 router.delete("/places/:id", deletePlace);
 
 router.get("/place-submissions", listPlaceSubmissions);

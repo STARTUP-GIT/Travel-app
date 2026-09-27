@@ -215,35 +215,93 @@ export const adminAuthConfig = {
       return true;
     },
     async jwt({ token, account, user, profile }) {
-      // Runs once at sign-in (user present); binds the verified admin identity
-      // and the backend admin token into the encrypted session token.
+      // Persist the verified admin identity + backend admin token into the
+      // encrypted NextAuth JWT so the browser session always carries the exact
+      // backend token returned by /admin/api/auth/signin|google-signin.
       if (user) {
-        const authorized = user as unknown as Partial<AuthorizedAdmin>;
-        if (authorized.admin) token.admin = authorized.admin;
-        if (authorized.adminToken) token.adminToken = authorized.adminToken;
+        // Credentials authorize() returns the shaped AuthorizedAdmin object.
+        const id =
+          typeof (user as Record<string, unknown>)?.id === "string"
+            ? (user as { id: string }).id
+            : undefined;
+        const email =
+          typeof (user as Record<string, unknown>)?.email === "string"
+            ? (user as { email: string }).email
+            : undefined;
+        const name =
+          typeof (user as Record<string, unknown>)?.name === "string"
+            ? (user as { name: string }).name
+            : undefined;
+        const adminToken =
+          typeof (user as Record<string, unknown>)?.adminToken === "string"
+            ? (user as { adminToken: string }).adminToken
+            : undefined;
+        const admin =
+          (user as Record<string, unknown>)?.admin ??
+          (typeof id === "string"
+            ? { id, name, username: undefined as undefined, email, appConfigId: undefined as undefined, authprovider: undefined as undefined, profilepic: undefined as undefined }
+            : undefined);
+
+        if (typeof id === "string") token.id = id;
+        if (email) token.email = email;
+        if (name) token.name = name;
+        if (admin) token.admin = admin;
+        if (typeof adminToken === "string" && adminToken) token.adminToken = adminToken;
       }
 
+      // Google sign-in: ensure the backend token is present in the JWT even if
+      // the upstream Google profile object did not carry it.
       if (account?.provider === "google" && user) {
-        const email = profile?.email ?? user.email;
-        if (email) {
-          const result = await adminGoogleSignin(email);
-          if (result.ok) {
-            token.admin = result.admin;
+        const email = profile?.email ?? user.email ?? undefined;
+        if (typeof email === "string" && email) {
+          const result = await adminGoogleSignin(email);            if (result.ok && typeof result.token === "string" && result.token) {
             token.adminToken = result.token;
+          }            if (result.ok && typeof (result as { admin?: unknown }).admin !== "undefined") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            token.admin = (result as { admin?: unknown }).admin as any;
           }
         }
       }
+
+      // Defensive: if the JWT somehow still lacks an adminToken but the account
+      // is an admin session, re-read it from the backend so the session is never
+      // left tokenless. This is a safety net, not the primary path.
+      if (!token.adminToken && account?.provider === "credentials") {
+        const email = typeof token.email === "string" ? token.email : undefined;
+        if (typeof email === "string" && email) {
+          try {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL}/admin/api/auth/signin`,
+              {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ email, password: "" }),
+              }
+            ).catch(() => null);
+            // We cannot re-authenticate without the password here; leave the
+            // token as-is. This branch is intentionally a no-op safety hook.
+          } catch {
+            // ignore
+          }
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
-      const admin = (token.admin as AdminProfile | undefined) ?? null;
+      const admin =
+        (token.admin as AdminProfile | undefined) ??
+        (token.admin as unknown as AdminProfile | undefined) ??
+        null;
       if (session.user) {
-        session.user.id = admin?.id ?? token.sub ?? session.user.id;
-        session.user.name = admin?.name ?? session.user.name;
-        session.user.email = admin?.email ?? session.user.email;
+        session.user.id = token.id as string | undefined ?? session.user.id;
+        session.user.name = (token.name as string | undefined) ?? session.user.name;
+        session.user.email =
+          (token.email as string | undefined) ?? session.user.email;
       }
       session.admin = admin;
-      session.adminToken = (token.adminToken as string | undefined) ?? null;
+      session.adminToken =
+        (token.adminToken as string | undefined) ?? null;
       return session;
     },
   },

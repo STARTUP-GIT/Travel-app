@@ -60,27 +60,51 @@ export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> 
             cache: "no-store",
           }
         );
+
+        // 401 means the browser session is missing the backend token. Trying to
+        // silently render an empty list hides a real auth failure, so force a
+        // sign-in refresh instead of falling through to the empty-state table.
         if (res.status === 401 && typeof window !== "undefined") {
           clearCachedAdminToken();
           window.location.assign("/login");
           return;
         }
+
         if (!res.ok) {
           let message = `Request failed (${res.status})`;
+          let details: unknown;
           try {
-            const data = (await res.json()) as { message?: string };
-            if (data?.message) message = data.message;
+            details = await res.json();
+            if (
+              typeof details === "object" &&
+              details !== null &&
+              "message" in details &&
+              typeof (details as { message?: unknown }).message === "string"
+            ) {
+              message = String((details as { message: unknown }).message);
+            } else if (
+              typeof details === "object" &&
+              details !== null &&
+              "error" in details &&
+              typeof (details as { error?: unknown }).error === "string"
+            ) {
+              message = String((details as { error: unknown }).error);
+            }
           } catch {
-            // ignore
+            details = undefined;
           }
           throw new Error(message);
         }
+
+        const payload = await res.json();
         if (active) {
-          setData((await res.json()) as T);
+          setData(payload as T);
           setError(null);
         }
       } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load");
+        if (active) {
+          setError(err instanceof Error ? err.message : "Failed to load");
+        }
       } finally {
         if (active) setLoading(false);
       }

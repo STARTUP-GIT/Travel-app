@@ -28,20 +28,42 @@ async function request(path: string, init: RequestInit): Promise<unknown> {
     headers,
     credentials: "include",
   });
+
   if (res.status === 401 && typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
     clearCachedAdminToken();
     window.location.assign("/login");
+    throw new Error("Session expired");
   }
+
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
+    let details: unknown;
     try {
-      const data = (await res.json()) as { message?: string };
-      if (data?.message) message = data.message;
+      details = await res.json();
+      if (
+        typeof details === "object" &&
+        details !== null &&
+        "message" in details &&
+        typeof (details as { message?: unknown }).message === "string"
+      ) {
+        message = String((details as { message: unknown }).message);
+      } else if (
+        typeof details === "object" &&
+        details !== null &&
+        "error" in details &&
+        typeof (details as { error?: unknown }).error === "string"
+      ) {
+        message = String((details as { error: unknown }).error);
+      }
     } catch {
-      // ignore
+      details = undefined;
     }
     throw new Error(message);
   }
+
+  // DELETE can legitimately return no body.
+  if (res.status === 204) return undefined;
+
   return res.json();
 }
 

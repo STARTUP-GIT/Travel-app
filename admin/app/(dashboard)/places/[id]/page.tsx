@@ -80,7 +80,7 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
     }
     setSaving(true);
     try {
-      await patchJSON(`/${place.districtId}/services/api/places/${place.id}`, body);
+      await patchJSON(`/admin/api/places/${place.id}`, body);
       toast.success("Place updated");
       setOpen(false);
       refetch();
@@ -267,15 +267,22 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 function Field({
   label,
   children,
+  tooltip,
   className,
 }: {
   label: string;
   children: React.ReactNode;
+  tooltip?: string;
   className?: string;
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
-      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <div className="flex items-center gap-1">
+        <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+        {tooltip ? (
+          <span className="text-[10px] text-muted-foreground/60">({tooltip})</span>
+        ) : null}
+      </div>
       {children}
     </div>
   );

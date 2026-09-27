@@ -40,12 +40,10 @@ function buildPath(path: string, query?: HttpInit["query"]): string {
 }
 
 /**
- * The backend mounts /admin/api/* endpoints under /api/admin/* (backend
- * app.ts: app.use('/api/admin', adminConfigRoutes)), and places under
- * /:districtId/services. Paths written as /admin/api/* are normalised to the
- * backend's real mounts so direct calls reach the existing endpoints.
- * A leading legacy data-forwarder prefix (if any) is stripped, and /admin/api/*
- * is normalised to the backend's real mount.
+ * The admin config routes are mounted at /api/admin/* (backend app.ts:
+ * app.use('/api/admin', adminConfigRoutes)). Admin CRUD pages address them as
+ * /admin/api/* for readability; toBackendPath normalises that prefix to the
+ * backend's real mount.
  */
 export function toBackendPath(path: string): string {
   return path
@@ -53,12 +51,10 @@ export function toBackendPath(path: string): string {
     .replace(/^\/admin\/api\//, "/api/admin/");
 }
 
-// The admin backend token lives inside the encrypted NextAuth JWT. The browser
-// reads it from the existing /api/auth/session route (the ONLY NextAuth route)
-// and presents it as `Authorization: Bearer` on direct backend calls — the
-// backend middleware accepts the header as an alternative to the httpOnly
-// cookie (which the admin browser never receives, since NextAuth consumes the
-// backend Set-Cookie during login).
+// The admin backend token is the JWT returned by the backend sign-in endpoints
+// (/admin/api/auth/signin, /admin/api/auth/google-signin) and stored inside the
+// encrypted NextAuth JWT, then exposed to the browser through the NextAuth
+// session endpoint (/api/auth/session).
 let cachedToken: string | null | undefined;
 let tokenPromise: Promise<string | null> | null = null;
 
@@ -69,7 +65,10 @@ async function fetchSessionToken(): Promise<string | null> {
       cache: "no-store",
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as { adminToken?: string } | null;
+    const data = (await res.json()) as
+      | { adminToken?: string; admin?: { id?: string; email?: string; name?: string } }
+      | null;
+    // Prefer the backend token; fall back to nothing (caller decides what to do).
     return data?.adminToken ?? null;
   } catch {
     return null;
@@ -100,7 +99,9 @@ export async function withAuthHeaders(
   const finalHeaders = new Headers(headers);
   if (isBrowser()) {
     const token = await getAdminToken();
-    if (token) finalHeaders.set("authorization", `Bearer ${token}`);
+    if (typeof token === "string" && token) {
+      finalHeaders.set("authorization", `Bearer ${token}`);
+    }
   }
   return finalHeaders;
 }
