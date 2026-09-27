@@ -35,6 +35,8 @@ import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { PlacePhotosField, type PlacePhoto } from "@/components/admin/place-photos-field";
+import { LocationFields } from "@/components/admin/location-fields";
+import { useAvailableLocations } from "@/lib/hooks/use-available-locations";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -63,7 +65,7 @@ function Field({
 }
 
 import type { ContentApprovalStatus, PlaceAdmin } from "@/lib/types";
-import type { DistrictAdmin, StateAdmin } from "@/lib/types";
+import type { DistrictAdmin } from "@/lib/types";
 
 export default function PlacesPage() {
   const router = useRouter();
@@ -94,17 +96,17 @@ export default function PlacesPage() {
   const [photos, setPhotos] = React.useState<PlacePhoto[]>([]);
   const [stateId, setStateId] = React.useState("");
   const [districtId, setDistrictId] = React.useState("");
-  const { data: statesData } = useAdminData<{ states: StateAdmin[] }>("/admin/api/states");
-  const { data: districtsData, loading: districtsLoading } = useAdminData<{ districts: DistrictAdmin[] }>(
-    "/admin/api/districts",
-    { query: stateId ? { stateId } : undefined, enabled: Boolean(stateId) }
-  );
+  const {
+    states,
+    districts: availableDistricts,
+    statesLoading,
+    loading: districtsLoading,
+    refresh: refreshLocations,
+  } = useAvailableLocations(stateId);
   const { data: contextDistrictData } = useAdminData<{ district: DistrictAdmin }>(
     `/admin/api/districts/${routeDistrictId}`,
     { enabled: Boolean(routeDistrictId) }
   );
-  const states = statesData?.states ?? [];
-  const availableDistricts = (districtsData?.districts ?? []).filter((district) => district.isServiceAvailable);
   const lockedDistrict = contextDistrictData?.district;
   const mapsCoordinates = resolvedLocation?.url === mapsUrl.trim() ? resolvedLocation : null;
   const categories = React.useMemo(
@@ -162,6 +164,13 @@ export default function PlacesPage() {
     const fee = entryfee.trim() === "" ? null : Number(entryfee);
     if (!name.trim() || !selectedDistrictId) {
       toast.error("Name and district are required");
+      return;
+    }
+    if (
+      !states.some((state) => state.id === stateId && state.isServiceAvailable) ||
+      !availableDistricts.some((district) => district.id === selectedDistrictId)
+    ) {
+      toast.error("Choose an enabled state and district");
       return;
     }
     if (fee !== null && (!Number.isFinite(fee) || fee < 0)) {
@@ -359,7 +368,17 @@ export default function PlacesPage() {
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <Dialog open={open} onOpenChange={(nextOpen) => { if (!creating) setOpen(nextOpen); }}>
+          <Dialog open={open} onOpenChange={(nextOpen) => {
+            if (creating) return;
+            setOpen(nextOpen);
+            if (nextOpen) {
+              refreshLocations();
+              if (!routeDistrictId) {
+                setStateId("");
+                setDistrictId("");
+              }
+            }
+          }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800">
                 <Plus className="size-4" /> New place
@@ -383,48 +402,19 @@ export default function PlacesPage() {
                   <Field label="Name" className="sm:col-span-2">
                     <Input value={name} onChange={(e) => setName(e.target.value)} required />
                   </Field>
-                  <Field label="State">
-                    <Select
-                      value={stateId || undefined}
-                      disabled={Boolean(routeDistrictId)}
-                      onValueChange={(value) => {
-                        setStateId(value);
-                        setDistrictId("");
-                      }}
-                    >
-                      <SelectTrigger aria-label="State" className="w-full">
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {states.map((state) => (
-                          <SelectItem key={state.id} value={state.id}>{state.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="District">
-                    <Select
-                      value={(lockedDistrict?.id ?? districtId) || undefined}
-                      disabled={Boolean(routeDistrictId) || !stateId || districtsLoading}
-                      onValueChange={setDistrictId}
-                    >
-                      <SelectTrigger aria-label="District" className="w-full">
-                        <SelectValue
-                          placeholder={!stateId ? "Select a state first" : districtsLoading ? "Loading districts…" : "Select district"}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {lockedDistrict ? (
-                          <SelectItem value={lockedDistrict.id}>{lockedDistrict.name}</SelectItem>
-                        ) : availableDistricts.map((district) => (
-                          <SelectItem key={district.id} value={district.id}>{district.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {stateId && !districtsLoading && availableDistricts.length === 0 && !lockedDistrict ? (
-                      <p className="text-xs text-muted-foreground">No enabled districts for this state.</p>
-                    ) : null}
-                  </Field>
+                  <LocationFields
+                    stateId={stateId}
+                    districtId={lockedDistrict?.id ?? districtId}
+                    states={states}
+                    districts={availableDistricts}
+                    statesLoading={statesLoading}
+                    loading={districtsLoading}
+                    disabled={Boolean(routeDistrictId)}
+                    onChange={(nextStateId, nextDistrictId) => {
+                      setStateId(nextStateId);
+                      setDistrictId(nextDistrictId);
+                    }}
+                  />
                   <Field label="Category">
                     {categories.length > 0 && !customCategory ? (
                       <Select

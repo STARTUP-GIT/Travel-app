@@ -26,7 +26,9 @@ import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { LocationFields } from "@/components/admin/location-fields";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
+import { useAvailableLocations } from "@/lib/hooks/use-available-locations";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ContentApprovalStatus, RestaurantAdmin } from "@/lib/types";
@@ -67,7 +69,15 @@ export default function RestaurantsPage() {
   const [creating, setCreating] = React.useState(false);
   const [name, setName] = React.useState("");
   const [address, setAddress] = React.useState("");
+  const [stateId, setStateId] = React.useState("");
   const [districtId, setDistrictId] = React.useState("");
+  const {
+    states,
+    districts,
+    statesLoading,
+    loading: locationsLoading,
+    refresh: refreshLocations,
+  } = useAvailableLocations(stateId);
   const [restaurantOwnerId, setRestaurantOwnerId] = React.useState("");
   const [foodCategory, setFoodCategory] = React.useState("VEG_AND_NONVEG");
   const [rating, setRating] = React.useState("");
@@ -83,6 +93,13 @@ export default function RestaurantsPage() {
   async function createRestaurant() {
     if (!name.trim() || !address.trim() || !districtId.trim() || !restaurantOwnerId.trim()) {
       toast.error("Name, address, district and owner are required");
+      return;
+    }
+    if (
+      !states.some((state) => state.id === stateId && state.isServiceAvailable) ||
+      !districts.some((district) => district.id === districtId)
+    ) {
+      toast.error("Choose an enabled state and district");
       return;
     }
     setCreating(true);
@@ -114,6 +131,7 @@ export default function RestaurantsPage() {
       toast.success("Restaurant created");
       setName("");
       setAddress("");
+      setStateId("");
       setDistrictId("");
       setRestaurantOwnerId("");
       setFoodCategory("VEG_AND_NONVEG");
@@ -276,7 +294,14 @@ export default function RestaurantsPage() {
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <Dialog open={creating} onOpenChange={setCreating}>
+          <Dialog open={creating} onOpenChange={(nextOpen) => {
+            if (nextOpen) {
+              setStateId("");
+              setDistrictId("");
+              refreshLocations();
+            }
+            setCreating(nextOpen);
+          }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800">
                 <Plus className="size-4" /> New restaurant
@@ -303,14 +328,18 @@ export default function RestaurantsPage() {
                   <RField label="Address" className="sm:col-span-2">
                     <Input value={address} onChange={(e) => setAddress(e.target.value)} required />
                   </RField>
-                  <RField label="District" tooltip="District ID">
-                    <Input
-                      value={districtId}
-                      onChange={(e) => setDistrictId(e.target.value)}
-                      placeholder="district id"
-                      required
-                    />
-                  </RField>
+                  <LocationFields
+                    stateId={stateId}
+                    districtId={districtId}
+                    states={states}
+                    districts={districts}
+                    statesLoading={statesLoading}
+                    loading={locationsLoading}
+                    onChange={(nextStateId, nextDistrictId) => {
+                      setStateId(nextStateId);
+                      setDistrictId(nextDistrictId);
+                    }}
+                  />
                   <RField label="Owner" tooltip="Restaurant owner ID">
                     <Input
                       value={restaurantOwnerId}

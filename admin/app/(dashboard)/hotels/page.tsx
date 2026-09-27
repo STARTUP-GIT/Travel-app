@@ -27,6 +27,8 @@ import { PageHeader } from "@/components/admin/page-header";
 import { SearchInput } from "@/components/admin/search-input";
 import { ErrorState, LoadingState } from "@/components/admin/state";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { LocationFields } from "@/components/admin/location-fields";
+import { useAvailableLocations } from "@/lib/hooks/use-available-locations";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { ContentApprovalStatus, HotelAdmin } from "@/lib/types";
@@ -67,7 +69,15 @@ export default function HotelsPage() {
   const [creating, setCreating] = React.useState(false);
   const [name, setName] = React.useState("");
   const [address, setAddress] = React.useState("");
+  const [stateId, setStateId] = React.useState("");
   const [districtId, setDistrictId] = React.useState("");
+  const {
+    states,
+    districts,
+    statesLoading,
+    loading: locationsLoading,
+    refresh: refreshLocations,
+  } = useAvailableLocations(stateId);
   const [hotelOwnerId, setHotelOwnerId] = React.useState("");
   const [costPerNight, setCostPerNight] = React.useState("");
   const [rating, setRating] = React.useState("");
@@ -82,6 +92,13 @@ export default function HotelsPage() {
   async function createHotel() {
     if (!name.trim() || !address.trim() || !districtId.trim() || !hotelOwnerId.trim()) {
       toast.error("Name, address, district and owner are required");
+      return;
+    }
+    if (
+      !states.some((state) => state.id === stateId && state.isServiceAvailable) ||
+      !districts.some((district) => district.id === districtId)
+    ) {
+      toast.error("Choose an enabled state and district");
       return;
     }
     setCreating(true);
@@ -108,6 +125,7 @@ export default function HotelsPage() {
       toast.success("Hotel created");
       setName("");
       setAddress("");
+      setStateId("");
       setDistrictId("");
       setHotelOwnerId("");
       setCostPerNight("");
@@ -259,7 +277,14 @@ export default function HotelsPage() {
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
-          <Dialog open={creating} onOpenChange={setCreating}>
+          <Dialog open={creating} onOpenChange={(nextOpen) => {
+            if (nextOpen) {
+              setStateId("");
+              setDistrictId("");
+              refreshLocations();
+            }
+            setCreating(nextOpen);
+          }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800">
                 <Plus className="size-4" /> New hotel
@@ -286,14 +311,18 @@ export default function HotelsPage() {
                   <Field label="Address" className="sm:col-span-2">
                     <Input value={address} onChange={(e) => setAddress(e.target.value)} required />
                   </Field>
-                  <Field label="District" tooltip="District ID">
-                    <Input
-                      value={districtId}
-                      onChange={(e) => setDistrictId(e.target.value)}
-                      placeholder="district id"
-                      required
-                    />
-                  </Field>
+                  <LocationFields
+                    stateId={stateId}
+                    districtId={districtId}
+                    states={states}
+                    districts={districts}
+                    statesLoading={statesLoading}
+                    loading={locationsLoading}
+                    onChange={(nextStateId, nextDistrictId) => {
+                      setStateId(nextStateId);
+                      setDistrictId(nextDistrictId);
+                    }}
+                  />
                   <Field label="Owner" tooltip="Hotel owner ID">
                     <Input
                       value={hotelOwnerId}

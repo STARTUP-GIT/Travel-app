@@ -44,10 +44,12 @@ export const getCustomerStates = async (_req: Request, res: Response) => {
   }
 };
 
-export const getCustomerDistricts = async (_req: Request, res: Response) => {
+export const getCustomerDistricts = async (req: Request, res: Response) => {
   try {
+    const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
     const districts = await prisma.district.findMany({
       where: {
+        ...(stateId ? { stateId } : {}),
         isServiceAvailable: true,
         state: {
           isServiceAvailable: true,
