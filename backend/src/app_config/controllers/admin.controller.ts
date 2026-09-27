@@ -1347,37 +1347,113 @@ export const createPlace = async (req: Request, res: Response) => {
     if (typeof districtId !== "string" || !districtId.trim()) {
       return res.status(400).json({ message: "districtId is required" });
     }
+    const parsedLatitude = typeof latitude === "number" || (typeof latitude === "string" && latitude.trim() !== "")
+      ? Number(latitude)
+      : Number.NaN;
+    const parsedLongitude = typeof longitude === "number" || (typeof longitude === "string" && longitude.trim() !== "")
+      ? Number(longitude)
+      : Number.NaN;
+    if (!Number.isFinite(parsedLatitude) || parsedLatitude < -90 || parsedLatitude > 90) {
+      return res.status(400).json({ message: "latitude must be a valid number between -90 and 90" });
+    }
+    if (!Number.isFinite(parsedLongitude) || parsedLongitude < -180 || parsedLongitude > 180) {
+      return res.status(400).json({ message: "longitude must be a valid number between -180 and 180" });
+    }
+    const emptyEntryFee = entryfee === undefined || entryfee === null || (typeof entryfee === "string" && entryfee.trim() === "");
+    const parsedEntryFee = emptyEntryFee
+      ? null
+      : typeof entryfee === "number" || typeof entryfee === "string"
+        ? Number(entryfee)
+        : Number.NaN;
+    if (parsedEntryFee !== null && (!Number.isFinite(parsedEntryFee) || parsedEntryFee < 0)) {
+      return res.status(400).json({ message: "entryfee must be a non-negative number or empty" });
+    }
+    if (category !== undefined && typeof category !== "string") {
+      return res.status(400).json({ message: "category must be a string" });
+    }
+    const placeImages = images === undefined ? [] : images;
+    if (!Array.isArray(placeImages) || !placeImages.every((image) => typeof image === "string" && image.trim())) {
+      return res.status(400).json({ message: "images must be an array of uploaded image URLs" });
+    }
+    const invalidImage = placeImages.find((image) => {
+      try {
+        const url = new URL(image);
+        return !["http:", "https:"].includes(url.protocol);
+      } catch {
+        return true;
+      }
+    });
+    if (invalidImage) {
+      return res.status(400).json({ message: "images must contain uploaded HTTP(S) URLs, not local preview URLs" });
+    }
+
     const district = await prisma.district.findUnique({
-      where: { id: districtId },
+      where: { id: districtId.trim() },
       include: { state: true },
     });
     if (!district) {
-      return res.status(400).json({ message: "District not found" });
+      return res.status(400).json({ message: "Selected district does not exist." });
     }
     if (!district.isServiceAvailable || !district.state.isServiceAvailable) {
       return res.status(400).json({ message: "Selected district is currently disabled. Enable the state and district before creating new content." });
     }
-    if (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
-      return res.status(400).json({ message: "entryfee must be a non-negative number or null" });
-    }
     const requestedStatus = getContentStatus(status);
+    if (status !== undefined && !requestedStatus) {
+      return res.status(400).json({ message: "Invalid place status" });
+    }
     const place = await prisma.place.create({
       data: {
         name: name.trim(),
         description: typeof description === "string" ? description : "",
-        districtId,
-        images: Array.isArray(images) && images.every((i) => typeof i === "string") ? images : [],
-        entryfee: typeof entryfee === "number" ? entryfee : null,
+        districtId: district.id,
+        images: placeImages,
+        entryfee: parsedEntryFee,
         category: typeof category === "string" ? category : "",
-        latitude: typeof latitude === "number" ? latitude : 0,
-        longitude: typeof longitude === "number" ? longitude : 0,
+        latitude: parsedLatitude,
+        longitude: parsedLongitude,
         status: requestedStatus ?? "APPROVED",
       },
       include: { district: { include: { state: { include: { country: true } } } } },
     });
     return res.status(201).json({ message: "Place created", place });
   } catch (error) {
-    return handleError(res, error);
+    const prismaCode =
+      typeof error === "object" && error !== null && "code" in error && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    const imageReferences = Array.isArray(req.body?.images)
+      ? req.body.images.map((image: unknown) => {
+          if (typeof image !== "string") return typeof image;
+          try {
+            const url = new URL(image);
+            return `${url.protocol}//${url.host}${url.pathname}`;
+          } catch {
+            return image.slice(0, 80).replace(/\?.*$/, "?[redacted]");
+          }
+        })
+      : [];
+    console.error("CREATE PLACE ERROR:", error, {
+      bodyKeys: req.body && typeof req.body === "object" ? Object.keys(req.body) : [],
+      districtId: typeof req.body?.districtId === "string" ? req.body.districtId : undefined,
+      latitude: req.body?.latitude,
+      longitude: req.body?.longitude,
+      entryfeeType: typeof req.body?.entryfee,
+      imageReferences,
+      prismaCode,
+    });
+
+    if (prismaCode === "P2002") {
+      return res.status(409).json({ message: "A place with conflicting unique data already exists." });
+    }
+    if (prismaCode === "P2003") {
+      return res.status(400).json({ message: "Selected district does not exist." });
+    }
+
+    const message = error instanceof Error ? error.message : "Unknown server error";
+    return res.status(500).json({
+      message: "Failed to create place",
+      ...(process.env.NODE_ENV !== "production" ? { details: message, ...(prismaCode ? { prismaCode } : {}) } : {}),
+    });
   }
 };
 
