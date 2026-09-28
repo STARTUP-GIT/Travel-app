@@ -10,7 +10,7 @@ import {
   requestBackgroundPermission,
   isGeolocationSupported,
   queryGeolocationPermission,
-  getCurrentLocationDetailed,
+  watchForAccurateLocation,
 } from '../services/location-service';
 import type { GeoFailure } from '../services/location-service';
 import {
@@ -24,13 +24,20 @@ import { Branding } from '../constants/theme';
 /**
  * Resolved, always-terminating GPS acquisition state for the UI.
  * - `initializing` a request is in flight (bounded by the service timeout)
+ * - `improving` a valid position arrived but missed the accuracy filter; watch continues
  * - `ready`       a valid position was accepted; the tracker is usable
  * - `denied`      the user or the browser blocked location
  * - `unavailable` no geolocation support, or no acceptable fix
  * - `timeout`     the acquisition timed out
  * `error` carries the reason so the screen can show a real message + retry.
  */
-export type GpsPhase = 'initializing' | 'ready' | 'denied' | 'unavailable' | 'timeout';
+export type GpsPhase =
+  | 'initializing'
+  | 'improving'
+  | 'ready'
+  | 'denied'
+  | 'unavailable'
+  | 'timeout';
 
 /**
  * Session host: wires the low-level location/network services to the TripEngine
@@ -55,6 +62,7 @@ export function useTripSession() {
    */
   const [gpsPhase, setGpsPhase] = useState<GpsPhase>('initializing');
   const [gpsError, setGpsError] = useState<GeoFailure | null>(null);
+  const [improvingAccuracy, setImprovingAccuracy] = useState<number | null>(null);
   const [gpsSignalLost, setGpsSignalLost] = useState(false);
   const acquisitionRef = useRef(0);
   const acquisitionAbortRef = useRef<AbortController | null>(null);
@@ -82,17 +90,10 @@ export function useTripSession() {
   const startRunRef = useRef(0);
 
   /**
-   * ONE-SHOT position acquisition used to prepare the tracker.
-   *
-   * This is `getCurrentPosition`, not `watchPosition`, so opening the screen
-   * does not start a persistent location watcher. The accepted fix is pushed
-   * through the original store entry point (`setCurrentPosition` → engine
-   * `ingestFix`) so accuracy and validity follow the original rules. Because
-   * the engine has no trip in state IDLE, this cannot accumulate distance,
-   * start the trip timer, record route points or compute speed.
-   *
-   * Every outcome sets a terminal phase; `acquisitionRef` guards against a
-   * stale response overwriting a newer retry.
+   * Watch until the original filter accepts an initial fix. Poor-accuracy
+   * samples only update the improving status; they never enter the store or
+   * engine. A valid fix is stored while IDLE, so it cannot record distance,
+   * start the trip timer, or create route points.
    */
   const acquireInitialFix = useCallback(async () => {
     const token = ++acquisitionRef.current;
@@ -101,8 +102,16 @@ export function useTripSession() {
     acquisitionAbortRef.current = controller;
     setGpsPhase('initializing');
     setGpsError(null);
+    setImprovingAccuracy(null);
 
-    const result = await getCurrentLocationDetailed(controller.signal);
+    const result = await watchForAccurateLocation(
+      (accuracy) => {
+        if (!mountedRef.current || token !== acquisitionRef.current) return;
+        setImprovingAccuracy(accuracy);
+        setGpsPhase('improving');
+      },
+      controller.signal
+    );
     if (acquisitionAbortRef.current === controller) {
       acquisitionAbortRef.current = null;
     }
@@ -113,9 +122,11 @@ export function useTripSession() {
       setHasInitialPosition(true);
       setGpsPhase('ready');
       setGpsError(null);
+      setImprovingAccuracy(null);
       return;
     }
 
+    setImprovingAccuracy(null);
     setGpsPhase(
       result.error.kind === 'PERMISSION_DENIED'
         ? 'denied'
@@ -168,6 +179,7 @@ export function useTripSession() {
           kind: 'PERMISSION_DENIED',
           message: 'Location permission is blocked for this site.',
         });
+        setImprovingAccuracy(null);
         return;
       }
 
@@ -357,11 +369,15 @@ export function useTripSession() {
    */
   const retryGps = useCallback(async () => {
     if (requestingRef.current) return;
+    acquisitionRef.current++;
+    acquisitionAbortRef.current?.abort();
+    acquisitionAbortRef.current = null;
     requestingRef.current = true;
     if (mountedRef.current) {
       setPermissionLoading(true);
       setGpsPhase('initializing');
       setGpsError(null);
+      setImprovingAccuracy(null);
     }
     try {
       const state = await queryGeolocationPermission();
@@ -408,6 +424,7 @@ export function useTripSession() {
     retryGps,
     gpsPhase,
     gpsError,
+    improvingAccuracy,
     gpsSignalLost,
     online,
   };

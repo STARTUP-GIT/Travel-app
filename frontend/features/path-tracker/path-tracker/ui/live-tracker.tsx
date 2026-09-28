@@ -46,6 +46,7 @@ import {
   triggerTap,
   vibrateOffRoute,
 } from "../services/alert-service";
+import { TrackingConfig } from "../constants/theme";
 import { GoogleTripMap } from "./google-trip-map";
 import { RecoveryPrompt } from "./recovery-prompt";
 import { TripCompleteModal } from "./trip-complete-modal";
@@ -147,10 +148,7 @@ export function LiveTracker({
     return <StatusScreen busy message="Checking location permission…" />;
   }
 
-  /**
-   * Terminating GPS states. Each branch either proceeds to the tracker or
-   * offers a retry — there is no path that can render an endless loading state.
-   */
+  /** Acquisition states either keep watching for a better fix or offer retry. */
   switch (session.gpsPhase) {
     case "initializing":
       return (
@@ -158,6 +156,29 @@ export function LiveTracker({
           busy
           title="Getting GPS"
           message="Waiting for your device to report a position. This can take a few seconds, especially indoors."
+        />
+      );
+
+    case "improving":
+      return (
+        <StatusScreen
+          busy
+          title="Improving GPS accuracy..."
+          message={`Current accuracy is ±${Math.round(session.improvingAccuracy ?? 0)} m. Waiting for ${TrackingConfig.minAccuracyMeters} m or better.`}
+          hint="Keep this page open while your device looks for a better position."
+          action={
+            <Button
+              variant="action"
+              size="lg"
+              className="rounded-xl"
+              onClick={() => {
+                triggerMediumTap();
+                void session.retryGps();
+              }}
+            >
+              <RotateCcw className="size-4" /> Retry GPS
+            </Button>
+          }
         />
       );
 

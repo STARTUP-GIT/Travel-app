@@ -334,3 +334,102 @@ export function getCurrentLocationDetailed(
     }
   });
 }
+
+/**
+ * Keep one browser watch open until an acceptable initial fix arrives. Poor
+ * accuracy samples use the same standalone filter and are never forwarded to
+ * the trip store or engine.
+ */
+export function watchForAccurateLocation(
+  onImprovingAccuracy: (accuracy: number) => void,
+  signal?: AbortSignal
+): Promise<GeoAcquisition | null> {
+  return new Promise<GeoAcquisition | null>((resolve) => {
+    if (!isGeolocationSupported()) {
+      resolve({
+        ok: false,
+        error: {
+          kind: 'UNSUPPORTED',
+          message: 'This browser does not provide location services.',
+        },
+      });
+      return;
+    }
+
+    if (signal?.aborted) {
+      resolve(null);
+      return;
+    }
+
+    let settled = false;
+    let watchId: number | null = null;
+    let timer: ReturnType<typeof setTimeout>;
+    const finish = (result: GeoAcquisition | null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', abort);
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      resolve(result);
+    };
+    const abort = () => finish(null);
+    const refreshTimeout = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(
+            `[GPS] No browser geolocation update received for ${LOCATION_REQUEST_TIMEOUT_MS} ms.`
+          );
+        }
+        finish({
+          ok: false,
+          error: {
+            kind: 'TIMEOUT',
+            message: 'Timed out waiting for an acceptable GPS position.',
+          },
+        });
+      }, LOCATION_REQUEST_TIMEOUT_MS);
+    };
+
+    signal?.addEventListener('abort', abort, { once: true });
+    refreshTimeout();
+
+    try {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          if (settled) return;
+          refreshTimeout();
+          const fix = toFix(position);
+          const accepted = filterFix(fix, null);
+          if (!accepted) {
+            if (
+              validateCoordinate(fix) &&
+              fix.accuracy !== undefined &&
+              fix.accuracy > TrackingConfig.minAccuracyMeters
+            ) {
+              onImprovingAccuracy(fix.accuracy);
+            }
+            return;
+          }
+
+          lastFix = accepted;
+          finish({ ok: true, fix: accepted });
+        },
+        (error) => finish({ ok: false, error: mapPositionError(error) }),
+        {
+          enableHighAccuracy: true,
+          maximumAge: 3000,
+          timeout: LOCATION_REQUEST_TIMEOUT_MS,
+        }
+      );
+    } catch {
+      finish({
+        ok: false,
+        error: {
+          kind: 'POSITION_UNAVAILABLE',
+          message: 'The browser could not start a location request.',
+        },
+      });
+    }
+  });
+}
