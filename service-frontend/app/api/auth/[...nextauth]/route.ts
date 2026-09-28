@@ -1,3 +1,5 @@
+import type { NextRequest } from "next/server";
+
 import { authConfigured, handlers } from "@/auth";
 
 /**
@@ -41,8 +43,11 @@ function hasSessionCookie(request: Request): boolean {
  * by this branch. The reason the server cannot start is logged by `auth.ts` at
  * startup and by the sign-in action on every attempt — it is reported, not
  * hidden.
+ *
+ * The parameter is a `NextRequest` because that is what Next.js passes a route
+ * handler and what Auth.js types its handlers against.
  */
-export async function GET(request: Request): Promise<Response> {
+export async function GET(request: NextRequest): Promise<Response> {
   if (authConfigured || hasSessionCookie(request)) {
     return handlers.GET(request);
   }
