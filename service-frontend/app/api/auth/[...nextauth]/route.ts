@@ -1,4 +1,4 @@
-import { handlers } from "@/auth";
+import { authConfigured, handlers } from "@/auth";
 
 /**
  * The only authentication route: /api/auth/[...nextauth].
@@ -11,4 +11,40 @@ import { handlers } from "@/auth";
  *
  * There is no catch-all proxy route: every backend call is made server-side.
  */
-export const { GET, POST } = handlers;
+export const { POST } = handlers;
+
+/** Auth.js names this after the transport it was issued over. */
+const SESSION_COOKIES = [
+  "__Secure-authjs.session-token",
+  "authjs.session-token",
+];
+
+function hasSessionCookie(request: Request): boolean {
+  const header = request.headers.get("cookie") ?? "";
+  return SESSION_COOKIES.some((name) =>
+    header
+      .split(";")
+      .some((part) => part.trim().startsWith(`${name}=`))
+  );
+}
+
+/**
+ * `GET /api/auth/session` is the probe `SessionProvider` makes on every page
+ * load, and inside Auth.js it is answered with HTTP 500 when `assertConfig()`
+ * rejects the configuration — which is exactly what a missing `AUTH_SECRET`
+ * does. A provider cannot act on that; it just looks like a broken site.
+ *
+ * A request carrying no session cookie has no session to describe, so `null` is
+ * the truthful answer and is what Auth.js returns itself once it is
+ * configured. This is not a stand-in session: a request that actually carries
+ * credentials is handed to Auth.js untouched, so signing in is never satisfied
+ * by this branch. The reason the server cannot start is logged by `auth.ts` at
+ * startup and by the sign-in action on every attempt — it is reported, not
+ * hidden.
+ */
+export async function GET(request: Request): Promise<Response> {
+  if (authConfigured || hasSessionCookie(request)) {
+    return handlers.GET(request);
+  }
+  return Response.json(null);
+}

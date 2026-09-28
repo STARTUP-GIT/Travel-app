@@ -34,8 +34,12 @@ const googleEnabled = Boolean(
 /**
  * Auth.js signs and verifies every session token with this value, so it has to
  * be a server-side variable: `AUTH_SECRET`, or `NEXTAUTH_SECRET` as the legacy
- * alias. It is never sent to the browser and there is no generated fallback,
- * because a predictable secret would let anyone mint a valid session.
+ * alias. It is never sent to the browser and there is no fallback constant,
+ * because a secret that lives in the repository is a secret everyone with
+ * repository access can read — which would let them mint a valid session.
+ *
+ * `service-frontend/.env` is gitignored, so on a host such as Vercel that file
+ * never arrives and the variable has to be configured on the host instead.
  */
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
@@ -46,18 +50,24 @@ const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
  * goes through the very same assertion, so it produces no session cookie and
  * comes back looking exactly like a rejected password.
  *
- * Both reported symptoms are this one condition. `authConfigured` lets the
+ * Both reported symptoms were this one condition. `authConfigured` lets the
  * sign-in action report it as a server fault instead of blaming the password.
  */
 export const authConfigured = Boolean(authSecret);
 
 if (!authConfigured) {
   console.error(
-    "[auth] AUTH_SECRET is not set, so Auth.js refuses to run. Every " +
-      "/api/auth request answers HTTP 500 (MissingSecret: Please define a " +
-      "`secret`) and no session can be created. Set AUTH_SECRET in " +
-      "service-frontend/.env, confirm the process serving these requests " +
-      "loads that file, then rebuild."
+    "[auth] AUTH_SECRET is not set, so Auth.js rejects its own configuration " +
+      "and can neither create nor read a session.\n" +
+      "  Symptom: sign-in always reports a server fault, and " +
+      "GET /api/auth/session answers HTTP 500 (MissingSecret).\n" +
+      "  Fix: set AUTH_SECRET in the environment of the process serving this " +
+      "code, then redeploy or restart it.\n" +
+      "    - Vercel: Project -> Settings -> Environment Variables -> add " +
+      "AUTH_SECRET for Production and Preview, then redeploy. Generate one " +
+      "with: openssl rand -base64 32\n" +
+      "    - Local: put AUTH_SECRET in service-frontend/.env or .env.local.\n" +
+      "  Note .env is gitignored, so it never reaches a deployment."
   );
 }
 
