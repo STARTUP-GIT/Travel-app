@@ -185,6 +185,14 @@ export const deleteProfile = async (req: Request, res: Response) => {
       });
     }
 
+    // `common_guide_places` is a join table without a cascade, so the rows have
+    // to go first. Deleting the guide directly fails with a foreign-key error.
+    await prisma.common_guide_places.deleteMany({
+      where: {
+        commonGuideId,
+      },
+    });
+
     await prisma.common_guide.delete({
       where: {
         id: commonGuideId,

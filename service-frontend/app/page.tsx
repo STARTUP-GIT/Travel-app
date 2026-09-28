@@ -1,7 +1,13 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <div className="flex items-center justify-center w-full h-full min-h-screen  text-3xl">
-    AN WEBSITE BUILD BY 2 SMALL KIDS 
-  </div>
+import { getProviderSession } from "@/features/provider/state/provider-session";
+
+/**
+ * Single entry point. A usable provider session goes straight to the dashboard;
+ * everyone else picks the account type on the sign-in screen, because the four
+ * provider kinds live behind four different backend routers.
+ */
+export default async function Home() {
+  const session = await getProviderSession();
+  redirect(session ? "/dashboard" : "/login");
 }
