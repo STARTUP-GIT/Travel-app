@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveProfile } from "@/features/provider/api/provider.actions";
+import { PhotoUploadField } from "@/features/provider/components/photo-upload-field";
 import type { ProviderProfile } from "@/features/provider/types";
 import { LanguageInput } from "@/features/auth/components/place-picker";
 
@@ -74,8 +75,8 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
       next.email = "Enter a valid email address";
     if (values.phone.length > 0 && !/^[0-9+\-\s]{10,15}$/.test(values.phone))
       next.phone = "Enter a valid phone number";
-    if (values.photo.trim().length > 0 && !/^https?:\/\//.test(values.photo))
-      next.photo = "The photo must be a full https:// URL";
+    // `photo` is not user input any more: it is either the saved Cloudinary URL
+    // or a new one returned by the upload action, so there is nothing to check.
     if (isGuide) {
       if (Number(values.experience) < 0)
         next.experience = "Years of experience cannot be negative";
@@ -178,19 +179,12 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
           />
         </Field>
 
-        <Field
-          label="Profile photo URL"
-          error={errors.photo}
-          hint="Leave blank to keep your current photo."
-        >
-          <Input
-            value={values.photo}
-            onChange={(event) => set("photo", event.target.value)}
-            placeholder="https://images.example.com/me.jpg"
-            inputMode="url"
-            aria-invalid={Boolean(errors.photo)}
-          />
-        </Field>
+        <PhotoUploadField
+          value={values.photo}
+          onChange={(url) => set("photo", url)}
+          fallbackLabel={values.name}
+          disabled={busy}
+        />
       </section>
 
       {isGuide ? (

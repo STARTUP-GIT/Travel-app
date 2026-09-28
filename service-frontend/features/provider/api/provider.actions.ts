@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { signOut } from "@/auth";
+import { PROFILE_PHOTO_FOLDER } from "@/lib/upload/image";
+import { uploadImageWithToken } from "@/features/provider/api/upload.server";
 
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import type { ProviderKind } from "@/features/provider/types";
@@ -157,6 +159,27 @@ export async function removeAccount(): Promise<ActionResult> {
 /** Ends the Auth.js session and sends the provider back to the sign-in screen. */
 export async function signOutProvider(): Promise<void> {
   await signOut({ redirectTo: "/login" });
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Profile photo upload                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Uploads a provider photo to Cloudinary and returns the secure URL to store in
+ * the existing `profile_pic` field.
+ *
+ * The file travels browser → this server action → backend → Cloudinary. The
+ * browser only ever sees the resulting delivery URL, never a Cloudinary
+ * credential.
+ */
+export async function uploadProfilePhoto(
+  file: File
+): Promise<ActionResult<string>> {
+  return run(async () => {
+    const session = await requireProviderSession("/profile");
+    return uploadImageWithToken(session.token, file, PROFILE_PHOTO_FOLDER);
+  });
 }
 
 /* -------------------------------------------------------------------------- */
