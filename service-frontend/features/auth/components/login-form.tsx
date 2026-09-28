@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, LogIn, Mail, TriangleAlert } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn, Mail } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -27,26 +27,36 @@ export function LoginForm({ initialKind, next, error }: Props) {
   const [kind, setKind] = React.useState<ProviderKind | null>(initialKind);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [pending, setPending] = React.useState(false);
-  const [formError, setFormError] = React.useState<string | null>(null);
   const [fields, setFields] = React.useState<Record<string, string>>({});
+  const announced = React.useRef(false);
+
+  // A failure that arrived through the URL is reported the same way as one the
+  // action returns, so every auth message is seen in the same place.
+  React.useEffect(() => {
+    if (!error || announced.current) return;
+    announced.current = true;
+    toast.error(error);
+  }, [error]);
 
   const guide = kind ? providerMeta(kind).supportsGoogle : false;
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!kind) return;
+    // Guards the second submit of an in-flight request, which would otherwise
+    // sign in twice and race the redirect.
+    if (pending || !kind) return;
 
     setPending(true);
-    setFormError(null);
     setFields({});
 
     const result = await signInWithEmail({ kind, email, password }, next);
     setPending(false);
 
     if (!result.ok) {
-      setFormError(result.message);
       setFields(result.fields ?? {});
+      toast.error(result.message);
       return;
     }
 
@@ -73,21 +83,10 @@ export function LoginForm({ initialKind, next, error }: Props) {
             </p>
           </div>
 
-          {error ? (
-            <p
-              role="alert"
-              className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/8 p-3 text-sm text-destructive"
-            >
-              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
-              {error}
-            </p>
-          ) : null}
-
           <ProviderKindPicker
             value={kind}
             onChange={(next) => {
               setKind(next);
-              setFormError(null);
               setFields({});
             }}
           />
@@ -133,27 +132,40 @@ export function LoginForm({ initialKind, next, error }: Props) {
 
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                aria-invalid={Boolean(fields.password)}
-                className="rounded-xl py-6"
-                placeholder="Your password"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  aria-invalid={Boolean(fields.password)}
+                  className="rounded-xl py-6 pr-11"
+                  placeholder="Your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((shown) => !shown)}
+                  disabled={pending}
+                  aria-label={
+                    showPassword ? "Hide password" : "Show password"
+                  }
+                  aria-pressed={showPassword}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
               {fields.password ? (
                 <p className="text-xs text-destructive">{fields.password}</p>
               ) : null}
             </div>
-
-            {formError ? (
-              <p role="alert" className="text-sm text-destructive">
-                {formError}
-              </p>
-            ) : null}
 
             <Button
               type="submit"

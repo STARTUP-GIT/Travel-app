@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Save, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { saveProfile } from "@/features/provider/api/provider.actions";
+import {
+  saveProfile,
+  uploadProfilePhoto,
+} from "@/features/provider/api/provider.actions";
 import { PhotoUploadField } from "@/features/provider/components/photo-upload-field";
 import type { ProviderProfile } from "@/features/provider/types";
 import { LanguageInput } from "@/features/auth/components/place-picker";
@@ -56,6 +59,7 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
   const [errors, setErrors] = React.useState<Errors>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const isGuide = profile.kind === "common_guide" || profile.kind === "specific_guide";
 
   function set<K extends keyof Values>(key: K, value: Values[K]) {
@@ -181,9 +185,14 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
 
         <PhotoUploadField
           value={values.photo}
-          onChange={(url) => set("photo", url)}
           fallbackLabel={values.name}
           disabled={busy}
+          onChange={(url) => set("photo", url)}
+          upload={async (file) => {
+            const result = await uploadProfilePhoto(file);
+            if (!result.ok) throw new Error(result.message);
+            return result.data;
+          }}
         />
       </section>
 
@@ -246,13 +255,31 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
           error={errors.password}
           hint="Leave blank to keep your current password."
         >
-          <Input
-            value={values.password}
-            onChange={(event) => set("password", event.target.value)}
-            type="password"
-            autoComplete="new-password"
-            aria-invalid={Boolean(errors.password)}
-          />
+          <div className="relative">
+            <Input
+              value={values.password}
+              onChange={(event) => set("password", event.target.value)}
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              aria-invalid={Boolean(errors.password)}
+              className="pr-11"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((shown) => !shown)}
+              disabled={busy}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              title={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
+          </div>
         </Field>
       </section>
 

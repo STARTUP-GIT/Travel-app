@@ -39,12 +39,6 @@ const base = {
   password,
   fullname,
   phonenumber: phone,
-  profilePic: z
-    .string()
-    .trim()
-    .url("Enter a valid image URL")
-    .or(z.literal(""))
-    .default(""),
   // Guide-only fields. They are collected for every kind and then validated per
   // kind below, which keeps the parsed output a single flat shape.
   placeIds: z.array(z.string()).default([]),
@@ -94,7 +88,6 @@ export const signupSchema = z
     // for a specific guide, so a place guide must never send more than one.
     placeIds:
       value.kind === "common_guide" ? value.placeIds : value.placeIds.slice(0, 1),
-    profilePic: value.profilePic || undefined,
   }));
 
 /**
@@ -109,7 +102,6 @@ export type SignupValues = {
   email: string;
   phonenumber: string;
   password: string;
-  profilePic: string;
   placeIds: string[];
   experience: string | number;
   cost: string | number;

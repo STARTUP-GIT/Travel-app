@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, TriangleAlert, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -17,12 +17,14 @@ import {
   LanguageInput,
   PlacePicker,
 } from "@/features/auth/components/place-picker";
+import { PhotoUploadField } from "@/features/provider/components/photo-upload-field";
 import {
   registerWithEmail,
   signInWithGoogleGuide,
 } from "@/features/auth/api/auth.actions";
 import { providerMeta } from "@/features/provider/config";
 import type { ProviderKind } from "@/features/provider/types";
+import { cn } from "@/lib/utils";
 
 type Props = {
   initialKind: ProviderKind | null;
@@ -35,7 +37,6 @@ type Form = {
   email: string;
   phonenumber: string;
   password: string;
-  profilePic: string;
   placeIds: string[];
   experience: string;
   cost: string;
@@ -48,7 +49,6 @@ const EMPTY: Form = {
   email: "",
   phonenumber: "",
   password: "",
-  profilePic: "",
   placeIds: [],
   experience: "0",
   cost: "0",
@@ -59,8 +59,27 @@ export function SignupForm({ initialKind, error }: Props) {
   const [kind, setKind] = React.useState<ProviderKind | null>(initialKind);
   const [form, setForm] = React.useState<Form>(EMPTY);
   const [pending, setPending] = React.useState<"email" | "google" | null>(null);
-  const [formError, setFormError] = React.useState<string | null>(null);
   const [fields, setFields] = React.useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = React.useState(false);
+  // The chosen photo, held as a file until the account exists. No URL is ever
+  // typed or kept in form state.
+  const [photoFile, setPhotoFile] = React.useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
+  const announced = React.useRef(false);
+
+  React.useEffect(() => {
+    return () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
+    };
+  }, [photoPreview]);
+
+  // A failure that arrived through the URL is reported the same way as one the
+  // action returns, so every auth message is seen in the same place.
+  React.useEffect(() => {
+    if (!error || announced.current) return;
+    announced.current = true;
+    toast.error(error);
+  }, [error]);
 
   const meta = kind ? providerMeta(kind) : null;
   const isGuide = kind === "common_guide" || kind === "specific_guide";
@@ -70,53 +89,56 @@ export function SignupForm({ initialKind, error }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function resetErrors() {
-    setFormError(null);
-    setFields({});
-  }
-
-  async function handleResult(
-    result: Awaited<ReturnType<typeof registerWithEmail>>
+  function handleResult(
+    result: Awaited<ReturnType<typeof registerWithEmail>>,
+    success: string
   ) {
     if (!result.ok) {
-      setFormError(result.message);
       setFields(result.fields ?? {});
+      toast.error(result.message);
       return;
     }
-    toast.success("Account created");
+    toast.success(success);
     window.location.assign(result.redirectTo);
   }
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!kind) return;
+    // Guards the second submit of an in-flight request, which would otherwise
+    // try to create the same account twice.
+    if (pending || !kind) return;
 
     setPending("email");
-    resetErrors();
+    setFields({});
 
-    const result = await registerWithEmail({
-      kind,
-      fullname: form.fullname,
-      username: form.username,
-      email: form.email,
-      phonenumber: form.phonenumber,
-      password: form.password,
-      profilePic: form.profilePic,
-      placeIds: form.placeIds,
-      experience: form.experience,
-      cost: form.cost,
-      languages: form.languages,
-    });
+    const result = await registerWithEmail(
+      {
+        kind,
+        fullname: form.fullname,
+        username: form.username,
+        email: form.email,
+        phonenumber: form.phonenumber,
+        password: form.password,
+        placeIds: form.placeIds,
+        experience: form.experience,
+        cost: form.cost,
+        languages: form.languages,
+      },
+      "/dashboard",
+      photoFile
+    );
 
     setPending(null);
-    await handleResult(result);
+    if (result.ok && result.warning) toast.warning(result.warning);
+    await handleResult(result, "Account created");
   }
 
   async function submitGoogle() {
     if (kind !== "common_guide" && kind !== "specific_guide") return;
+    if (pending) return;
 
     setPending("google");
-    resetErrors();
+    setFields({});
 
     const result = await signInWithGoogleGuide(
       {
@@ -131,7 +153,7 @@ export function SignupForm({ initialKind, error }: Props) {
     );
 
     setPending(null);
-    await handleResult(result);
+    await handleResult(result, "Welcome to the guide network");
   }
 
   const textField = (
@@ -143,25 +165,56 @@ export function SignupForm({ initialKind, error }: Props) {
       autoComplete?: string;
       required?: boolean;
     } = {}
-  ) => (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
+  ) => {
+    const field = (
       <Input
         id={id}
-        type={options.type ?? "text"}
+        type={
+          id === "password" && showPassword
+            ? "text"
+            : (options.type ?? "text")
+        }
         autoComplete={options.autoComplete}
         required={options.required}
         placeholder={options.placeholder}
         value={form[id] as string}
         onChange={(event) => set(id, event.target.value)}
         aria-invalid={Boolean(fields[id])}
-        className="rounded-xl py-6"
+        className={cn("rounded-xl py-6", id === "password" && "pr-11")}
       />
-      {fields[id] ? (
-        <p className="text-xs text-destructive">{fields[id]}</p>
-      ) : null}
-    </div>
-  );
+    );
+
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={id}>{label}</Label>
+        {id === "password" ? (
+          <div className="relative">
+            {field}
+            <button
+              type="button"
+              onClick={() => setShowPassword((shown) => !shown)}
+              disabled={pending !== null}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              title={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+            >
+              {showPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
+          </div>
+        ) : (
+          field
+        )}
+        {fields[id] ? (
+          <p className="text-xs text-destructive">{fields[id]}</p>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-10">
@@ -184,21 +237,11 @@ export function SignupForm({ initialKind, error }: Props) {
             </p>
           </div>
 
-          {error ? (
-            <p
-              role="alert"
-              className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/8 p-3 text-sm text-destructive"
-            >
-              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
-              {error}
-            </p>
-          ) : null}
-
           <ProviderKindPicker
             value={kind}
             onChange={(next) => {
               setKind(next);
-              resetErrors();
+              setFields({});
             }}
           />
 
@@ -232,10 +275,24 @@ export function SignupForm({ initialKind, error }: Props) {
                 autoComplete: "new-password",
                 required: true,
               })}
-              {textField("profilePic", "Profile photo URL", {
-                type: "url",
-                placeholder: "https://… (optional)",
-              })}
+
+              <PhotoUploadField
+                value={photoPreview}
+                fallbackLabel={form.fullname || "P"}
+                disabled={pending !== null}
+                hint={
+                  photoFile
+                    ? "Your photo uploads to Cloudinary when the account is created."
+                    : "Optional — you can add one later from your profile."
+                }
+                onPick={(file) => {
+                  setPhotoFile(file ?? null);
+                  setPhotoPreview((current) => {
+                    if (current) URL.revokeObjectURL(current);
+                    return file ? URL.createObjectURL(file) : null;
+                  });
+                }}
+              />
 
               {isGuide ? (
                 <>
@@ -261,12 +318,6 @@ export function SignupForm({ initialKind, error }: Props) {
                     })}
                   </div>
                 </>
-              ) : null}
-
-              {formError ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {formError}
-                </p>
               ) : null}
 
               <Button

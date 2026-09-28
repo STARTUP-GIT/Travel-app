@@ -8,8 +8,10 @@ import { isProviderKind } from "@/features/provider/types";
 export const metadata: Metadata = { title: "Create a provider account" };
 
 const ERRORS: Record<string, string> = {
+  // Auth.js collapses both a genuine misconfiguration and a sign-in it simply
+  // refused into `Configuration`, so this cannot claim to be either one.
   Configuration:
-    "Registration is not configured correctly. Please contact support.",
+    "We could not complete that registration. Please try again, and let us know if it keeps happening.",
   AccessDenied: "That account is not allowed to sign in here.",
   default: "Registration failed. Please try again.",
 };

@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { uploadProfilePhoto } from "@/features/provider/api/provider.actions";
 import {
   ACCEPT_ATTRIBUTE,
   IMAGE_SIZE_LABEL,
@@ -16,29 +15,52 @@ import {
 } from "@/lib/upload/image";
 
 type Props = {
-  /** The saved Cloudinary URL, or null/empty when there is no photo. */
+  /**
+   * The image currently shown in the box. In the profile editor this is the
+   * saved Cloudinary URL; while registering it is the local preview of the
+   * file that has been chosen but not uploaded yet.
+   */
   value: string | null;
-  /** Receives the new Cloudinary URL, or "" when the photo is removed. */
-  onChange: (url: string) => void;
-  /** Falls back to this when there is no photo yet, e.g. the provider name. */
+  /** Shown instead of an image when there is nothing to display. */
   fallbackLabel: string;
   disabled?: boolean;
+  /**
+   * Uploads the file and resolves with the Cloudinary URL. Provided by the
+   * profile editor, which already has a session and uploads immediately.
+   * Mutually exclusive with `onPick`.
+   */
+  upload?: (file: File) => Promise<string>;
+  /**
+   * Receives the validated file without uploading it. Used by the signup form,
+   * where no session exists until the account exists, so the file is uploaded
+   * by the registration action itself.
+   * Mutually exclusive with `upload`.
+   */
+  onPick?: (file: File) => void;
+  /** Called when the user clears the photo. */
+  onChange?: (url: string) => void;
+  /** Hint under the box, e.g. to explain when the upload really happens. */
+  hint?: string;
 };
 
 /**
- * Profile photo picker. The provider always selects a file from their device:
- * there is no text field for a URL anywhere in this flow.
+ * Profile photo picker. The provider always picks a file from their device:
+ * there is no text field for a URL anywhere in this flow, so a photo URL can
+ * never be typed in by hand.
  *
- * Selecting a file shows a local preview immediately, then uploads it to
- * Cloudinary through the backend and hands the returned secure URL upwards. The
- * local file, its object URL, and any base64 data are never stored — only the
- * Cloudinary delivery URL is, in the existing `profile_pic` field.
+ * The local file, its object URL and any base64 data are never stored. Either
+ * the file is uploaded straight away and only the Cloudinary delivery URL is
+ * kept, or (while registering) the file is handed to the registration action,
+ * which uploads it with the session it creates.
  */
 export function PhotoUploadField({
   value,
-  onChange,
   fallbackLabel,
   disabled = false,
+  upload,
+  onPick,
+  onChange,
+  hint,
 }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const previewRef = React.useRef<string | null>(null);
@@ -47,8 +69,8 @@ export function PhotoUploadField({
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Object URLs are revoked when they are replaced or unmounted so the blob is
-  // not held in memory for the life of the page.
+  // Object URLs are revoked when replaced or unmounted so the blob is not held
+  // in memory for the life of the page.
   React.useEffect(() => {
     previewRef.current = preview;
     return () => {
@@ -57,7 +79,7 @@ export function PhotoUploadField({
   }, [preview]);
 
   const display = preview ?? (value ? value : null);
-  const initial = value ? value : null;
+  const isDeferred = !upload;
 
   function clearPreview() {
     setPreview((current) => {
@@ -68,6 +90,8 @@ export function PhotoUploadField({
   }
 
   async function handleFile(file: File) {
+    // Checked here so an obviously wrong file never costs a round-trip, and
+    // again on the server because the browser cannot be trusted to have run it.
     const invalid = validateImageFile(file);
     if (invalid) {
       setError(invalid);
@@ -78,18 +102,19 @@ export function PhotoUploadField({
     setError(null);
     setFileName(file.name);
     setPreview(URL.createObjectURL(file));
-    setUploading(true);
 
+    // Registration has no session yet: the file is passed on and uploaded by
+    // the registration action once the account exists.
+    if (isDeferred) {
+      onPick?.(file);
+      return;
+    }
+
+    setUploading(true);
     try {
-      const result = await uploadProfilePhoto(file);
-      if (!result.ok) {
-        setError(result.message);
-        clearPreview();
-        toast.error(result.message);
-        return;
-      }
+      const url = await upload!(file);
       // Only the Cloudinary URL is propagated. The local file is discarded.
-      onChange(result.data);
+      onChange?.(url);
       clearPreview();
       toast.success("Photo uploaded", {
         description: "Save your changes to keep this photo.",
@@ -107,14 +132,21 @@ export function PhotoUploadField({
   function handleRemove() {
     clearPreview();
     setError(null);
-    onChange("");
+    onChange?.("");
+    onPick?.(undefined as unknown as File);
     toast.info("Photo removed", {
       description: "Save your changes to apply this.",
     });
   }
 
+  const buttonLabel = uploading
+    ? "Uploading…"
+    : display
+      ? "Change Photo"
+      : "Upload Photo";
+
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="space-y-1.5">
       <Label>Profile Photo</Label>
 
       <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-3">
@@ -172,16 +204,12 @@ export function PhotoUploadField({
             >
               {uploading ? (
                 <Loader2 className="size-4 animate-spin" />
-              ) : display && display !== initial ? (
+              ) : display ? (
                 <Camera className="size-4" />
               ) : (
                 <Upload className="size-4" />
               )}
-              {uploading
-                ? "Uploading…"
-                : display
-                  ? "Replace Photo"
-                  : "Upload Photo"}
+              {buttonLabel}
             </Button>
 
             {display ? (
@@ -198,7 +226,7 @@ export function PhotoUploadField({
               </Button>
             ) : null}
 
-            {uploading && fileName ? (
+            {uploading ? (
               <Button
                 type="button"
                 size="sm"
@@ -218,6 +246,10 @@ export function PhotoUploadField({
           <p className="mt-1.5 text-xs text-muted-foreground">
             {uploading ? `Uploading ${fileName ?? "photo"}…` : IMAGE_SIZE_LABEL}
           </p>
+
+          {hint ? (
+            <p className="text-xs text-muted-foreground">{hint}</p>
+          ) : null}
 
           {error ? (
             <p role="alert" className="mt-1 text-xs text-destructive">

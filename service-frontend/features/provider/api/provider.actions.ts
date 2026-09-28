@@ -19,6 +19,7 @@ import {
   getProviderProfile,
   getProviderRequests,
   updateProviderListing,
+  signinWithEmail,
   updateProviderProfile,
   updateProviderRequestStatus,
 } from "@/features/provider/api/provider.server";
@@ -179,6 +180,30 @@ export async function uploadProfilePhoto(
   return run(async () => {
     const session = await requireProviderSession("/profile");
     return uploadImageWithToken(session.token, file, PROFILE_PHOTO_FOLDER);
+  });
+}
+
+/**
+ * Uploads the photo chosen on the sign-up form using the backend token the
+ * registration just produced.
+ *
+ * Sign-up is the one flow with no session to authenticate with, and the upload
+ * endpoint requires one, so the photo is sent after the account exists: the
+ * account is created, signed in, and only then is the file uploaded with that
+ * fresh session. `profilePic` is never part of the signup payload, so the
+ * backend never receives a hand-typed URL.
+ */
+export async function uploadSignupPhoto(
+  kind: ProviderKind,
+  email: string,
+  password: string,
+  file: File
+): Promise<ActionResult<string>> {
+  return run(async () => {
+    // Re-authenticating here is what gives the upload a valid token: the signup
+    // POST itself returns no session, and the endpoint rejects anonymous files.
+    const token = await signinWithEmail(kind, email, password);
+    return uploadImageWithToken(token, file, PROFILE_PHOTO_FOLDER);
   });
 }
 

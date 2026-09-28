@@ -118,7 +118,11 @@ export type ProviderSignupInput = {
   password: string;
   fullname: string;
   phonenumber: string;
-  profilePic?: string;
+  /**
+   * Deliberately absent: no photo URL. A profile photo is a file chosen on the
+   * sign-up form and uploaded to Cloudinary once the account exists, so there
+   * is no way to send a hand-typed or otherwise unverified URL here.
+   */
   /** Guides only. */
   placeIds: string[];
   experience: number;
@@ -155,7 +159,6 @@ export function signupPayload(
       email: input.email,
       password: input.password,
       phone_number: input.phonenumber,
-      ...(input.profilePic ? { profile_pic: input.profilePic } : {}),
     };
   }
 
@@ -171,7 +174,6 @@ export function signupPayload(
     language: input.languages,
     placeid:
       kind === "common_guide" ? input.placeIds : (input.placeIds[0] ?? ""),
-    ...(input.profilePic ? { profile_pic: input.profilePic } : {}),
   };
 }
 

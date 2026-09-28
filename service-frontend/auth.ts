@@ -31,10 +31,30 @@ const googleEnabled = Boolean(
     process.env.GOOGLE_CLIENT_ID
 );
 
+/**
+ * Auth.js signs and verifies every session token with this value, so it has to
+ * be a server-side variable: `AUTH_SECRET` in production, or `NEXTAUTH_SECRET`
+ * as the legacy alias. It is never sent to the browser and there is no
+ * generated development fallback, because a predictable secret would let
+ * anyone mint a valid session.
+ */
+const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+if (!authSecret && process.env.NODE_ENV === "production") {
+  // Auth.js answers every `/api/auth/*` request — including the
+  // `/api/auth/session` probe `SessionProvider` makes on load — with
+  // "There was a problem with the server configuration" (HTTP 500) when the
+  // secret is missing, and the browser only ever sees that generic message.
+  // Log the actual cause once, on the server, where it is actionable.
+  console.error(
+    "[auth] AUTH_SECRET is not set. Add it to the deployment environment " +
+      "(Vercel: Project → Settings → Environment Variables) and redeploy. " +
+      "Until then every /api/auth request fails with a server configuration error."
+  );
+}
+
 export const authConfig = {
-  // Production requires AUTH_SECRET; Auth.js fails fast rather than issuing
-  // forgeable sessions when it is missing.
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  secret: authSecret,
   session: { strategy: "jwt" },
   trustHost: true,
   pages: {
@@ -147,9 +167,12 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = (token.sub as string) ?? "";
-      }
+      // A callback that throws here is swallowed by Auth.js and answered as
+      // "no session", so the guard keeps a partially decoded token from
+      // producing a session object that claims a provider it has no token for.
+      if (!session.user || !token) return session;
+
+      session.user.id = (token.sub as string) ?? "";
       session.backendToken = token.backendToken;
       session.providerKind = token.providerKind;
       return session;
