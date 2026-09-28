@@ -157,9 +157,13 @@ export async function removeAccount(): Promise<ActionResult> {
   });
 }
 
-/** Ends the Auth.js session and sends the provider back to the sign-in screen. */
+/**
+ * Ends the Auth.js session without redirecting, so the caller can confirm it
+ * with a toast before it navigates. The cookie is cleared here; the browser
+ * navigation is the caller's job.
+ */
 export async function signOutProvider(): Promise<void> {
-  await signOut({ redirectTo: "/login" });
+  await signOut({ redirect: false });
 }
 
 /* -------------------------------------------------------------------------- */

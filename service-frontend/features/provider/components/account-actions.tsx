@@ -24,6 +24,10 @@ export function SignOutButton() {
         setBusy(true);
         await signOutProvider();
         setBusy(false);
+        toast.success("Signed out.");
+        // A full navigation, because the session cookie is gone and the server
+        // components have to re-render without it.
+        window.location.assign("/login");
       }}
       trigger={
         <Button

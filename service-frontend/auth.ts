@@ -33,23 +33,31 @@ const googleEnabled = Boolean(
 
 /**
  * Auth.js signs and verifies every session token with this value, so it has to
- * be a server-side variable: `AUTH_SECRET` in production, or `NEXTAUTH_SECRET`
- * as the legacy alias. It is never sent to the browser and there is no
- * generated development fallback, because a predictable secret would let
- * anyone mint a valid session.
+ * be a server-side variable: `AUTH_SECRET`, or `NEXTAUTH_SECRET` as the legacy
+ * alias. It is never sent to the browser and there is no generated fallback,
+ * because a predictable secret would let anyone mint a valid session.
  */
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
-if (!authSecret && process.env.NODE_ENV === "production") {
-  // Auth.js answers every `/api/auth/*` request — including the
-  // `/api/auth/session` probe `SessionProvider` makes on load — with
-  // "There was a problem with the server configuration" (HTTP 500) when the
-  // secret is missing, and the browser only ever sees that generic message.
-  // Log the actual cause once, on the server, where it is actionable.
+/**
+ * `assertConfig()` in `@auth/core` rejects a config with no secret. Because
+ * `GET /api/auth/session` is not one of the HTML actions, that rejection is
+ * answered with HTTP 500 rather than a redirect, and the credentials sign-in
+ * goes through the very same assertion, so it produces no session cookie and
+ * comes back looking exactly like a rejected password.
+ *
+ * Both reported symptoms are this one condition. `authConfigured` lets the
+ * sign-in action report it as a server fault instead of blaming the password.
+ */
+export const authConfigured = Boolean(authSecret);
+
+if (!authConfigured) {
   console.error(
-    "[auth] AUTH_SECRET is not set. Add it to the deployment environment " +
-      "(Vercel: Project → Settings → Environment Variables) and redeploy. " +
-      "Until then every /api/auth request fails with a server configuration error."
+    "[auth] AUTH_SECRET is not set, so Auth.js refuses to run. Every " +
+      "/api/auth request answers HTTP 500 (MissingSecret: Please define a " +
+      "`secret`) and no session can be created. Set AUTH_SECRET in " +
+      "service-frontend/.env, confirm the process serving these requests " +
+      "loads that file, then rebuild."
   );
 }
 

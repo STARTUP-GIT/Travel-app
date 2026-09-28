@@ -60,7 +60,7 @@ export function LoginForm({ initialKind, next, error }: Props) {
       return;
     }
 
-    toast.success("Welcome back");
+    toast.success("Signed in.");
     // The session cookie is set by the server action, so a full navigation is
     // what makes the new session visible to the server components.
     window.location.assign(result.redirectTo);

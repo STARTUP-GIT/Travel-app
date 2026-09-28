@@ -2,7 +2,7 @@
 
 import { LayoutDashboard, LogOut, Settings, Store, User, Inbox } from "lucide-react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { toast } from "sonner";
 
 import { Logo } from "@/components/shared/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBranding } from "@/features/app-config/state/app-config-provider";
+import { signOutProvider } from "@/features/provider/api/provider.actions";
 import { providerMeta } from "@/features/provider/config";
 import type { ProviderKind } from "@/features/provider/types";
 
@@ -99,7 +100,13 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onSelect={() => signOut({ callbackUrl: "/login" })}
+                onSelect={async () => {
+                  await signOutProvider();
+                  toast.success("Signed out.");
+                  // A full navigation, because the session cookie is gone and the
+                  // server components have to re-render without it.
+                  window.location.assign("/login");
+                }}
                 className="text-destructive"
               >
                 <LogOut className="size-4" />

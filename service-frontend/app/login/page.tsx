@@ -10,12 +10,10 @@ export const metadata: Metadata = { title: "Sign in" };
 const ERRORS: Record<string, string> = {
   // Auth.js collapses both a genuine misconfiguration and a sign-in it simply
   // refused into `Configuration`, so this cannot claim to be either one.
-  Configuration:
-    "We could not complete that sign-in. Please try again, and let us know if it keeps happening.",
-  AccessDenied: "That account is not allowed to sign in here.",
-  Verification:
-    "That sign-in link is no longer valid. Please try signing in again.",
-  default: "Sign in failed. Please try again.",
+  Configuration: "Something went wrong.",
+  AccessDenied: "Sign in failed.",
+  Verification: "Sign in failed.",
+  default: "Sign in failed.",
 };
 
 type SearchParams = Promise<{ kind?: string; next?: string; error?: string }>;

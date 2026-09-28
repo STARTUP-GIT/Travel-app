@@ -3,7 +3,7 @@
 import { AuthError } from "next-auth";
 import { cookies, headers } from "next/headers";
 
-import { signIn } from "@/auth";
+import { authConfigured, signIn } from "@/auth";
 import {
   ProviderApiError,
   signupWithEmail,
@@ -25,28 +25,34 @@ export type AuthActionResult =
   | { ok: true; redirectTo: string; warning?: string }
   | { ok: false; message: string; fields?: Record<string, string> };
 
+const SIGN_IN_FAILED = "Sign in failed.";
+const SIGN_UP_FAILED = "Sign up failed.";
+const SOMETHING_WENT_WRONG = "Something went wrong.";
+const NETWORK_ERROR = "Network error.";
+const ACCOUNT_EXISTS = "Account exists.";
+/** The account is real, so this must not read as a failed registration. */
+const ACCOUNT_CREATED = "Account created. Please sign in.";
+
 /**
  * `CredentialsSignin` codes raised by `authorize()` in auth.ts, mapped to
  * something the provider can act on. The Auth.js error *types* are listed too
  * because a sign-in that is refused rather than thrown comes back as a URL.
+ *
+ * Every message is short. The backend's own wording differs per router
+ * ("Validation failed", "Could not sign in (HTTP 401)"), so it is logged in
+ * `failure()` instead of shown.
  */
 const CREDENTIAL_MESSAGES: Record<string, string> = {
-  invalid_credentials:
-    "That email and password combination did not match an account.",
-  unknown_provider: "Choose the type of account you are signing in to.",
-  backend_unavailable:
-    "The service could not be reached. Please try again in a moment.",
-  Configuration:
-    "We could not complete that sign-in. Please try again, and let us know if it keeps happening.",
-  AccessDenied: "That account is not allowed to sign in here.",
-  OAuthCallbackError: "Google could not complete the sign-in. Please try again.",
-  default: "Sign in failed. Please try again.",
+  invalid_credentials: "Invalid credentials.",
+  unknown_provider: "Choose an account type.",
+  backend_unavailable: NETWORK_ERROR,
+  Configuration: SOMETHING_WENT_WRONG,
+  AccessDenied: SIGN_IN_FAILED,
+  OAuthCallbackError: SIGN_IN_FAILED,
+  default: SIGN_IN_FAILED,
 };
 
-const SIGN_IN_FAILED = "Sign in failed. Please try again.";
-
-const GOOGLE_UNAVAILABLE =
-  "Google sign in is not available right now. Please register with an email address and password.";
+const GOOGLE_UNAVAILABLE = "Google sign in is unavailable.";
 
 function authErrorMessage(error: AuthError): string {
   // Credentials errors carry the specific reason in `code`; every other type is
@@ -139,12 +145,20 @@ function failure(
   fallback: string
 ): { ok: false; message: string; fields?: Record<string, string> } {
   if (error instanceof ProviderApiError) {
-    return { ok: false, message: error.message, fields: error.fields };
+    // The backend words this differently on every router, and it is not the
+    // same text for every provider kind, so it is not something a provider can
+    // act on. It goes to the log; the form gets one short line.
+    console.error(`[auth] ${fallback}: HTTP ${error.status} ${error.message}`);
+    return {
+      ok: false,
+      message: error.status >= 500 ? SOMETHING_WENT_WRONG : fallback,
+      fields: error.fields,
+    };
   }
-  if (error instanceof Error && error.message) {
-    return { ok: false, message: error.message };
-  }
-  return { ok: false, message: fallback };
+  // `backendRequest` uses a bare `fetch`, so anything thrown here is a
+  // connection failure rather than an answer from the backend.
+  console.error(`[auth] ${fallback}:`, error);
+  return { ok: false, message: NETWORK_ERROR };
 }
 
 /**
@@ -177,6 +191,14 @@ export async function signInWithEmail(
   }
 
   const destination = safePath(redirectTo, "/dashboard");
+
+  // Without an Auth.js secret no session can be minted at all, and the sign-in
+  // comes back indistinguishable from a rejected password. `auth.ts` has
+  // already logged the cause; report it as a server fault instead of sending
+  // the provider off to re-type a password that was never the problem.
+  if (!authConfigured) {
+    return { ok: false, message: SOMETHING_WENT_WRONG };
+  }
 
   try {
     // `redirect: false` keeps navigation in the browser, so a failure is
@@ -250,13 +272,9 @@ export async function registerWithEmail(
     // already exists is a dead end unless the provider is told to sign in
     // instead of trying to register again.
     if (error instanceof ProviderApiError && isAlreadyRegistered(error)) {
-      return {
-        ok: false,
-        message:
-          "An account with those email address or username already exists. Sign in instead of creating another one.",
-      };
+      return { ok: false, message: ACCOUNT_EXISTS };
     }
-    return failure(error, "The account could not be created. Please try again.");
+    return failure(error, SIGN_UP_FAILED);
   }
 
   // Upload before signing the browser in, so a photo failure is reported on the
@@ -270,9 +288,11 @@ export async function registerWithEmail(
       photo
     );
     if (!uploaded.ok) {
-      // The account exists, so registration has effectively succeeded. Report
-      // the photo problem rather than pretending the signup failed.
-      photoWarning = `Your account was created, but the photo could not be uploaded: ${uploaded.message} You can add it from your profile page.`;
+      // The account exists, so registration has effectively succeeded. The photo
+      // is optional and can be added from the profile later, so this is a
+      // warning rather than a failure — and the backend's reason is logged in
+      // `uploadSignupPhoto` rather than shown here.
+      photoWarning = "Photo upload failed.";
     }
   }
 
@@ -286,17 +306,11 @@ export async function registerWithEmail(
   }
 
   // The account exists, so a failure here is the sign-in step and not the
-  // registration. Saying "signup failed" is what made providers think their
+  // registration. Saying "sign up failed" is what made providers think their
   // account had never been created and register a second time.
   return {
     ok: false,
-    message: [
-      "Your account was created, but we could not sign you in.",
-      photoWarning,
-      `${result.message} Please use the sign-in page.`,
-    ]
-      .filter(Boolean)
-      .join(" "),
+    message: ACCOUNT_CREATED,
     fields: result.fields,
   };
 }
@@ -347,7 +361,7 @@ export async function signInWithGoogleGuide(
     return { ok: true, redirectTo: authorizationUrl };
   } catch (error) {
     if (error instanceof AuthError) {
-      return { ok: false, message: "Google sign in was cancelled." };
+      return { ok: false, message: SIGN_IN_FAILED };
     }
     throw error;
   }

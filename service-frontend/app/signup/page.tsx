@@ -10,10 +10,9 @@ export const metadata: Metadata = { title: "Create a provider account" };
 const ERRORS: Record<string, string> = {
   // Auth.js collapses both a genuine misconfiguration and a sign-in it simply
   // refused into `Configuration`, so this cannot claim to be either one.
-  Configuration:
-    "We could not complete that registration. Please try again, and let us know if it keeps happening.",
-  AccessDenied: "That account is not allowed to sign in here.",
-  default: "Registration failed. Please try again.",
+  Configuration: "Something went wrong.",
+  AccessDenied: "Sign up failed.",
+  default: "Sign up failed.",
 };
 
 type SearchParams = Promise<{ kind?: string; error?: string }>;

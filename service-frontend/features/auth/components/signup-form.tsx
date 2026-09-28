@@ -130,7 +130,7 @@ export function SignupForm({ initialKind, error }: Props) {
 
     setPending(null);
     if (result.ok && result.warning) toast.warning(result.warning);
-    await handleResult(result, "Account created");
+    await handleResult(result, "Account created.");
   }
 
   async function submitGoogle() {
@@ -153,7 +153,7 @@ export function SignupForm({ initialKind, error }: Props) {
     );
 
     setPending(null);
-    await handleResult(result, "Welcome to the guide network");
+    await handleResult(result, "Signed in.");
   }
 
   const textField = (
