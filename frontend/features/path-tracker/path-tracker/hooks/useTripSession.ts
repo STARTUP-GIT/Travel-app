@@ -4,7 +4,6 @@ import {
   startGPSStream,
   startHeadingStream,
   ensurePermissions,
-  hasPermissions,
   startBackgroundLocationTask,
   stopBackgroundLocationTask,
   getCurrentLocation,
@@ -58,6 +57,7 @@ export function useTripSession() {
   const [gpsError, setGpsError] = useState<GeoFailure | null>(null);
   const [gpsSignalLost, setGpsSignalLost] = useState(false);
   const acquisitionRef = useRef(0);
+  const acquisitionAbortRef = useRef<AbortController | null>(null);
 
   /**
    * Deliberate deviation from the original (confirmed with the product owner).
@@ -78,6 +78,8 @@ export function useTripSession() {
   const sensorCleanupRef = useRef<(() => void) | null>(null);
   const requestingRef = useRef(false);
   const mountedRef = useRef(true);
+  const startInFlightRef = useRef(false);
+  const startRunRef = useRef(0);
 
   /**
    * ONE-SHOT position acquisition used to prepare the tracker.
@@ -94,11 +96,17 @@ export function useTripSession() {
    */
   const acquireInitialFix = useCallback(async () => {
     const token = ++acquisitionRef.current;
+    acquisitionAbortRef.current?.abort();
+    const controller = new AbortController();
+    acquisitionAbortRef.current = controller;
     setGpsPhase('initializing');
     setGpsError(null);
 
-    const result = await getCurrentLocationDetailed();
-    if (!mountedRef.current || token !== acquisitionRef.current) return;
+    const result = await getCurrentLocationDetailed(controller.signal);
+    if (acquisitionAbortRef.current === controller) {
+      acquisitionAbortRef.current = null;
+    }
+    if (!result || !mountedRef.current || token !== acquisitionRef.current) return;
 
     if (result.ok) {
       useTripStore.getState().setCurrentPosition(result.fix);
@@ -183,7 +191,13 @@ export function useTripSession() {
 
   // Auto-check existing permission on mount (no OS dialog yet).
   useEffect(() => {
-    checkPermission(false);
+    let active = true;
+    queueMicrotask(() => {
+      if (active) void checkPermission(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [checkPermission]);
 
   const requestPermission = useCallback(() => {
@@ -191,61 +205,70 @@ export function useTripSession() {
   }, [checkPermission]);
 
   const start = useCallback(async () => {
-    if (gpsCleanupRef.current) return;
+    if (gpsCleanupRef.current || startInFlightRef.current) return;
+    startInFlightRef.current = true;
+    const run = ++startRunRef.current;
 
-    // Network
-    const net = await initializeNetworkState();
-    if (!mountedRef.current) return;
-    setNetwork(net);
-    networkCleanupRef.current = startNetworkListener((n) => setNetwork(n));
+    try {
+      // Network
+      const net = await initializeNetworkState();
+      if (!mountedRef.current || run !== startRunRef.current) return;
+      setNetwork(net);
+      networkCleanupRef.current = startNetworkListener((n) => setNetwork(n));
 
-    // GPS stream → store → engine (source of truth). GPS keeps running even
-    // when the network or the map fails.
-    const cleanup = startGPSStream(
-      (fix) => {
-        setGPSActive(true);
-        if (mountedRef.current) setGpsSignalLost(false);
-        useTripStore.getState().setCurrentPosition(fix);
-      },
-      (error) => {
-        // Report a lost signal so the UI can warn. Does not change tracking.
-        if (mountedRef.current) {
-          setGpsSignalLost(true);
-          setGpsError(error);
+      // GPS stream → store → engine (source of truth). GPS keeps running even
+      // when the network or the map fails.
+      const cleanup = startGPSStream(
+        (fix) => {
+          setGPSActive(true);
+          if (mountedRef.current) setGpsSignalLost(false);
+          useTripStore.getState().setCurrentPosition(fix);
+        },
+        (error) => {
+          // Report a lost signal so the UI can warn. Does not change tracking.
+          if (mountedRef.current) {
+            setGpsSignalLost(true);
+            setGpsError(error);
+          }
         }
+      );
+      if (!mountedRef.current || run !== startRunRef.current) {
+        cleanup();
+        return;
       }
-    );
-    gpsCleanupRef.current = cleanup;
+      gpsCleanupRef.current = cleanup;
 
-    // Compass heading → engine (for return direction guidance)
-    headingCleanupRef.current = startHeadingStream((h) => {
-      tripEngine.setDeviceHeading(h);
-    });
+      // Compass heading → engine (for return direction guidance)
+      headingCleanupRef.current = startHeadingStream((h) => {
+        tripEngine.setDeviceHeading(h);
+      });
 
-    // Sensors → engine (shake detection, step counting for movement confidence)
-    sensorService.start();
-    sensorCleanupRef.current = sensorService.subscribe((state) => {
-      tripEngine.setSensorState(state);
-    });
+      // Sensors → engine (shake detection, step counting for movement confidence)
+      sensorService.start();
+      sensorCleanupRef.current = sensorService.subscribe((state) => {
+        tripEngine.setSensorState(state);
+      });
 
-    // Initial fix
-    const current = await getCurrentLocation();
-    if (current && mountedRef.current) {
-      useTripStore.getState().setCurrentPosition(current);
-      setHasInitialPosition(true);
-    }
+      // Initial fix
+      const current = await getCurrentLocation();
+      if (current && mountedRef.current && run === startRunRef.current) {
+        useTripStore.getState().setCurrentPosition(current);
+        setHasInitialPosition(true);
+      }
 
-    // Background task if an active trip is already running
-    const state = useTripStore.getState().state;
-    if (state === 'ACTIVE' || state === 'RETURNING') {
-      startBackgroundLocationTask(Branding.backgroundTaskName);
+      // Background task if an active trip is already running
+      const state = useTripStore.getState().state;
+      if (state === 'ACTIVE' || state === 'RETURNING') {
+        startBackgroundLocationTask(Branding.backgroundTaskName);
+      }
+    } finally {
+      if (run === startRunRef.current) startInFlightRef.current = false;
     }
   }, [setNetwork, setHasInitialPosition, setGPSActive]);
 
   const stop = useCallback(() => {
-    // Invalidate any in-flight one-shot acquisition so a late callback cannot
-    // set state after teardown.
-    acquisitionRef.current++;
+    startRunRef.current++;
+    startInFlightRef.current = false;
     gpsCleanupRef.current?.();
     gpsCleanupRef.current = null;
     headingCleanupRef.current?.();
@@ -271,6 +294,15 @@ export function useTripSession() {
       stop();
     };
   }, [permissionGranted, trackingArmed, start, stop]);
+
+  // Cancel the bounded one-shot request only when this page instance leaves.
+  // Permission-state changes also clean up the tracking effect, but must not
+  // invalidate the initial fix they just enabled.
+  useEffect(() => () => {
+    acquisitionRef.current++;
+    acquisitionAbortRef.current?.abort();
+    acquisitionAbortRef.current = null;
+  }, []);
 
   // Start/stop the background location task on trip-state transitions.
   // Paused trips intentionally stop the background task (recording is frozen),

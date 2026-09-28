@@ -12,13 +12,14 @@ interface DeviceOrientationPermissionApi {
 }
 
 let lastFix: Coordinate | null = null;
+const LOCATION_REQUEST_TIMEOUT_MS = 10000;
 
 export async function ensurePermissions(): Promise<boolean> {
-  return !!navigator.geolocation;
+  return isGeolocationSupported();
 }
 
 export async function hasPermissions(): Promise<boolean> {
-  return !!navigator.geolocation;
+  return isGeolocationSupported();
 }
 
 export async function requestBackgroundPermission(): Promise<boolean> {
@@ -98,25 +99,8 @@ export function startBackgroundLocationTask(_task: string): void {}
 export async function stopBackgroundLocationTask(_task: string): Promise<void> {}
 
 export async function getCurrentLocation(): Promise<Coordinate | null> {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve(null);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const fix = toFix(pos);
-        if (!filterFix(fix, null)) {
-          resolve(null);
-          return;
-        }
-        lastFix = fix;
-        resolve(fix);
-      },
-      () => resolve(null),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
+  const result = await getCurrentLocationDetailed();
+  return result?.ok ? result.fix : null;
 }
 
 export function getLastFix(): Coordinate | null {
@@ -133,7 +117,7 @@ export function startHeadingStream(callback: (heading: number) => void): () => v
     if (now - last < 100) return;
     last = now;
     if (event.alpha === null) return;
-    let heading = (360 - event.alpha) % 360;
+    const heading = (360 - event.alpha) % 360;
     BUFFER.push(heading);
     if (BUFFER.length > 6) BUFFER.shift();
     callback(smoothHeading(BUFFER));
@@ -200,6 +184,13 @@ export type GeoAcquisition =
   | { ok: false; error: GeoFailure };
 
 function mapPositionError(error: GeolocationPositionError): GeoFailure {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('[GPS] Browser geolocation error', {
+      code: error.code,
+      message: error.message,
+    });
+  }
+
   switch (error.code) {
     case error.PERMISSION_DENIED:
     case 1:
@@ -261,8 +252,10 @@ export async function queryGeolocationPermission(): Promise<GeoPermissionState> 
  * swallowed, and an over-accurate rejected fix is reported as unavailable
  * rather than silently becoming `null`.
  */
-export function getCurrentLocationDetailed(): Promise<GeoAcquisition> {
-  return new Promise<GeoAcquisition>((resolve) => {
+export function getCurrentLocationDetailed(
+  signal?: AbortSignal
+): Promise<GeoAcquisition | null> {
+  return new Promise<GeoAcquisition | null>((resolve) => {
     if (!isGeolocationSupported()) {
       resolve({
         ok: false,
@@ -274,28 +267,70 @@ export function getCurrentLocationDetailed(): Promise<GeoAcquisition> {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const fix = toFix(pos);
-        // Same accuracy gate as the original.
-        if (!filterFix(fix, null)) {
-          resolve({
-            ok: false,
-            error: {
-              kind: 'POSITION_UNAVAILABLE',
-              message: `Received a position with ${Math.round(fix.accuracy ?? 999)} m accuracy, which is too poor to track.`,
-            },
-          });
-          return;
-        }
-        lastFix = fix;
-        resolve({ ok: true, fix });
-      },
-      (error) => {
-        const mapped = mapPositionError(error);
-        resolve({ ok: false, error: mapped });
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    if (signal?.aborted) {
+      resolve(null);
+      return;
+    }
+
+    let settled = false;
+    const timer: { id?: ReturnType<typeof setTimeout> } = {};
+    const finish = (result: GeoAcquisition | null) => {
+      if (settled) return;
+      settled = true;
+      if (timer.id !== undefined) clearTimeout(timer.id);
+      signal?.removeEventListener('abort', abort);
+      resolve(result);
+    };
+    const abort = () => finish(null);
+
+    signal?.addEventListener('abort', abort, { once: true });
+    timer.id = setTimeout(() => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[GPS] Browser geolocation request exceeded ${LOCATION_REQUEST_TIMEOUT_MS} ms.`
+        );
+      }
+      finish({
+        ok: false,
+        error: {
+          kind: 'TIMEOUT',
+          message: 'Timed out waiting for a GPS position.',
+        },
+      });
+    }, LOCATION_REQUEST_TIMEOUT_MS);
+
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (settled) return;
+          const fix = toFix(pos);
+          // Same accuracy gate as the original.
+          if (!filterFix(fix, null)) {
+            finish({
+              ok: false,
+              error: {
+                kind: 'POSITION_UNAVAILABLE',
+                message: `Received a position with ${Math.round(fix.accuracy ?? 999)} m accuracy, which is too poor to track.`,
+              },
+            });
+            return;
+          }
+          lastFix = fix;
+          finish({ ok: true, fix });
+        },
+        (error) => {
+          if (!settled) finish({ ok: false, error: mapPositionError(error) });
+        },
+        { enableHighAccuracy: true, timeout: LOCATION_REQUEST_TIMEOUT_MS }
+      );
+    } catch {
+      finish({
+        ok: false,
+        error: {
+          kind: 'POSITION_UNAVAILABLE',
+          message: 'The browser could not start a location request.',
+        },
+      });
+    }
   });
 }
