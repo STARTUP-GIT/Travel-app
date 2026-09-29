@@ -7,13 +7,23 @@ import { isProviderKind } from "@/features/provider/types";
 
 export const metadata: Metadata = { title: "Sign in" };
 
+/**
+ * Shown when Auth.js sends the browser back here with `?error=…`.
+ *
+ * `Configuration` is Auth.js reporting that it could not stand up its own
+ * config — in practice a missing `AUTH_SECRET` in the deployed environment.
+ * That is a server fault raised by `assertConfig` *before* `authorize()` runs,
+ * so the backend is never contacted and the sign-in is not the provider's
+ * fault; "Something went wrong." said nothing about either. The precise cause
+ * is written to the server log by `auth.ts`; nothing about the environment is
+ * exposed here.
+ */
 const ERRORS: Record<string, string> = {
-  // Auth.js collapses both a genuine misconfiguration and a sign-in it simply
-  // refused into `Configuration`, so this cannot claim to be either one.
-  Configuration: "Something went wrong.",
-  AccessDenied: "Sign in failed.",
-  Verification: "Sign in failed.",
-  default: "Sign in failed.",
+  Configuration: "Unable to sign in. Please try again.",
+  AccessDenied: "Invalid email or password.",
+  Verification: "Unable to sign in. Please try again.",
+  CredentialsSignin: "Invalid email or password.",
+  default: "Unable to sign in. Please try again.",
 };
 
 type SearchParams = Promise<{

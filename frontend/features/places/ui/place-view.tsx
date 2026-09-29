@@ -177,7 +177,17 @@ export function PlaceView({
 
       <div className="app-container mt-6">
         <Tabs defaultValue="info" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-2xl bg-muted p-1">
+          {/*
+            The shared Tabs primitive is a dark-glass control: it carries
+            `text-muted-foreground`, and its active state pairs
+            `bg-primary` with `text-primary-foreground`. This row paints a
+            light `bg-muted` surface instead, so those inherited values left
+            the icons unreadable — the active tab in particular rendered
+            white text on a white `bg-card`. The trigger colours are pinned
+            here rather than in the primitive, so every other Tabs on the site
+            keeps its existing appearance.
+          */}
+          <TabsList className="grid w-full grid-cols-4 rounded-2xl border border-border bg-muted p-1">
             {(
               [
                 ["info", Info, "Info"],
@@ -189,9 +199,9 @@ export function PlaceView({
               <TabsTrigger
                 key={value}
                 value={value}
-                className="flex items-center gap-1.5 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                className="flex cursor-pointer items-center gap-1.5 rounded-xl text-foreground/80 hover:bg-foreground/10 hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
               >
-                <Icon className="size-4" />
+                <Icon className="size-[18px] shrink-0 stroke-[2.25]" />
                 <span className="hidden sm:inline">{label}</span>
               </TabsTrigger>
             ))}

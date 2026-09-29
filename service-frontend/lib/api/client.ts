@@ -23,7 +23,25 @@ export function getApiBaseUrl(): string {
   const isUsable =
     configured.length > 0 && /^https?:\/\/[^\s/]+/i.test(configured);
 
-  return (isUsable ? configured : fallbackUrl).replace(/\/+$/, "");
+  // The shape check above still accepts a host that cannot answer once the app
+  // is deployed: a `BACKEND_URL` left pointing at localhost passes it, and then
+  // every server-side sign-in fails as an unreachable backend rather than as
+  // the misconfiguration it is. In production such a value falls back to the
+  // deployed backend. It is still honoured in development, because that is how
+  // the backend is normally run locally.
+  const isLoopback =
+    /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?/i.test(configured);
+  const usableHere =
+    isUsable && !(process.env.NODE_ENV === "production" && isLoopback);
+
+  if (isUsable && !usableHere) {
+    console.error(
+      `[api] BACKEND_URL/NEXT_PUBLIC_API_URL points at ${configured}, which cannot ` +
+        "answer in a deployment. Using the deployed backend instead."
+    );
+  }
+
+  return (usableHere ? configured : fallbackUrl).replace(/\/+$/, "");
 }
 
 export function isBrowser(): boolean {

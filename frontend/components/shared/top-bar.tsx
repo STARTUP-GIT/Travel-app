@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useBranding } from "@/features/app-config/state/app-config-provider";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 
 function TopBar() {
   const { isAuthenticated, user, isLoading, logout } = useAuth();
