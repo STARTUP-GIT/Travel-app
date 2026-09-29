@@ -15,6 +15,12 @@ export type ProviderSession = {
   token: string;
   email: string;
   name: string;
+  /**
+   * The account's own `username`, taken from the backend profile when the
+   * session was created. Empty when the profile could not be read at sign-in,
+   * which is why it is separate from `name` rather than a replacement for it.
+   */
+  username: string;
   image: string | null;
   userId: string;
 };
@@ -33,6 +39,7 @@ export async function getProviderSession(): Promise<ProviderSession | null> {
     token,
     email: session.user.email ?? "",
     name: session.user.name ?? "",
+    username: session.user.username ?? "",
     image: session.user.image ?? null,
     userId: session.user.id,
   };

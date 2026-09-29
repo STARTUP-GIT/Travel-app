@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/shared/glass-card";
 import { SectionHeader } from "@/components/shared/section-header";
-import { loadDashboard } from "@/features/provider/api/provider.actions";
+import { loadDashboard, loadProfile } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
 import { formatCurrency, formatShortDate } from "@/lib/utils";
@@ -49,9 +49,24 @@ function StatTile({ tile }: { tile: Tile }) {
   );
 }
 
+/** Username for sessions created before it was carried on the session itself. */
+async function readUsernameFromProfile(): Promise<string> {
+  try {
+    const profile = await loadProfile();
+    return profile.username.trim();
+  } catch {
+    return "";
+  }
+}
+
 export default async function DashboardPage() {
   const session = await requireProviderSession("/dashboard");
   const meta = providerMeta(session.kind);
+
+  // The account's own username, never the part of the email before the `@`. A
+  // session issued before the username was carried on the session has none, so
+  // the profile is read once as a fallback instead of greeting with the email.
+  const greeting = session.username || (await readUsernameFromProfile()) || "there";
 
   const data = await loadDashboard().catch((error: unknown) => {
     return {
@@ -66,7 +81,7 @@ export default async function DashboardPage() {
     return (
       <div className="app-container">
         <PageHeader
-          title={`Welcome, ${session.name.split(" ")[0] || "there"}`}
+          title={`Welcome, ${greeting}`}
           description="Your listings and incoming requests at a glance."
         />
         <ErrorState
@@ -140,7 +155,7 @@ export default async function DashboardPage() {
   return (
     <div className="app-container">
       <PageHeader
-        title={`Welcome, ${session.name.split(" ")[0] || "there"}`}
+        title={`Welcome, ${greeting}`}
         description={
           stats.pending > 0
             ? `${stats.pending} ${requestWord}${stats.pending === 1 ? "" : "s"} need${stats.pending === 1 ? "s" : ""} your reply.`

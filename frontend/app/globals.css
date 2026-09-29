@@ -289,6 +289,48 @@ img {
   user-select: none;
 }
 
+/*
+ * Interaction feedback: a control that can be clicked shows the pointer, so
+ * nothing in the app looks inert under the cursor. Only real controls are
+ * listed — plain text, static cards, headings and decorative containers are
+ * deliberately left alone.
+ *
+ * This sits in the `base` layer on purpose: `cursor-*` utilities are declared
+ * later, so a component that needs a different cursor can still override it.
+ */
+@layer base {
+  a[href],
+  button,
+  summary,
+  select,
+  label[for],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  [role="slider"] {
+    cursor: pointer;
+  }
+
+  /* A control that is present but inert says so, instead of inviting a click. */
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  fieldset:disabled,
+  a[aria-disabled="true"],
+  [aria-disabled="true"],
+  [data-disabled] {
+    cursor: not-allowed;
+  }
+}
+
 ::selection {
   background: color-mix(in oklab, var(--color-primary) 22%, transparent);
   color: var(--color-foreground);

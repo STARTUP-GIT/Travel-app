@@ -6,7 +6,10 @@ import NextAuth, {
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
-import { signinWithEmail } from "@/features/provider/api/provider.server";
+import {
+  getProviderProfile,
+  signinWithEmail,
+} from "@/features/provider/api/provider.server";
 import { completeGuideGoogleSignup, takePendingGuideSignup } from "@/features/provider/api/guide-google.server";
 import { isProviderKind, type ProviderKind } from "@/features/provider/types";
 
@@ -23,6 +26,28 @@ class UnknownProviderError extends CredentialsSignin {
 /** The backend could not be reached at all. */
 class BackendUnavailableError extends CredentialsSignin {
   code = "backend_unavailable";
+}
+
+/**
+ * The `username` the account was registered with, read from the profile the
+ * backend already returns.
+ *
+ * `user.name` cannot answer this: for an email sign-in it holds the part of the
+ * address before the `@`, which is how the dashboard used to greet providers
+ * with their email handle instead of their username. A profile that cannot be
+ * read must not fail the sign-in, so the username is simply left off the
+ * session and the greeting falls back to a neutral word.
+ */
+async function resolveUsername(
+  token: string,
+  kind: ProviderKind
+): Promise<string | undefined> {
+  try {
+    const profile = await getProviderProfile(token, kind);
+    return profile.username.trim() || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 const googleEnabled = Boolean(
@@ -117,11 +142,13 @@ export const authConfig = {
           // endpoint, so the session only exists because this call succeeded.
           const token = await signinWithEmail(kind, email.trim(), password);
           const providerKind: ProviderKind = kind;
+          const username = await resolveUsername(token, providerKind);
 
           return {
             id: providerKind,
             email: email.trim(),
             name: email.trim().split("@")[0] ?? email.trim(),
+            username,
             backendToken: token,
             providerKind,
           };
@@ -147,9 +174,11 @@ export const authConfig = {
         const source = user as unknown as {
           backendToken?: string;
           providerKind?: ProviderKind;
+          username?: string;
         };
         token.backendToken = source.backendToken;
         token.providerKind = source.providerKind;
+        token.username = source.username;
       }
 
       // Guide Google registration. The backend never sees a Google account until
@@ -170,6 +199,9 @@ export const authConfig = {
           );
           token.backendToken = backendToken;
           token.providerKind = pending.kind;
+          // The account exists from here on, so its username can be read the same
+          // way an email sign-in reads it.
+          token.username = await resolveUsername(backendToken, pending.kind);
         } else {
           // Without the captured guide details there is no way to tell which of
           // the two guide routers this account belongs to, so no usable session
@@ -191,6 +223,7 @@ export const authConfig = {
       if (!session.user || !token) return session;
 
       session.user.id = (token.sub as string) ?? "";
+      session.user.username = token.username;
       session.backendToken = token.backendToken;
       session.providerKind = token.providerKind;
       return session;

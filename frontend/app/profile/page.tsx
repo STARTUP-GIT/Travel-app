@@ -100,7 +100,7 @@ export default function ProfileScreen() {
               type="button"
               onClick={openEditor}
               disabled={loadingEditor}
-              className="card-surface group flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-colors hover:border-primary/40 disabled:pointer-events-none disabled:opacity-60"
+              className="card-surface group flex w-full cursor-pointer items-center gap-3 rounded-2xl p-4 text-left transition-colors hover:border-primary/40 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Pencil className="size-5" />

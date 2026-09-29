@@ -15,6 +15,12 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
+      /**
+       * The account's real `username`, read from the backend profile when the
+       * session is created. `name` cannot be used for this: for an email
+       * sign-in it holds the part of the address before the `@`.
+       */
+      username?: string;
     } & DefaultSession["user"];
     backendToken?: string;
     providerKind?: ProviderKind;
@@ -25,6 +31,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     backendToken?: string;
     providerKind?: ProviderKind;
+    username?: string;
   }
 }
 
@@ -32,6 +39,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     backendToken?: string;
     providerKind?: ProviderKind;
+    username?: string;
   }
 }
 
