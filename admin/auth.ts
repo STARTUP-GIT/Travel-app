@@ -65,6 +65,25 @@ async function resolveGoogleIntent(): Promise<GoogleAdminIntent> {
     : "signin";
 }
 
+/**
+ * Reads the first environment variable that actually holds a value.
+ *
+ * `??` alone is not enough here: a variable that exists in the hosting
+ * dashboard but was saved empty (`AUTH_SECRET=`) is neither null nor undefined,
+ * so `AUTH_SECRET ?? NEXTAUTH_SECRET` would resolve to `""` and silently
+ * suppress the fallback. Auth.js then fails fast with a missing/empty secret
+ * error, which surfaces as an HTTP 500 on every admin page because `auth()`
+ * is called by the shared layout. Treating blank values as unset lets the
+ * legacy `NEXTAUTH_*` names still be used.
+ */
+function firstEnvValue(...names: string[]): string | undefined {
+  for (const name of names) {
+    const value = process.env[name];
+    if (typeof value === "string" && value.trim().length > 0) return value.trim();
+  }
+  return undefined;
+}
+
 type AuthorizedAdmin = {
   id: string;
   email: string;
@@ -158,8 +177,9 @@ async function authorizeGoogleAdminFlow(profile: {
 
 export const adminAuthConfig = {
   // Production requires AUTH_SECRET (or legacy NEXTAUTH_SECRET) to be set —
-  // Auth.js fails fast with a Configuration error when it is missing.
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  // Auth.js fails fast with a Configuration error when it is missing. Blank
+  // values are skipped so an empty variable cannot hide the fallback.
+  secret: firstEnvValue("AUTH_SECRET", "NEXTAUTH_SECRET"),
   session: {
     strategy: "jwt",
   },
@@ -169,14 +189,16 @@ export const adminAuthConfig = {
   },
   providers: [
     Google({
-      clientId:
-        process.env.AUTH_GOOGLE_ID ??
-        process.env.GOOGLE_ID ??
-        process.env.GOOGLE_CLIENT_ID,
-      clientSecret:
-        process.env.AUTH_GOOGLE_SECRET ??
-        process.env.GOOGLE_SECRET ??
-        process.env.GOOGLE_CLIENT_SECRET,
+      clientId: firstEnvValue(
+        "AUTH_GOOGLE_ID",
+        "GOOGLE_ID",
+        "GOOGLE_CLIENT_ID"
+      ),
+      clientSecret: firstEnvValue(
+        "AUTH_GOOGLE_SECRET",
+        "GOOGLE_SECRET",
+        "GOOGLE_CLIENT_SECRET"
+      ),
     }),
     Credentials({
       name: "credentials",
@@ -254,54 +276,42 @@ export const adminAuthConfig = {
       if (account?.provider === "google" && user) {
         const email = profile?.email ?? user.email ?? undefined;
         if (typeof email === "string" && email) {
-          const result = await adminGoogleSignin(email);            if (result.ok && typeof result.token === "string" && result.token) {
+          const result = await adminGoogleSignin(email);
+          if (result.ok && typeof result.token === "string" && result.token) {
             token.adminToken = result.token;
-          }            if (result.ok && typeof (result as { admin?: unknown }).admin !== "undefined") {
+          }
+          if (result.ok && (result as { admin?: unknown }).admin !== undefined) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             token.admin = (result as { admin?: unknown }).admin as any;
           }
         }
       }
 
-      // Defensive: if the JWT somehow still lacks an adminToken but the account
-      // is an admin session, re-read it from the backend so the session is never
-      // left tokenless. This is a safety net, not the primary path.
-      if (!token.adminToken && account?.provider === "credentials") {
-        const email = typeof token.email === "string" ? token.email : undefined;
-        if (typeof email === "string" && email) {
-          try {
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL}/admin/api/auth/signin`,
-              {
-                method: "POST",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({ email, password: "" }),
-              }
-            ).catch(() => null);
-            // We cannot re-authenticate without the password here; leave the
-            // token as-is. This branch is intentionally a no-op safety hook.
-          } catch {
-            // ignore
-          }
-        }
-      }
-
+      // No re-authentication attempt happens here. The backend token is written
+      // above from the real sign-in response, and an admin session without one
+      // must simply read as "not signed in" (see isAdminAuthenticated) rather
+      // than posting a doomed sign-in with an empty password on every session
+      // read.
       return token;
     },
     async session({ session, token }) {
-      const admin =
-        (token.admin as AdminProfile | undefined) ??
-        (token.admin as unknown as AdminProfile | undefined) ??
-        null;
+      // Written defensively: this callback runs for every session read, so it
+      // must never be the reason a request fails.
+      const admin = (token.admin as AdminProfile | undefined) ?? null;
+      const adminId = typeof token.id === "string" ? token.id : undefined;
+      const adminName = typeof token.name === "string" ? token.name : undefined;
+      const adminEmail = typeof token.email === "string" ? token.email : undefined;
+
       if (session.user) {
-        session.user.id = token.id as string | undefined ?? session.user.id;
-        session.user.name = (token.name as string | undefined) ?? session.user.name;
-        session.user.email =
-          (token.email as string | undefined) ?? session.user.email;
+        if (adminId) session.user.id = adminId;
+        if (adminName) session.user.name = adminName;
+        if (adminEmail) session.user.email = adminEmail;
       }
       session.admin = admin;
       session.adminToken =
-        (token.adminToken as string | undefined) ?? null;
+        typeof token.adminToken === "string" && token.adminToken
+          ? token.adminToken
+          : null;
       return session;
     },
   },

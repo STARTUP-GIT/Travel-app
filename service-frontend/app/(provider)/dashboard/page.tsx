@@ -95,7 +95,12 @@ export default async function DashboardPage() {
           description={data.error}
           action={
             <Button asChild variant="outline">
-              <Link href="/login?next=/dashboard">Sign in again</Link>
+              <Link
+                href="/login?next=/dashboard&reauth=1"
+                className="cursor-pointer"
+              >
+                Sign in again
+              </Link>
             </Button>
           }
         />

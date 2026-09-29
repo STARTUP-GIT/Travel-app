@@ -372,8 +372,8 @@ export function SignupForm({ initialKind, error }: Props) {
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Already registered?{" "}
           <Link
-            href={`/login${kind ? `?kind=${kind}` : ""}`}
-            className="font-semibold text-primary hover:underline"
+            href={`/login?reauth=1${kind ? `&kind=${kind}` : ""}`}
+            className="cursor-pointer font-semibold text-primary hover:underline"
           >
             Sign in
           </Link>

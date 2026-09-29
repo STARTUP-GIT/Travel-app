@@ -1,4 +1,4 @@
-import { ApiError } from "@/lib/api/client";
+import { ApiError } from "@/lib/api/errors";
 
 export function getApiBaseUrl(): string {
   // Same mechanism as the working customer frontend (frontend/lib/api/client.ts):

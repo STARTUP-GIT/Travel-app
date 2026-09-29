@@ -16,17 +16,25 @@ const ERRORS: Record<string, string> = {
   default: "Sign in failed.",
 };
 
-type SearchParams = Promise<{ kind?: string; next?: string; error?: string }>;
+type SearchParams = Promise<{
+  kind?: string;
+  next?: string;
+  error?: string;
+  reauth?: string;
+}>;
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  // Anyone who already has a usable provider session goes straight to work.
-  if (await getProviderSession()) redirect("/dashboard");
-
   const params = await searchParams;
+  // Explicit sign-in links must be able to show the form even when a stale
+  // session would otherwise send the provider straight back to the dashboard.
+  if (params.reauth !== "1" && (await getProviderSession())) {
+    redirect("/dashboard");
+  }
+
   const next =
     params.next && params.next.startsWith("/") && !params.next.startsWith("//")
       ? params.next

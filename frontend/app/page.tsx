@@ -36,7 +36,7 @@ export default function HomePage() {
   return (
     <section
       aria-label={`Tourism landing for ${appName}`}
-      className="relative -mx-4 flex h-[calc(100dvh-7rem-env(safe-area-inset-bottom,0px))] min-h-[500px] flex-col overflow-hidden px-4 pb-4 pt-2 text-white sm:mx-0 sm:h-[calc(100dvh-3.5rem)] sm:min-h-[560px] sm:px-6 sm:pb-6 sm:pt-4 lg:h-[calc(100dvh-4rem)] lg:min-h-[600px]"
+      className="relative -mx-4 flex h-[calc(100dvh-3.5rem)] min-h-[500px] flex-col overflow-hidden px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-2 text-white sm:mx-0 sm:h-[calc(100dvh-3.5rem)] sm:min-h-[560px] sm:px-6 sm:pb-6 sm:pt-4 lg:h-[calc(100dvh-4rem)] lg:min-h-[600px]"
     >
       <IndiaSlideshow overlayClassName="bg-gradient-to-b from-black/35 via-black/10 to-black/80" />
 

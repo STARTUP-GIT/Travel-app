@@ -42,8 +42,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             // empty gap.
             isDistrictApp
               ? "pb-[calc(env(safe-area-inset-bottom)+4.75rem)] lg:pb-12"
-              : isFullViewport
-                ? "pb-[calc(env(safe-area-inset-bottom)+3.5rem)] lg:pb-0"
+              : isFullViewport && pathname === "/"
+                ? "pb-0"
+                : isFullViewport
+                  ? "pb-[calc(env(safe-area-inset-bottom)+3.5rem)] lg:pb-0"
                 : "pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
           )}
         >
