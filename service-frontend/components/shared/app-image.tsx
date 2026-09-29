@@ -35,10 +35,11 @@ export function AppImage({
         aria-label={alt}
         className={cn(
           "flex size-full items-center justify-center bg-gradient-to-br from-blue-800 via-primary to-indigo-800 font-bold text-white/40",
+          className,
           fallbackClassName
         )}
       >
-        <span className="text-4xl">{alt.charAt(0).toUpperCase()}</span>
+        <span className="text-2xl leading-none">{alt.charAt(0).toUpperCase()}</span>
       </div>
     );
   }
