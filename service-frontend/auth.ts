@@ -8,6 +8,8 @@ import Google from "next-auth/providers/google";
 
 import {
   getProviderProfile,
+  MissingSessionTokenError,
+  ProviderApiError,
   signinWithEmail,
 } from "@/features/provider/api/provider.server";
 import { completeGuideGoogleSignup, takePendingGuideSignup } from "@/features/provider/api/guide-google.server";
@@ -26,6 +28,16 @@ class UnknownProviderError extends CredentialsSignin {
 /** The backend could not be reached at all. */
 class BackendUnavailableError extends CredentialsSignin {
   code = "backend_unavailable";
+}
+
+/** The backend answered, but with a server-side error. */
+class BackendErrorResponse extends CredentialsSignin {
+  code = "backend_error";
+}
+
+/** The backend answered 2xx, but the body cannot start a session. */
+class BackendContractError extends CredentialsSignin {
+  code = "backend_contract";
 }
 
 /**
@@ -154,15 +166,26 @@ export const authConfig = {
           };
         } catch (error) {
           if (error instanceof CredentialsSignin) throw error;
-          // A 400/401 from the backend is a real credentials problem, not an
-          // outage, and must not be reported as "try again later".
-          const status =
-            typeof error === "object" && error !== null && "status" in error
-              ? (error as { status?: number }).status
-              : undefined;
-          if (status === 400 || status === 401 || status === 404) {
-            throw new InvalidCredentialsError();
+
+          // A 2xx whose body cannot start a session is the backend's answer
+          // being unusable, not a connection problem. It used to be reported
+          // as "Network error." even though the backend had replied.
+          if (error instanceof MissingSessionTokenError) {
+            throw new BackendContractError();
           }
+
+          // A 400/401/404 from the backend is a real credentials problem, not
+          // an outage, and must not be reported as "try again later".
+          if (error instanceof ProviderApiError) {
+            const status = error.status;
+            if (status === 400 || status === 401 || status === 404) {
+              throw new InvalidCredentialsError();
+            }
+            throw new BackendErrorResponse();
+          }
+
+          // Only a bare `fetch` throw lands here — DNS, TLS, connection refused
+          // or a timeout. This, and only this, is a network error.
           throw new BackendUnavailableError();
         }
       },

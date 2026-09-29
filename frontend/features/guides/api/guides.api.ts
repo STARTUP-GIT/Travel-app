@@ -12,13 +12,31 @@ import { slugify } from "@/features/locations/utils/slug";
 export async function listGuidesForDistrict(
   districtId: string
 ): Promise<GuideWithContext[]> {
-  const places = await getPlacesByDistrict(districtId);
+  // Mirrors the Places list page: only approved places are public, so guides
+  // are never aggregated from a place the detail page would refuse to open.
+  const places = (await getPlacesByDistrict(districtId)).filter(
+    (place) => place.status === "APPROVED"
+  );
 
   if (places.length === 0) return [];
 
-  const details = await Promise.all(
+  // One place whose detail request fails (5xx, network, malformed relation)
+  // must not wipe out every guide in the district. `allSettled` keeps the
+  // places that did resolve, so a single broken record cannot make the whole
+  // page read "No guides published yet".
+  const settled = await Promise.allSettled(
     places.map((place) => getPlaceById(districtId, place.id))
   );
+
+  const details = settled
+    .filter(
+      (
+        result
+      ): result is PromiseFulfilledResult<
+        Awaited<ReturnType<typeof getPlaceById>>
+      > => result.status === "fulfilled"
+    )
+    .map((result) => result.value);
 
   const specific: GuideWithContext[] = [];
   const commonMap = new Map<string, Extract<GuideWithContext, { type: "common" }>>();

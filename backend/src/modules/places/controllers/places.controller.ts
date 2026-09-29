@@ -138,12 +138,17 @@ export const getPlaceById = async (req: Request, res: Response) => {
     // belong to this place are narrowed here. A guide still awaiting admin
     // approval must not be offered on the place page alongside approved ones.
     // The response stays the same shape (the place itself) so the existing
-    // client keeps working.
+    // client keeps working. The optional checks matter: a single missing or
+    // dangling guide relation used to throw here, and because this handler
+    // answers the place detail route that turned into a 500 for the place
+    // page *and* emptied the district guide list.
     return res.status(200).json({
       ...place,
-      specificguide: place.specificguide.filter((guide) => guide.status === "APPROVED"),
-      commonGuidePlaces: place.commonGuidePlaces.filter(
-        (entry) => entry.commonGuide.status === "APPROVED"
+      specificguide: (place.specificguide ?? []).filter(
+        (guide) => guide?.status === "APPROVED"
+      ),
+      commonGuidePlaces: (place.commonGuidePlaces ?? []).filter(
+        (entry) => entry.commonGuide?.status === "APPROVED"
       ),
     });
   } catch (error) {

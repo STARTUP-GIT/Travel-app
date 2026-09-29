@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { PlaceView } from "@/features/places/ui/place-view";
 import { getPlaceById } from "@/features/places/api/places.api";
+import { ApiError } from "@/lib/api/client";
+import type { Place } from "@/features/places/types";
 import {
   requireDistrictResource,
   resolveStateDistrict,
@@ -46,9 +48,19 @@ export default async function PlaceInfoPage({
   if (resolution.status === "missing") notFound();
   const { state, district } = resolution;
 
-  const place = await getPlaceById(district.id, placeId)
-    .then((p) => requireDistrictResource(p, district))
-    .catch(() => notFound());
+  let place: Place;
+  try {
+    place = await getPlaceById(district.id, placeId);
+  } catch (error) {
+    // Only a genuine "no such place" is a 404. Swallowing every other failure
+    // (backend 5xx, network error, timeout) into notFound() reported real
+    // server faults as "This page could not be found", which hid the actual
+    // error and sent people looking for a missing place record.
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
+  }
+
+  requireDistrictResource(place, district);
 
   return (
     <PlaceView

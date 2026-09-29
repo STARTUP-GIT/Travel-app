@@ -206,6 +206,24 @@ export async function signupWithEmail(
   return readJsonOrThrow<{ message: string }>(res, "Could not create the account");
 }
 
+/**
+ * The backend answered a 2xx sign-in but the body carried no session token, so
+ * no Auth.js session can be built from it. This is deliberately its own type:
+ * the HTTP status is 200, so the caller cannot classify it as a failed request,
+ * and folding it into a connection failure reported "Network error." for a
+ * response the backend had actually produced.
+ */
+export class MissingSessionTokenError extends ProviderApiError {
+  constructor(kind: ProviderKind) {
+    super(
+      `The ${kind} sign-in response carried no session token.`,
+      200,
+      {}
+    );
+    this.name = "MissingSessionTokenError";
+  }
+}
+
 /** POST /api/auth/signin on the provider's own auth router. */
 export async function signinWithEmail(
   kind: ProviderKind,
@@ -223,11 +241,7 @@ export async function signinWithEmail(
   );
 
   if (!data.token) {
-    throw new ProviderApiError(
-      "The service did not return a session token.",
-      res.status,
-      {}
-    );
+    throw new MissingSessionTokenError(kind);
   }
   return data.token;
 }

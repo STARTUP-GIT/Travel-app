@@ -45,7 +45,13 @@ const ACCOUNT_CREATED = "Account created. Please sign in.";
 const CREDENTIAL_MESSAGES: Record<string, string> = {
   invalid_credentials: "Invalid credentials.",
   unknown_provider: "Choose an account type.",
+  // Reserved for a genuine transport failure (DNS, TLS, connection refused,
+  // timeout). A backend that answered with an error status or an unusable body
+  // is reported as a server fault instead, because calling a 200 or a 500 a
+  // "network error" sent the real cause nowhere.
   backend_unavailable: NETWORK_ERROR,
+  backend_error: SOMETHING_WENT_WRONG,
+  backend_contract: SOMETHING_WENT_WRONG,
   Configuration: SOMETHING_WENT_WRONG,
   AccessDenied: SIGN_IN_FAILED,
   OAuthCallbackError: SIGN_IN_FAILED,
