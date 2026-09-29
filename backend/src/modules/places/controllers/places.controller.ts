@@ -1,5 +1,25 @@
 import type { Request, Response } from "express";
 import prisma from "../../../db/prisma.js";
+import { getAutoApprovalSettings } from "../../../services/approvalSettings.js";
+
+/**
+ * Whether a submitted place should be created as an approved `place` straight
+ * away, or held as a PENDING `place_submission` for the admin queue.
+ *
+ * Two switches, both honoured: the global `placesAutoApproval` flag the admin
+ * panel toggles, and the per-district `autoApprovePlaces` flag that already
+ * existed on the Districts page. Either one being on approves immediately, so
+ * the existing per-district behaviour is preserved rather than replaced.
+ */
+async function shouldAutoApprovePlaces(districtAutoApproves: boolean): Promise<boolean> {
+  try {
+    const settings = await getAutoApprovalSettings();
+    return settings.placesAutoApproval || districtAutoApproves;
+  } catch (error) {
+    console.error("Read places auto-approval setting failed:", error);
+    return districtAutoApproves;
+  }
+}
 
 export const getPlacesByDistrict = async (req: Request, res: Response) => {
   try {
@@ -114,7 +134,18 @@ export const getPlaceById = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).json(place);
+    // Prisma cannot filter a relation inside `include`, so the guides that
+    // belong to this place are narrowed here. A guide still awaiting admin
+    // approval must not be offered on the place page alongside approved ones.
+    // The response stays the same shape (the place itself) so the existing
+    // client keeps working.
+    return res.status(200).json({
+      ...place,
+      specificguide: place.specificguide.filter((guide) => guide.status === "APPROVED"),
+      commonGuidePlaces: place.commonGuidePlaces.filter(
+        (entry) => entry.commonGuide.status === "APPROVED"
+      ),
+    });
   } catch (error) {
     console.error("Get place error:", error);
 
@@ -180,7 +211,7 @@ export const submitPlace = async (req: Request, res: Response) => {
       ...(req.common_guide ? { commonGuideId: req.common_guide } : {}),
     };
 
-    if (district.autoApprovePlaces) {
+    if (await shouldAutoApprovePlaces(district.autoApprovePlaces)) {
       const result = await prisma.$transaction(async (tx) => {
         const newPlace = await tx.place.create({
           data: {
@@ -192,6 +223,11 @@ export const submitPlace = async (req: Request, res: Response) => {
             category,
             latitude,
             longitude,
+            // The place schema defaults to PENDING, so it has to be marked
+            // APPROVED explicitly here. Without it an "auto-approved" place
+            // stayed invisible to travellers, because every public place query
+            // filters on status APPROVED.
+            status: "APPROVED",
           },
         });
 
@@ -342,7 +378,7 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       longitude: (data.longitude as number) ?? place.longitude,
     };
 
-    if (place.district.autoApprovePlaces) {
+    if (await shouldAutoApprovePlaces(place.district.autoApprovePlaces)) {
       const result = await prisma.$transaction(async (tx) => {
         const updatedPlace = await tx.place.update({
           where: {

@@ -25,6 +25,16 @@ model app_config{
   app_description     String
   testimonials        testimonials[]
   admin               admin[]
+
+  // Global approval policy, toggled by the admin panel. When a flag is on, a
+  // new record of that type is created APPROVED instead of PENDING. The backend
+  // reads these on every creation flow, so the setting cannot be bypassed by a
+  // caller that manipulates the frontend. Defaults to off: nothing is
+  // auto-approved until an admin deliberately turns it on.
+  placesAutoApproval      Boolean  @default(false)
+  guidesAutoApproval      Boolean  @default(false)
+  hotelsAutoApproval      Boolean  @default(false)
+  restaurantsAutoApproval Boolean  @default(false)
 }
 
 model testimonials{
@@ -183,6 +193,10 @@ model specific_guide {
   language        String[]
    createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  // PENDING until an admin approves the guide, or APPROVED straight away at
+  // signup when the guides auto-approval setting is on.
+  status          placeSubmissionStatus @default(PENDING)
 } 
 model common_guide {
   id              String     @id  @default(uuid())
@@ -208,6 +222,10 @@ model common_guide {
   placeSubmissions place_submission[]
   bookings        common_guide_booking[]
 
+  // PENDING until an admin approves the guide, or APPROVED straight away at
+  // signup when the guides auto-approval setting is on.
+  status          placeSubmissionStatus @default(PENDING)
+
 } 
 
 model common_guide_places {
@@ -216,7 +234,11 @@ model common_guide_places {
   commonGuideId String
 
   place        place        @relation(fields: [placeId], references: [id])
-  commonGuide  common_guide @relation(fields: [commonGuideId], references: [id])
+  // A coverage row carries no meaning of its own once the guide is gone, so it
+  // is removed along with it. Without this the foreign key restricts, and every
+  // attempt to delete a guide that covers at least one place fails with a
+  // constraint error — which is what made the admin guide DELETE return a 500.
+  commonGuide  common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
 
   @@unique([placeId, commonGuideId])
 }

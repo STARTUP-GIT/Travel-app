@@ -57,7 +57,10 @@ import {
   createCountry,
   deleteCountry,
   updatePlaceStatus,
-  updatePlace
+  updatePlace,
+  updateGuideStatus,
+  getAutoApproval,
+  updateAutoApproval
 } from "../controllers/admin.controller.js";
 
 /**
@@ -77,6 +80,11 @@ router.delete("/countries/:id", deleteCountry);
 
 router.get("/settings", getAppSettings);
 router.patch("/settings", updateAppSettings);
+
+// Global auto-approval switches. Separate from /settings because they are
+// read on every creation request rather than being admin form branding.
+router.get("/auto-approval", getAutoApproval);
+router.patch("/auto-approval", updateAutoApproval);
 
 router.get("/states", listStates);
 router.get("/states/:id", getStateById);
@@ -106,6 +114,7 @@ router.delete("/users/:id", deleteUser);
 
 router.get("/guides/specific", listSpecificGuides);
 router.get("/guides/specific/:id", getSpecificGuideById);
+router.patch("/guides/:kind/:id/status", updateGuideStatus);
 router.delete("/guides/specific/:id", deleteSpecificGuide);
 router.get("/guides/common", listCommonGuides);
 router.get("/guides/common/:id", getCommonGuideById);

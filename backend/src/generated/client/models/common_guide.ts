@@ -55,6 +55,7 @@ export type Common_guideMinAggregateOutputType = {
   cost: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  status: $Enums.placeSubmissionStatus | null
 }
 
 export type Common_guideMaxAggregateOutputType = {
@@ -74,6 +75,7 @@ export type Common_guideMaxAggregateOutputType = {
   cost: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  status: $Enums.placeSubmissionStatus | null
 }
 
 export type Common_guideCountAggregateOutputType = {
@@ -95,6 +97,7 @@ export type Common_guideCountAggregateOutputType = {
   language: number
   createdAt: number
   updatedAt: number
+  status: number
   _all: number
 }
 
@@ -128,6 +131,7 @@ export type Common_guideMinAggregateInputType = {
   cost?: true
   createdAt?: true
   updatedAt?: true
+  status?: true
 }
 
 export type Common_guideMaxAggregateInputType = {
@@ -147,6 +151,7 @@ export type Common_guideMaxAggregateInputType = {
   cost?: true
   createdAt?: true
   updatedAt?: true
+  status?: true
 }
 
 export type Common_guideCountAggregateInputType = {
@@ -168,6 +173,7 @@ export type Common_guideCountAggregateInputType = {
   language?: true
   createdAt?: true
   updatedAt?: true
+  status?: true
   _all?: true
 }
 
@@ -276,6 +282,7 @@ export type Common_guideGroupByOutputType = {
   language: string[]
   createdAt: Date
   updatedAt: Date
+  status: $Enums.placeSubmissionStatus
   _count: Common_guideCountAggregateOutputType | null
   _avg: Common_guideAvgAggregateOutputType | null
   _sum: Common_guideSumAggregateOutputType | null
@@ -320,6 +327,7 @@ export type common_guideWhereInput = {
   language?: Prisma.StringNullableListFilter<"common_guide">
   createdAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"common_guide"> | $Enums.placeSubmissionStatus
   places?: Prisma.Common_guide_placesListRelationFilter
   testimonials?: Prisma.TestimonialsListRelationFilter
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
@@ -345,6 +353,7 @@ export type common_guideOrderByWithRelationInput = {
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   places?: Prisma.common_guide_placesOrderByRelationAggregateInput
   testimonials?: Prisma.testimonialsOrderByRelationAggregateInput
   placeSubmissions?: Prisma.place_submissionOrderByRelationAggregateInput
@@ -373,6 +382,7 @@ export type common_guideWhereUniqueInput = Prisma.AtLeast<{
   language?: Prisma.StringNullableListFilter<"common_guide">
   createdAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide"> | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFilter<"common_guide"> | $Enums.placeSubmissionStatus
   places?: Prisma.Common_guide_placesListRelationFilter
   testimonials?: Prisma.TestimonialsListRelationFilter
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
@@ -398,6 +408,7 @@ export type common_guideOrderByWithAggregationInput = {
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   _count?: Prisma.common_guideCountOrderByAggregateInput
   _avg?: Prisma.common_guideAvgOrderByAggregateInput
   _max?: Prisma.common_guideMaxOrderByAggregateInput
@@ -427,6 +438,7 @@ export type common_guideScalarWhereWithAggregatesInput = {
   language?: Prisma.StringNullableListFilter<"common_guide">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide"> | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusWithAggregatesFilter<"common_guide"> | $Enums.placeSubmissionStatus
 }
 
 export type common_guideCreateInput = {
@@ -448,6 +460,7 @@ export type common_guideCreateInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
@@ -473,6 +486,7 @@ export type common_guideUncheckedCreateInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
@@ -498,6 +512,7 @@ export type common_guideUpdateInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
@@ -523,6 +538,7 @@ export type common_guideUncheckedUpdateInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
@@ -548,6 +564,7 @@ export type common_guideCreateManyInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
 }
 
 export type common_guideUpdateManyMutationInput = {
@@ -569,6 +586,7 @@ export type common_guideUpdateManyMutationInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
 }
 
 export type common_guideUncheckedUpdateManyInput = {
@@ -590,6 +608,7 @@ export type common_guideUncheckedUpdateManyInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
 }
 
 export type Common_guideNullableScalarRelationFilter = {
@@ -616,6 +635,7 @@ export type common_guideCountOrderByAggregateInput = {
   language?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
 }
 
 export type common_guideAvgOrderByAggregateInput = {
@@ -641,6 +661,7 @@ export type common_guideMaxOrderByAggregateInput = {
   cost?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
 }
 
 export type common_guideMinOrderByAggregateInput = {
@@ -660,6 +681,7 @@ export type common_guideMinOrderByAggregateInput = {
   cost?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  status?: Prisma.SortOrder
 }
 
 export type common_guideSumOrderByAggregateInput = {
@@ -770,6 +792,7 @@ export type common_guideCreateWithoutTestimonialsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
@@ -794,6 +817,7 @@ export type common_guideUncheckedCreateWithoutTestimonialsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
@@ -834,6 +858,7 @@ export type common_guideUpdateWithoutTestimonialsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
@@ -858,6 +883,7 @@ export type common_guideUncheckedUpdateWithoutTestimonialsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
@@ -882,6 +908,7 @@ export type common_guideCreateWithoutPlaceSubmissionsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
@@ -906,6 +933,7 @@ export type common_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
@@ -946,6 +974,7 @@ export type common_guideUpdateWithoutPlaceSubmissionsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
@@ -970,6 +999,7 @@ export type common_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
@@ -994,6 +1024,7 @@ export type common_guideCreateWithoutPlacesInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutCommonGuideInput
@@ -1018,6 +1049,7 @@ export type common_guideUncheckedCreateWithoutPlacesInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
   bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutCommonGuideInput
@@ -1058,6 +1090,7 @@ export type common_guideUpdateWithoutPlacesInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutCommonGuideNestedInput
@@ -1082,6 +1115,7 @@ export type common_guideUncheckedUpdateWithoutPlacesInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
   bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
@@ -1106,6 +1140,7 @@ export type common_guideCreateWithoutBookingsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutCommonGuideInput
@@ -1130,6 +1165,7 @@ export type common_guideUncheckedCreateWithoutBookingsInput = {
   language?: Prisma.common_guideCreatelanguageInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  status?: $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutCommonGuideInput
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutCommonGuideInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutCommonGuideInput
@@ -1170,6 +1206,7 @@ export type common_guideUpdateWithoutBookingsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutCommonGuideNestedInput
@@ -1194,6 +1231,7 @@ export type common_guideUncheckedUpdateWithoutBookingsInput = {
   language?: Prisma.common_guideUpdatelanguageInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   places?: Prisma.common_guide_placesUncheckedUpdateManyWithoutCommonGuideNestedInput
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutCommonGuideNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutCommonGuideNestedInput
@@ -1276,6 +1314,7 @@ export type common_guideSelect<ExtArgs extends runtime.Types.Extensions.Internal
   language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  status?: boolean
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   testimonials?: boolean | Prisma.common_guide$testimonialsArgs<ExtArgs>
   placeSubmissions?: boolean | Prisma.common_guide$placeSubmissionsArgs<ExtArgs>
@@ -1302,6 +1341,7 @@ export type common_guideSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  status?: boolean
 }, ExtArgs["result"]["common_guide"]>
 
 export type common_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1323,6 +1363,7 @@ export type common_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  status?: boolean
 }, ExtArgs["result"]["common_guide"]>
 
 export type common_guideSelectScalar = {
@@ -1344,9 +1385,10 @@ export type common_guideSelectScalar = {
   language?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  status?: boolean
 }
 
-export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide"]>
+export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["common_guide"]>
 export type common_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   testimonials?: boolean | Prisma.common_guide$testimonialsArgs<ExtArgs>
@@ -1384,6 +1426,7 @@ export type $common_guidePayload<ExtArgs extends runtime.Types.Extensions.Intern
     language: string[]
     createdAt: Date
     updatedAt: Date
+    status: $Enums.placeSubmissionStatus
   }, ExtArgs["result"]["common_guide"]>
   composites: {}
 }
@@ -1829,6 +1872,7 @@ export interface common_guideFieldRefs {
   readonly language: Prisma.FieldRef<"common_guide", 'String[]'>
   readonly createdAt: Prisma.FieldRef<"common_guide", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"common_guide", 'DateTime'>
+  readonly status: Prisma.FieldRef<"common_guide", 'placeSubmissionStatus'>
 }
     
 

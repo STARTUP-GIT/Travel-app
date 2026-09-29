@@ -20,6 +20,7 @@ export type Stats = {
   districts: number;
   places: number;
   pendingPlaceSubmissions: number;
+  pendingGuides: number;
   specificGuides: number;
   commonGuides: number;
   guides: number;
@@ -72,6 +73,13 @@ export type DistrictAdmin = {
 
 export type ContentApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export type AutoApprovalSettings = {
+  placesAutoApproval: boolean;
+  guidesAutoApproval: boolean;
+  hotelsAutoApproval: boolean;
+  restaurantsAutoApproval: boolean;
+};
+
 export type PlaceAdmin = {
   id: string;
   name: string;
@@ -115,6 +123,7 @@ export type GuideAdmin = {
   experience: number | null;
   cost: number | null;
   language: string | null;
+  status?: ContentApprovalStatus;
   createdAt: string;
   updatedAt: string;
   place?: { id: string; name: string; images: string[]; district?: { id: string; name: string } };

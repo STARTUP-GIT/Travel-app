@@ -67,7 +67,7 @@ export default function UsersPage() {
   return (
     <div>
       <PageHeader title="Users" subtitle="Application users and their activity.">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search users…" className="w-56" />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search users…" className="w-full sm:w-56" />
       </PageHeader>
       {loading ? (
         <LoadingState />

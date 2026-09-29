@@ -273,10 +273,6 @@ export type CountryScalarRelationFilter = {
   isNot?: Prisma.countryWhereInput
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type countryCreateNestedOneWithoutStatesInput = {
   create?: Prisma.XOR<Prisma.countryCreateWithoutStatesInput, Prisma.countryUncheckedCreateWithoutStatesInput>
   connectOrCreate?: Prisma.countryCreateOrConnectWithoutStatesInput

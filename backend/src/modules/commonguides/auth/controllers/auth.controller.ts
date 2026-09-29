@@ -10,6 +10,7 @@ import {
 } from "../../../../services/zod.js";
 import { authProviders } from "../../../../generated/client/enums.js";
 import { generateSessionToken } from "../../../../services/sessiontoken.js";
+import { resolveInitialStatus } from "../../../../services/approvalSettings.js";
 
 const commonGuideSafeSelect = {
   id: true,
@@ -83,6 +84,11 @@ export const signUp = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
+    // Read the admin auto-approval policy BEFORE the transaction so the write
+    // and its status are decided together: on, the guide is live immediately;
+    // off, it starts PENDING and waits in the admin approval queue.
+    const initialStatus = await resolveInitialStatus("guides");
+
     // Create common guide along with its place associations
     const common_guide = await prisma.$transaction(async (tx) => {
       const guide = await tx.common_guide.create({
@@ -97,6 +103,7 @@ export const signUp = async (req: Request, res: Response) => {
           cost: data.cost,
           language: data.language,
           authprovider: authProviders.EMAIL,
+          status: initialStatus,
         },
         select: commonGuideSafeSelect,
       });
@@ -185,6 +192,8 @@ export const googleSignUp = async (req: Request, res: Response) => {
       username = `${baseUsername}_${Date.now()}`;
     }
 
+    const initialStatus = await resolveInitialStatus("guides");
+
     // Create Google guide along with its place associations
     const common_guide = await prisma.$transaction(async (tx) => {
       const guide = await tx.common_guide.create({
@@ -199,6 +208,7 @@ export const googleSignUp = async (req: Request, res: Response) => {
           cost: data.cost ?? 0,
           language: data.language ?? [],
           authprovider: authProviders.GOOGLE,
+          status: initialStatus,
         },
         select: commonGuideSafeSelect,
       });

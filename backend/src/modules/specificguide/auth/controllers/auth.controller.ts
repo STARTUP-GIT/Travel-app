@@ -10,6 +10,7 @@ import {
 } from "../../../../services/zod.js";
 import { authProviders } from "../../../../generated/client/enums.js";
 import { generateSessionToken } from "../../../../services/sessiontoken.js";
+import { resolveInitialStatus } from "../../../../services/approvalSettings.js";
 
 const specificGuideSafeSelect = {
   id: true,
@@ -72,6 +73,10 @@ export const signUp = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
+    // Read the admin auto-approval policy BEFORE the write: on, the guide is
+    // live immediately; off, it starts PENDING for the admin queue.
+    const initialStatus = await resolveInitialStatus("guides");
+
     // Create specific guide
     const specific_guide = await prisma.specific_guide.create({
       data: {
@@ -86,6 +91,7 @@ export const signUp = async (req: Request, res: Response) => {
         cost: data.cost,
         language: data.language,
         authprovider: authProviders.EMAIL,
+        status: initialStatus,
       },
       select: specificGuideSafeSelect,
     });
@@ -166,6 +172,8 @@ export const googleSignUp = async (req: Request, res: Response) => {
       username = `${baseUsername}_${Date.now()}`;
     }
 
+    const initialStatus = await resolveInitialStatus("guides");
+
     // Create Google guide
     const specific_guide = await prisma.specific_guide.create({
       data: {
@@ -180,6 +188,7 @@ export const googleSignUp = async (req: Request, res: Response) => {
         cost: data.cost ?? 0,
         language: data.language ?? [],
         authprovider: authProviders.GOOGLE,
+        status: initialStatus,
       },
       select: specificGuideSafeSelect,
     });

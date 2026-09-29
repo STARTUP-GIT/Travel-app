@@ -44,9 +44,15 @@ export function DeleteButton({
       setOpen(false);
       onDeleted();
     } catch (err) {
-      toast.error("Delete failed", {
-        description: err instanceof Error ? err.message : undefined,
-      });
+      // The backend returns short, human messages for real conflicts (e.g. a
+      // guide that still has reviews). Anything that looks like a raw server
+      // fault is hidden so the admin never sees "Internal Server Error".
+      const message = err instanceof Error ? err.message : undefined;
+      const friendly =
+        message && !/internal server error|failed \([5]\d\d\)|status 5\d\d/i.test(message)
+          ? message
+          : "Something went wrong. Please try again.";
+      toast.error("Delete failed", { description: friendly });
     } finally {
       setDeleting(false);
     }

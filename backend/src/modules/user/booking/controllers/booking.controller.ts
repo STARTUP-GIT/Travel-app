@@ -204,6 +204,12 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
       return res.status(404).json({ message: "Specific guide not found" });
     }
 
+    // A guide that is still PENDING or was REJECTED by an admin must not be
+    // bookable, even if a client still holds a direct link to its id.
+    if (guide.status !== "APPROVED") {
+      return res.status(400).json({ message: "This guide is not available for booking yet" });
+    }
+
     const district = await findDistrictWithHierarchy(guide.place.districtId);
 
     if (!district || !isDistrictAvailable(district)) {
@@ -283,6 +289,12 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
 
     if (!guide) {
       return res.status(404).json({ message: "Common guide not found" });
+    }
+
+    // A guide that is still PENDING or was REJECTED by an admin must not be
+    // bookable, even if a client still holds a direct link to its id.
+    if (guide.status !== "APPROVED") {
+      return res.status(400).json({ message: "This guide is not available for booking yet" });
     }
 
     const uniquePlaceIds = [...new Set(data.placeIds)];

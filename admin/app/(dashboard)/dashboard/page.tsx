@@ -44,6 +44,7 @@ export default function DashboardPage() {
           icon={CalendarClock}
           href="/submissions"
         />
+        <StatCard label="Pending guides" value={data.pendingGuides} icon={UserCheck} href="/guides" />
         <StatCard label="Guides" value={data.guides} icon={UserCheck} href="/guides" />
         <StatCard label="Hotels" value={data.hotels} icon={Building2} href="/hotels" />
         <StatCard label="Restaurants" value={data.restaurants} icon={UtensilsCrossed} href="/restaurants" />

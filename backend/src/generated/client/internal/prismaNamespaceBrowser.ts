@@ -101,7 +101,11 @@ export const App_configScalarFieldEnum = {
   contacts: 'contacts',
   termsandconditions: 'termsandconditions',
   privacy: 'privacy',
-  app_description: 'app_description'
+  app_description: 'app_description',
+  placesAutoApproval: 'placesAutoApproval',
+  guidesAutoApproval: 'guidesAutoApproval',
+  hotelsAutoApproval: 'hotelsAutoApproval',
+  restaurantsAutoApproval: 'restaurantsAutoApproval'
 } as const
 
 export type App_configScalarFieldEnum = (typeof App_configScalarFieldEnum)[keyof typeof App_configScalarFieldEnum]
@@ -250,7 +254,8 @@ export const Specific_guideScalarFieldEnum = {
   cost: 'cost',
   language: 'language',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  status: 'status'
 } as const
 
 export type Specific_guideScalarFieldEnum = (typeof Specific_guideScalarFieldEnum)[keyof typeof Specific_guideScalarFieldEnum]
@@ -274,7 +279,8 @@ export const Common_guideScalarFieldEnum = {
   cost: 'cost',
   language: 'language',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  status: 'status'
 } as const
 
 export type Common_guideScalarFieldEnum = (typeof Common_guideScalarFieldEnum)[keyof typeof Common_guideScalarFieldEnum]

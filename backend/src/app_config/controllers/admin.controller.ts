@@ -1,6 +1,11 @@
 import type { Request, Response } from "express";
 import prisma from "../../db/prisma.js";
 import { resolveGoogleMapsShortLink } from "../services/location-resolver.js";
+import {
+  DEFAULT_AUTO_APPROVAL,
+  getAutoApprovalSettings,
+  type AutoApprovalSettings,
+} from "../../services/approvalSettings.js";
 
 /**
  * Admin-only management endpoints. Everything in this folder is isolated to
@@ -35,6 +40,7 @@ const specificGuideSelect = {
   experience: true,
   cost: true,
   language: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -54,6 +60,7 @@ const commonGuideSelect = {
   experience: true,
   cost: true,
   language: true,
+  status: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -136,14 +143,45 @@ const BOOKING_STATUSES = [
 const CONTENT_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;
 type ContentStatus = (typeof CONTENT_STATUSES)[number];
 
+/**
+ * Accepts a status from a query string or JSON body and rejects anything
+ * outside the enum, so a typo in a request cannot write an invalid status.
+ * Returns undefined for a missing/unknown value, which each caller treats as
+ * "not filtering" or "400" as appropriate.
+ */
 function getContentStatus(value: unknown): ContentStatus | undefined {
   return typeof value === "string" && CONTENT_STATUSES.includes(value as ContentStatus)
     ? (value as ContentStatus)
     : undefined;
 }
 
+/** Prisma error codes we can turn into a meaningful 4xx instead of a 500. */
+function prismaErrorCode(error: unknown): string | undefined {
+  return typeof error === "object" && error !== null && "code" in error && typeof (error as { code?: unknown }).code === "string"
+    ? (error as { code: string }).code
+    : undefined;
+}
+
 const handleError = (res: Response, error: unknown) => {
   console.error("Admin API error:", error);
+
+  const code = prismaErrorCode(error);
+
+  if (code === "P2025") {
+    return res.status(404).json({ message: "Record not found" });
+  }
+  if (code === "P2003") {
+    // A record this one depends on still exists. That is a business-rule
+    // conflict, not a server fault, so it is answered with 409 and a short
+    // sentence the admin panel can show as-is.
+    return res.status(409).json({
+      message: "This record is still linked to other data and cannot be removed.",
+    });
+  }
+  if (code === "P2002") {
+    return res.status(409).json({ message: "A record with those unique details already exists." });
+  }
+
   return res.status(500).json({ message: "Internal Server Error" });
 };
 
@@ -163,6 +201,8 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
       restaurantReservations,
       specificGuideBookings,
       commonGuideBookings,
+      pendingSpecificGuides,
+      pendingCommonGuides,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.state.count(),
@@ -177,6 +217,10 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
       prisma.restaurant_reservation.count(),
       prisma.specific_guide_booking.count(),
       prisma.common_guide_booking.count(),
+      // Guides waiting on an admin decision, so the dashboard can point at the
+      // approval queue instead of only counting place submissions.
+      prisma.specific_guide.count({ where: { status: "PENDING" } }),
+      prisma.common_guide.count({ where: { status: "PENDING" } }),
     ]);
 
     return res.status(200).json({
@@ -185,6 +229,7 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
       districts,
       places,
       pendingPlaceSubmissions,
+      pendingGuides: pendingSpecificGuides + pendingCommonGuides,
       specificGuides,
       commonGuides,
       guides: specificGuides + commonGuides,
@@ -591,6 +636,7 @@ export const listSpecificGuides = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const status = getContentStatus(req.query.status);
     const guides = await prisma.specific_guide.findMany({
       where: {
         ...(search
@@ -603,6 +649,7 @@ export const listSpecificGuides = async (req: Request, res: Response) => {
           : {}),
         ...(districtId ? { place: { districtId } } : {}),
         ...(stateId ? { place: { district: { stateId } } } : {}),
+        ...(status ? { status } : {}),
       },
       select: {
         ...specificGuideSelect,
@@ -636,6 +683,7 @@ export const listCommonGuides = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const status = getContentStatus(req.query.status);
     const guides = await prisma.common_guide.findMany({
       where: {
         ...(search
@@ -648,6 +696,7 @@ export const listCommonGuides = async (req: Request, res: Response) => {
           : {}),
         ...(districtId ? { places: { some: { place: { districtId } } } } : {}),
         ...(stateId ? { places: { some: { place: { district: { stateId } } } } } : {}),
+        ...(status ? { status } : {}),
       },
       select: {
         ...commonGuideSelect,
@@ -675,6 +724,115 @@ export const getCommonGuideById = async (req: Request, res: Response) => {
     });
     if (!guide) return res.status(404).json({ message: "Common guide not found" });
     return res.status(200).json({ guide });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+/**
+ * Approve or reject a guide. Guides are created PENDING unless the guides
+ * auto-approval setting was on, so this is what moves them into or out of the
+ * traveller-facing listing.
+ */
+export const updateGuideStatus = async (req: Request, res: Response) => {
+  try {
+    const { kind, id } = req.params as { kind: string; id: string };
+    const { status } = req.body ?? {};
+    const normalised = getContentStatus(status);
+    if (!normalised) {
+      return res.status(400).json({ message: "Invalid guide status" });
+    }
+
+    if (kind === "specific") {
+      const existing = await prisma.specific_guide.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+      if (!existing) return res.status(404).json({ message: "Guide not found" });
+      const guide = await prisma.specific_guide.update({
+        where: { id },
+        data: { status: normalised },
+        select: specificGuideSelect,
+      });
+      return res.status(200).json({
+        message: normalised === "APPROVED" ? "Guide approved" : "Guide rejected",
+        guide,
+      });
+    }
+
+    if (kind === "common") {
+      const existing = await prisma.common_guide.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+      if (!existing) return res.status(404).json({ message: "Guide not found" });
+      const guide = await prisma.common_guide.update({
+        where: { id },
+        data: { status: normalised },
+        select: commonGuideSelect,
+      });
+      return res.status(200).json({
+        message: normalised === "APPROVED" ? "Guide approved" : "Guide rejected",
+        guide,
+      });
+    }
+
+    return res.status(400).json({ message: "Invalid guide type" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+/**
+ * The four global auto-approval switches, stored on app_config so the values
+ * survive a refresh and the backend can read them on every creation flow.
+ */
+export const getAutoApproval = async (_req: Request, res: Response) => {
+  try {
+    const settings = await getAutoApprovalSettings();
+    return res.status(200).json({ settings });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const updateAutoApproval = async (req: Request, res: Response) => {
+  try {
+    const body = (req.body ?? {}) as Partial<AutoApprovalSettings>;
+    const data: Partial<AutoApprovalSettings> = {};
+
+    for (const key of Object.keys(DEFAULT_AUTO_APPROVAL) as (keyof AutoApprovalSettings)[]) {
+      const value = body[key];
+      if (value === undefined) continue;
+      if (typeof value !== "boolean") {
+        return res.status(400).json({ message: `${key} must be a boolean` });
+      }
+      data[key] = value;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    // The flags live on the existing app_config row, which also holds the
+    // required branding fields. If no row exists yet, creating one here would
+    // have to invent all of that branding, so the admin is pointed at the
+    // Branding & Landing form instead.
+    const config = await prisma.app_config.findFirst({
+      orderBy: { id: "asc" },
+      select: { id: true },
+    });
+
+    if (!config) {
+      return res.status(409).json({
+        message: "No application configuration exists yet. Save Branding & Landing first.",
+      });
+    }
+
+    await prisma.app_config.update({ where: { id: config.id }, data });
+
+    const settings = await getAutoApprovalSettings();
+    return res.status(200).json({ message: "Auto approval updated", settings });
   } catch (error) {
     return handleError(res, error);
   }
@@ -1498,38 +1656,85 @@ export const deleteRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteSpecificGuide = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params as { id: string };
-    const [testimonials, submissions] = await Promise.all([
-      prisma.testimonials.count({ where: { specificguideId: id } }),
-      prisma.place_submission.count({ where: { specificGuideId: id } }),
-    ]);
-    if (testimonials + submissions > 0) {
-      return res.status(409).json({
-        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} submission(s) first.`,
-      });
-    }
-    await prisma.specific_guide.delete({ where: { id } });
-    return res.status(200).json({ message: "Guide deleted" });
-  } catch (error) {
-    return handleError(res, error);
-  }
-};
-
+/**
+ * Deleting a guide has to clear its place-coverage join rows first.
+ *
+ * `common_guide_places` is a pure relationship table — a row only says "this
+ * guide covers this place" and holds no data of its own — so the rows go with
+ * the guide. Left in place, the foreign key rejects the delete with a
+ * constraint error, which used to surface as a 500.
+ *
+ * Bookings are deliberately NOT removed: they are the traveller-facing history
+ * and already cascade from the schema. Reviews and place submissions are
+ * blocked with a 409 instead, so an admin removes those explicitly first
+ * rather than losing review history as a side effect of a guide deletion.
+ *
+ * The whole thing runs in one transaction so a failure cannot leave the guide
+ * deleted but its coverage rows behind, or the reverse.
+ */
 export const deleteCommonGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+
+    const guide = await prisma.common_guide.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!guide) return res.status(404).json({ message: "Guide not found" });
+
     const [testimonials, submissions] = await Promise.all([
       prisma.testimonials.count({ where: { commonGuideId: id } }),
       prisma.place_submission.count({ where: { commonGuideId: id } }),
     ]);
     if (testimonials + submissions > 0) {
       return res.status(409).json({
-        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} submission(s) first.`,
+        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} place submission(s) first.`,
       });
     }
-    await prisma.common_guide.delete({ where: { id } });
+
+    await prisma.$transaction(async (tx) => {
+      // Relationship rows first: they exist only to describe this guide.
+      await tx.common_guide_places.deleteMany({ where: { commonGuideId: id } });
+      await tx.common_guide.delete({ where: { id } });
+    });
+
+    return res.status(200).json({ message: "Guide deleted" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+export const deleteSpecificGuide = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+
+    const guide = await prisma.specific_guide.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!guide) return res.status(404).json({ message: "Guide not found" });
+
+    const [testimonials, submissions] = await Promise.all([
+      prisma.testimonials.count({ where: { specificguideId: id } }),
+      prisma.place_submission.count({ where: { specificGuideId: id } }),
+    ]);
+    if (testimonials + submissions > 0) {
+      return res.status(409).json({
+        message: `Cannot delete guide: remove its ${testimonials} review(s) and ${submissions} place submission(s) first.`,
+      });
+    }
+
+    // Bookings cascade from the schema. Any submission that references this
+    // guide is detached rather than removed, so a rejected submission history
+    // is not silently rewritten.
+    await prisma.$transaction(async (tx) => {
+      await tx.place_submission.updateMany({
+        where: { specificGuideId: id },
+        data: { specificGuideId: null },
+      });
+      await tx.specific_guide.delete({ where: { id } });
+    });
+
     return res.status(200).json({ message: "Guide deleted" });
   } catch (error) {
     return handleError(res, error);

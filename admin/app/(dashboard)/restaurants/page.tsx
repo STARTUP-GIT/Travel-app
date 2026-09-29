@@ -283,11 +283,11 @@ export default function RestaurantsPage() {
     <div>
       <PageHeader title="Restaurants" subtitle="Restaurants and their reservation status.">
         <div className="flex items-center gap-2">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search restaurants…" className="w-56" />
+          <SearchInput value={search} onChange={setSearch} placeholder="Search restaurants…" className="w-full sm:w-56" />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto"
           >
             <option value="ALL">All</option>
             <option value="PENDING">Pending</option>

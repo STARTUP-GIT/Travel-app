@@ -34,6 +34,10 @@ export type App_configMinAggregateOutputType = {
   termsandconditions: string | null
   privacy: string | null
   app_description: string | null
+  placesAutoApproval: boolean | null
+  guidesAutoApproval: boolean | null
+  hotelsAutoApproval: boolean | null
+  restaurantsAutoApproval: boolean | null
 }
 
 export type App_configMaxAggregateOutputType = {
@@ -46,6 +50,10 @@ export type App_configMaxAggregateOutputType = {
   termsandconditions: string | null
   privacy: string | null
   app_description: string | null
+  placesAutoApproval: boolean | null
+  guidesAutoApproval: boolean | null
+  hotelsAutoApproval: boolean | null
+  restaurantsAutoApproval: boolean | null
 }
 
 export type App_configCountAggregateOutputType = {
@@ -59,6 +67,10 @@ export type App_configCountAggregateOutputType = {
   termsandconditions: number
   privacy: number
   app_description: number
+  placesAutoApproval: number
+  guidesAutoApproval: number
+  hotelsAutoApproval: number
+  restaurantsAutoApproval: number
   _all: number
 }
 
@@ -73,6 +85,10 @@ export type App_configMinAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  placesAutoApproval?: true
+  guidesAutoApproval?: true
+  hotelsAutoApproval?: true
+  restaurantsAutoApproval?: true
 }
 
 export type App_configMaxAggregateInputType = {
@@ -85,6 +101,10 @@ export type App_configMaxAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  placesAutoApproval?: true
+  guidesAutoApproval?: true
+  hotelsAutoApproval?: true
+  restaurantsAutoApproval?: true
 }
 
 export type App_configCountAggregateInputType = {
@@ -98,6 +118,10 @@ export type App_configCountAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  placesAutoApproval?: true
+  guidesAutoApproval?: true
+  hotelsAutoApproval?: true
+  restaurantsAutoApproval?: true
   _all?: true
 }
 
@@ -184,6 +208,10 @@ export type App_configGroupByOutputType = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval: boolean
+  guidesAutoApproval: boolean
+  hotelsAutoApproval: boolean
+  restaurantsAutoApproval: boolean
   _count: App_configCountAggregateOutputType | null
   _min: App_configMinAggregateOutputType | null
   _max: App_configMaxAggregateOutputType | null
@@ -218,6 +246,10 @@ export type app_configWhereInput = {
   termsandconditions?: Prisma.StringFilter<"app_config"> | string
   privacy?: Prisma.StringFilter<"app_config"> | string
   app_description?: Prisma.StringFilter<"app_config"> | string
+  placesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  guidesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  hotelsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  restaurantsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   testimonials?: Prisma.TestimonialsListRelationFilter
   admin?: Prisma.AdminListRelationFilter
 }
@@ -233,6 +265,10 @@ export type app_configOrderByWithRelationInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  placesAutoApproval?: Prisma.SortOrder
+  guidesAutoApproval?: Prisma.SortOrder
+  hotelsAutoApproval?: Prisma.SortOrder
+  restaurantsAutoApproval?: Prisma.SortOrder
   testimonials?: Prisma.testimonialsOrderByRelationAggregateInput
   admin?: Prisma.adminOrderByRelationAggregateInput
 }
@@ -251,6 +287,10 @@ export type app_configWhereUniqueInput = Prisma.AtLeast<{
   termsandconditions?: Prisma.StringFilter<"app_config"> | string
   privacy?: Prisma.StringFilter<"app_config"> | string
   app_description?: Prisma.StringFilter<"app_config"> | string
+  placesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  guidesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  hotelsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
+  restaurantsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   testimonials?: Prisma.TestimonialsListRelationFilter
   admin?: Prisma.AdminListRelationFilter
 }, "id">
@@ -266,6 +306,10 @@ export type app_configOrderByWithAggregationInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  placesAutoApproval?: Prisma.SortOrder
+  guidesAutoApproval?: Prisma.SortOrder
+  hotelsAutoApproval?: Prisma.SortOrder
+  restaurantsAutoApproval?: Prisma.SortOrder
   _count?: Prisma.app_configCountOrderByAggregateInput
   _max?: Prisma.app_configMaxOrderByAggregateInput
   _min?: Prisma.app_configMinOrderByAggregateInput
@@ -285,6 +329,10 @@ export type app_configScalarWhereWithAggregatesInput = {
   termsandconditions?: Prisma.StringWithAggregatesFilter<"app_config"> | string
   privacy?: Prisma.StringWithAggregatesFilter<"app_config"> | string
   app_description?: Prisma.StringWithAggregatesFilter<"app_config"> | string
+  placesAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
+  guidesAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
+  hotelsAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
+  restaurantsAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
 }
 
 export type app_configCreateInput = {
@@ -298,6 +346,10 @@ export type app_configCreateInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutAppConfigInput
   admin?: Prisma.adminCreateNestedManyWithoutAppConfigInput
 }
@@ -313,6 +365,10 @@ export type app_configUncheckedCreateInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutAppConfigInput
   admin?: Prisma.adminUncheckedCreateNestedManyWithoutAppConfigInput
 }
@@ -328,6 +384,10 @@ export type app_configUpdateInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   testimonials?: Prisma.testimonialsUpdateManyWithoutAppConfigNestedInput
   admin?: Prisma.adminUpdateManyWithoutAppConfigNestedInput
 }
@@ -343,6 +403,10 @@ export type app_configUncheckedUpdateInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutAppConfigNestedInput
   admin?: Prisma.adminUncheckedUpdateManyWithoutAppConfigNestedInput
 }
@@ -358,6 +422,10 @@ export type app_configCreateManyInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
 }
 
 export type app_configUpdateManyMutationInput = {
@@ -371,6 +439,10 @@ export type app_configUpdateManyMutationInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type app_configUncheckedUpdateManyInput = {
@@ -384,6 +456,10 @@ export type app_configUncheckedUpdateManyInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type StringNullableListFilter<$PrismaModel = never> = {
@@ -405,6 +481,10 @@ export type app_configCountOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  placesAutoApproval?: Prisma.SortOrder
+  guidesAutoApproval?: Prisma.SortOrder
+  hotelsAutoApproval?: Prisma.SortOrder
+  restaurantsAutoApproval?: Prisma.SortOrder
 }
 
 export type app_configMaxOrderByAggregateInput = {
@@ -417,6 +497,10 @@ export type app_configMaxOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  placesAutoApproval?: Prisma.SortOrder
+  guidesAutoApproval?: Prisma.SortOrder
+  hotelsAutoApproval?: Prisma.SortOrder
+  restaurantsAutoApproval?: Prisma.SortOrder
 }
 
 export type app_configMinOrderByAggregateInput = {
@@ -429,6 +513,10 @@ export type app_configMinOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  placesAutoApproval?: Prisma.SortOrder
+  guidesAutoApproval?: Prisma.SortOrder
+  hotelsAutoApproval?: Prisma.SortOrder
+  restaurantsAutoApproval?: Prisma.SortOrder
 }
 
 export type App_configNullableScalarRelationFilter = {
@@ -447,6 +535,10 @@ export type StringFieldUpdateOperationsInput = {
 export type app_configUpdateimageBannersInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type app_configCreateNestedOneWithoutTestimonialsInput = {
@@ -492,6 +584,10 @@ export type app_configCreateWithoutTestimonialsInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   admin?: Prisma.adminCreateNestedManyWithoutAppConfigInput
 }
 
@@ -506,6 +602,10 @@ export type app_configUncheckedCreateWithoutTestimonialsInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   admin?: Prisma.adminUncheckedCreateNestedManyWithoutAppConfigInput
 }
 
@@ -536,6 +636,10 @@ export type app_configUpdateWithoutTestimonialsInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   admin?: Prisma.adminUpdateManyWithoutAppConfigNestedInput
 }
 
@@ -550,6 +654,10 @@ export type app_configUncheckedUpdateWithoutTestimonialsInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   admin?: Prisma.adminUncheckedUpdateManyWithoutAppConfigNestedInput
 }
 
@@ -564,6 +672,10 @@ export type app_configCreateWithoutAdminInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutAppConfigInput
 }
 
@@ -578,6 +690,10 @@ export type app_configUncheckedCreateWithoutAdminInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   testimonials?: Prisma.testimonialsUncheckedCreateNestedManyWithoutAppConfigInput
 }
 
@@ -608,6 +724,10 @@ export type app_configUpdateWithoutAdminInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   testimonials?: Prisma.testimonialsUpdateManyWithoutAppConfigNestedInput
 }
 
@@ -622,6 +742,10 @@ export type app_configUncheckedUpdateWithoutAdminInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurantsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   testimonials?: Prisma.testimonialsUncheckedUpdateManyWithoutAppConfigNestedInput
 }
 
@@ -676,6 +800,10 @@ export type app_configSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
   testimonials?: boolean | Prisma.app_config$testimonialsArgs<ExtArgs>
   admin?: boolean | Prisma.app_config$adminArgs<ExtArgs>
   _count?: boolean | Prisma.App_configCountOutputTypeDefaultArgs<ExtArgs>
@@ -692,6 +820,10 @@ export type app_configSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
 }, ExtArgs["result"]["app_config"]>
 
 export type app_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -705,6 +837,10 @@ export type app_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
 }, ExtArgs["result"]["app_config"]>
 
 export type app_configSelectScalar = {
@@ -718,9 +854,13 @@ export type app_configSelectScalar = {
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  placesAutoApproval?: boolean
+  guidesAutoApproval?: boolean
+  hotelsAutoApproval?: boolean
+  restaurantsAutoApproval?: boolean
 }
 
-export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description", ExtArgs["result"]["app_config"]>
+export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description" | "placesAutoApproval" | "guidesAutoApproval" | "hotelsAutoApproval" | "restaurantsAutoApproval", ExtArgs["result"]["app_config"]>
 export type app_configInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   testimonials?: boolean | Prisma.app_config$testimonialsArgs<ExtArgs>
   admin?: boolean | Prisma.app_config$adminArgs<ExtArgs>
@@ -746,6 +886,10 @@ export type $app_configPayload<ExtArgs extends runtime.Types.Extensions.Internal
     termsandconditions: string
     privacy: string
     app_description: string
+    placesAutoApproval: boolean
+    guidesAutoApproval: boolean
+    hotelsAutoApproval: boolean
+    restaurantsAutoApproval: boolean
   }, ExtArgs["result"]["app_config"]>
   composites: {}
 }
@@ -1181,6 +1325,10 @@ export interface app_configFieldRefs {
   readonly termsandconditions: Prisma.FieldRef<"app_config", 'String'>
   readonly privacy: Prisma.FieldRef<"app_config", 'String'>
   readonly app_description: Prisma.FieldRef<"app_config", 'String'>
+  readonly placesAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
+  readonly guidesAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
+  readonly hotelsAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
+  readonly restaurantsAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
 }
     
 

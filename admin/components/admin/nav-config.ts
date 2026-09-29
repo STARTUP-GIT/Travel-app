@@ -8,6 +8,7 @@ import {
   MessageSquareQuote,
   PackageOpen,
   Settings2,
+  ShieldCheck,
   Store,
   UserCog,
   Users,
@@ -60,6 +61,7 @@ export const NAVIGATION: NavSection[] = [
   {
     label: "Settings",
     items: [
+      { title: "Approvals", href: "/approvals", icon: ShieldCheck },
       { title: "Branding & Landing", href: "/branding", icon: Settings2 },
       { title: "My Profile", href: "/profile", icon: UserCog },
     ],

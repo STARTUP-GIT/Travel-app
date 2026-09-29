@@ -6,6 +6,7 @@ import {
   restaurentUpdateSchema,
 } from "../../../../../services/zod.js";
 import { Food_Category } from "../../../../../generated/client/enums.js";
+import { resolveInitialStatus } from "../../../../../services/approvalSettings.js";
 
 const districtHierarchyInclude = {
   district: {
@@ -40,6 +41,10 @@ export const createRestaurent = async (req: Request, res: Response) => {
       });
     }
 
+    // Admin auto-approval policy decides whether a new listing goes live
+    // straight away or waits in the admin approval queue.
+    const initialStatus = await resolveInitialStatus("restaurants");
+
     const restaurent = await prisma.restaurent.create({
       data: {
         name: data.name,
@@ -54,7 +59,7 @@ export const createRestaurent = async (req: Request, res: Response) => {
         images: data.images ?? [],
         latitude: data.latitude,
         longitude: data.longitude,
-        status: "PENDING",
+        status: initialStatus,
         ...(data.phone_number !== undefined ? { phone_number: data.phone_number } : {}),
         ...(data.whatsapp_number !== undefined ? { whatsapp_number: data.whatsapp_number } : {}),
         ...(data.email !== undefined ? { email: data.email } : {}),

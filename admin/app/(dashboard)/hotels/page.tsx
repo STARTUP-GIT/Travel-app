@@ -266,11 +266,11 @@ export default function HotelsPage() {
     <div>
       <PageHeader title="Hotels" subtitle="Hotels and their booking status.">
         <div className="flex items-center gap-2">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search hotels…" className="w-56" />
+          <SearchInput value={search} onChange={setSearch} placeholder="Search hotels…" className="w-full sm:w-56" />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto"
           >
             <option value="ALL">All</option>
             <option value="PENDING">Pending</option>

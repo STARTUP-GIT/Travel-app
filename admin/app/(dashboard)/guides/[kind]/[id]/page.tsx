@@ -3,15 +3,18 @@
 import { ArrowLeft, Star } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { ErrorState, LoadingState, EmptyState } from "@/components/admin/state";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { patchJSON } from "@/lib/api/mutate";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import type { GuideAdmin } from "@/lib/types";
+import type { ContentApprovalStatus, GuideAdmin } from "@/lib/types";
 
 type GuideDetail = GuideAdmin & {
   review?: string[];
@@ -30,6 +33,18 @@ export default function GuideDetailPage({
   );
 
   const guide = data?.guide;
+
+  async function setApproval(next: ContentApprovalStatus, verb: string) {
+    try {
+      await patchJSON(`/admin/api/guides/${kind}/${id}/status`, { status: next });
+      toast.success(verb);
+      refetch();
+    } catch (err) {
+      toast.error("Update failed", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    }
+  }
 
   return (
     <div>
@@ -58,16 +73,36 @@ export default function GuideDetailPage({
                 <p className="text-xs text-muted-foreground">@{guide.username}</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge status={guide.status ?? "PENDING"} />
               {guide.isReported ? (
                 <Badge className="bg-red-600 text-white">Reported</Badge>
-              ) : (
-                <Badge variant="outline">Active</Badge>
-              )}
+              ) : null}
               {guide.rating != null ? (
                 <Badge variant="outline">
                   <Star className="mr-1 size-3 fill-current" /> {guide.rating}
                 </Badge>
+              ) : null}
+            </div>
+            <div className="flex w-full flex-wrap gap-2">
+              {guide.status !== "APPROVED" ? (
+                <Button
+                  size="sm"
+                  className="bg-zinc-900 text-white hover:bg-zinc-800"
+                  onClick={() => void setApproval("APPROVED", "Guide approved")}
+                >
+                  Approve guide
+                </Button>
+              ) : null}
+              {guide.status !== "REJECTED" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={() => void setApproval("REJECTED", "Guide rejected")}
+                >
+                  Reject guide
+                </Button>
               ) : null}
             </div>
             <dl className="w-full space-y-2 text-sm">

@@ -357,11 +357,11 @@ export default function PlacesPage() {
     <div>
       <PageHeader title="Places" subtitle="All places across states and districts.">
         <div className="flex items-center gap-2">
-          <SearchInput value={search} onChange={setSearch} placeholder="Search places…" className="w-56" />
+          <SearchInput value={search} onChange={setSearch} placeholder="Search places…" className="w-full sm:w-56" />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "ALL" | ContentApprovalStatus)}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm sm:w-auto"
           >
             <option value="ALL">All</option>
             <option value="PENDING">Pending</option>
