@@ -62,6 +62,7 @@ export function buildEnquiryMailto(contact: EnquireContact): string | null {
  * clients — no plain text links.
  */
 export function EnquireButtons({ contact }: { contact: EnquireContact }) {
+  const emailAddress = normalizeRecipient(contact.email);
   const emailHref = buildEnquiryMailto(contact);
   const telHref = contact.phone ? `tel:${contact.phone.replace(/[^\d+]/g, "")}` : null;
 
@@ -135,6 +136,7 @@ export function EnquireButtons({ contact }: { contact: EnquireContact }) {
             key={label}
             href={href}
             className={tileClass}
+            onClick={label === "Email" ? () => void copyEmailAddress(emailAddress) : undefined}
             target={label === "WhatsApp" ? "_blank" : undefined}
             rel={label === "WhatsApp" ? "noreferrer" : undefined}
           >
@@ -144,6 +146,52 @@ export function EnquireButtons({ contact }: { contact: EnquireContact }) {
       })}
     </div>
   );
+}
+
+/**
+ * Email is a real `mailto:` anchor, so the browser hands the enquiry to the
+ * visitor's own mail application. On a device with no mail handler registered
+ * that hand-off can look like a dead end, so the same tap also puts the
+ * provider's address on the clipboard as a usable fallback.
+ *
+ * The anchor's default navigation is never prevented, nothing is sent to the
+ * backend, and the toast only claims what actually happened (the copy).
+ */
+async function copyEmailAddress(email: string | null): Promise<void> {
+  if (!email) return;
+  if (!(await writeToClipboard(email))) return;
+  toast.success(`Copied ${email}`, {
+    description: "No mail app opened? Paste it into yours.",
+  });
+}
+
+async function writeToClipboard(value: string): Promise<boolean> {
+  try {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {
+    // Permission denied or insecure context - try the legacy path below.
+  }
+
+  if (typeof document === "undefined") return false;
+
+  try {
+    const area = document.createElement("textarea");
+    area.value = value;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "0";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(area);
+    return copied;
+  } catch {
+    return false;
+  }
 }
 
 function normalizeWhatsapp(number: string | null | undefined): string | null {

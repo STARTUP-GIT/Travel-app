@@ -9,6 +9,12 @@ type CurrentDistrictContextValue = {
   setStateSlug: (stateSlug: string) => void;
   /** Persists the full state → district selection in one call. */
   setDestination: (stateSlug: string, districtSlug: string) => void;
+  /**
+   * Drops the selected destination entirely. Used by "Change destination" so the
+   * previous district stops being the active context before a new one is
+   * chosen, instead of lingering behind a half-finished selection.
+   */
+  clearDestination: () => void;
 };
 
 const CurrentDistrictContext = React.createContext<CurrentDistrictContextValue>({
@@ -17,6 +23,7 @@ const CurrentDistrictContext = React.createContext<CurrentDistrictContextValue>(
   setSlug: () => {},
   setStateSlug: () => {},
   setDestination: () => {},
+  clearDestination: () => {},
 });
 
 const DISTRICT_STORAGE_KEY = "kt-district";
@@ -33,6 +40,14 @@ function readStorage(key: string): string | null {
 function writeStorage(key: string, value: string) {
   try {
     window.localStorage.setItem(key, value);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function removeStorage(key: string) {
+  try {
+    window.localStorage.removeItem(key);
   } catch {
     // ignore storage errors
   }
@@ -73,9 +88,23 @@ export function CurrentDistrictProvider({
     []
   );
 
+  const clearDestination = React.useCallback(() => {
+    setStateSlugState(null);
+    setSlugState(null);
+    removeStorage(STATE_STORAGE_KEY);
+    removeStorage(DISTRICT_STORAGE_KEY);
+  }, []);
+
   return (
     <CurrentDistrictContext.Provider
-      value={{ slug, stateSlug, setSlug, setStateSlug, setDestination }}
+      value={{
+        slug,
+        stateSlug,
+        setSlug,
+        setStateSlug,
+        setDestination,
+        clearDestination,
+      }}
     >
       {children}
     </CurrentDistrictContext.Provider>

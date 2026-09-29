@@ -12,6 +12,7 @@ import {
   Pencil,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { AuthGate } from "@/components/shared/auth-gate";
 import { ScreenHeader } from "@/components/shared/screen-header";
@@ -28,8 +29,9 @@ import type { CustomerProfile } from "@/features/profile/types";
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { update: updateSession } = useSession();
-  const { slug, stateSlug } = useCurrentDistrict();
+  const { slug, stateSlug, clearDestination } = useCurrentDistrict();
   const { data: fetchedProfile } = useProfile();
+  const router = useRouter();
 
   // Fresh profile from the backend; a successful save takes precedence so the
   // header updates instantly (no effect needed — derived state).
@@ -130,19 +132,30 @@ export default function ProfileScreen() {
             ))}
           </div>
 
-          {slug ? (
-            <Link
-              href={stateSlug ? `/${stateSlug}/${slug}` : `/${slug}`}
-              className="card-surface group mt-2.5 flex items-center gap-3 rounded-2xl p-4 transition-colors hover:border-primary/40"
+          {/*
+            Profile is account data and never selects a district on its own — it
+            only offers to change an explicitly chosen destination, which clears
+            the selection before the flow starts.
+          */}
+          {slug && stateSlug ? (
+            <button
+              type="button"
+              onClick={() => {
+                clearDestination();
+                router.push("/explore");
+              }}
+              className="card-surface group mt-2.5 flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-colors hover:border-primary/40"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success/12 text-emerald-700">
                 <MapPin className="size-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">Current district</span>
-                <span className="block truncate text-xs text-muted-foreground">Browsing {slug} — tap to change</span>
+                <span className="block text-sm font-semibold">Current destination</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  Browsing {slug} — tap to change
+                </span>
               </span>
-            </Link>
+            </button>
           ) : null}
 
           <Button

@@ -9,6 +9,7 @@ import { DistrictSearchForm } from "@/components/shared/district-search-form";
 import { Button } from "@/components/ui/button";
 import type { LandingSlide } from "@/features/app-config/fallback-gallery";
 import { useBranding } from "@/features/app-config/state/app-config-provider";
+import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
 
 type DistrictHeroProps = {
   stateName: string;
@@ -29,10 +30,22 @@ export function DistrictHero({
 }: DistrictHeroProps) {
   const router = useRouter();
   const { tagline } = useBranding();
+  const { clearDestination } = useCurrentDistrict();
   const slides = React.useMemo<LandingSlide[]>(
     () => (stateImage ? [{ src: stateImage, alt: "" }] : []),
     [stateImage]
   );
+
+  /**
+   * Changing destination drops the current selection first, so the old district
+   * stops being the active context and the district shell disappears while the
+   * visitor picks a new state and district. Nothing from this district is
+   * rendered behind the selection flow.
+   */
+  function changeDestination() {
+    clearDestination();
+    router.push("/explore");
+  }
 
   return (
     <section
@@ -64,10 +77,10 @@ export function DistrictHero({
             variant="action"
             size="default"
             className="h-10 shrink-0 rounded-xl bg-emerald-600 px-4 text-sm font-semibold shadow-sm hover:bg-emerald-700"
-            onClick={() => router.push("/explore")}
+            onClick={changeDestination}
           >
             <MapPinned className="size-4" />
-            CHOOSE DESTINATION
+            Change destination
           </Button>
         </div>
       </div>

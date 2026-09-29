@@ -1,74 +1,80 @@
 "use client";
 
-import { Compass, Home, MapPinned, User, Bookmark } from "lucide-react";
+import { Bookmark, Compass, Home, MapPinned, User, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
+import { useDistrictShell } from "@/features/locations/hooks/useDistrictShell";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
-  { href: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
-  {
-    href: "/explore",
-    label: "Places",
-    icon: MapPinned,
-    match: (p: string) =>
-      p.includes("/places") ||
-      p.includes("/hotels") ||
-      p.includes("/restaurants") ||
-      p.startsWith("/explore"),
-  },
-  {
-    href: "/guides",
-    label: "Guides",
-    icon: Compass,
-    match: (p: string) => p.includes("/guides"),
-  },
-  {
-    href: "/favorites",
-    label: "Saved",
-    icon: Bookmark,
-    match: (p: string) => p.startsWith("/favorites"),
-  },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: User,
-    match: (p: string) => p.startsWith("/profile"),
-  },
-] as const;
+type NavItem = {
+  label: string;
+  icon: LucideIcon;
+  href: string;
+  /** Matched exactly instead of as a prefix, for the district root. */
+  exact?: boolean;
+  matches: (pathname: string) => boolean;
+};
 
 /**
- * Persistent mobile bottom navigation. The district-aware entries (Places,
- * Guides) resolve to the currently selected district; they fall back to the
- * destination picker when no district has been chosen yet. District routes
- * always carry the state segment, so /explore is the only safe fallback.
+ * District mobile bottom navigation: Home, Places, Guides, Saved, Profile.
+ *
+ * It is part of the district application shell, so it renders only once a
+ * district is actually selected. On the global landing page, during the
+ * destination-selection flow and on the auth screens there is no district, and
+ * this bar must not appear at all.
  */
 export function BottomNavigation() {
   const pathname = usePathname();
-  const { slug, stateSlug } = useCurrentDistrict();
+  const { base, isDistrictApp } = useDistrictShell();
 
-  const districtBase = stateSlug && slug ? `/${stateSlug}/${slug}` : null;
+  if (!isDistrictApp || !base) return null;
 
-  const resolved = ITEMS.map((item) => {
-    if (item.label === "Places") {
-      return { ...item, href: districtBase ? `${districtBase}/places` : "/explore" };
-    }
-    if (item.label === "Guides") {
-      return { ...item, href: districtBase ? `${districtBase}/guides` : "/explore" };
-    }
-    return item;
-  });
+  const items: NavItem[] = [
+    {
+      label: "Home",
+      icon: Home,
+      href: base,
+      exact: true,
+      matches: (p) => p === base,
+    },
+    {
+      label: "Places",
+      icon: MapPinned,
+      href: `${base}/places`,
+      matches: (p) =>
+        p.includes("/places") || p.includes("/hotels") || p.includes("/restaurants"),
+    },
+    {
+      label: "Guides",
+      icon: Compass,
+      href: `${base}/guides`,
+      matches: (p) => p.includes("/guides"),
+    },
+    {
+      // Saved is the visitor's own data, kept inside the selected district's
+      // navigation rather than scoped to it.
+      label: "Saved",
+      icon: Bookmark,
+      href: "/favorites",
+      matches: (p) => p.startsWith("/favorites"),
+    },
+    {
+      label: "Profile",
+      icon: User,
+      href: "/profile",
+      matches: (p) => p.startsWith("/profile"),
+    },
+  ];
 
   return (
     <nav
       className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-card/95 pb-[max(env(safe-area-inset-bottom),0.25rem)] shadow-[0_-6px_24px_-12px_rgb(15_30_90_/_0.18)] backdrop-blur-xl lg:hidden"
-      aria-label="Primary mobile navigation"
+      aria-label="District navigation"
     >
       <div className="grid grid-cols-5">
-        {resolved.map(({ href, label, icon: Icon, match }) => {
-          const active = match(pathname) || pathname.startsWith(href) && href !== "/";
+        {items.map(({ href, label, icon: Icon, exact, matches }) => {
+          const active = matches(pathname) || (!exact && pathname.startsWith(href));
           return (
             <Link
               key={label}
