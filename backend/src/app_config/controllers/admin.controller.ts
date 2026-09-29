@@ -6,6 +6,7 @@ import {
   getAutoApprovalSettings,
   type AutoApprovalSettings,
 } from "../../services/approvalSettings.js";
+import { guideStatusColumnExists } from "../../services/guideStatusColumn.js";
 
 /**
  * Admin-only management endpoints. Everything in this folder is isolated to
@@ -187,6 +188,14 @@ const handleError = (res: Response, error: unknown) => {
 
 export const getDashboardStats = async (_req: Request, res: Response) => {
   try {
+    // The two pending-guide counts below filter on `status`, which only exists
+    // once the auto-approval migration has been deployed. They used to sit
+    // inside the shared `Promise.all`, where one rejected query failed the whole
+    // batch and answered 500 — so the dashboard went down over a guide column
+    // it only uses for one tile. They are counted separately and only once the
+    // column is known to be there.
+    const hasGuideStatus = await guideStatusColumnExists();
+
     const [
       users,
       states,
@@ -201,8 +210,6 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
       restaurantReservations,
       specificGuideBookings,
       commonGuideBookings,
-      pendingSpecificGuides,
-      pendingCommonGuides,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.state.count(),
@@ -217,11 +224,16 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
       prisma.restaurant_reservation.count(),
       prisma.specific_guide_booking.count(),
       prisma.common_guide_booking.count(),
-      // Guides waiting on an admin decision, so the dashboard can point at the
-      // approval queue instead of only counting place submissions.
-      prisma.specific_guide.count({ where: { status: "PENDING" } }),
-      prisma.common_guide.count({ where: { status: "PENDING" } }),
     ]);
+
+    // Guides waiting on an admin decision, so the dashboard can point at the
+    // approval queue instead of only counting place submissions.
+    const [pendingSpecificGuides, pendingCommonGuides] = hasGuideStatus
+      ? await Promise.all([
+          prisma.specific_guide.count({ where: { status: "PENDING" } }),
+          prisma.common_guide.count({ where: { status: "PENDING" } }),
+        ])
+      : [0, 0];
 
     return res.status(200).json({
       users,
@@ -636,6 +648,10 @@ export const listSpecificGuides = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    // Only filterable/selectable once the auto-approval migration has added the
+    // column. Selecting it unconditionally is what made this page 500 while the
+    // migration was still pending; Prisma rejects the whole query.
+    const hasGuideStatus = await guideStatusColumnExists();
     const status = getContentStatus(req.query.status);
     const guides = await prisma.specific_guide.findMany({
       where: {
@@ -649,10 +665,11 @@ export const listSpecificGuides = async (req: Request, res: Response) => {
           : {}),
         ...(districtId ? { place: { districtId } } : {}),
         ...(stateId ? { place: { district: { stateId } } } : {}),
-        ...(status ? { status } : {}),
+        ...(status && hasGuideStatus ? { status } : {}),
       },
       select: {
         ...specificGuideSelect,
+        status: hasGuideStatus,
         place: { select: { id: true, name: true, images: true, district: { select: { id: true, name: true } } } },
         _count: { select: { bookings: true, placeSubmissions: true } },
       },
@@ -667,9 +684,15 @@ export const listSpecificGuides = async (req: Request, res: Response) => {
 export const getSpecificGuideById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+    const hasGuideStatus = await guideStatusColumnExists();
     const guide = await prisma.specific_guide.findUnique({
       where: { id },
-      select: { ...specificGuideSelect, review: true, place: { select: placeSelect } },
+      select: {
+        ...specificGuideSelect,
+        status: hasGuideStatus,
+        review: true,
+        place: { select: placeSelect },
+      },
     });
     if (!guide) return res.status(404).json({ message: "Specific guide not found" });
     return res.status(200).json({ guide });
@@ -683,6 +706,7 @@ export const listCommonGuides = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const districtId = typeof req.query.districtId === "string" ? req.query.districtId : undefined;
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const hasGuideStatus = await guideStatusColumnExists();
     const status = getContentStatus(req.query.status);
     const guides = await prisma.common_guide.findMany({
       where: {
@@ -696,10 +720,11 @@ export const listCommonGuides = async (req: Request, res: Response) => {
           : {}),
         ...(districtId ? { places: { some: { place: { districtId } } } } : {}),
         ...(stateId ? { places: { some: { place: { district: { stateId } } } } } : {}),
-        ...(status ? { status } : {}),
+        ...(status && hasGuideStatus ? { status } : {}),
       },
       select: {
         ...commonGuideSelect,
+        status: hasGuideStatus,
         places: { include: { place: { select: { id: true, name: true, images: true, district: { select: { id: true, name: true } } } } } },
         _count: { select: { bookings: true, placeSubmissions: true } },
       },
@@ -714,10 +739,12 @@ export const listCommonGuides = async (req: Request, res: Response) => {
 export const getCommonGuideById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
+    const hasGuideStatus = await guideStatusColumnExists();
     const guide = await prisma.common_guide.findUnique({
       where: { id },
       select: {
         ...commonGuideSelect,
+        status: hasGuideStatus,
         review: true,
         places: { include: { place: { select: placeSelect } } },
       },
@@ -741,6 +768,16 @@ export const updateGuideStatus = async (req: Request, res: Response) => {
     const normalised = getContentStatus(status);
     if (!normalised) {
       return res.status(400).json({ message: "Invalid guide status" });
+    }
+
+    // Writing the status is the one operation that genuinely cannot be done
+    // before the auto-approval migration exists. Saying so is better than
+    // letting the write fail and answering 500.
+    if (!(await guideStatusColumnExists())) {
+      return res.status(503).json({
+        message:
+          "Guide approval is unavailable: the auto-approval database migration has not been applied yet.",
+      });
     }
 
     if (kind === "specific") {

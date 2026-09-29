@@ -52,12 +52,13 @@ export default async function PlaceInfoPage({
   try {
     place = await getPlaceById(district.id, placeId);
   } catch (error) {
-    // Only a genuine "no such place" is a 404. Swallowing every other failure
-    // (backend 5xx, network error, timeout) into notFound() reported real
-    // server faults as "This page could not be found", which hid the actual
-    // error and sent people looking for a missing place record.
+    // A genuine "no such place" is the only 404. Anything else means the
+    // backend could not answer, and rethrowing it took down the whole server
+    // component — the visitor got Next.js's "Application error" page with no
+    // way back. It is reported in the log and shown as a recoverable message.
     if (error instanceof ApiError && error.status === 404) notFound();
-    throw error;
+    console.error("[place] could not load place", placeId, error);
+    return <DistrictUnavailable message="We couldn't load this place." />;
   }
 
   requireDistrictResource(place, district);

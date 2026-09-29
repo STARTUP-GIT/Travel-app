@@ -25,9 +25,27 @@ export type ProviderSession = {
   userId: string;
 };
 
+/**
+ * `auth()` throws rather than returning null when the session itself cannot be
+ * read — a missing AUTH_SECRET makes Auth.js reject its own configuration.
+ * Uncaught, that turns the dashboard into a server error instead of a redirect
+ * to the sign-in screen, which is the one page that can fix it.
+ *
+ * The return type is inferred on purpose: `ReturnType<typeof auth>` resolves to
+ * the middleware overload (`NextMiddleware`), not to the session.
+ */
+async function readSession() {
+  try {
+    return await auth();
+  } catch (error) {
+    console.error("[provider-session] could not read the session:", error);
+    return null;
+  }
+}
+
 /** Returns the session when it is usable, otherwise `null`. */
 export async function getProviderSession(): Promise<ProviderSession | null> {
-  const session = await auth();
+  const session = await readSession();
   if (!session?.user) return null;
 
   const kind = session.providerKind;

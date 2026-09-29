@@ -46,13 +46,13 @@ const CREDENTIAL_MESSAGES: Record<string, string> = {
   invalid_credentials: "Invalid credentials.",
   unknown_provider: "Choose an account type.",
   // Reserved for a genuine transport failure (DNS, TLS, connection refused,
-  // timeout). A backend that answered with an error status or an unusable body
-  // is reported as a server fault instead, because calling a 200 or a 500 a
-  // "network error" sent the real cause nowhere.
-  backend_unavailable: NETWORK_ERROR,
-  backend_error: SOMETHING_WENT_WRONG,
-  backend_contract: SOMETHING_WENT_WRONG,
-  Configuration: SOMETHING_WENT_WRONG,
+  // timeout). A backend that answered with an error status, or answered 2xx
+  // with a body that cannot start a session, is a failed sign-in — not a
+  // network problem, and the provider cannot act on either one differently.
+  backend_unavailable: SIGN_IN_FAILED,
+  backend_error: SIGN_IN_FAILED,
+  backend_contract: SIGN_IN_FAILED,
+  Configuration: SIGN_IN_FAILED,
   AccessDenied: SIGN_IN_FAILED,
   OAuthCallbackError: SIGN_IN_FAILED,
   default: SIGN_IN_FAILED,
@@ -200,10 +200,10 @@ export async function signInWithEmail(
 
   // Without an Auth.js secret no session can be minted at all, and the sign-in
   // comes back indistinguishable from a rejected password. `auth.ts` has
-  // already logged the cause; report it as a server fault instead of sending
+  // already logged the cause; report it as a failed sign-in instead of sending
   // the provider off to re-type a password that was never the problem.
   if (!authConfigured) {
-    return { ok: false, message: SOMETHING_WENT_WRONG };
+    return { ok: false, message: SIGN_IN_FAILED };
   }
 
   try {

@@ -12,7 +12,21 @@ const STYLES: Record<string, string> = {
   COMPLETED: "border-green-200 bg-green-50 text-green-700",
 };
 
-export function StatusBadge({ status }: { status: string }) {
+/**
+ * `status` is absent while a record has no approval column to read yet (the
+ * guide auto-approval migration adds one), so it is optional here. Calling
+ * `.replace()` on that undefined value crashed the whole guides page, which is
+ * why a missing status now renders as a neutral "—" instead of throwing.
+ */
+export function StatusBadge({ status }: { status?: string | null }) {
+  if (!status) {
+    return (
+      <Badge variant="outline" className="font-mono text-muted-foreground">
+        —
+      </Badge>
+    );
+  }
+
   return (
     <Badge variant="outline" className={cn("font-mono", STYLES[status] ?? "")}>
       {status.replace(/_/g, " ")}

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import prisma from "../../../db/prisma.js";
 import { getAutoApprovalSettings } from "../../../services/approvalSettings.js";
+import { guideStatusColumnExists } from "../../../services/guideStatusColumn.js";
 
 /**
  * Whether a submitted place should be created as an approved `place` straight
@@ -98,9 +99,24 @@ export const addPlace = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * `specific_guide.status` / `common_guide.status` are added by the
+ * auto-approval migration. Prisma selects every scalar of a related model, so
+ * including `specificguide` asks for a column that does not exist until that
+ * migration is deployed — and the database rejects the *whole* query. Because
+ * this endpoint is the place detail route, that turned a missing guide column
+ * into a 500 on the place page, and because the customer guide list is
+ * aggregated from these place responses it also emptied the guides page.
+ *
+ * The place is always served; guides are narrowed by approval only once the
+ * column is actually present, so an unapproved guide can never be published
+ * through this path either way.
+ */
 export const getPlaceById = async (req: Request, res: Response) => {
   try {
     const { placeId } = req.params as { placeId: string };
+
+    const hasGuideStatus = await guideStatusColumnExists();
 
     const place = await prisma.place.findUnique({
       where: {
@@ -108,13 +124,17 @@ export const getPlaceById = async (req: Request, res: Response) => {
       },
 
       include: {
-        specificguide: true,
-
-        commonGuidePlaces: {
-          include: {
-            commonGuide: true,
-          },
-        },
+        // Only asked for when the column is really there; see above.
+        ...(hasGuideStatus
+          ? {
+              specificguide: true,
+              commonGuidePlaces: {
+                include: {
+                  commonGuide: true,
+                },
+              },
+            }
+          : {}),
 
         district: {
           include: {
@@ -137,19 +157,32 @@ export const getPlaceById = async (req: Request, res: Response) => {
     // Prisma cannot filter a relation inside `include`, so the guides that
     // belong to this place are narrowed here. A guide still awaiting admin
     // approval must not be offered on the place page alongside approved ones.
-    // The response stays the same shape (the place itself) so the existing
-    // client keeps working. The optional checks matter: a single missing or
-    // dangling guide relation used to throw here, and because this handler
-    // answers the place detail route that turned into a 500 for the place
-    // page *and* emptied the district guide list.
+    // The response keeps the same shape either way, so the existing client
+    // keeps working.
+    //
+    // Read through an explicit type rather than the inferred one: the `include`
+    // above is conditional, so Prisma's return type is the shape *without* the
+    // guide relations and they are not on it. `unknown` is stepped through
+    // because intersecting with the inferred type collapses back to that same
+    // relation-less shape, which is what dropped `commonGuide` before.
+    const relations = place as unknown as {
+      specificguide?: { status?: string | null }[];
+      commonGuidePlaces?: { commonGuide?: { status?: string | null } | null }[];
+    };
+
+    const specificguide = hasGuideStatus
+      ? (relations.specificguide ?? []).filter((guide) => guide?.status === "APPROVED")
+      : [];
+    const commonGuidePlaces = hasGuideStatus
+      ? (relations.commonGuidePlaces ?? []).filter(
+          (entry) => entry.commonGuide?.status === "APPROVED"
+        )
+      : [];
+
     return res.status(200).json({
       ...place,
-      specificguide: (place.specificguide ?? []).filter(
-        (guide) => guide?.status === "APPROVED"
-      ),
-      commonGuidePlaces: (place.commonGuidePlaces ?? []).filter(
-        (entry) => entry.commonGuide?.status === "APPROVED"
-      ),
+      specificguide,
+      commonGuidePlaces,
     });
   } catch (error) {
     console.error("Get place error:", error);
