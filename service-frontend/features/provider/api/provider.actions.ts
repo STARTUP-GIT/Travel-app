@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { signOut } from "@/auth";
+import {
+  clearServiceSession,
+  providerKindFromToken,
+  readServiceSessionToken,
+} from "@/features/auth/api/service-session";
 import { PROFILE_PHOTO_FOLDER } from "@/lib/upload/image";
 import { uploadImageWithToken } from "@/features/provider/api/upload.server";
 
@@ -20,6 +24,7 @@ import {
   getProviderRequests,
   updateProviderListing,
   signinWithEmail,
+  signoutProvider,
   updateProviderProfile,
   updateProviderRequestStatus,
 } from "@/features/provider/api/provider.server";
@@ -158,12 +163,22 @@ export async function removeAccount(): Promise<ActionResult> {
 }
 
 /**
- * Ends the Auth.js session without redirecting, so the caller can confirm it
- * with a toast before it navigates. The cookie is cleared here; the browser
- * navigation is the caller's job.
+ * Ends the provider session without redirecting, so the caller can confirm it
+ * with a toast before it navigates.
  */
 export async function signOutProvider(): Promise<void> {
-  await signOut({ redirect: false });
+  const token = await readServiceSessionToken();
+  const kind = token ? providerKindFromToken(token) : null;
+  if (kind) {
+    await signoutProvider(kind).catch(() => undefined);
+  }
+  await clearServiceSession();
+  try {
+    const { signOut } = await import("@/auth");
+    await signOut({ redirect: false });
+  } catch {
+    // Email login never creates an Auth.js session.
+  }
 }
 
 /* -------------------------------------------------------------------------- */

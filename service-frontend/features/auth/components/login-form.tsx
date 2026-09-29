@@ -32,8 +32,6 @@ export function LoginForm({ initialKind, next, error }: Props) {
   const [fields, setFields] = React.useState<Record<string, string>>({});
   const announced = React.useRef(false);
 
-  // A failure that arrived through the URL is reported the same way as one the
-  // action returns, so every auth message is seen in the same place.
   React.useEffect(() => {
     if (!error || announced.current) return;
     announced.current = true;
@@ -61,8 +59,6 @@ export function LoginForm({ initialKind, next, error }: Props) {
     }
 
     toast.success("Signed in.");
-    // The session cookie is set by the server action, so a full navigation is
-    // what makes the new session visible to the server components.
     window.location.assign(result.redirectTo);
   }
 

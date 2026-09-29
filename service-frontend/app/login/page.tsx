@@ -7,17 +7,6 @@ import { isProviderKind } from "@/features/provider/types";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-/**
- * Shown when Auth.js sends the browser back here with `?error=…`.
- *
- * `Configuration` is Auth.js reporting that it could not stand up its own
- * config — in practice a missing `AUTH_SECRET` in the deployed environment.
- * That is a server fault raised by `assertConfig` *before* `authorize()` runs,
- * so the backend is never contacted and the sign-in is not the provider's
- * fault; "Something went wrong." said nothing about either. The precise cause
- * is written to the server log by `auth.ts`; nothing about the environment is
- * exposed here.
- */
 const ERRORS: Record<string, string> = {
   Configuration: "Unable to sign in. Please try again.",
   AccessDenied: "Invalid email or password.",
@@ -39,8 +28,6 @@ export default async function LoginPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  // Explicit sign-in links must be able to show the form even when a stale
-  // session would otherwise send the provider straight back to the dashboard.
   if (params.reauth !== "1" && (await getProviderSession())) {
     redirect("/dashboard");
   }

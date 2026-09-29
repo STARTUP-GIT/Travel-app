@@ -1,54 +1,17 @@
 import NextAuth, {
   AuthError,
-  CredentialsSignin,
   type NextAuthConfig,
 } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
-import {
-  getProviderProfile,
-  MissingSessionTokenError,
-  ProviderApiError,
-  signinWithEmail,
-} from "@/features/provider/api/provider.server";
+import { getProviderProfile } from "@/features/provider/api/provider.server";
 import { completeGuideGoogleSignup, takePendingGuideSignup } from "@/features/provider/api/guide-google.server";
-import { isProviderKind, type ProviderKind } from "@/features/provider/types";
-
-/** The email/password pair was rejected by the provider's own backend router. */
-class InvalidCredentialsError extends CredentialsSignin {
-  code = "invalid_credentials";
-}
-
-/** No provider kind was carried through, so no backend router could be chosen. */
-class UnknownProviderError extends CredentialsSignin {
-  code = "unknown_provider";
-}
-
-/** The backend could not be reached at all. */
-class BackendUnavailableError extends CredentialsSignin {
-  code = "backend_unavailable";
-}
-
-/** The backend answered, but with a server-side error. */
-class BackendErrorResponse extends CredentialsSignin {
-  code = "backend_error";
-}
-
-/** The backend answered 2xx, but the body cannot start a session. */
-class BackendContractError extends CredentialsSignin {
-  code = "backend_contract";
-}
+import type { ProviderKind } from "@/features/provider/types";
 
 /**
- * The `username` the account was registered with, read from the profile the
- * backend already returns.
- *
- * `user.name` cannot answer this: for an email sign-in it holds the part of the
- * address before the `@`, which is how the dashboard used to greet providers
- * with their email handle instead of their username. A profile that cannot be
- * read must not fail the sign-in, so the username is simply left off the
- * session and the greeting falls back to a neutral word.
+ * Email/password sign-in does not use Auth.js. Google (guides only) still uses
+ * this config for the OAuth round-trip; the backend JWT is written to the
+ * same `token` cookie as email login.
  */
 async function resolveUsername(
   token: string,
@@ -68,62 +31,14 @@ const googleEnabled = Boolean(
     process.env.GOOGLE_CLIENT_ID
 );
 
-/**
- * Auth.js signs and verifies every session token with this value, so it has to
- * be a server-side variable. It is never sent to the browser and there is no
- * fallback constant, because a secret that lives in the repository is a secret
- * everyone with repository access can read — which would let them mint a valid
- * session.
- *
- * `service-frontend/.env` is gitignored, so on a host such as Vercel that file
- * never arrives and the variable has to be configured on the host instead.
- */
 const authSecret =
   process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || "";
 
-/**
- * `NEXTAUTH_SECRET` is the name Auth.js used before v5, and v5 dropped it: the
- * library reads `AUTH_SECRET` and nothing else. Treating the legacy name as
- * sufficient here reported the deployment as ready, let `signIn()` run, and then
- * let Auth.js reject its own configuration with `MissingSecret` — which arrives
- * at the provider as `error=Configuration` and surfaces as a bare "Something
- * went wrong." long after the sign-in looked like it had been attempted.
- *
- * So a legacy value is promoted to the name Auth.js actually reads, using the
- * operator's own secret and nothing more. A deployment configured either way
- * now works, and the guard below reflects what Auth.js can genuinely do.
- */
 if (authSecret && !process.env.AUTH_SECRET?.trim()) {
   process.env.AUTH_SECRET = authSecret;
 }
 
-/**
- * `assertConfig()` in `@auth/core` rejects a config with no secret. Because
- * `GET /api/auth/session` is not one of the HTML actions, that rejection is
- * answered with HTTP 500 rather than a redirect, and the credentials sign-in
- * goes through the very same assertion, so it produces no session cookie and
- * comes back looking exactly like a rejected password.
- *
- * Both reported symptoms were this one condition. `authConfigured` lets the
- * sign-in action report it as a server fault instead of blaming the password.
- */
 export const authConfigured = Boolean(authSecret);
-
-if (!authConfigured) {
-  console.error(
-    "[auth] AUTH_SECRET is not set, so Auth.js rejects its own configuration " +
-      "and can neither create nor read a session.\n" +
-      "  Symptom: sign-in always reports a server fault, and " +
-      "GET /api/auth/session answers HTTP 500 (MissingSecret).\n" +
-      "  Fix: set AUTH_SECRET in the environment of the process serving this " +
-      "code, then redeploy or restart it.\n" +
-      "    - Vercel: Project -> Settings -> Environment Variables -> add " +
-      "AUTH_SECRET for Production and Preview, then redeploy. Generate one " +
-      "with: openssl rand -base64 32\n" +
-      "    - Local: put AUTH_SECRET in service-frontend/.env or .env.local.\n" +
-      "  Note .env is gitignored, so it never reaches a deployment."
-  );
-}
 
 export const authConfig = {
   secret: authSecret,
@@ -134,8 +49,6 @@ export const authConfig = {
     error: "/login",
   },
   providers: [
-    // Google is only wired up for the two guide routers: the hotel and
-    // restaurant routers expose no google-signin/google-signup route at all.
     ...(googleEnabled
       ? [
           Google({
@@ -150,63 +63,6 @@ export const authConfig = {
           }),
         ]
       : []),
-    Credentials({
-      name: "credentials",
-      credentials: {
-        kind: { label: "Provider", type: "text" },
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const kind = credentials?.kind;
-        const email = typeof credentials?.email === "string" ? credentials.email : "";
-        const password =
-          typeof credentials?.password === "string" ? credentials.password : "";
-
-        if (!email || !password) throw new InvalidCredentialsError();
-        if (!isProviderKind(kind)) throw new UnknownProviderError();
-
-        try {
-          // Each provider kind is a separate backend router with its own signin
-          // endpoint, so the session only exists because this call succeeded.
-          const token = await signinWithEmail(kind, email.trim(), password);
-          const providerKind: ProviderKind = kind;
-          const username = await resolveUsername(token, providerKind);
-
-          return {
-            id: providerKind,
-            email: email.trim(),
-            name: email.trim().split("@")[0] ?? email.trim(),
-            username,
-            backendToken: token,
-            providerKind,
-          };
-        } catch (error) {
-          if (error instanceof CredentialsSignin) throw error;
-
-          // A 2xx whose body cannot start a session is the backend's answer
-          // being unusable, not a connection problem. It used to be reported
-          // as "Network error." even though the backend had replied.
-          if (error instanceof MissingSessionTokenError) {
-            throw new BackendContractError();
-          }
-
-          // A 400/401/404 from the backend is a real credentials problem, not
-          // an outage, and must not be reported as "try again later".
-          if (error instanceof ProviderApiError) {
-            const status = error.status;
-            if (status === 400 || status === 401 || status === 404) {
-              throw new InvalidCredentialsError();
-            }
-            throw new BackendErrorResponse();
-          }
-
-          // Only a bare `fetch` throw lands here — DNS, TLS, connection refused
-          // or a timeout. This, and only this, is a network error.
-          throw new BackendUnavailableError();
-        }
-      },
-    }),
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
@@ -221,9 +77,6 @@ export const authConfig = {
         token.username = source.username;
       }
 
-      // Guide Google registration. The backend never sees a Google account until
-      // it has the guide details captured before the redirect, and the identity
-      // itself always comes from the verified Google profile.
       if (account?.provider === "google") {
         const pending = await takePendingGuideSignup();
         const email = profile?.email;
@@ -239,14 +92,8 @@ export const authConfig = {
           );
           token.backendToken = backendToken;
           token.providerKind = pending.kind;
-          // The account exists from here on, so its username can be read the same
-          // way an email sign-in reads it.
           token.username = await resolveUsername(backendToken, pending.kind);
         } else {
-          // Without the captured guide details there is no way to tell which of
-          // the two guide routers this account belongs to, so no usable session
-          // can be created. Failing here is better than a session that 401s on
-          // the first request.
           throw new AuthError(
             "Start from the guide sign-up form so we know which guide type you are registering as."
           );
@@ -257,9 +104,6 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
-      // A callback that throws here is swallowed by Auth.js and answered as
-      // "no session", so the guard keeps a partially decoded token from
-      // producing a session object that claims a provider it has no token for.
       if (!session.user || !token) return session;
 
       session.user.id = (token.sub as string) ?? "";

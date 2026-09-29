@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
+import { setServiceSession } from "@/features/auth/api/service-session";
 import type { ProviderKind } from "@/features/provider/types";
 import {
   googleSigninWithEmail,
@@ -110,6 +111,8 @@ export async function completeGuideGoogleSignup(
       "The guide account was created but could not be signed in. Please sign in with an email address."
     );
   }
+
+  await setServiceSession(token);
 
   return { token, created: status === 201 };
 }

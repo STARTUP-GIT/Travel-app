@@ -207,11 +207,7 @@ export async function signupWithEmail(
 }
 
 /**
- * The backend answered a 2xx sign-in but the body carried no session token, so
- * no Auth.js session can be built from it. This is deliberately its own type:
- * the HTTP status is 200, so the caller cannot classify it as a failed request,
- * and folding it into a connection failure reported "Network error." for a
- * response the backend had actually produced.
+ * The backend answered a 2xx sign-in but the body carried no session token.
  */
 export class MissingSessionTokenError extends ProviderApiError {
   constructor(kind: ProviderKind) {
@@ -222,6 +218,17 @@ export class MissingSessionTokenError extends ProviderApiError {
     );
     this.name = "MissingSessionTokenError";
   }
+}
+
+/** The Express routers put the JWT on `token` (see hotel/restaurant/guide signIn). */
+function extractBackendToken(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+  const body = data as Record<string, unknown>;
+  for (const key of ["token", "sessionToken", "accessToken"] as const) {
+    const value = body[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
 }
 
 /** POST /api/auth/signin on the provider's own auth router. */
@@ -235,15 +242,13 @@ export async function signinWithEmail(
     body: { email, password },
   });
 
-  const data = await readJsonOrThrow<{ token?: string; message?: string }>(
-    res,
-    "Could not sign in"
-  );
+  const data = await readJsonOrThrow<unknown>(res, "Could not sign in");
+  const token = extractBackendToken(data);
 
-  if (!data.token) {
+  if (!token) {
     throw new MissingSessionTokenError(kind);
   }
-  return data.token;
+  return token;
 }
 
 /**
@@ -261,8 +266,8 @@ export async function googleSigninWithEmail(
   });
 
   if (!res.ok) return null;
-  const data = await readJson<{ token?: string }>(res);
-  return data?.token ?? null;
+  const data = await readJson<unknown>(res);
+  return extractBackendToken(data);
 }
 
 /** Guides only. 201 when created, 409 when the account already exists. */

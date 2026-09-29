@@ -13,9 +13,9 @@ export type BackendRequestInit = {
  * Single server-side entry point to the Express backend.
  *
  * Authenticated provider calls identify the caller with the backend JWT stored
- * in the Auth.js session. The middleware accepts either the `token` cookie or
- * an `Authorization: Bearer` header; the Bearer header is used here so the
- * browser cookie jar of the backend domain is never involved.
+ * in this app's httpOnly `token` cookie. The Express middleware accepts either
+ * the API host's `token` cookie or `Authorization: Bearer`; the Bearer header
+ * is used here so the backend domain cookie jar is never involved.
  */
 export async function backendRequest(
   path: string,
