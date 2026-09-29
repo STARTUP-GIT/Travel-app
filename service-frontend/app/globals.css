@@ -151,7 +151,16 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-fade-in: fade-in 0.35s ease-out both;
-  --animate-fade-in-up: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /*
+   * `backwards`, not `both`. The `forwards` half of `both` would keep
+   * `transform: translateY(0)` applied to the element for the rest of its life,
+   * and any non-`none` transform turns the element into the containing block
+   * for its `position: fixed` descendants. On the app shell that is the page
+   * wrapper, so a fixed bar or overlay rendered inside page content would be
+   * measured against the wrapper instead of the viewport. `backwards` looks
+   * identical and hands the containing block back.
+   */
+  --animate-fade-in-up: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-scale-in: scale-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-slide-down: slide-down 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-heart-pop: heart-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;

@@ -24,9 +24,15 @@ export function AppShell({
     <div className="flex min-h-dvh flex-col">
       <TopBar identity={identity} />
 
+      {/*
+        The bottom bar is `position: fixed`, so it does not reserve any space of
+        its own. This padding is what keeps the last card — and the "All caught
+        up" / "No requests yet" empty states — scrollable clear of it. It is a
+        touch larger than the bar itself, plus the safe-area inset.
+      */}
       <main
         key={pathname}
-        className="animate-fade-in-up flex-1 pb-[calc(env(safe-area-inset-bottom)+4.75rem)] lg:pb-12"
+        className="animate-fade-in-up flex-1 pb-[calc(env(safe-area-inset-bottom)+5rem)] lg:pb-12"
       >
         {children}
       </main>

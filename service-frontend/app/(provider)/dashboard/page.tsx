@@ -49,7 +49,7 @@ function StatTile({ tile }: { tile: Tile }) {
   );
 }
 
-/** Username for sessions created before it was carried on the session itself. */
+/** The account's own username, straight from the profile the backend returns. */
 async function readUsernameFromProfile(): Promise<string> {
   try {
     const profile = await loadProfile();
@@ -63,10 +63,16 @@ export default async function DashboardPage() {
   const session = await requireProviderSession("/dashboard");
   const meta = providerMeta(session.kind);
 
-  // The account's own username, never the part of the email before the `@`. A
-  // session issued before the username was carried on the session has none, so
-  // the profile is read once as a fallback instead of greeting with the email.
-  const greeting = session.username || (await readUsernameFromProfile()) || "there";
+  // The account's real username, never the part of the email before the `@`.
+  // `user.name` holds that email handle for an email sign-in, so it is not a
+  // candidate here. A session minted before the username was carried on it has
+  // no username at all, and one minted by an older build can hold the email
+  // handle in the username field — both are rejected below and the username is
+  // read from the backend profile, which is the only authoritative source.
+  const emailHandle = session.email.split("@")[0] ?? "";
+  const fromSession =
+    session.username && session.username !== emailHandle ? session.username : "";
+  const greeting = fromSession || (await readUsernameFromProfile()) || "there";
 
   const data = await loadDashboard().catch((error: unknown) => {
     return {
@@ -189,6 +195,8 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
+      {/* Two columns on a phone, four on a desktop. No width in between, so
+          the cards are never pushed wider than the screen. */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {tiles.map((tile) => (
           <StatTile key={tile.label} tile={tile} />

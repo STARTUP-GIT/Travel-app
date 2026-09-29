@@ -1,10 +1,11 @@
 "use client";
 
-import { LayoutDashboard, LogOut, Settings, Store, User, Inbox } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/shared/logo";
+import { PRIMARY_NAV } from "@/components/shared/primary-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,14 +29,6 @@ export type TopBarIdentity = {
   image: string | null;
   pendingRequests: number;
 };
-
-const MENU = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/services", label: "My services", icon: Store },
-  { href: "/requests", label: "Requests", icon: Inbox },
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
 
 export function TopBar({ identity }: { identity: TopBarIdentity }) {
   const { appName } = useBranding();
@@ -89,16 +82,32 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
                   {identity.email}
                 </span>
               </DropdownMenuLabel>
+
+              {/*
+                Primary navigation, desktop only. There is no sidebar in this
+                app, so on wide screens this menu *is* the navigation; on a
+                phone the bottom bar already offers these four routes and
+                repeating them here is what made the mobile menu feel cluttered.
+              */}
+              <div className="hidden lg:block">
+                <DropdownMenuSeparator />
+                {PRIMARY_NAV.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href} className="flex cursor-pointer items-center gap-2">
+                      <item.icon className="size-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </div>
+
               <DropdownMenuSeparator />
-              {MENU.map((item) => (
-                <DropdownMenuItem key={item.href} asChild>
-                  <Link href={item.href} className="flex items-center gap-2">
-                    <item.icon className="size-4" />
-                    {item.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/settings" className="flex cursor-pointer items-center gap-2">
+                  <Settings className="size-4" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={async () => {
                   await signOutProvider();
@@ -107,7 +116,7 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
                   // server components have to re-render without it.
                   window.location.assign("/login");
                 }}
-                className="text-destructive"
+                className="cursor-pointer text-destructive"
               >
                 <LogOut className="size-4" />
                 Sign out
