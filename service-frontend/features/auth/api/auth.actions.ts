@@ -42,7 +42,7 @@ const GOOGLE_UNAVAILABLE = "Google sign in is unavailable.";
 function loginFailure(error: unknown): AuthActionResult {
   if (error instanceof MissingSessionTokenError) {
     console.error("[auth] sign-in response had no token");
-    return { ok: false, message: UNABLE_TO_SIGN_IN };
+    return { ok: false, message: "Authentication succeeded but no session token was returned by backend." };
   }
 
   if (error instanceof ProviderApiError) {
@@ -54,12 +54,41 @@ function loginFailure(error: unknown): AuthActionResult {
       };
     }
 
-    if (error.status === 400 || error.status === 401 || error.status === 404) {
+    if (error.status === 401 || error.status === 404) {
       return { ok: false, message: INVALID_CREDENTIALS };
     }
 
-    console.error(`[auth] sign-in failed: HTTP ${error.status}`);
-    return { ok: false, message: UNABLE_TO_SIGN_IN };
+    if (error.status === 400) {
+      const msg = error.message.toLowerCase();
+      if (
+        msg.includes("user") ||
+        msg.includes("password") ||
+        msg.includes("invalid") ||
+        msg.includes("credential") ||
+        msg.includes("not found") ||
+        msg.includes("exist")
+      ) {
+        return { ok: false, message: INVALID_CREDENTIALS };
+      }
+      return { ok: false, message: error.message || INVALID_CREDENTIALS };
+    }
+
+    if (error.status === 403) {
+      return { ok: false, message: error.message || "Access denied." };
+    }
+
+    if (error.status >= 500) {
+      console.error(`[auth] sign-in failed: HTTP ${error.status} - ${error.message}`);
+      return { ok: false, message: error.message || "Backend server error. Please try again." };
+    }
+
+    console.error(`[auth] sign-in failed: HTTP ${error.status} - ${error.message}`);
+    return { ok: false, message: error.message || UNABLE_TO_SIGN_IN };
+  }
+
+  if (error instanceof Error) {
+    console.error("[auth] sign-in failed:", error.message);
+    return { ok: false, message: error.message || NETWORK_ERROR };
   }
 
   console.error("[auth] sign-in failed: unreachable backend");

@@ -224,33 +224,34 @@ export const signIn = async (req: Request, res: Response) => {
   try {
     const { email, username, password } = specific_guide_signinSchema.parse(req.body);
 
-  
+    const cleanEmail = email.trim();
     const specific_guide_exists = await prisma.specific_guide.findFirst({
       where: {
         OR: [
-          { email },
-          ...(username ? [{ username }] : []),
-        ]
-      }
+          { email: { equals: cleanEmail, mode: "insensitive" } },
+          { email: cleanEmail },
+          ...(username ? [{ username: username.trim() }] : []),
+        ],
+      },
     });
 
     if (!specific_guide_exists) {
-      return res.status(400).json("user does not exist")
+      return res.status(404).json({ message: "User does not exist" });
     }
 
     if (!specific_guide_exists.password) {
-      return res.status(400).json("Invalid password");
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, specific_guide_exists.password);
     if (!isPasswordValid) {
-      return res.status(400).json("Invalid password")
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     const token = generateSessionToken(specific_guide_exists.id, "specific_guide");
     res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'strict' });
 
-    res.status(200).json({ message: "User signed in successfully", token });
+    return res.status(200).json({ message: "User signed in successfully", token });
 
   } catch (error) {
     if (error instanceof ZodError) {

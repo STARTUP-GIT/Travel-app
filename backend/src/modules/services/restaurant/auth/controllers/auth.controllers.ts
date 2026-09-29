@@ -77,8 +77,14 @@ export const signIn = async (req: Request, res: Response) => {
   try {
     const { email, password } = ownerSigninSchema.parse(req.body);
 
-    const owner = await prisma.restaurent_owner.findUnique({
-      where: { email },
+    const cleanEmail = email.trim();
+    const owner = await prisma.restaurent_owner.findFirst({
+      where: {
+        OR: [
+          { email: { equals: cleanEmail, mode: "insensitive" } },
+          { email: cleanEmail },
+        ],
+      },
     });
 
     if (!owner) {
