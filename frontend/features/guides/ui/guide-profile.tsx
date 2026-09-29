@@ -324,10 +324,12 @@ export function GuideBookingSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
-      <SheetContent side="bottom" className="mx-auto max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border-border">
-        <SheetHeader className="text-left">
-          <SheetTitle>Book {guide.guide.full_name}</SheetTitle>
-          <SheetDescription>
+      <SheetContent side="bottom" className="mx-auto max-h-[92dvh] w-full max-w-lg gap-0 overflow-y-auto rounded-t-3xl border-border sm:max-w-xl">
+        <SheetHeader className="gap-2 px-4 pt-7 pb-5 text-left sm:px-6">
+          <SheetTitle className="pr-9 text-lg font-semibold tracking-tight sm:text-xl">
+            Book {guide.guide.full_name}
+          </SheetTitle>
+          <SheetDescription className="leading-relaxed">
             {isLoading
               ? "Checking session…"
               : isAuthenticated
@@ -336,16 +338,16 @@ export function GuideBookingSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-5 space-y-6">
+        <div className="space-y-7 px-4 sm:px-6">
           {isCommon && placesForGuide.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="text-sm font-semibold">
                 Select places <span className="text-muted-foreground">({placesForGuide.length} covered)</span>
               </p>
               <p className="text-xs text-muted-foreground">
                 The number of places is set by your selection.
               </p>
-              <div className="space-y-2">
+              <div className="space-y-2.5 pt-1">
                 {placesForGuide.map((place) => {
                   const checked = selectedPlaces.includes(place.id);
                   return (
@@ -379,8 +381,8 @@ export function GuideBookingSheet({
             </div>
           ) : null}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+            <div className="space-y-2">
               <Label htmlFor="booking-date" className="inline-flex items-center gap-1.5">
                 <Calendar className="size-3.5" /> Date
               </Label>
@@ -390,10 +392,10 @@ export function GuideBookingSheet({
                 min={todayIso}
                 value={bookingDate}
                 onChange={(e) => setBookingDate(e.target.value)}
-                className="rounded-xl"
+                className="h-10 w-full rounded-xl"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="booking-time" className="inline-flex items-center gap-1.5">
                 <Clock className="size-3.5" /> Time
               </Label>
@@ -401,7 +403,7 @@ export function GuideBookingSheet({
                 id="booking-time"
                 value={bookingTime}
                 onChange={(e) => setBookingTime(e.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-10 w-full rounded-xl border border-input bg-card px-3 text-base outline-none focus-visible:ring-2 focus-visible:ring-ring md:text-sm"
               >
                 {TIME_OPTIONS.map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -418,7 +420,7 @@ export function GuideBookingSheet({
           />
         </div>
 
-        <SheetFooter className="pt-2 sm:justify-center">
+        <SheetFooter className="px-4 pt-7 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:justify-center sm:px-6">
           <Button
             variant="action"
             size="lg"
