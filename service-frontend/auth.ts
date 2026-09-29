@@ -70,15 +70,32 @@ const googleEnabled = Boolean(
 
 /**
  * Auth.js signs and verifies every session token with this value, so it has to
- * be a server-side variable: `AUTH_SECRET`, or `NEXTAUTH_SECRET` as the legacy
- * alias. It is never sent to the browser and there is no fallback constant,
- * because a secret that lives in the repository is a secret everyone with
- * repository access can read — which would let them mint a valid session.
+ * be a server-side variable. It is never sent to the browser and there is no
+ * fallback constant, because a secret that lives in the repository is a secret
+ * everyone with repository access can read — which would let them mint a valid
+ * session.
  *
  * `service-frontend/.env` is gitignored, so on a host such as Vercel that file
  * never arrives and the variable has to be configured on the host instead.
  */
-const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const authSecret =
+  process.env.AUTH_SECRET?.trim() || process.env.NEXTAUTH_SECRET?.trim() || "";
+
+/**
+ * `NEXTAUTH_SECRET` is the name Auth.js used before v5, and v5 dropped it: the
+ * library reads `AUTH_SECRET` and nothing else. Treating the legacy name as
+ * sufficient here reported the deployment as ready, let `signIn()` run, and then
+ * let Auth.js reject its own configuration with `MissingSecret` — which arrives
+ * at the provider as `error=Configuration` and surfaces as a bare "Something
+ * went wrong." long after the sign-in looked like it had been attempted.
+ *
+ * So a legacy value is promoted to the name Auth.js actually reads, using the
+ * operator's own secret and nothing more. A deployment configured either way
+ * now works, and the guard below reflects what Auth.js can genuinely do.
+ */
+if (authSecret && !process.env.AUTH_SECRET?.trim()) {
+  process.env.AUTH_SECRET = authSecret;
+}
 
 /**
  * `assertConfig()` in `@auth/core` rejects a config with no secret. Because
