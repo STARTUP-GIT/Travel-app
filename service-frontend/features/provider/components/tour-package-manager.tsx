@@ -1,11 +1,12 @@
 "use client";
 
 import { Check, MapPin, Pencil, Plus, Route, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { ErrorState } from "@/components/shared/states";
+import { ErrorState, EmptyState } from "@/components/shared/states";
 import { LoadingState } from "@/components/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,14 +73,18 @@ function validate(draft: Draft): string | null {
  * The list is rendered from server data and every mutation returns the saved
  * record, so the local state is replaced with what the backend actually stored
  * rather than with the form values — the same pattern the profile form uses.
+ *
+ * `error` is a real service failure and nothing else: a guide with no packages
+ * passes `null` and sees the empty state, so a fresh account is never told the
+ * feature is unavailable.
  */
 export function TourPackageManager({
   packages,
-  unavailable,
+  error,
 }: {
   packages: TourPackage[];
-  /** True while the backend has not run the package migration. */
-  unavailable: boolean;
+  /** The service failure that stopped the list from loading, if there was one. */
+  error: string | null;
 }) {
   const [items, setItems] = React.useState<TourPackage[]>(packages);
   const [draft, setDraft] = React.useState<Draft | null>(null);
@@ -87,13 +92,15 @@ export function TourPackageManager({
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [formError, setFormError] = React.useState<string | null>(null);
 
-  if (unavailable) {
-    return (
-      <ErrorState
-        title="Tour packages unavailable"
-        description="The service is not ready for tour packages yet. Your existing place coverage is unchanged — please try again shortly."
-      />
-    );
+  // `router.refresh()` re-runs the server component, which re-reads the package
+  // list; the pending transition is what the loading state is driven from.
+  const router = useRouter();
+  const [refreshing, startRefresh] = React.useTransition();
+  const retrying = refreshing;
+
+  function openCreate() {
+    setFormError(null);
+    setDraft(emptyDraft());
   }
 
   async function save() {
@@ -153,6 +160,37 @@ export function TourPackageManager({
     }
   }
 
+  function createButton() {
+    return (
+      <Button type="button" onClick={openCreate}>
+        <Plus className="size-4" />
+        Create package
+      </Button>
+    );
+  }
+
+  if (error !== null) {
+    /*
+     * Reached only when the package service really failed. Retrying re-runs the
+     * server component, so a transient failure recovers without the guide having
+     * to sign in again.
+     */
+    return (
+      <div className="flex flex-col gap-4">
+        <h2 className="text-sm font-semibold">Tour packages</h2>
+        {retrying ? (
+          <LoadingState label="Loading tour packages…" />
+        ) : (
+          <ErrorState
+            title="Tour packages unavailable"
+            description={`${error} Your existing place coverage is unchanged.`}
+            retry={() => startRefresh(() => router.refresh())}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
@@ -163,19 +201,7 @@ export function TourPackageManager({
             on every place it contains, and your per-day rate still applies.
           </p>
         </div>
-        {draft === null ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setFormError(null);
-              setDraft(emptyDraft());
-            }}
-          >
-            <Plus className="size-4" />
-            New package
-          </Button>
-        ) : null}
+        {draft === null ? createButton() : null}
       </div>
 
       {draft !== null ? (
@@ -244,11 +270,19 @@ export function TourPackageManager({
         </div>
       ) : null}
 
+      {/*
+        Zero packages is a normal, valid state for a Common Guide — the sign-up
+        form lets a guide register without a place — so it gets a real empty state
+        with the same create action, not a service error.
+      */}
       {items.length === 0 && draft === null ? (
-        <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-          No packages yet. Create one to bundle places into a tour travellers can
-          book.
-        </p>
+        <EmptyState
+          className="p-8"
+          icon={Route}
+          title="No tour packages yet"
+          description="Create packages by grouping the places you cover into tours. Every place in a package is also added to your coverage."
+          action={createButton()}
+        />
       ) : (
         <ul className="flex flex-col gap-2.5">
           {items.map((pkg) => (
@@ -313,6 +347,12 @@ export function TourPackageManager({
           ))}
         </ul>
       )}
+
+      {/* A Common Guide may own any number of packages, so the create action
+          stays reachable at the end of the list as well as at the top. */}
+      {items.length > 0 && draft === null ? (
+        <div className="flex justify-center pt-1">{createButton()}</div>
+      ) : null}
     </div>
   );
 }

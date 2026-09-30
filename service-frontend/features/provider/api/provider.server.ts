@@ -555,16 +555,24 @@ export function packagePayload(
 export async function getTourPackages(token: string): Promise<TourPackagesResult> {
   try {
     const rows = await authorized<RawTourPackage[]>(packagesPath(), token, {
-      fallback: "Could not load your tour packages",
+      fallback: "Your tour packages could not be loaded.",
     });
-    return { packages: rows.map(normalizePackage), unavailable: false };
+    return { packages: rows.map(normalizePackage), error: null };
   } catch (error) {
-    // The controller answers 503 while the tables are missing. That is a
-    // deployment state, not an empty list, so it is reported as such.
-    if (error instanceof ProviderApiError && error.status === 503) {
-      return { packages: [], unavailable: true };
-    }
-    throw error;
+    /*
+     * A failure here is reported as a failure and never as an empty list. The
+     * backend answers 503 while the package tables are missing, and its own
+     * message names the cause, so that one is kept verbatim; anything else falls
+     * back to a generic message. Returning (rather than throwing) is what keeps a
+     * package outage from taking the whole profile page down.
+     */
+    return {
+      packages: [],
+      error:
+        error instanceof ProviderApiError
+          ? error.message
+          : "Your tour packages could not be loaded. Please try again.",
+    };
   }
 }
 

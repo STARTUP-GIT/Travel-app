@@ -24,9 +24,40 @@ import {
 } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
+import type { ProviderKind, TourPackage } from "@/features/provider/types";
 import { formatCurrency, formatDate, pluralize } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My profile" };
+
+/**
+ * Only a Common Guide owns tour packages — a Specific Guide is tied to one place
+ * by definition — so the section is built from the signed-in kind, never from
+ * whatever came back from the API.
+ */
+type PackagesState =
+  | { status: "ready"; packages: TourPackage[] }
+  | { status: "error"; message: string };
+
+/**
+ * A package failure must not take the rest of the profile down, but it must also
+ * not be laundered into "you have no packages": the two are reported separately
+ * so the manager can show the empty state in one case and an error in the other.
+ */
+async function loadPackages(kind: ProviderKind): Promise<PackagesState> {
+  if (kind !== "common_guide") return { status: "ready", packages: [] };
+
+  const result = await loadTourPackages().catch((error: unknown) => ({
+    packages: [] as TourPackage[],
+    error:
+      error instanceof Error
+        ? error.message
+        : "Your tour packages could not be loaded.",
+  }));
+
+  return result.error
+    ? { status: "error", message: result.error }
+    : { status: "ready", packages: result.packages };
+}
 
 export default async function ProfilePage() {
   const session = await requireProviderSession("/profile");
@@ -43,7 +74,7 @@ export default async function ProfilePage() {
 
   if ("error" in profile) {
     return (
-      <div className="app-container max-w-3xl">
+      <div className="app-container mx-auto max-w-5xl">
         <PageHeader title="My profile" />
         <ErrorState
           title="Profile unavailable"
@@ -53,18 +84,14 @@ export default async function ProfilePage() {
     );
   }
 
-  // Only a tour guide has packages, and a failure here must not take the rest of
-  // the profile down: it falls back to the "unavailable" notice instead.
-  const packages =
-    session.kind === "common_guide"
-      ? await loadTourPackages().catch(() => ({
-          packages: [],
-          unavailable: true,
-        }))
-      : { packages: [], unavailable: false };
+  const packages = await loadPackages(session.kind);
 
   return (
-    <div className="app-container max-w-3xl">
+    // `app-container` is full width with gutters and no auto margins, so the
+    // `mx-auto` + max width is what centres the whole page instead of pinning it
+    // to the left edge. The width is a cap, not a fixed size, so it collapses to
+    // the viewport on mobile.
+    <div className="app-container mx-auto max-w-5xl">
       <PageHeader
         icon={<UserRound className="size-6" />}
         title="My profile"
@@ -172,8 +199,8 @@ export default async function ProfilePage() {
         {session.kind === "common_guide" ? (
           <GlassCard className="gap-5 p-5 sm:p-6">
             <TourPackageManager
-              packages={packages.packages}
-              unavailable={packages.unavailable}
+              packages={packages.status === "ready" ? packages.packages : []}
+              error={packages.status === "error" ? packages.message : null}
             />
           </GlassCard>
         ) : null}

@@ -120,11 +120,16 @@ export type TourPackageInput = {
 export type TourPackagesResult = {
   packages: TourPackage[];
   /**
-   * True when the deployed backend answers 503 because the package tables have
-   * not been migrated yet. Surfaced in the UI as an explicit notice instead of
-   * showing an empty list that looks like "you have no packages".
+   * Set only when the package service itself failed — e.g. the deployed backend
+   * answers 503 because the package tables have not been migrated yet, or the
+   * request never reached it.
+   *
+   * Deliberately *not* a boolean and deliberately `null` for a guide who simply
+   * has no packages: "no packages yet" and "packages cannot be loaded" are
+   * different states, and collapsing them into one flag is what made an empty
+   * account look like a broken service.
    */
-  unavailable: boolean;
+  error: string | null;
 };
 
 /* -------------------------------------------------------------------------- */
