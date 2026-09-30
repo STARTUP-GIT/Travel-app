@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import prisma from "../../db/prisma.js";
 import { resolveGoogleMapsShortLink } from "../services/location-resolver.js";
 import {
+  AUTO_APPROVAL_MIGRATION,
   DEFAULT_AUTO_APPROVAL,
   getAutoApprovalSettings,
   type AutoApprovalSettings,
@@ -181,6 +182,22 @@ const handleError = (res: Response, error: unknown) => {
   }
   if (code === "P2002") {
     return res.status(409).json({ message: "A record with those unique details already exists." });
+  }
+  if (code === "P2021" || code === "P2022") {
+    // Prisma reports a table that is not there (P2021) or a column that is not
+    // there (P2022) with these codes. In this API they mean one thing: the
+    // database is behind the code that is running, i.e. a migration exists in
+    // the repository but has not been applied to the database this deployment
+    // is pointed at. Answering 500 "Internal Server Error" hid that completely
+    // and looked like an application fault, so it is reported as the
+    // unapplied-schema condition it is, with the migration named.
+    console.error("Database schema is missing objects the running code expects:", error);
+    return res.status(503).json({
+      message:
+        "The database schema is behind the deployed code. A required migration has not been applied to the database this API is connected to.",
+      migration: AUTO_APPROVAL_MIGRATION,
+      fix: `Run \`prisma migrate deploy\` against this deployment's DATABASE_URL (it is part of the backend build), then redeploy if the migration is already recorded as applied.`,
+    });
   }
 
   return res.status(500).json({ message: "Internal Server Error" });
@@ -772,11 +789,15 @@ export const updateGuideStatus = async (req: Request, res: Response) => {
 
     // Writing the status is the one operation that genuinely cannot be done
     // before the auto-approval migration exists. Saying so is better than
-    // letting the write fail and answering 500.
+    // letting the write fail and answering 500. The guard is kept deliberately:
+    // it is a real check against a real database, and the migration is applied
+    // by the backend build, so it stops firing once the schema has caught up.
     if (!(await guideStatusColumnExists())) {
       return res.status(503).json({
         message:
-          "Guide approval is unavailable: the auto-approval database migration has not been applied yet.",
+          "Guide approval is unavailable: the auto-approval database migration has not been applied to the database this API is connected to.",
+        migration: AUTO_APPROVAL_MIGRATION,
+        fix: `Run \`prisma migrate deploy\` against this deployment's DATABASE_URL (it is part of the backend build), then retry.`,
       });
     }
 

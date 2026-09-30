@@ -5,3 +5,4 @@ dist
 extest.mjs
 .vercel
 .env*
+.env.production.local

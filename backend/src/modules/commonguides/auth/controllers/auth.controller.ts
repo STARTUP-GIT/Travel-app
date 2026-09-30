@@ -266,6 +266,12 @@ export const signIn = async (req: Request, res: Response) => {
           ...(username ? [{ username: username.trim() }] : []),
         ],
       },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        password: true,
+      },
     });
 
     if (!common_guide_exists) {
@@ -296,6 +302,8 @@ export const signIn = async (req: Request, res: Response) => {
         })),
       });
     }
+
+    console.error("Common guide signin error:", error);
 
     return res.status(500).json({
       message: "Internal Server Error",

@@ -6,7 +6,6 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { BackgroundFX } from "@/components/shared/background-fx";
-import { GoogleIcon } from "@/components/shared/google-icon";
 import { GlassCard } from "@/components/shared/glass-card";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
@@ -335,37 +334,6 @@ export function SignupForm({ initialKind, error }: Props) {
                 Create account
               </Button>
             </form>
-          ) : null}
-
-          {isGuide ? (
-            <>
-              <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
-                <span className="h-px flex-1 bg-border" /> or{" "}
-                <span className="h-px flex-1 bg-border" />
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="w-full rounded-xl"
-                onClick={submitGoogle}
-                disabled={pending !== null}
-              >
-                {pending === "google" ? (
-                  <Loader2 className="size-5 animate-spin" />
-                ) : (
-                  <GoogleIcon className="size-5" />
-                )}
-                Continue with Google
-              </Button>
-
-              <p className="text-center text-xs text-muted-foreground">
-                Google creates your guide account the first time, and signs you
-                in on every visit after that. Your name, email and photo come
-                from Google; the details above are still required.
-              </p>
-            </>
           ) : null}
         </GlassCard>
 

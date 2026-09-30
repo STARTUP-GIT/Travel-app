@@ -6,6 +6,15 @@ import prisma from "../db/prisma.js";
  */
 export type AutoApprovalEntity = "places" | "guides" | "hotels" | "restaurants";
 
+/**
+ * The migration that owns every field this module reads and writes: the four
+ * `app_config` flags below plus `specific_guide.status` and `common_guide.status`.
+ *
+ * Named in one place so that an unapplied schema can be reported with the
+ * migration that fixes it, instead of as an anonymous 500.
+ */
+export const AUTO_APPROVAL_MIGRATION = "20260928000000_auto_approval_and_guide_status";
+
 export type AutoApprovalSettings = {
   placesAutoApproval: boolean;
   guidesAutoApproval: boolean;
