@@ -125,31 +125,35 @@ export function PlaceView({
       <ScreenHeader title={place.name} subtitle="Place information" />
 
       {/* Hero image */}
-      <div className="relative -mx-4 overflow-hidden bg-blue-900 sm:rounded-b-[2rem]">
-        <div className="relative aspect-[4/3] max-h-[24rem] w-full sm:aspect-[16/8]">
-          <AppImage src={place.images?.[0]} alt={place.name} className="size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20" />
-          <div className="absolute right-3 top-3">
-            <FavoriteButton
-              id={place.id}
-              type="place"
-              overlay
-              name={place.name}
-              image={place.images?.[0]}
-              districtSlug={districtSlug}
-            />
+      <div className="relative">
+        <div className="-mx-4 overflow-hidden bg-blue-900 sm:rounded-b-[2rem]">
+          <div className="relative aspect-[4/3] max-h-[24rem] w-full sm:aspect-[16/8]">
+            <AppImage src={place.images?.[0]} alt={place.name} className="size-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20" />
+            <div className="absolute right-3 top-3">
+              <FavoriteButton
+                id={place.id}
+                type="place"
+                overlay
+                name={place.name}
+                image={place.images?.[0]}
+                districtSlug={districtSlug}
+              />
+            </div>
           </div>
-          <div className="absolute bottom-0 inset-x-0 flex items-end justify-between gap-3 px-5 pb-4">
+        </div>
+        <div className="px-4 pt-4 sm:absolute sm:inset-x-0 sm:bottom-0 sm:px-5 sm:pb-4 sm:pt-0">
+          <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-primary sm:bg-white/20 sm:text-white sm:backdrop-blur-md">
                 {place.category || "Place"}
               </span>
-              <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-white drop-shadow-sm">
+              <h1 className="mt-1.5 text-2xl font-bold tracking-tight sm:text-white sm:drop-shadow-sm">
                 {place.name}
               </h1>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-sm font-bold text-white backdrop-blur-md">
-              <Ticket className="size-4 text-amber-300" />
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-card px-3 py-2 text-sm font-bold ring-1 ring-border sm:bg-white/15 sm:text-white sm:ring-0 sm:backdrop-blur-md">
+              <Ticket className="size-4 text-amber-500 sm:text-amber-300" />
               {formatCurrency(place.entryfee)}
             </span>
           </div>
@@ -157,14 +161,14 @@ export function PlaceView({
       </div>
 
       {/* Primary actions */}
-      <div className="app-container -mt-5 relative z-10 grid grid-cols-2 gap-2 sm:mt-4 sm:z-auto sm:px-0 sm:pt-4">
+      <div className="app-container relative mt-4 grid grid-cols-2 gap-2 sm:mt-4 sm:z-auto sm:px-0 sm:pt-4">
         <Button
           asChild
           variant="action"
           size="lg"
           className="rounded-2xl shadow-float"
         >
-          <Link href={`${districtBase}/places/${place.id}/transport`}>
+          <Link href={`${districtBase}/places/${place.id}/go-to`}>
             <CarTaxiFront className="size-5" /> Go To
           </Link>
         </Button>
@@ -187,7 +191,7 @@ export function PlaceView({
             here rather than in the primitive, so every other Tabs on the site
             keeps its existing appearance.
           */}
-          <TabsList className="grid w-full grid-cols-4 rounded-2xl border border-border bg-muted p-1">
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-2xl border border-border bg-muted p-1 sm:h-10 sm:grid-cols-4">
             {(
               [
                 ["info", Info, "Info"],
@@ -199,10 +203,10 @@ export function PlaceView({
               <TabsTrigger
                 key={value}
                 value={value}
-                className="flex cursor-pointer items-center gap-1.5 rounded-xl text-foreground/80 hover:bg-foreground/10 hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                className="flex h-auto min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-2 text-foreground/80 hover:bg-foreground/10 hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:h-8 sm:min-h-0 sm:px-3"
               >
                 <Icon className="size-[18px] shrink-0 stroke-[2.25]" />
-                <span className="hidden sm:inline">{label}</span>
+                <span>{label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
