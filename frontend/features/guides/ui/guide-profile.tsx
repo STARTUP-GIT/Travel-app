@@ -10,6 +10,7 @@ import {
   Flag,
   Languages as LanguagesIcon,
   MapPin,
+  Route,
   Star,
 } from "lucide-react";
 import Link from "next/link";
@@ -167,6 +168,27 @@ export function GuideProfile({
             ))}
           </div>
         </section>
+
+        {/* Tour packages — common guides only */}
+        {guide.type === "common" && guide.packages.length > 0 ? (
+          <section>
+            <SectionHeader
+              title="Tour packages"
+              subtitle="Ready-made tours covering several of these places"
+            />
+            <div className="space-y-2.5">
+              {guide.packages.map((pkg) => (
+                <MediaRowCard
+                  key={pkg.id}
+                  href={`${districtBase}/guides/${person.id}/packages/${pkg.id}`}
+                  title={pkg.name}
+                  subtitle={pkg.description ?? "Tap to see the places and book"}
+                  icon={<Route className="size-4" />}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {/* Enquire */}
         <section>

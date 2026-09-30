@@ -104,6 +104,18 @@ export function profilePath(
   return `${MOUNT[kind]}/profile/api/${action}`;
 }
 
+/**
+ * Common Guide tour packages, on the guide's own profile router. Only the common
+ * guide has packages — a place guide is tied to a single place by definition —
+ * so the builder is deliberately not keyed by `ProviderKind` and callers are
+ * expected to render it for `common_guide` only.
+ */
+export function packagesPath(packageId?: string): string {
+  return packageId
+    ? `${MOUNT.common_guide}/profile/api/packages/${packageId}`
+    : `${MOUNT.common_guide}/profile/api/packages`;
+}
+
 /** Owner-scoped listing routes. Both need the backend JWT. */
 export function ownerListingsPath(kind: "hotel" | "restaurant"): string {
   return kind === "hotel"

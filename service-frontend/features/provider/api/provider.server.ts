@@ -12,6 +12,7 @@ import {
   profilePath,
   providerMeta,
   ownerListingsPath,
+  packagesPath,
   publicHotelListingsPath,
   publicRestaurantListingsPath,
   requestPath,
@@ -32,6 +33,9 @@ import type {
   ProviderStats,
   RequestStatus,
   RestaurantRecord,
+  TourPackage,
+  TourPackageInput,
+  TourPackagesResult,
 } from "@/features/provider/types";
 import { getDistricts } from "@/features/locations/api/locations.api";
 import { getPlaces } from "@/features/places/api/places.api";
@@ -172,8 +176,10 @@ export function signupPayload(
     experience: input.experience,
     cost: input.cost,
     language: input.languages,
-    placeid:
-      kind === "common_guide" ? input.placeIds : (input.placeIds[0] ?? ""),
+    // A guide may register with no place at all. An absent place is sent as the
+    // API's own "no relationship" value — null for the single-place guide, an
+    // empty list for the multi-place one — never as an empty string id.
+    placeid: kind === "common_guide" ? input.placeIds : (input.placeIds[0] ?? null),
   };
 }
 
@@ -186,8 +192,7 @@ export function googleSignupPayload(
     fullname: input.fullname,
     profilepic: input.profilepic,
     phonenumber: input.phonenumber,
-    placeid:
-      kind === "common_guide" ? input.placeIds : (input.placeIds[0] ?? ""),
+    placeid: kind === "common_guide" ? input.placeIds : (input.placeIds[0] ?? null),
     experience: input.experience,
     cost: input.cost,
     language: input.languages,
@@ -315,7 +320,7 @@ type RawGuideProfile = {
   review: string[];
   rating: number | null;
   description: string | null;
-  placeid?: string;
+  placeid?: string | null;
   isReported: boolean;
   experience: number;
   cost: number;
@@ -494,6 +499,108 @@ export async function deleteProviderProfile(
     );
   }
   await readJson<unknown>(res);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Tour packages (common guide only)                                          */
+/* -------------------------------------------------------------------------- */
+
+type RawPackagePlace = {
+  id: string;
+  name: string;
+  images?: string[] | null;
+  category?: string | null;
+  district?: { id: string; name: string } | null;
+};
+
+type RawTourPackage = {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  places: RawPackagePlace[];
+};
+
+export type { TourPackagesResult };
+
+function normalizePackage(raw: RawTourPackage): TourPackage {
+  return {
+    id: raw.id,
+    name: raw.name,
+    description: raw.description ?? null,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+    places: (raw.places ?? []).map((place) => ({
+      id: place.id,
+      name: place.name,
+      images: place.images ?? [],
+      category: place.category ?? "",
+      district: place.district ?? null,
+    })),
+  };
+}
+
+/** Empty description is sent as the API's own "no value" (null), not "". */
+export function packagePayload(
+  input: TourPackageInput
+): Record<string, unknown> {
+  return {
+    name: input.name,
+    description: input.description.trim() ? input.description.trim() : null,
+    placeIds: input.placeIds,
+  };
+}
+
+export async function getTourPackages(token: string): Promise<TourPackagesResult> {
+  try {
+    const rows = await authorized<RawTourPackage[]>(packagesPath(), token, {
+      fallback: "Could not load your tour packages",
+    });
+    return { packages: rows.map(normalizePackage), unavailable: false };
+  } catch (error) {
+    // The controller answers 503 while the tables are missing. That is a
+    // deployment state, not an empty list, so it is reported as such.
+    if (error instanceof ProviderApiError && error.status === 503) {
+      return { packages: [], unavailable: true };
+    }
+    throw error;
+  }
+}
+
+export async function createTourPackage(
+  token: string,
+  input: TourPackageInput
+): Promise<TourPackage> {
+  const row = await authorized<RawTourPackage>(packagesPath(), token, {
+    method: "POST",
+    body: packagePayload(input),
+    fallback: "Could not create the tour package",
+  });
+  return normalizePackage(row);
+}
+
+export async function updateTourPackage(
+  token: string,
+  packageId: string,
+  input: TourPackageInput
+): Promise<TourPackage> {
+  const row = await authorized<RawTourPackage>(packagesPath(packageId), token, {
+    method: "PATCH",
+    body: packagePayload(input),
+    fallback: "Could not save the tour package",
+  });
+  return normalizePackage(row);
+}
+
+export async function deleteTourPackage(
+  token: string,
+  packageId: string
+): Promise<void> {
+  await authorized<unknown>(packagesPath(packageId), token, {
+    method: "DELETE",
+    fallback: "Could not delete the tour package",
+  });
 }
 
 /* -------------------------------------------------------------------------- */

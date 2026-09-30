@@ -1,0 +1,1 @@
+ALTER TABLE "specific_guide" ALTER COLUMN "placeid" DROP NOT NULL;

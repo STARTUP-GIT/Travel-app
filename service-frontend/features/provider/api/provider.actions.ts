@@ -17,12 +17,16 @@ import {
   ProviderApiError,
   buildStats,
   createProviderListing,
+  createTourPackage,
   deleteProviderListing,
   deleteProviderProfile,
+  deleteTourPackage,
   getProviderListings,
   getProviderProfile,
   getProviderRequests,
+  getTourPackages,
   updateProviderListing,
+  updateTourPackage,
   signinWithEmail,
   signoutProvider,
   updateProviderProfile,
@@ -37,6 +41,9 @@ import type {
   ProviderListingInput,
   ProviderRequest,
   RequestStatus,
+  TourPackage,
+  TourPackageInput,
+  TourPackagesResult,
 } from "@/features/provider/types";
 
 /* -------------------------------------------------------------------------- */
@@ -271,6 +278,63 @@ export async function removeService(id: string): Promise<ActionResult> {
     await deleteProviderListing(session.token, session.kind, id);
     revalidatePath("/services");
     revalidatePath("/dashboard");
+    return undefined;
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Tour packages (common guide only)                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Only a common guide has packages. A place guide is tied to one place by
+ * definition, so the check is the same shape as `requireVenueOwner` and is
+ * applied here rather than in the UI, which keeps the rule on the server side of
+ * the action boundary.
+ */
+export async function requireCommonGuide() {
+  const session = await requireProviderSession("/profile");
+  if (session.kind !== "common_guide") {
+    throw new Error("Only tour guides manage tour packages.");
+  }
+  return session;
+}
+
+export async function loadTourPackages(): Promise<TourPackagesResult> {
+  const session = await requireCommonGuide();
+  return getTourPackages(session.token);
+}
+
+export async function addTourPackage(
+  input: TourPackageInput
+): Promise<ActionResult<TourPackage>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    const pkg = await createTourPackage(session.token, input);
+    revalidatePath("/profile");
+    return pkg;
+  });
+}
+
+export async function editTourPackage(
+  packageId: string,
+  input: TourPackageInput
+): Promise<ActionResult<TourPackage>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    const pkg = await updateTourPackage(session.token, packageId, input);
+    revalidatePath("/profile");
+    return pkg;
+  });
+}
+
+export async function removeTourPackage(
+  packageId: string
+): Promise<ActionResult> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    await deleteTourPackage(session.token, packageId);
+    revalidatePath("/profile");
     return undefined;
   });
 }

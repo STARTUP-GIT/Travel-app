@@ -26,7 +26,7 @@ export const specific_guide_signupSchema = z.object({
   phonenumber: z.string().min(10).max(15),
   provider: z.enum(["google", "email"]),
   profile_pic: z.string().optional(),
-  placeid: z.string().min(2),
+  placeid: z.string().min(2).nullish(),
   experience: z.number().int().nonnegative(),
   cost: z.number().int().nonnegative(),
   language: z.array(z.string().min(1)).min(1),
@@ -44,7 +44,7 @@ export const common_guide_signupSchema = z.object({
   phonenumber: z.string().min(10).max(15),
   provider: z.enum(["google", "email"]),
   profile_pic: z.string().optional(),
-  placeid: z.array(z.string().min(2)).min(1),
+  placeid: z.array(z.string().min(2)).default([]),
   experience: z.number().int().nonnegative(),
   cost: z.number().int().nonnegative(),
   language: z.array(z.string().min(1)).min(1),
@@ -123,6 +123,39 @@ export const commonGuideProfileUpdateSchema = z.object({
   password: z.string().min(6).optional(),
 });
 
+/**
+ * A Common Guide tour package: a name, an optional pitch and at least one place.
+ *
+ * The place list is the package's own membership, and the guide itself is taken
+ * from the signed-in session — never from the body, so a guide can only ever
+ * write to their own packages.
+ *
+ * An empty list is rejected rather than allowed: a package with no places has
+ * nothing for a customer to see or book, because packages are discovered
+ * through the places they contain. (A guide with no packages at all is fine —
+ * `placeIds` is only required when a package is actually being saved.)
+ */
+export const commonGuidePackageSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  description: z.string().trim().max(1000).nullish(),
+  placeIds: z
+    .array(z.string().min(1))
+    .min(1, "A package needs at least one place")
+    // The unique index is (packageId, placeId), so a repeated id would fail as a
+    // constraint error and turn into a 500. Rejected here instead, where the
+    // message can actually be shown to the guide.
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: "A place can only be added to a package once",
+    }),
+});
+
+/**
+ * Update is a full replace rather than a patch: `name` and `placeIds` are
+ * required so the saved package is always internally consistent, and omitted
+ * `description` is stored as null (cleared) rather than silently kept.
+ */
+export const commonGuidePackageUpdateSchema = commonGuidePackageSchema;
+
 export const hotelOwnerProfileUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   username: z.string().min(3).optional(),
@@ -152,7 +185,7 @@ export const specificGuideGoogleSignupSchema = z.object({
   fullname: z.string().min(1),
   profilepic: z.string().optional(),
   phonenumber: z.string().optional(),
-  placeid: z.string().min(2),
+  placeid: z.string().min(2).nullish(),
   experience: z.number().int().nonnegative().optional(),
   cost: z.number().int().nonnegative().optional(),
   language: z.array(z.string().min(1)).optional(),
@@ -163,7 +196,7 @@ export const commonGuideGoogleSignupSchema = z.object({
   fullname: z.string().min(1),
   profilepic: z.string().optional(),
   phonenumber: z.string().optional(),
-  placeid: z.array(z.string().min(2)).min(1),
+  placeid: z.array(z.string().min(2)).default([]),
   experience: z.number().int().nonnegative().optional(),
   cost: z.number().int().nonnegative().optional(),
   language: z.array(z.string().min(1)).optional(),

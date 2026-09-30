@@ -64,6 +64,8 @@ export const ModelName = {
   specific_guide: 'specific_guide',
   common_guide: 'common_guide',
   common_guide_places: 'common_guide_places',
+  common_guide_package: 'common_guide_package',
+  common_guide_package_places: 'common_guide_package_places',
   specific_guide_booking: 'specific_guide_booking',
   common_guide_booking: 'common_guide_booking',
   common_guide_booking_places: 'common_guide_booking_places',
@@ -293,6 +295,27 @@ export const Common_guide_placesScalarFieldEnum = {
 } as const
 
 export type Common_guide_placesScalarFieldEnum = (typeof Common_guide_placesScalarFieldEnum)[keyof typeof Common_guide_placesScalarFieldEnum]
+
+
+export const Common_guide_packageScalarFieldEnum = {
+  id: 'id',
+  commonGuideId: 'commonGuideId',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Common_guide_packageScalarFieldEnum = (typeof Common_guide_packageScalarFieldEnum)[keyof typeof Common_guide_packageScalarFieldEnum]
+
+
+export const Common_guide_package_placesScalarFieldEnum = {
+  id: 'id',
+  packageId: 'packageId',
+  placeId: 'placeId'
+} as const
+
+export type Common_guide_package_placesScalarFieldEnum = (typeof Common_guide_package_placesScalarFieldEnum)[keyof typeof Common_guide_package_placesScalarFieldEnum]
 
 
 export const Specific_guide_bookingScalarFieldEnum = {

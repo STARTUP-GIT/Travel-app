@@ -1,5 +1,5 @@
 import type { ContentStatus, District } from "@/features/locations/types";
-import type { CommonGuide, SpecificGuide } from "@/features/guides/types";
+import type { CommonGuide, SpecificGuide, TourPackageSummary } from "@/features/guides/types";
 
 export type Place = {
   id: string;
@@ -23,4 +23,9 @@ export type Place = {
     commonGuideId: string;
     commonGuide?: CommonGuide;
   }[];
+  /**
+   * Tour packages that include this place. Absent or empty on a backend that has
+   * not run the package migration, which is the same "no packages" the UI shows.
+   */
+  commonGuidePackages?: TourPackageSummary[];
 };

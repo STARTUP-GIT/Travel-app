@@ -10,12 +10,13 @@ import {
 } from "./provider.server";
 
 /**
- * Guide Google registration needs data Google cannot supply: which place(s) the
- * guide covers, their phone number, experience, price and languages. Those
- * values are captured by the signup form, parked in a short-lived httpOnly cookie
- * and consumed by the Auth.js `jwt` callback once Google returns the verified
- * account. Nothing secret is stored — the identity itself always comes from the
- * Google profile, never from the browser.
+ * Guide Google registration needs data Google cannot supply: their phone number,
+ * experience, price and languages. Optionally the place(s) the guide covers —
+ * a guide may register without one. Those values are captured by the signup
+ * form, parked in a short-lived httpOnly cookie and consumed by the Auth.js
+ * `jwt` callback once Google returns the verified account. Nothing secret is
+ * stored — the identity itself always comes from the Google profile, never from
+ * the browser.
  */
 const COOKIE = "sp_guide_google";
 const MAX_AGE_SECONDS = 10 * 60;
@@ -42,7 +43,7 @@ function decode(raw: string): PendingGuideSignup | null {
     if (parsed.kind !== "common_guide" && parsed.kind !== "specific_guide") {
       return null;
     }
-    if (!Array.isArray(parsed.placeIds) || parsed.placeIds.length === 0) {
+    if (!Array.isArray(parsed.placeIds)) {
       return null;
     }
     return parsed;

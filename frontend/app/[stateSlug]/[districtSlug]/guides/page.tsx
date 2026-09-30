@@ -4,10 +4,10 @@ import { Suspense } from "react";
 
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { GuidesList } from "@/features/guides/ui/guides-list";
-import { listGuidesForDistrict } from "@/features/guides/api/guides.api";
+import { listDistrictGuideDirectory } from "@/features/guides/api/guides.api";
 import { resolveStateDistrict, tryStateDistrict } from "@/features/locations/server";
 
-import type { GuideWithContext } from "@/features/guides/types";
+import type { GuideWithContext, PackageWithContext } from "@/features/guides/types";
 import { DistrictUnavailable } from "@/components/shared/district-unavailable";
 
 type RouteParams = { stateSlug: string; districtSlug: string };
@@ -41,23 +41,30 @@ export default async function GuidesPage({
   const { state, district } = resolution;
 
   let guides: GuideWithContext[] = [];
+  let packages: PackageWithContext[] = [];
   try {
-    guides = await listGuidesForDistrict(district.id);
+    // One pass produces both: guides and tour packages are aggregated from the
+    // same place detail responses, so the district is not walked twice.
+    const directory = await listDistrictGuideDirectory(district.id);
+    guides = directory.guides;
+    packages = directory.packages;
   } catch {
     guides = [];
+    packages = [];
   }
 
   return (
     <div className="pb-6">
       <ScreenHeader
         title="Local Guides"
-        subtitle={`${district.name} district · ${guides.length} guide${guides.length === 1 ? "" : "s"}`}
+        subtitle={`${district.name} district · ${guides.length} guide${guides.length === 1 ? "" : "s"}${packages.length > 0 ? ` · ${packages.length} tour${packages.length === 1 ? "" : "s"}` : ""}`}
         backHref={`/${state.slug}/${district.slug}`}
       />
       <div className="app-container">
         <Suspense>
           <GuidesList
             guides={guides}
+            packages={packages}
             districtSlug={district.slug}
             stateSlug={state.slug}
           />

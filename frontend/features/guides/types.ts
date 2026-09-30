@@ -47,6 +47,39 @@ export type CommonGuidePlaceLink = {
   commonGuideId: string;
 };
 
+/**
+ * A tour package as it arrives on a place detail response. `commonGuideId` is
+ * carried by the backend so packages can be grouped under their guide without a
+ * second lookup, and only ever appears for an approved guide.
+ *
+ * `placeCount` is the package's real size, which matters for a package that
+ * spans districts: the places resolved for the current district can be fewer.
+ */
+export type TourPackageSummary = {
+  id: string;
+  name: string;
+  description: string | null;
+  commonGuideId: string;
+  placeCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A package resolved to the places it contains inside the current district. */
+export type TourPackage = TourPackageSummary & {
+  places: {
+    id: string;
+    name: string;
+    slug: string;
+    districtName: string;
+    images?: string[];
+  }[];
+};
+
+export type PackageWithContext = TourPackage & {
+  guide: CommonGuide;
+};
+
 export type GuideWithContext =
   | {
       type: "specific";
@@ -68,4 +101,6 @@ export type GuideWithContext =
         districtName: string;
         images?: string[];
       }[];
+      /** The guide's own packages, limited to those touching this district. */
+      packages: TourPackageSummary[];
     };

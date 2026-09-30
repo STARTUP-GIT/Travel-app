@@ -210,7 +210,17 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
       return res.status(400).json({ message: "This guide is not available for booking yet" });
     }
 
-    const district = await findDistrictWithHierarchy(guide.place.districtId);
+    // A place guide may register without choosing a place, so there is nothing
+    // to derive the booking district from until one is added.
+    const { placeid, place } = guide;
+
+    if (!place || !placeid) {
+      return res.status(400).json({
+        message: "This guide has not selected a place yet and cannot be booked",
+      });
+    }
+
+    const district = await findDistrictWithHierarchy(place.districtId);
 
     if (!district || !isDistrictAvailable(district)) {
       return res.status(400).json({
@@ -222,7 +232,7 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
       data: {
         userId,
         specificGuideId: guide.id,
-        placeId: guide.placeid,
+        placeId: placeid,
         bookingDate: data.bookingDate,
         ...(data.bookingTime !== undefined ? { bookingTime: data.bookingTime } : {}),
       },

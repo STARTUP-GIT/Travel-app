@@ -60,13 +60,10 @@ export const signupSchema = z
   .superRefine((value, ctx) => {
     if (value.kind === "hotel" || value.kind === "restaurant") return;
 
-    if (value.placeIds.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["placeIds"],
-        message: "Select at least one place",
-      });
-    } else if (value.kind === "specific_guide" && value.placeIds.length > 1) {
+    // Choosing a place is the guide's own decision and can be made later, so no
+    // place is a valid registration. A place guide may still never send more
+    // than one.
+    if (value.kind === "specific_guide" && value.placeIds.length > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["placeIds"],
@@ -127,7 +124,7 @@ export const googleGuideSchema = z
   .object({
     kind: z.enum(["common_guide", "specific_guide"]),
     phonenumber: phone,
-    placeIds: z.array(z.string()).min(1, "Select at least one place"),
+    placeIds: z.array(z.string()).default([]),
     experience: z.coerce
       .number()
       .int("Experience must be a whole number")

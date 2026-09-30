@@ -25,7 +25,9 @@ import { cn } from "@/lib/utils";
  * A guide can only be registered against places the admin has approved, so this
  * reads the real district and place lists from the public API rather than
  * offering a free-text district. A specific guide is limited to a single place;
- * a common guide can cover several.
+ * a common guide can cover several. Picking a place is optional for both — the
+ * guide may register first and cover places later — so the district only gates
+ * which places are offered, it is never the thing being validated.
  */
 export function PlacePicker({
   value,
@@ -54,7 +56,9 @@ export function PlacePicker({
         selected.has(id) ? value.filter((item) => item !== id) : [...value, id]
       );
     } else {
-      onChange([id]);
+      // Clicking the chosen place again clears it, so a guide who picked one by
+      // mistake can get back to the "no place yet" state.
+      onChange(selected.has(id) ? [] : [id]);
     }
   }
 
@@ -83,9 +87,17 @@ export function PlacePicker({
         </SelectContent>
       </Select>
 
+      <Label className="text-muted-foreground">
+        {multiple ? "Places (optional)" : "Place (optional)"}
+      </Label>
+
       {!districtId ? (
         <p className="text-xs text-muted-foreground">
-          Pick a district to see the places a guide can cover.
+          {multiple
+            ? "Pick a district to see the places you can cover."
+            : "Pick a district to see the place you can cover."}{" "}
+          You can also leave this empty and add {multiple ? "places" : "a place"}{" "}
+          later.
         </p>
       ) : places.isLoading ? (
         <LoadingState label="Loading places…" />
@@ -138,9 +150,10 @@ export function PlacePicker({
         </div>
       )}
 
-      {multiple && value.length > 0 ? (
+      {value.length > 0 ? (
         <p className="text-xs text-muted-foreground">
           {value.length} place{value.length === 1 ? "" : "s"} selected
+          {!multiple ? " — a place guide can be linked to one place only." : "."}
         </p>
       ) : null}
 

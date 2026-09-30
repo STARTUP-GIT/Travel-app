@@ -282,7 +282,7 @@ export type Specific_guideGroupByOutputType = {
   review: string[]
   rating: number | null
   description: string | null
-  placeid: string
+  placeid: string | null
   isReported: boolean
   experience: number
   cost: number
@@ -328,7 +328,7 @@ export type specific_guideWhereInput = {
   review?: Prisma.StringNullableListFilter<"specific_guide">
   rating?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   description?: Prisma.StringNullableFilter<"specific_guide"> | string | null
-  placeid?: Prisma.StringFilter<"specific_guide"> | string
+  placeid?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   isReported?: Prisma.BoolFilter<"specific_guide"> | boolean
   experience?: Prisma.IntFilter<"specific_guide"> | number
   cost?: Prisma.IntFilter<"specific_guide"> | number
@@ -336,7 +336,7 @@ export type specific_guideWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFilter<"specific_guide"> | $Enums.placeSubmissionStatus
-  place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
+  place?: Prisma.XOR<Prisma.PlaceNullableScalarRelationFilter, Prisma.placeWhereInput> | null
   testimonials?: Prisma.TestimonialsListRelationFilter
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
   bookings?: Prisma.Specific_guide_bookingListRelationFilter
@@ -355,7 +355,7 @@ export type specific_guideOrderByWithRelationInput = {
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  placeid?: Prisma.SortOrder
+  placeid?: Prisma.SortOrderInput | Prisma.SortOrder
   isReported?: Prisma.SortOrder
   experience?: Prisma.SortOrder
   cost?: Prisma.SortOrder
@@ -385,7 +385,7 @@ export type specific_guideWhereUniqueInput = Prisma.AtLeast<{
   review?: Prisma.StringNullableListFilter<"specific_guide">
   rating?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   description?: Prisma.StringNullableFilter<"specific_guide"> | string | null
-  placeid?: Prisma.StringFilter<"specific_guide"> | string
+  placeid?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   isReported?: Prisma.BoolFilter<"specific_guide"> | boolean
   experience?: Prisma.IntFilter<"specific_guide"> | number
   cost?: Prisma.IntFilter<"specific_guide"> | number
@@ -393,7 +393,7 @@ export type specific_guideWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFilter<"specific_guide"> | $Enums.placeSubmissionStatus
-  place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
+  place?: Prisma.XOR<Prisma.PlaceNullableScalarRelationFilter, Prisma.placeWhereInput> | null
   testimonials?: Prisma.TestimonialsListRelationFilter
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
   bookings?: Prisma.Specific_guide_bookingListRelationFilter
@@ -412,7 +412,7 @@ export type specific_guideOrderByWithAggregationInput = {
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  placeid?: Prisma.SortOrder
+  placeid?: Prisma.SortOrderInput | Prisma.SortOrder
   isReported?: Prisma.SortOrder
   experience?: Prisma.SortOrder
   cost?: Prisma.SortOrder
@@ -443,7 +443,7 @@ export type specific_guideScalarWhereWithAggregatesInput = {
   review?: Prisma.StringNullableListFilter<"specific_guide">
   rating?: Prisma.FloatNullableWithAggregatesFilter<"specific_guide"> | number | null
   description?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
-  placeid?: Prisma.StringWithAggregatesFilter<"specific_guide"> | string
+  placeid?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
   isReported?: Prisma.BoolWithAggregatesFilter<"specific_guide"> | boolean
   experience?: Prisma.IntWithAggregatesFilter<"specific_guide"> | number
   cost?: Prisma.IntWithAggregatesFilter<"specific_guide"> | number
@@ -473,7 +473,7 @@ export type specific_guideCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
-  place: Prisma.placeCreateNestedOneWithoutSpecificguideInput
+  place?: Prisma.placeCreateNestedOneWithoutSpecificguideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutSpecificguideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutSpecificGuideInput
   bookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutSpecificGuideInput
@@ -492,7 +492,7 @@ export type specific_guideUncheckedCreateInput = {
   review?: Prisma.specific_guideCreatereviewInput | string[]
   rating?: number | null
   description?: string | null
-  placeid: string
+  placeid?: string | null
   isReported?: boolean
   experience: number
   cost: number
@@ -525,7 +525,7 @@ export type specific_guideUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
-  place?: Prisma.placeUpdateOneRequiredWithoutSpecificguideNestedInput
+  place?: Prisma.placeUpdateOneWithoutSpecificguideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutSpecificguideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutSpecificGuideNestedInput
   bookings?: Prisma.specific_guide_bookingUpdateManyWithoutSpecificGuideNestedInput
@@ -544,7 +544,7 @@ export type specific_guideUncheckedUpdateInput = {
   review?: Prisma.specific_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  placeid?: Prisma.StringFieldUpdateOperationsInput | string
+  placeid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
   experience?: Prisma.IntFieldUpdateOperationsInput | number
   cost?: Prisma.IntFieldUpdateOperationsInput | number
@@ -570,7 +570,7 @@ export type specific_guideCreateManyInput = {
   review?: Prisma.specific_guideCreatereviewInput | string[]
   rating?: number | null
   description?: string | null
-  placeid: string
+  placeid?: string | null
   isReported?: boolean
   experience: number
   cost: number
@@ -615,7 +615,7 @@ export type specific_guideUncheckedUpdateManyInput = {
   review?: Prisma.specific_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  placeid?: Prisma.StringFieldUpdateOperationsInput | string
+  placeid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
   experience?: Prisma.IntFieldUpdateOperationsInput | number
   cost?: Prisma.IntFieldUpdateOperationsInput | number
@@ -856,7 +856,7 @@ export type specific_guideCreateWithoutTestimonialsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
-  place: Prisma.placeCreateNestedOneWithoutSpecificguideInput
+  place?: Prisma.placeCreateNestedOneWithoutSpecificguideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutSpecificGuideInput
   bookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutSpecificGuideInput
 }
@@ -874,7 +874,7 @@ export type specific_guideUncheckedCreateWithoutTestimonialsInput = {
   review?: Prisma.specific_guideCreatereviewInput | string[]
   rating?: number | null
   description?: string | null
-  placeid: string
+  placeid?: string | null
   isReported?: boolean
   experience: number
   cost: number
@@ -922,7 +922,7 @@ export type specific_guideUpdateWithoutTestimonialsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
-  place?: Prisma.placeUpdateOneRequiredWithoutSpecificguideNestedInput
+  place?: Prisma.placeUpdateOneWithoutSpecificguideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutSpecificGuideNestedInput
   bookings?: Prisma.specific_guide_bookingUpdateManyWithoutSpecificGuideNestedInput
 }
@@ -940,7 +940,7 @@ export type specific_guideUncheckedUpdateWithoutTestimonialsInput = {
   review?: Prisma.specific_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  placeid?: Prisma.StringFieldUpdateOperationsInput | string
+  placeid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
   experience?: Prisma.IntFieldUpdateOperationsInput | number
   cost?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1044,7 +1044,7 @@ export type specific_guideScalarWhereInput = {
   review?: Prisma.StringNullableListFilter<"specific_guide">
   rating?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   description?: Prisma.StringNullableFilter<"specific_guide"> | string | null
-  placeid?: Prisma.StringFilter<"specific_guide"> | string
+  placeid?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   isReported?: Prisma.BoolFilter<"specific_guide"> | boolean
   experience?: Prisma.IntFilter<"specific_guide"> | number
   cost?: Prisma.IntFilter<"specific_guide"> | number
@@ -1074,7 +1074,7 @@ export type specific_guideCreateWithoutPlaceSubmissionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
-  place: Prisma.placeCreateNestedOneWithoutSpecificguideInput
+  place?: Prisma.placeCreateNestedOneWithoutSpecificguideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutSpecificguideInput
   bookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutSpecificGuideInput
 }
@@ -1092,7 +1092,7 @@ export type specific_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
   review?: Prisma.specific_guideCreatereviewInput | string[]
   rating?: number | null
   description?: string | null
-  placeid: string
+  placeid?: string | null
   isReported?: boolean
   experience: number
   cost: number
@@ -1140,7 +1140,7 @@ export type specific_guideUpdateWithoutPlaceSubmissionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
-  place?: Prisma.placeUpdateOneRequiredWithoutSpecificguideNestedInput
+  place?: Prisma.placeUpdateOneWithoutSpecificguideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutSpecificguideNestedInput
   bookings?: Prisma.specific_guide_bookingUpdateManyWithoutSpecificGuideNestedInput
 }
@@ -1158,7 +1158,7 @@ export type specific_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
   review?: Prisma.specific_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  placeid?: Prisma.StringFieldUpdateOperationsInput | string
+  placeid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
   experience?: Prisma.IntFieldUpdateOperationsInput | number
   cost?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1190,7 +1190,7 @@ export type specific_guideCreateWithoutBookingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
-  place: Prisma.placeCreateNestedOneWithoutSpecificguideInput
+  place?: Prisma.placeCreateNestedOneWithoutSpecificguideInput
   testimonials?: Prisma.testimonialsCreateNestedManyWithoutSpecificguideInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutSpecificGuideInput
 }
@@ -1208,7 +1208,7 @@ export type specific_guideUncheckedCreateWithoutBookingsInput = {
   review?: Prisma.specific_guideCreatereviewInput | string[]
   rating?: number | null
   description?: string | null
-  placeid: string
+  placeid?: string | null
   isReported?: boolean
   experience: number
   cost: number
@@ -1256,7 +1256,7 @@ export type specific_guideUpdateWithoutBookingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
-  place?: Prisma.placeUpdateOneRequiredWithoutSpecificguideNestedInput
+  place?: Prisma.placeUpdateOneWithoutSpecificguideNestedInput
   testimonials?: Prisma.testimonialsUpdateManyWithoutSpecificguideNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutSpecificGuideNestedInput
 }
@@ -1274,7 +1274,7 @@ export type specific_guideUncheckedUpdateWithoutBookingsInput = {
   review?: Prisma.specific_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  placeid?: Prisma.StringFieldUpdateOperationsInput | string
+  placeid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isReported?: Prisma.BoolFieldUpdateOperationsInput | boolean
   experience?: Prisma.IntFieldUpdateOperationsInput | number
   cost?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1450,7 +1450,7 @@ export type specific_guideSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
   testimonials?: boolean | Prisma.specific_guide$testimonialsArgs<ExtArgs>
   placeSubmissions?: boolean | Prisma.specific_guide$placeSubmissionsArgs<ExtArgs>
   bookings?: boolean | Prisma.specific_guide$bookingsArgs<ExtArgs>
@@ -1478,7 +1478,7 @@ export type specific_guideSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
 }, ExtArgs["result"]["specific_guide"]>
 
 export type specific_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1502,7 +1502,7 @@ export type specific_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
 }, ExtArgs["result"]["specific_guide"]>
 
 export type specific_guideSelectScalar = {
@@ -1530,23 +1530,23 @@ export type specific_guideSelectScalar = {
 
 export type specific_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "placeid" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["specific_guide"]>
 export type specific_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
   testimonials?: boolean | Prisma.specific_guide$testimonialsArgs<ExtArgs>
   placeSubmissions?: boolean | Prisma.specific_guide$placeSubmissionsArgs<ExtArgs>
   bookings?: boolean | Prisma.specific_guide$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Specific_guideCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type specific_guideIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
 }
 export type specific_guideIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
+  place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
 }
 
 export type $specific_guidePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "specific_guide"
   objects: {
-    place: Prisma.$placePayload<ExtArgs>
+    place: Prisma.$placePayload<ExtArgs> | null
     testimonials: Prisma.$testimonialsPayload<ExtArgs>[]
     placeSubmissions: Prisma.$place_submissionPayload<ExtArgs>[]
     bookings: Prisma.$specific_guide_bookingPayload<ExtArgs>[]
@@ -1564,7 +1564,7 @@ export type $specific_guidePayload<ExtArgs extends runtime.Types.Extensions.Inte
     review: string[]
     rating: number | null
     description: string | null
-    placeid: string
+    placeid: string | null
     isReported: boolean
     experience: number
     cost: number
@@ -1966,7 +1966,7 @@ readonly fields: specific_guideFieldRefs;
  */
 export interface Prisma__specific_guideClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  place<T extends Prisma.placeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.placeDefaultArgs<ExtArgs>>): Prisma.Prisma__placeClient<runtime.Types.Result.GetResult<Prisma.$placePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  place<T extends Prisma.specific_guide$placeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.specific_guide$placeArgs<ExtArgs>>): Prisma.Prisma__placeClient<runtime.Types.Result.GetResult<Prisma.$placePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   testimonials<T extends Prisma.specific_guide$testimonialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.specific_guide$testimonialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$testimonialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   placeSubmissions<T extends Prisma.specific_guide$placeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.specific_guide$placeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$place_submissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.specific_guide$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.specific_guide$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$specific_guide_bookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2417,6 +2417,25 @@ export type specific_guideDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many specific_guides to delete.
    */
   limit?: number
+}
+
+/**
+ * specific_guide.place
+ */
+export type specific_guide$placeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the place
+   */
+  select?: Prisma.placeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the place
+   */
+  omit?: Prisma.placeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.placeInclude<ExtArgs> | null
+  where?: Prisma.placeWhereInput
 }
 
 /**

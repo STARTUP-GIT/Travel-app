@@ -88,6 +88,46 @@ export type ProviderProfileInput = {
 };
 
 /* -------------------------------------------------------------------------- */
+/*  Tour packages (common guide only)                                          */
+/* -------------------------------------------------------------------------- */
+
+/** A place as it appears inside a package. */
+export type PackagePlace = {
+  id: string;
+  name: string;
+  images: string[];
+  category: string;
+  district: { id: string; name: string } | null;
+};
+
+/** One named tour: the guide's own package record, with its places flattened in. */
+export type TourPackage = {
+  id: string;
+  name: string;
+  description: string | null;
+  places: PackagePlace[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TourPackageInput = {
+  name: string;
+  description: string;
+  /** At least one place; a place may appear in several packages of one guide. */
+  placeIds: string[];
+};
+
+export type TourPackagesResult = {
+  packages: TourPackage[];
+  /**
+   * True when the deployed backend answers 503 because the package tables have
+   * not been migrated yet. Surfaced in the UI as an explicit notice instead of
+   * showing an empty list that looks like "you have no packages".
+   */
+  unavailable: boolean;
+};
+
+/* -------------------------------------------------------------------------- */
 /*  Services (hotels / restaurants / guide listings)                          */
 /* -------------------------------------------------------------------------- */
 

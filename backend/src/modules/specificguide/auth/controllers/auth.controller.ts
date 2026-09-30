@@ -55,17 +55,21 @@ export const signUp = async (req: Request, res: Response) => {
       });
     }
 
-    const place = await prisma.place.findUnique({
-      where: {
-        id: data.placeid,
-      },
-      select: { id: true },
-    });
+    const placeid = data.placeid ?? null;
 
-    if (!place) {
-      return res.status(400).json({
-        message: "Place does not exist",
+    if (placeid) {
+      const place = await prisma.place.findUnique({
+        where: {
+          id: placeid,
+        },
+        select: { id: true },
       });
+
+      if (!place) {
+        return res.status(400).json({
+          message: "Place does not exist",
+        });
+      }
     }
 
     // Hash password
@@ -86,7 +90,7 @@ export const signUp = async (req: Request, res: Response) => {
         full_name: data.fullname,
         phonenumber: data.phonenumber,
         profile_pic: data.profile_pic ?? "",
-        placeid: data.placeid,
+        placeid,
         experience: data.experience,
         cost: data.cost,
         language: data.language,
@@ -138,17 +142,21 @@ export const googleSignUp = async (req: Request, res: Response) => {
       });
     }
 
-    const place = await prisma.place.findUnique({
-      where: {
-        id: data.placeid,
-      },
-      select: { id: true },
-    });
+    const placeid = data.placeid ?? null;
 
-    if (!place) {
-      return res.status(400).json({
-        message: "Place does not exist",
+    if (placeid) {
+      const place = await prisma.place.findUnique({
+        where: {
+          id: placeid,
+        },
+        select: { id: true },
       });
+
+      if (!place) {
+        return res.status(400).json({
+          message: "Place does not exist",
+        });
+      }
     }
 
     // Generate username from Google email
@@ -183,7 +191,7 @@ export const googleSignUp = async (req: Request, res: Response) => {
         profile_pic: data.profilepic ?? "",
         phonenumber: data.phonenumber ?? "",
         password: "",
-        placeid: data.placeid,
+        placeid,
         experience: data.experience ?? 0,
         cost: data.cost ?? 0,
         language: data.language ?? [],

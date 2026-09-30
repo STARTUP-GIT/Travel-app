@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import prisma from "../../../db/prisma.js";
 import { getAutoApprovalSettings } from "../../../services/approvalSettings.js";
 import { guideStatusColumnExists } from "../../../services/guideStatusColumn.js";
+import { guidePackageTableExists } from "../../../services/guidePackageTable.js";
 
 /**
  * Whether a submitted place should be created as an approved `place` straight
@@ -111,12 +112,21 @@ export const addPlace = async (req: Request, res: Response) => {
  * The place is always served; guides are narrowed by approval only once the
  * column is actually present, so an unapproved guide can never be published
  * through this path either way.
+ *
+ * The same applies one level deeper to tour packages: including
+ * `commonGuidePackages` reads `common_guide_package`, so it is only asked for
+ * once the table has actually been created *and* the status column is there to
+ * filter on. Packages ride along with the place rather than getting their own
+ * public route, which is what lets the customer package list be aggregated from
+ * these same responses.
  */
 export const getPlaceById = async (req: Request, res: Response) => {
   try {
     const { placeId } = req.params as { placeId: string };
 
     const hasGuideStatus = await guideStatusColumnExists();
+    const hasPackages =
+      hasGuideStatus && (await guidePackageTableExists());
 
     const place = await prisma.place.findUnique({
       where: {
@@ -131,6 +141,34 @@ export const getPlaceById = async (req: Request, res: Response) => {
               commonGuidePlaces: {
                 include: {
                   commonGuide: true,
+                },
+              },
+            }
+          : {}),
+
+        ...(hasPackages
+          ? {
+              commonGuidePackages: {
+                include: {
+                  package: {
+                    select: {
+                      id: true,
+                      name: true,
+                      description: true,
+                      createdAt: true,
+                      updatedAt: true,
+                      // The real number of places in the package, which a
+                      // package spanning several districts cannot be read off a
+                      // single place response. Without it a customer would be
+                      // shown a price based on only the places of the district
+                      // they happen to be browsing.
+                      _count: { select: { places: true } },
+                      // Read only to decide approval below; stripped from the
+                      // response so the client sees the same package shape as
+                      // the service profile API.
+                      commonGuide: { select: { id: true, status: true } },
+                    },
+                  },
                 },
               },
             }
@@ -168,6 +206,17 @@ export const getPlaceById = async (req: Request, res: Response) => {
     const relations = place as unknown as {
       specificguide?: { status?: string | null }[];
       commonGuidePlaces?: { commonGuide?: { status?: string | null } | null }[];
+      commonGuidePackages?: {
+        package: {
+          id: string;
+          name: string;
+          description: string | null;
+          createdAt: Date;
+          updatedAt: Date;
+          _count: { places: number };
+          commonGuide: { id: string; status?: string | null } | null;
+        } | null;
+      }[];
     };
 
     const specificguide = hasGuideStatus
@@ -179,10 +228,32 @@ export const getPlaceById = async (req: Request, res: Response) => {
         )
       : [];
 
+    // A package is published by exactly the same rule as the guide it belongs
+    // to: it appears only while that guide is approved. The place link row
+    // carries no guide of its own, so the owning guide is read through the
+    // package and then dropped again.
+    //
+    // `commonGuideId` rides along so the customer side can group packages under
+    // the guide without a second lookup, and the membership row count is
+    // flattened to a plain `placeCount`.
+    const commonGuidePackages = hasPackages
+      ? (relations.commonGuidePackages ?? [])
+          .filter((entry) => entry.package?.commonGuide?.status === "APPROVED")
+          .map((entry) => {
+            const { commonGuide, _count, ...pkg } = entry.package!;
+            return {
+              ...pkg,
+              commonGuideId: commonGuide!.id,
+              placeCount: _count.places,
+            };
+          })
+      : [];
+
     return res.status(200).json({
       ...place,
       specificguide,
       commonGuidePlaces,
+      commonGuidePackages,
     });
   } catch (error) {
     console.error("Get place error:", error);

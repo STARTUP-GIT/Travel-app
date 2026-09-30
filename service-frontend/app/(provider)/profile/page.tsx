@@ -17,7 +17,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Rating } from "@/components/shared/rating";
 import { Badge } from "@/components/ui/badge";
 import { ProfileForm } from "@/features/provider/components/profile-form";
-import { loadProfile } from "@/features/provider/api/provider.actions";
+import { TourPackageManager } from "@/features/provider/components/tour-package-manager";
+import {
+  loadProfile,
+  loadTourPackages,
+} from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
 import { formatCurrency, formatDate, pluralize } from "@/lib/utils";
@@ -48,6 +52,16 @@ export default async function ProfilePage() {
       </div>
     );
   }
+
+  // Only a tour guide has packages, and a failure here must not take the rest of
+  // the profile down: it falls back to the "unavailable" notice instead.
+  const packages =
+    session.kind === "common_guide"
+      ? await loadTourPackages().catch(() => ({
+          packages: [],
+          unavailable: true,
+        }))
+      : { packages: [], unavailable: false };
 
   return (
     <div className="app-container max-w-3xl">
@@ -146,9 +160,22 @@ export default async function ProfilePage() {
 
         {!meta.managesVenues ? (
           <NoticeState
-            title="Places are fixed at registration"
-            description="Which places or district you cover is decided when you sign up, because the backend does not allow it to be changed afterwards. Everything else below you can edit freely."
+            title="Places are optional at sign-up"
+            description={
+              session.kind === "common_guide"
+                ? "You could register without choosing a place. Add tour packages below to group the places you cover into named tours — each place in a package is also added to your coverage, so travellers can find and book you there."
+                : "You could register without choosing a place. A place guide is linked to one place, and that link is decided at sign-up and cannot be changed from here afterwards. Everything else below you can edit freely."
+            }
           />
+        ) : null}
+
+        {session.kind === "common_guide" ? (
+          <GlassCard className="gap-5 p-5 sm:p-6">
+            <TourPackageManager
+              packages={packages.packages}
+              unavailable={packages.unavailable}
+            />
+          </GlassCard>
         ) : null}
 
         <GlassCard className="gap-5 p-5 sm:p-6">

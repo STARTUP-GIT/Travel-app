@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion } from "motion/react";
 import {
+  ArrowRight,
   CarTaxiFront,
   Clock,
   Compass,
@@ -11,6 +12,7 @@ import {
   Images,
   MessageSquareText,
   Package,
+  Route,
   Ticket,
   UtensilsCrossed,
   Warehouse,
@@ -63,6 +65,10 @@ export function PlaceView({
   const commonGuides = (place.commonGuidePlaces ?? [])
     .map((link) => link.commonGuide)
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
+
+  // Only approved guides' packages reach this page — the backend filters them on
+  // the way out — so a package listed here is always bookable.
+  const packages = place.commonGuidePackages ?? [];
 
   const services: ServiceItem[] = [
     {
@@ -261,6 +267,39 @@ export function PlaceView({
                 </section>
               ) : null}
 
+              {/* Tour packages that include this place */}
+              {packages.length > 0 ? (
+                <section aria-labelledby="packages-label">
+                  <SectionHeader
+                    title="Tours including this place"
+                    subtitle="Multi-stop tours you can book from here"
+                    href={`${districtBase}/guides`}
+                  />
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {packages.map((pkg) => (
+                      <Link
+                        key={pkg.id}
+                        href={`${districtBase}/guides/${pkg.commonGuideId}/packages/${pkg.id}`}
+                        className="card-surface flex items-center gap-3 rounded-2xl p-4 transition-colors hover:bg-accent"
+                      >
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Route className="size-5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold">
+                            {pkg.name}
+                          </span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {pkg.description ?? "Multi-stop guided tour"}
+                          </span>
+                        </span>
+                        <ArrowRight className="size-4 shrink-0 text-primary" />
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
               {/* Common guides covering this place */}
               {commonGuides.length > 0 ? (
                 <section aria-labelledby="common-guides-label">
@@ -273,7 +312,7 @@ export function PlaceView({
                     {commonGuides.map((g) => (
                       <GuideCard
                         key={g.id}
-                        guide={{ type: "common", guide: g, places: [] }}
+                        guide={{ type: "common", guide: g, places: [], packages: [] }}
                         districtSlug={districtSlug}
                         stateSlug={stateSlug}
                         showFavorite
