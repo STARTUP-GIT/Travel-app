@@ -34,6 +34,27 @@ type Values = {
 
 type Errors = Partial<Record<keyof Values, string>>;
 
+/**
+ * What a failed save says when the failure is not the guide's to fix.
+ *
+ * A 4xx from the backend is a rejection the guide can act on and carries a
+ * hand-written sentence ("Email already exists"), which is shown as-is. A 5xx is
+ * a fault on our side — a database error, a timeout — and its body is written for
+ * whoever is debugging, not for the person who pressed Save. So the server's
+ * wording is dropped and this is shown instead.
+ */
+const PROFILE_SAVE_FAILED_MESSAGE =
+  "Unable to save your profile right now. Please try again.";
+
+function saveFailureMessage(result: {
+  message: string;
+  status?: number;
+}): string {
+  return typeof result.status === "number" && result.status >= 500
+    ? PROFILE_SAVE_FAILED_MESSAGE
+    : result.message;
+}
+
 function initialValues(profile: ProviderProfile): Values {
   return {
     name: profile.name,
@@ -134,8 +155,9 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
       if (result.fields && Object.keys(result.fields).length > 0) {
         setErrors(result.fields as Errors);
       }
-      setFormError(result.message);
-      toast.error(result.message);
+      const message = saveFailureMessage(result);
+      setFormError(message);
+      toast.error(message);
       return;
     }
 

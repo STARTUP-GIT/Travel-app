@@ -117,11 +117,24 @@ async function resolveApprovedPlaceIds(
   return { ok: true, places: placeIds.map((id) => byId.get(id)!) };
 }
 
-const tableMissing = (res: Response) =>
-  res.status(503).json({
+/**
+ * The tour package tables are missing, which is a deployment fault rather than
+ * anything the guide did.
+ *
+ * The cause is logged, not returned: "run the latest database migration" is an
+ * instruction for whoever deploys the backend, and a guide reading it on their
+ * packages screen learns nothing they can act on.
+ */
+const tableMissing = (res: Response) => {
+  console.error(
+    "Tour package tables are missing from the database this API is connected to."
+  );
+
+  return res.status(503).json({
     message:
-      "Tour packages are not available yet. Please run the latest database migration.",
+      "Tour packages are not available right now. Please try again later.",
   });
+};
 
 export const getPackages = async (req: Request, res: Response) => {
   try {

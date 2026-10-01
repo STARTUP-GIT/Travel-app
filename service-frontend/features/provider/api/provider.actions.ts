@@ -59,17 +59,34 @@ import type {
 
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
-  | { ok: false; message: string; fields?: Record<string, string> };
+  /**
+   * `status` is the backend's HTTP status, kept so a caller can tell a rejection
+   * the person can act on (a duplicate email, a bad value — a 4xx with a
+   * hand-written sentence) from a fault they cannot (a 5xx). Only the latter
+   * carries server-side detail, so only the latter should be replaced before it
+   * reaches the screen.
+   */
+  | {
+      ok: false;
+      message: string;
+      fields?: Record<string, string>;
+      status?: number;
+    };
 
 async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   try {
     return { ok: true, data: await fn() };
   } catch (error) {
     if (error instanceof ProviderApiError) {
-      return { ok: false, message: error.message, fields: error.fields };
+      return {
+        ok: false,
+        message: error.message,
+        fields: error.fields,
+        status: error.status,
+      };
     }
     if (error instanceof ApiError) {
-      return { ok: false, message: error.message };
+      return { ok: false, message: error.message, status: error.status };
     }
     if (error instanceof Error && error.message) {
       return { ok: false, message: error.message };

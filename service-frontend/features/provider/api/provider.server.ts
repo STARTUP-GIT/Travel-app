@@ -73,11 +73,15 @@ async function authorized<T>(
 async function readJsonOrThrow<T>(res: Response, fallback: string): Promise<T> {
   if (!res.ok) {
     const body = await readJson<unknown>(res);
-    throw new ProviderApiError(
-      errorMessage(body, `${fallback} (HTTP ${res.status})`),
-      res.status,
-      fieldErrors(body)
-    );
+    // A 4xx body is written by a controller for the person who made the request,
+    // so its wording is theirs to read. A 5xx body is whatever the failure wrote
+    // — a database message naming tables and columns, or an HTML error page from
+    // the platform — so the fallback is used instead of passing it on.
+    const message =
+      res.status >= 500
+        ? fallback
+        : errorMessage(body, `${fallback} (HTTP ${res.status})`);
+    throw new ProviderApiError(message, res.status, fieldErrors(body));
   }
 
   const body = await readJson<T>(res);
@@ -498,7 +502,7 @@ export async function updateProviderProfile(
 
   const data = await readJsonOrThrow<Record<string, unknown>>(
     res,
-    "Could not save your profile"
+    "Unable to save your profile right now. Please try again."
   );
 
   const raw = pickProfile(data);
@@ -518,17 +522,20 @@ export async function deleteProviderProfile(
   if (!res.ok) {
     const body = await readJson<unknown>(res);
     if (kind === "common_guide" && res.status === 500) {
-      // Deployed backend bug: `common_guide_places` has no `onDelete: Cascade`,
-      // so removing a tour guide who has place associations violates the foreign
-      // key and the controller turns it into a 500.
+      // The cause is logged rather than described: the guide only needs to know
+      // the account still has places attached and that support can remove it. A
+      // 5xx body is never passed on to the screen.
+      console.error("Delete common guide profile failed:", body);
       throw new ProviderApiError(
-        "The service cannot delete a tour guide that is linked to places yet, because the platform removes those links with a foreign-key error. Please contact support to have this account removed.",
+        "This account is still linked to places, so it cannot be deleted here. Please contact support to have it removed.",
         500,
         {}
       );
     }
     throw new ProviderApiError(
-      errorMessage(body, `Could not delete your account (HTTP ${res.status})`),
+      res.status >= 500
+        ? "Unable to delete your account right now. Please try again."
+        : errorMessage(body, `Could not delete your account (HTTP ${res.status})`),
       res.status,
       fieldErrors(body)
     );

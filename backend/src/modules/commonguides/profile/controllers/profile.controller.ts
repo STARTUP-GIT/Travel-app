@@ -6,7 +6,7 @@ import {
   commonGuideProfileUpdateSchema,
   guideBookingStatusSchema,
 } from "../../../../services/zod.js";
-import { agencyAndPricingSchema } from "../../../../services/agencyAndPricingSchema.js";
+import { profileSaveFailed } from "../../../../services/userFacingError.js";
 
 const userSafeSelect = {
   id: true,
@@ -37,21 +37,12 @@ const commonGuideBaseSelect = {
   updatedAt: true,
 } as const;
 
-/**
- * `agencyName` is asked for only once the column is really there.
- *
- * It is added by `20260930180000_agency_and_place_pricing`, and Prisma names the
- * columns it selects, so an unapplied migration makes the database reject the
- * query outright. That is not a cosmetic problem: this read is how a common
- * guide's sign-in is confirmed, so the missing column answered 500
- * `Internal Server Error` to every login attempt and — because the provider
- * session is built from this same read — to every provider screen as well. See
- * `agencyAndPricingSchema`; the previous migrations needed the same guard.
- */
-const commonGuideSafeSelect = (agencyColumn: boolean) => ({
+const commonGuideSafeSelect = {
   ...commonGuideBaseSelect,
-  ...(agencyColumn ? { agencyName: true } : {}),
-});
+  // Optional trading name, nullable: a guide with no agency simply reads back
+  // as null, which is the state the customer surfaces already hide.
+  agencyName: true,
+} as const;
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
@@ -61,13 +52,11 @@ export const getProfile = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const schema = await agencyAndPricingSchema();
-
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
       },
-      select: commonGuideSafeSelect(schema.agencyColumn),
+      select: commonGuideSafeSelect,
     });
 
     if (!commonGuide) {
@@ -98,12 +87,8 @@ export const editProfile = async (req: Request, res: Response) => {
 
     const data = commonGuideProfileUpdateSchema.parse(req.body);
 
-    const schema = await agencyAndPricingSchema();
-
     // `select: { id: true }` rather than a bare read: a bare read asks the
-    // database for every column of the row, which includes `agencyName` and so
-    // fails outright on a database without that column — an edit unrelated to the
-    // agency could not be saved. See `commonGuideSafeSelect`.
+    // database for every column of the row, which is more than an edit needs.
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
@@ -114,18 +99,6 @@ export const editProfile = async (req: Request, res: Response) => {
     if (!commonGuide) {
       return res.status(404).json({
         message: "Common guide not found",
-      });
-    }
-
-    // The agency cannot be stored until its column exists. Refusing only when the
-    // guide actually sent one keeps every other field of the edit savable, and
-    // never silently discards a value the guide typed.
-    if (data.agency_name !== undefined && !schema.agencyColumn) {
-      return res.status(503).json({
-        message:
-          "The agency name cannot be saved yet: the database is missing the " +
-          "common_guide.agencyName column. Ask an administrator to run the " +
-          "pending migration 20260930180000_agency_and_place_pricing.",
       });
     }
 
@@ -184,7 +157,7 @@ export const editProfile = async (req: Request, res: Response) => {
         ...(data.language !== undefined ? { language: data.language } : {}),
         ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
-      select: commonGuideSafeSelect(schema.agencyColumn),
+      select: commonGuideSafeSelect,
     });
 
     return res.status(200).json({
@@ -202,11 +175,10 @@ export const editProfile = async (req: Request, res: Response) => {
       });
     }
 
-    console.error("Edit profile error:", error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    // The full error — Prisma code, SQL, table and column names — stays in the
+    // log for whoever has to diagnose it. The response says only that the save
+    // did not happen.
+    return profileSaveFailed(res, error, "Edit common guide profile");
   }
 };
 
