@@ -63,6 +63,11 @@ export const signUp = async (req: Request, res: Response) => {
           { username: data.username },
         ],
       },
+      // Existence check only. A read without a select asks the database for every
+      // column of the row, including `agencyName` from the migration
+      // `20260930180000_agency_and_place_pricing`, which makes the whole query
+      // fail on a database that has not applied it. See `googleSignIn`.
+      select: { id: true },
     });
 
     if (common_guide_exists) {
@@ -153,6 +158,9 @@ export const googleSignUp = async (req: Request, res: Response) => {
       where: {
         email: data.email,
       },
+      // See `googleSignIn`: never select a column that a pending migration may not
+      // have added yet.
+      select: { id: true },
     });
 
     // Do not create another account
@@ -186,6 +194,7 @@ export const googleSignUp = async (req: Request, res: Response) => {
         where: {
           username,
         },
+        select: { id: true },
       });
 
     if (usernameExists) {
@@ -317,11 +326,18 @@ export const googleSignIn = async (req: Request, res: Response) => {
   try {
     const { email } = common_guide_googleSigninSchema.parse(req.body);
 
-    // Find existing guide using email
+    // `select: { id: true }` rather than a bare read. Prisma names the columns it
+    // selects, so a read without a select asks the database for every column of
+    // the row — including `agencyName`, which arrives with the migration
+    // `20260930180000_agency_and_place_pricing`. Until that migration is applied
+    // the database rejects the statement, so a guide that exists answered 500
+    // instead of a token. Selecting only what is used removes that coupling
+    // entirely, and keeps the password hash out of the query.
     const common_guide_exists = await prisma.common_guide.findUnique({
       where: {
         email,
       },
+      select: { id: true },
     });
 
     // Account doesn't exist

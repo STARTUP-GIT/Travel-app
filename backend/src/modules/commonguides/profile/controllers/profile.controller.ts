@@ -6,6 +6,7 @@ import {
   commonGuideProfileUpdateSchema,
   guideBookingStatusSchema,
 } from "../../../../services/zod.js";
+import { agencyAndPricingSchema } from "../../../../services/agencyAndPricingSchema.js";
 
 const userSafeSelect = {
   id: true,
@@ -16,7 +17,7 @@ const userSafeSelect = {
   profilepic: true,
 } as const;
 
-const commonGuideSafeSelect = {
+const commonGuideBaseSelect = {
   id: true,
   full_name: true,
   username: true,
@@ -24,7 +25,6 @@ const commonGuideSafeSelect = {
   phonenumber: true,
   profile_pic: true,
   tagline: true,
-  agencyName: true,
   authprovider: true,
   review: true,
   rating: true,
@@ -37,6 +37,22 @@ const commonGuideSafeSelect = {
   updatedAt: true,
 } as const;
 
+/**
+ * `agencyName` is asked for only once the column is really there.
+ *
+ * It is added by `20260930180000_agency_and_place_pricing`, and Prisma names the
+ * columns it selects, so an unapplied migration makes the database reject the
+ * query outright. That is not a cosmetic problem: this read is how a common
+ * guide's sign-in is confirmed, so the missing column answered 500
+ * `Internal Server Error` to every login attempt and — because the provider
+ * session is built from this same read — to every provider screen as well. See
+ * `agencyAndPricingSchema`; the previous migrations needed the same guard.
+ */
+const commonGuideSafeSelect = (agencyColumn: boolean) => ({
+  ...commonGuideBaseSelect,
+  ...(agencyColumn ? { agencyName: true } : {}),
+});
+
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const commonGuideId = req.common_guide;
@@ -45,11 +61,13 @@ export const getProfile = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const schema = await agencyAndPricingSchema();
+
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
       },
-      select: commonGuideSafeSelect,
+      select: commonGuideSafeSelect(schema.agencyColumn),
     });
 
     if (!commonGuide) {
@@ -80,10 +98,17 @@ export const editProfile = async (req: Request, res: Response) => {
 
     const data = commonGuideProfileUpdateSchema.parse(req.body);
 
+    const schema = await agencyAndPricingSchema();
+
+    // `select: { id: true }` rather than a bare read: a bare read asks the
+    // database for every column of the row, which includes `agencyName` and so
+    // fails outright on a database without that column — an edit unrelated to the
+    // agency could not be saved. See `commonGuideSafeSelect`.
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
       },
+      select: { id: true },
     });
 
     if (!commonGuide) {
@@ -92,10 +117,23 @@ export const editProfile = async (req: Request, res: Response) => {
       });
     }
 
+    // The agency cannot be stored until its column exists. Refusing only when the
+    // guide actually sent one keeps every other field of the edit savable, and
+    // never silently discards a value the guide typed.
+    if (data.agency_name !== undefined && !schema.agencyColumn) {
+      return res.status(503).json({
+        message:
+          "The agency name cannot be saved yet: the database is missing the " +
+          "common_guide.agencyName column. Ask an administrator to run the " +
+          "pending migration 20260930180000_agency_and_place_pricing.",
+      });
+    }
+
     const existingEmail = await prisma.common_guide.findFirst({
       where: {
         ...(data.email !== undefined ? { email: data.email } : {}),
       },
+      select: { id: true },
     });
 
     if (existingEmail && existingEmail.id !== commonGuideId) {
@@ -108,6 +146,7 @@ export const editProfile = async (req: Request, res: Response) => {
       where: {
         ...(data.username !== undefined ? { username: data.username } : {}),
       },
+      select: { id: true },
     });
 
     if (existingUsername && existingUsername.id !== commonGuideId) {
@@ -145,7 +184,7 @@ export const editProfile = async (req: Request, res: Response) => {
         ...(data.language !== undefined ? { language: data.language } : {}),
         ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
-      select: commonGuideSafeSelect,
+      select: commonGuideSafeSelect(schema.agencyColumn),
     });
 
     return res.status(200).json({
@@ -179,10 +218,13 @@ export const deleteProfile = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // Existence check only, so it selects the id rather than the whole row — see
+    // `commonGuideSafeSelect` for why a bare read of this table can fail.
     const commonGuide = await prisma.common_guide.findUnique({
       where: {
         id: commonGuideId,
       },
+      select: { id: true },
     });
 
     if (!commonGuide) {

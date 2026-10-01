@@ -4,6 +4,10 @@ import prisma from "../../../db/prisma.js";
 import { getAutoApprovalSettings } from "../../../services/approvalSettings.js";
 import { guideStatusColumnExists } from "../../../services/guideStatusColumn.js";
 import { guidePackageTableExists } from "../../../services/guidePackageTable.js";
+import {
+  agencyAndPricingSchema,
+  PRICING_SCHEMA_PENDING,
+} from "../../../services/agencyAndPricingSchema.js";
 import type { PlacePricingInput } from "../../../services/placePricing.js";
 import {
   applySubmittedPricing,
@@ -12,6 +16,22 @@ import {
   pricingFromBody,
   replacePlacePricing,
 } from "../../../services/placePricing.js";
+
+/**
+ * The `pricing` relation — but only once the table is really there.
+ *
+ * `place_pricing` is created by `20260930180000_agency_and_place_pricing`, and a
+ * Prisma `include` names the table, so a database without it rejects the whole
+ * statement. That is a shared read, so the effect was not one broken page: with
+ * the migration unapplied every place read answered 500 — the public place list,
+ * the place page, and the guide's own place picker. Nothing is faked here; a
+ * place with no bands still prices off its flat `entryfee`, which is exactly what
+ * every place created before this table existed uses.
+ */
+const pricingIncludeWhenPresent = async () => {
+  const schema = await agencyAndPricingSchema();
+  return schema.pricingTable ? placePricingInclude : {};
+};
 
 /**
  * Whether a submitted place should be created as an approved `place` straight
@@ -57,8 +77,9 @@ export const getPlacesByDistrict = async (req: Request, res: Response) => {
           },
         },
         // Bands travel with the place so the customer list, the place page, the
-        // guide's package form and the admin screens all read one source.
-        ...placePricingInclude,
+        // guide's package form and the admin screens all read one source. Only
+        // asked for while the table exists — see `pricingIncludeWhenPresent`.
+        ...(await pricingIncludeWhenPresent()),
       },
     });
 
@@ -90,6 +111,14 @@ export const addPlace = async (req: Request, res: Response) => {
       return res.status(400).json({ message: pricing.message });
     }
 
+    const schema = await agencyAndPricingSchema();
+
+    // A band the admin typed cannot be stored where the table is missing, and
+    // dropping it silently would save the place at a price nobody asked for.
+    if (pricing.rows.length > 0 && !schema.pricingTable) {
+      return res.status(503).json({ message: PRICING_SCHEMA_PENDING });
+    }
+
     const newPlace = await prisma.$transaction(async (tx) => {
       const created = await tx.place.create({
         data: {
@@ -109,7 +138,7 @@ export const addPlace = async (req: Request, res: Response) => {
 
       return tx.place.findUniqueOrThrow({
         where: { id: created.id },
-        include: placePricingInclude,
+        include: { ...(await pricingIncludeWhenPresent()) },
       });
     });
 
@@ -212,6 +241,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
     const hasGuideStatus = await guideStatusColumnExists();
     const hasPackages =
       hasGuideStatus && (await guidePackageTableExists());
+    const schema = await agencyAndPricingSchema();
 
     const place = await prisma.place.findUnique({
       where: {
@@ -236,6 +266,12 @@ export const getPlaceById = async (req: Request, res: Response) => {
                    * `common_guide` therefore cannot accidentally start leaking it
                    * here, which is the whole reason the list is maintained
                    * instead of spread-open.
+                   *
+                   * `agencyName` itself is selected only once its column exists:
+                   * it arrives with the migration
+                   * `20260930180000_agency_and_place_pricing`, and a named column
+                   * the database does not have fails the entire query, not just
+                   * that field. See `agencyAndPricingSchema`.
                    */
                   commonGuide: {
                     select: {
@@ -246,7 +282,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       phonenumber: true,
                       profile_pic: true,
                       tagline: true,
-                      agencyName: true,
+                      ...(schema.agencyColumn ? { agencyName: true } : {}),
                       rating: true,
                       review: true,
                       description: true,
@@ -300,8 +336,9 @@ export const getPlaceById = async (req: Request, res: Response) => {
           },
         },
         // The customer's place page prices from these rows, with `entryfee` as
-        // the fallback for a place that has no bands.
-        ...placePricingInclude,
+        // the fallback for a place that has no bands — and only while the table
+        // is there. See `pricingIncludeWhenPresent`.
+        ...(await pricingIncludeWhenPresent()),
       },
     });
 
@@ -419,6 +456,16 @@ export const submitPlace = async (req: Request, res: Response) => {
       return res.status(400).json({ message: pricing.message });
     }
 
+    const schema = await agencyAndPricingSchema();
+
+    // A guide who typed price bands is not going to get a different price than
+    // they asked for: with the pricing objects missing the submission is refused
+    // with the cause, instead of creating a place that silently prices off its
+    // flat `entryfee`. A submission with no bands is unaffected and goes through.
+    if (pricing.rows.length > 0 && !(schema.pricingTable && schema.submissionPricingColumn)) {
+      return res.status(503).json({ message: PRICING_SCHEMA_PENDING });
+    }
+
     const district = await prisma.district.findUnique({
       where: {
         id: districtId,
@@ -437,7 +484,8 @@ export const submitPlace = async (req: Request, res: Response) => {
      * project's `exactOptionalPropertyTypes` will not accept as an inferred
      * object type, and the spread already guarantees the rows are a plain array
      * of numbers and strings. Omitted entirely when there are no bands, which is
-     * what keeps "no pricing submitted" distinct from "pricing submitted empty".
+     * what keeps "no pricing submitted" distinct from "pricing submitted empty",
+     * and when the column itself is not there yet.
      */
     const submissionData: Prisma.place_submissionUncheckedCreateInput = {
       name,
@@ -448,7 +496,7 @@ export const submitPlace = async (req: Request, res: Response) => {
       category,
       latitude,
       longitude,
-      ...(pricing.rows.length > 0
+      ...(pricing.rows.length > 0 && schema.submissionPricingColumn
         ? { pricing: pricing.rows as unknown as Prisma.InputJsonValue }
         : {}),
       ...(req.specific_guide ? { specificGuideId: req.specific_guide } : {}),
@@ -483,7 +531,11 @@ export const submitPlace = async (req: Request, res: Response) => {
           },
         });
 
-        await replacePlacePricing(tx, newPlace.id, pricing.rows);
+        // Only written where the table exists; a submission with no bands sends
+        // none, so this is a no-op in every case the request can reach.
+        if (schema.pricingTable) {
+          await replacePlacePricing(tx, newPlace.id, pricing.rows);
+        }
 
         return { newPlace, submission };
       });
@@ -537,7 +589,9 @@ export const submitPlace = async (req: Request, res: Response) => {
         },
       });
 
-      await replacePlacePricing(tx, pendingPlace.id, pricing.rows);
+      if (schema.pricingTable) {
+        await replacePlacePricing(tx, pendingPlace.id, pricing.rows);
+      }
 
       return { place: pendingPlace, submission };
     });
@@ -598,6 +652,15 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
         return res.status(400).json({ message: pricing.message });
       }
       pricingRows.push(...pricing.rows);
+    }
+
+    const schema = await agencyAndPricingSchema();
+
+    // Same rule as `submitPlace`: bands the guide typed are never dropped, and an
+    // edit that carries them is refused with the cause while the objects holding
+    // them are missing. An edit without bands goes through untouched.
+    if (pricingRows.length > 0 && !(schema.pricingTable && schema.submissionPricingColumn)) {
+      return res.status(503).json({ message: PRICING_SCHEMA_PENDING });
     }
 
     const data: Record<string, unknown> = {};
@@ -686,10 +749,11 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       latitude: (data.latitude as number) ?? place.latitude,
       longitude: (data.longitude as number) ?? place.longitude,
       // Only carried when the guide actually sent bands, so omitting the field
-      // means "leave the pricing alone" rather than "delete all the bands".
-      // Cast for the same reason as in `submitPlace`: these rows were validated
-      // above and are a plain array of numbers and strings.
-      ...(pricingSnapshot !== undefined
+      // means "leave the pricing alone" rather than "delete all the bands", and
+      // only when the column is there to carry it. Cast for the same reason as in
+      // `submitPlace`: these rows were validated above and are a plain array of
+      // numbers and strings.
+      ...(pricingSnapshot !== undefined && schema.submissionPricingColumn
         ? { pricing: pricingRows as unknown as Prisma.InputJsonValue }
         : {}),
     };
@@ -703,7 +767,7 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
           data: { ...data, status: "APPROVED" },
         });
 
-        if (pricingSnapshot !== undefined) {
+        if (pricingSnapshot !== undefined && schema.pricingTable) {
           await replacePlacePricing(tx, placeId, pricingRows);
         }
 
@@ -791,6 +855,12 @@ export const editPlace = async (req: Request, res: Response) => {
       pricingRows.push(...pricing.rows);
     }
 
+    const schema = await agencyAndPricingSchema();
+
+    if (pricingRows.length > 0 && !schema.pricingTable) {
+      return res.status(503).json({ message: PRICING_SCHEMA_PENDING });
+    }
+
     const updatedPlace = await prisma.$transaction(async (tx) => {
       const updated = await tx.place.update({
         where: {
@@ -808,13 +878,13 @@ export const editPlace = async (req: Request, res: Response) => {
         },
       });
 
-      if (pricingSnapshot !== undefined) {
+      if (pricingSnapshot !== undefined && schema.pricingTable) {
         await replacePlacePricing(tx, placeId, pricingRows);
       }
 
       return tx.place.findUniqueOrThrow({
         where: { id: updated.id },
-        include: placePricingInclude,
+        include: { ...(await pricingIncludeWhenPresent()) },
       });
     });
 
@@ -833,15 +903,41 @@ export const editPlace = async (req: Request, res: Response) => {
 
 export const getPendingPlaceSubmissions = async (req: Request, res: Response) => {
   try {
+    const schema = await agencyAndPricingSchema();
+
     const submissions = await prisma.place_submission.findMany({
       where: {
         status: "PENDING",
       },
+      // The submission's own scalars are read in full, which would include the
+      // `pricing` snapshot — a column from the pending migration — and so the
+      // query is rejected outright on a database without it. Omitted there: a
+      // submission that carries no snapshot is every submission created before
+      // the column existed, so nothing is lost. See `agencyAndPricingSchema`.
+      ...(schema.submissionPricingColumn ? {} : { omit: { pricing: true } }),
       include: {
         place: true,
         district: true,
         specificGuide: true,
-        commonGuide: true,
+        // An explicit list rather than `true`, so a `common_guide` column added
+        // by a later migration cannot 500 the review queue — and so the guide's
+        // password hash is not dragged into an admin response. `agencyName` is
+        // included only once its column exists.
+        commonGuide: {
+          select: {
+            id: true,
+            full_name: true,
+            username: true,
+            email: true,
+            phonenumber: true,
+            profile_pic: true,
+            tagline: true,
+            ...(schema.agencyColumn ? { agencyName: true } : {}),
+            experience: true,
+            cost: true,
+            language: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -862,10 +958,16 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
   try {
     const { submissionId } = req.params as { submissionId: string };
 
+    const schema = await agencyAndPricingSchema();
+
     const submission = await prisma.place_submission.findUnique({
       where: {
         id: submissionId,
       },
+      // See `getPendingPlaceSubmissions`: `pricing` is omitted while the column
+      // is missing, which leaves `applySubmittedPricing` nothing to apply — the
+      // same "no snapshot" case as a submission from before the column existed.
+      ...(schema.submissionPricingColumn ? {} : { omit: { pricing: true } }),
     });
 
     if (!submission) {
@@ -879,6 +981,12 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
         message: `Submission has already been ${submission.status.toLowerCase()}`,
       });
     }
+
+    // Read the same tolerant way the query did: no `pricing` on the row means
+    // this submission carries no bands, which is the same case as a submission
+    // created before the column existed, and changes no pricing.
+    const submittedPricing =
+      "pricing" in submission ? submission.pricing : null;
 
     if (submission.placeId) {
       const placeId = submission.placeId;
@@ -914,7 +1022,7 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
 
         // The reviewed bands become the live bands here — the same moment the
         // reviewed scalars become the live scalars.
-        await applySubmittedPricing(tx, placeId, submission.pricing);
+        await applySubmittedPricing(tx, placeId, submittedPricing);
 
         await tx.place_submission.update({
           where: {
