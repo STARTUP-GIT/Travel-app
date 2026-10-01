@@ -18,6 +18,7 @@ import {
   publicRestaurantListingsPath,
   requestPath,
   requestsPath,
+  resolvePlaceLocationPath,
   submitPlacePath,
 } from "@/features/provider/config";
 import type {
@@ -635,6 +636,46 @@ export async function getManageablePlaces(
           : "The places in this district could not be loaded.",
     };
   }
+}
+
+/**
+ * Turns a Google Maps link into the coordinates a place is stored with.
+ *
+ * The same backend resolver the admin place form uses — the guide pastes a link
+ * instead of typing a latitude and a longitude, and the place row is written with
+ * exactly the same two numbers as before. Resolving is not a create: a link that
+ * cannot be resolved is a normal "not yet" state for the form, not an error to
+ * raise, so a failure is reported as `null` and the message is left to the form.
+ */
+export async function resolvePlaceCoordinates(
+  token: string,
+  url: string
+): Promise<{ latitude: number; longitude: number } | null> {
+  const res = await backendRequest(resolvePlaceLocationPath(), {
+    method: "POST",
+    body: { url },
+    token,
+  });
+
+  if (!res.ok) {
+    // A link the resolver could not read is an expected outcome here, not a
+    // failure to surface: the form reports it against the field.
+    return null;
+  }
+
+  const data = await readJson<{ latitude?: unknown; longitude?: unknown }>(res);
+  const { latitude, longitude } = data ?? {};
+
+  if (
+    typeof latitude !== "number" ||
+    typeof longitude !== "number" ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)
+  ) {
+    return null;
+  }
+
+  return { latitude, longitude };
 }
 
 /**

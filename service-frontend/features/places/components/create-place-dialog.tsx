@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { submitGuidePlace, uploadPlacePhoto } from "@/features/provider/api/provider.actions";
+import { submitGuidePlace, resolveGuidePlaceLocation, uploadPlacePhoto } from "@/features/provider/api/provider.actions";
 import type {
   ManageablePlace,
   PlacePricingBand,
@@ -86,14 +86,21 @@ const VISITOR_LABEL: Record<PlaceVisitor, string> = {
 
 type Photo = { file: File | null; url: string };
 
+/** The coordinates a place is stored with, as the link resolver returns them. */
+type ResolvedCoordinates = { latitude: number; longitude: number };
+
 type FormState = {
   name: string;
   description: string;
   category: string;
   /** Left as text so a half-typed number is not rewritten to "NaN" mid-keystroke. */
   entryfee: string;
-  latitude: string;
-  longitude: string;
+  /**
+   * The guide pastes a Google Maps link here; the coordinates are derived from it
+   * and are never typed. They live outside `FormState` because they are resolved
+   * output, not something the guide edits — see `resolved`.
+   */
+  mapsUrl: string;
   photos: Photo[];
   pricing: PlacePricingBand[];
 };
@@ -116,8 +123,7 @@ function initialState(): FormState {
     description: "",
     category: "",
     entryfee: "",
-    latitude: "",
-    longitude: "",
+    mapsUrl: "",
     photos: [],
     pricing: [],
   };
@@ -125,10 +131,16 @@ function initialState(): FormState {
 
 type Errors = Partial<Record<keyof FormState, string>>;
 
+const INVALID_MAPS_LINK = "Please enter a valid Google Maps location link.";
+
 /**
  * Validates the form exactly once, at the point of saving, and reports every
- * problem together. Checking each keystroke would flag a half-typed price or a
- * coordinate the guide is still pasting, which reads as the form refusing input.
+ * problem together. Checking each keystroke would flag a half-typed price, which
+ * reads as the form refusing input.
+ *
+ * The location is not checked here: it has no field of its own any more, so it is
+ * gated at the point of saving, where a missing or unresolved link is reported
+ * with the rest of the problems.
  */
 function validate(state: FormState, hasFlatFee: boolean): Errors {
   const errors: Errors = {};
@@ -152,20 +164,6 @@ function validate(state: FormState, hasFlatFee: boolean): Errors {
     if (!Number.isFinite(fee) || fee < 0) {
       errors.entryfee = "Enter a price of zero or more, or leave it empty if entry is free.";
     }
-  }
-
-  const latitude = Number(state.latitude);
-  const longitude = Number(state.longitude);
-  if (state.latitude.trim() === "" || !Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
-    errors.latitude = "Latitude must be between -90 and 90.";
-  }
-  if (
-    state.longitude.trim() === "" ||
-    !Number.isFinite(longitude) ||
-    longitude < -180 ||
-    longitude > 180
-  ) {
-    errors.longitude = "Longitude must be between -180 and 180.";
   }
 
   const seen = new Set<string>();
@@ -223,8 +221,20 @@ export function CreatePlaceDialog({
   const [formError, setFormError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+  /**
+   * The link's coordinates, kept with the exact link they came from. Any edit to
+   * the link drops them, so a place can never be saved with coordinates belonging
+   * to a link the guide has since replaced.
+   */
+  const [resolved, setResolved] = React.useState<
+    ({ url: string } & ResolvedCoordinates) | null
+  >(null);
+  const [resolvingLocation, setResolvingLocation] = React.useState(false);
+  const [locationResolutionFailed, setLocationResolutionFailed] = React.useState(false);
 
   const hasBands = state.pricing.length > 0;
+  /** Only the coordinates matching the link currently in the field may be used. */
+  const coordinates = resolved?.url === state.mapsUrl.trim() ? resolved : null;
 
   // A draft that survives closing the dialog: reopening the form should not
   // silently discard a half-written description and photos.
@@ -232,7 +242,44 @@ export function CreatePlaceDialog({
     setState(initialState());
     setErrors({});
     setFormError(null);
+    setResolved(null);
+    setLocationResolutionFailed(false);
   }, []);
+
+  // Resolves the pasted link through the same backend the admin place form uses,
+  // debounced so a link that is still being pasted is not fetched once per
+  // character, and discarding a stale answer so a slow reply cannot overwrite a
+  // newer link's coordinates.
+  React.useEffect(() => {
+    const url = state.mapsUrl.trim();
+    setResolved(null);
+    setLocationResolutionFailed(false);
+    setResolvingLocation(false);
+    if (!url) return;
+
+    let active = true;
+    const timeout = window.setTimeout(() => {
+      setResolvingLocation(true);
+      void resolveGuidePlaceLocation(url).then((result) => {
+        if (!active) return;
+        setResolvingLocation(false);
+        if (!result.ok) {
+          setLocationResolutionFailed(true);
+          return;
+        }
+        if (!result.data) {
+          setLocationResolutionFailed(true);
+          return;
+        }
+        setResolved({ url, ...result.data });
+      });
+    }, 500);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [state.mapsUrl]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setState((previous) => ({ ...previous, [key]: value }));
@@ -289,6 +336,15 @@ export function CreatePlaceDialog({
 
   async function save() {
     const found = validate(state, !hasBands);
+    // The coordinates have no field of their own, so the location is gated here
+    // rather than in `validate`: a link that did not resolve is reported with the
+    // rest of the problems, and saving stops before anything is written.
+    const location = coordinates;
+    if (!location) {
+      setErrors({ ...found, mapsUrl: INVALID_MAPS_LINK });
+      toast.error("Please fix the highlighted fields");
+      return;
+    }
     if (Object.keys(found).length > 0) {
       setErrors(found);
       toast.error("Please fix the highlighted fields");
@@ -329,8 +385,11 @@ export function CreatePlaceDialog({
             ? null
             : Number(state.entryfee),
         category: state.category.trim(),
-        latitude: Number(state.latitude),
-        longitude: Number(state.longitude),
+        // Resolved from the pasted link by the same resolver the admin form uses;
+        // the create payload is unchanged, so the place row still stores the two
+        // numbers it always did.
+        latitude: location.latitude,
+        longitude: location.longitude,
         // With no bands the field is left off entirely, so the place is stored as
         // a normal single-price place.
         ...(hasBands ? { pricing: state.pricing } : {}),
@@ -614,43 +673,35 @@ export function CreatePlaceDialog({
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="place-latitude" className="flex items-center gap-1.5">
-                <MapPin className="size-3.5" />
-                Latitude
-              </Label>
-              <Input
-                id="place-latitude"
-                value={state.latitude}
-                inputMode="decimal"
-                onChange={(event) => set("latitude", event.target.value)}
-                placeholder="12.3052"
-              />
-              {errors.latitude ? (
-                <p className="text-xs text-destructive">{errors.latitude}</p>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="place-longitude" className="flex items-center gap-1.5">
-                <MapPin className="size-3.5" />
-                Longitude
-              </Label>
-              <Input
-                id="place-longitude"
-                value={state.longitude}
-                inputMode="decimal"
-                onChange={(event) => set("longitude", event.target.value)}
-                placeholder="76.6551"
-              />
-              {errors.longitude ? (
-                <p className="text-xs text-destructive">{errors.longitude}</p>
-              ) : null}
-            </div>
-            <p className="text-xs text-muted-foreground sm:col-span-2">
-              Copy the coordinates from Google Maps — right-click the place and
-              copy the first number for latitude, the second for longitude.
-            </p>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="place-maps-url" className="flex items-center gap-1.5">
+              <MapPin className="size-3.5" />
+              Google Maps location
+            </Label>
+            <Input
+              id="place-maps-url"
+              type="url"
+              value={state.mapsUrl}
+              onChange={(event) => set("mapsUrl", event.target.value)}
+              placeholder="Paste a Google Maps link"
+            />
+            {resolvingLocation ? (
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Resolving Google Maps link…
+              </p>
+            ) : coordinates ? (
+              <p className="text-xs text-emerald-600">Location detected</p>
+            ) : errors.mapsUrl ? (
+              <p className="text-xs text-destructive">{errors.mapsUrl}</p>
+            ) : locationResolutionFailed ? (
+              <p className="text-xs text-destructive">{INVALID_MAPS_LINK}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Share the place on Google Maps, copy the link, and paste it here —
+                the coordinates are filled in from it.
+              </p>
+            )}
           </div>
 
           {formError ? (
@@ -694,7 +745,11 @@ export function CreatePlaceDialog({
           >
             Cancel
           </Button>
-          <Button type="button" disabled={saving || uploading} onClick={save}>
+          <Button
+            type="button"
+            disabled={saving || uploading || resolvingLocation || !coordinates}
+            onClick={save}
+          >
             {saving ? "Creating…" : "Create place"}
           </Button>
         </DialogFooter>

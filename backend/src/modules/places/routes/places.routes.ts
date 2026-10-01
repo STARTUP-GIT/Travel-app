@@ -2,6 +2,12 @@ import express from "express";
 
 import { adminAuthMiddleware, guideAuthMiddleware } from "../../../middlewares/auth.midleware.js";
 import { districtServiceMiddleware } from "../../../middlewares/districtService.middleware.js";
+// The same controller the admin place form calls, so a guide's Google Maps link
+// is resolved by exactly the code the admin's is: one resolver, one message, one
+// set of supported link shapes. It is mounted here rather than reached through
+// `/api/admin` because that router is admin-only, and this route authenticates
+// with the guide's own token like every other guide route on this router.
+import { resolvePlaceLocation } from "../../../app_config/controllers/admin.controller.js";
 
 import {
   getPlacesByDistrict,
@@ -27,6 +33,10 @@ router.get(
   guideAuthMiddleware,
   getManageablePlacesByDistrict
 );
+
+// A guide pastes a Google Maps link instead of typing coordinates; the shared
+// resolver turns it into the latitude/longitude the place row needs.
+router.post("/api/places/resolve-location", guideAuthMiddleware, resolvePlaceLocation);
 
 router.get("/api/places/:placeId", getPlaceById);
 

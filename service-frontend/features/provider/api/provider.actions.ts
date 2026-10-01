@@ -30,6 +30,7 @@ import {
   getProviderProfile,
   getProviderRequests,
   getTourPackages,
+  resolvePlaceCoordinates,
   submitPlaceAsGuide,
   updateProviderListing,
   updateTourPackage,
@@ -336,6 +337,23 @@ export async function submitGuidePlace(
   return run(async () => {
     const session = await requireCommonGuide();
     return submitPlaceAsGuide(session.token, input);
+  });
+}
+
+/**
+ * Turns a guide's Google Maps link into the coordinates the place is created
+ * with, using the same resolver the admin place form uses.
+ *
+ * The guide never types a latitude or a longitude: this is the only way the form
+ * obtains them, and `null` means the link could not be resolved — the form then
+ * blocks "Create place" rather than saving a place with no coordinates.
+ */
+export async function resolveGuidePlaceLocation(
+  url: string
+): Promise<ActionResult<{ latitude: number; longitude: number } | null>> {
+  return run(async () => {
+    const session = await requireProviderSession("/profile");
+    return resolvePlaceCoordinates(session.token, url);
   });
 }
 

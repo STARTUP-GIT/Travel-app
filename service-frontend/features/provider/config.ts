@@ -184,6 +184,17 @@ export function submitPlacePath(): string {
   return `/${SCOPE}/services/api/places/submit`;
 }
 
+/**
+ * Turn a Google Maps link into the coordinates a place is stored with.
+ *
+ * The same resolver the admin place form uses, reached with the guide's own
+ * session instead of an admin one, so both sides accept exactly the same links
+ * and report the same failure.
+ */
+export function resolvePlaceLocationPath(): string {
+  return `/${SCOPE}/services/api/places/resolve-location`;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Request status transitions                                                */
 /* -------------------------------------------------------------------------- */
