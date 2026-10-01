@@ -255,6 +255,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       cost: true,
                       language: true,
                       isReported: true,
+                      status: true,
                       createdAt: true,
                     },
                   },

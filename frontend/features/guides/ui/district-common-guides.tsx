@@ -53,13 +53,13 @@ export async function DistrictCommonGuides({
 
       {failed ? (
         <p className="rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-          Tour packages could not be loaded right now.
+          Common Guide packages could not be loaded right now.
         </p>
       ) : packages.length === 0 ? (
         // A district with no published packages is ordinary, not an error, so
         // this stays a compact one-liner instead of a large empty panel.
         <p className="py-3 text-sm text-muted-foreground">
-          No tour packages available in this district yet.
+          No Common Guide packages available in this district yet.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

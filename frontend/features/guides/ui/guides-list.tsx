@@ -99,8 +99,8 @@ function PackageGrid({
     return (
       <EmptyState
         icon={Route}
-        title="No Common Guide tours here yet"
-        description="Common guides group the places they cover into named tours. None of those tours touch this district yet."
+        title="No Common Guide packages here yet"
+        description="Common Guide packages group the places they cover into named tours. None of those packages touch this district yet."
       />
     );
   }

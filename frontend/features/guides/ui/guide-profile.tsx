@@ -198,7 +198,7 @@ export function GuideProfile({
         {guide.type === "common" && guide.packages.length > 0 ? (
           <section>
             <SectionHeader
-              title="Tour packages"
+              title="Common Guide packages"
               subtitle="Ready-made tours covering several of these places"
             />
             <div className="space-y-2.5">
