@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   Award,
   BadgeCheck,
+  Building2,
   Calendar,
   Clock,
   Compass,
@@ -75,6 +76,13 @@ export function GuideProfile({
   const placesForGuide = isSpecific
     ? [{ id: guide.place.id, name: guide.place.name, slug: guide.place.slug, districtName: guide.place.districtName }]
     : guide.places;
+  /*
+   * Read off the narrowed `guide.guide` rather than the aliased `person`: the
+   * agency exists only on the common-guide variant, and TypeScript cannot narrow
+   * an alias by testing `guide.type`. `null` means "no agency", which is what the
+   * hero and the byline both hide on.
+   */
+  const agencyName = guide.type === "common" ? guide.guide.agencyName : null;
 
   return (
     <div className="pb-8">
@@ -94,10 +102,27 @@ export function GuideProfile({
               <Badge variant={isSpecific ? "info" : "success"} className="border-white/20 bg-white/15 text-white hover:bg-white/20">
                 {isSpecific ? "Specific guide" : "Common guide"}
               </Badge>
+              {/*
+                Shown ahead of the guide's own name as the headline a traveller
+                books under, because for an agency that is what they are choosing.
+                The guide is still named — as "with <name>" — so it is clear who
+                actually leads the tour.
+              */}
+              {agencyName ? (
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-2 py-0.5 text-sm font-semibold">
+                  <Building2 className="size-3.5" />
+                  {agencyName}
+                </span>
+              ) : null}
             </div>
             <p className="mt-1 text-sm text-blue-50/90">
               {person.tagline ?? (isSpecific ? `Expert at ${guide.place.name}` : "Knows several places here")}
             </p>
+            {agencyName ? (
+              <p className="mt-0.5 text-sm text-blue-50/80">
+                Guided tours by {agencyName}, led by {person.full_name}
+              </p>
+            ) : null}
             <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-blue-50/90">
               {typeof person.rating === "number" && person.rating > 0 ? (
                 <span className="inline-flex items-center gap-1 font-semibold">

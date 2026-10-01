@@ -35,6 +35,30 @@ const specificGuideSafeSelect = {
   language: true,
   createdAt: true,
   updatedAt: true,
+  /*
+   * The place the guide is linked to, read through the relation rather than
+   * looked up by the client.
+   *
+   * `placeid` alone is not enough for the profile: it is an opaque uuid, and a
+   * guide who registered before choosing a place still has one. Selecting the
+   * place here is what lets the profile render the place's actual name (or a
+   * clear "no place selected yet") without the client having to resolve an id it
+   * cannot interpret.
+   *
+   * Only public columns are read, and `status` rides along so a client can tell
+   * an approved place from one still awaiting review.
+   */
+  place: {
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      images: true,
+      entryfee: true,
+      status: true,
+      district: { select: { id: true, name: true, slug: true } },
+    },
+  },
 } as const;
 
 export const getProfile = async (req: Request, res: Response) => {

@@ -23,15 +23,17 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   addTourPackage,
   editTourPackage,
+  loadManageablePlaces,
   removeTourPackage,
 } from "@/features/provider/api/provider.actions";
 import type {
+  ManageablePlace,
   PackagePlace,
   TourPackage,
   TourPackageInput,
 } from "@/features/provider/types";
 import { getDistricts } from "@/features/locations/api/locations.api";
-import { getPlaces, type Place } from "@/features/places/api/places.api";
+import { CreatePlaceDialog } from "@/features/places/components/create-place-dialog";
 import { cn } from "@/lib/utils";
 import { useAsync } from "@/lib/hooks/use-async";
 
@@ -49,6 +51,17 @@ type Draft = {
 
 function emptyDraft(): Draft {
   return { id: null, name: "", description: "", placeIds: [], places: {} };
+}
+
+/** Narrows a picker place to the fields a package stores and shows. */
+function toPackagePlace(place: ManageablePlace): PackagePlace {
+  return {
+    id: place.id,
+    name: place.name,
+    images: place.images,
+    category: place.category,
+    district: place.district,
+  };
 }
 
 function draftFrom(pkg: TourPackage): Draft {
@@ -383,25 +396,74 @@ function PackagePlacePicker({
    * refetch — it stays settled while a new dependency list is in flight, which
    * would leave the previous district's places listed under the new district's
    * name. Comparing the two is what keeps a stale list off screen.
+   *
+   * The guide-scoped list is used rather than the public one because it is the
+   * only list that includes the guide's own places awaiting review, which a guide
+   * is allowed to put in a package straight away.
    */
   const places = useAsync(
-    async (): Promise<{ districtId: string; places: Place[] }> =>
+    async (): Promise<{
+      districtId: string;
+      places: ManageablePlace[];
+      error: string | null;
+    }> =>
       districtId
-        ? { districtId, places: await getPlaces(districtId) }
-        : { districtId: "", places: [] },
+        ? await loadManageablePlaces(districtId).then((result) => ({
+            districtId,
+            places: result.places,
+            error: result.error,
+          }))
+        : { districtId: "", places: [], error: null },
     [districtId]
   );
 
-  const listed = places.data?.districtId === districtId ? places.data.places : null;
+  // The error is read off the same object as the list, so the two can never
+  // disagree: a district that failed to load cannot also look like an empty one.
+  const loaded = places.data?.districtId === districtId ? places.data : null;
+  const listed = loaded?.places ?? null;
+  const placesError = loaded?.error ?? null;
+  const [creating, setCreating] = React.useState(false);
+
+  // Named in the create button and the dialog, so the guide is always told which
+  // district the place will land in rather than having to remember what they
+  // picked.
+  const districtName = React.useMemo(() => {
+    if (!districtId) return null;
+    const match = (districts.data ?? []).find(
+      (district) => district.id === districtId
+    );
+    if (!match) return null;
+    return match.state?.name
+      ? `${match.name}, ${match.state.name}`
+      : match.name;
+  }, [districts.data, districtId]);
 
   const selected = new Set(draft.placeIds);
 
-  function toggle(place: PackagePlace) {
+  function toggle(place: ManageablePlace) {
     if (selected.has(place.id)) {
       deselect(place.id);
       return;
     }
-    onChange([...draft.placeIds, place.id], { ...draft.places, [place.id]: place });
+    onChange([...draft.placeIds, place.id], {
+      ...draft.places,
+      [place.id]: toPackagePlace(place),
+    });
+  }
+
+  /**
+   * Selects a place the guide has just created.
+   *
+   * Also added here rather than left to the next list fetch: the new place is
+   * inserted into the draft directly, so it appears as a selected chip straight
+   * away and the guide can see it was added without waiting for a reload.
+   */
+  function addCreated(place: ManageablePlace) {
+    if (draft.placeIds.includes(place.id)) return;
+    onChange([...draft.placeIds, place.id], {
+      ...draft.places,
+      [place.id]: toPackagePlace(place),
+    });
   }
 
   /**
@@ -467,11 +529,11 @@ function PackagePlacePicker({
         hook is neither loading nor holding a matching list, so the spinner is
         shown from the list's own state rather than the hook's.
       */}
-      {districtId && !listed && !places.error ? (
+      {districtId && !listed && !placesError ? (
         <LoadingState label="Loading places…" />
       ) : null}
 
-      {districtId && places.error ? (
+      {districtId && placesError ? (
         <ErrorState
           title="Places unavailable"
           description="The place list could not be loaded. Please try again."
@@ -481,7 +543,7 @@ function PackagePlacePicker({
 
       {listed && listed.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          This district has no approved places yet.
+          This district has no places yet — create the first one below.
         </p>
       ) : null}
 
@@ -495,17 +557,7 @@ function PackagePlacePicker({
                 type="button"
                 role="checkbox"
                 aria-checked={active}
-                onClick={() =>
-                  toggle({
-                    id: place.id,
-                    name: place.name,
-                    images: place.images,
-                    category: place.category,
-                    district: place.district
-                      ? { id: place.district.id, name: place.district.name }
-                      : null,
-                  })
-                }
+                onClick={() => toggle(place)}
                 className={cn(
                   "flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors",
                   active ? "bg-primary/10 text-primary" : "hover:bg-accent"
@@ -522,6 +574,18 @@ function PackagePlacePicker({
                   {active ? <Check className="size-3.5" /> : null}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{place.name}</span>
+                {/*
+                  An unapproved place is selectable on purpose — the guide may use
+                  their own place in a package before review — so it is labelled
+                  rather than hidden, otherwise it would look identical to a live
+                  one and the guide could not tell why a package is not yet
+                  visible to travellers.
+                */}
+                {place.status === "APPROVED" ? null : (
+                  <Badge variant="warning" className="shrink-0 text-[0.6rem]">
+                    {place.status === "PENDING" ? "Awaiting review" : "Not live"}
+                  </Badge>
+                )}
                 <Badge variant="outline" className="shrink-0 text-[0.6rem]">
                   <MapPin className="size-3" />
                   {place.category}
@@ -529,6 +593,30 @@ function PackagePlacePicker({
               </button>
             );
           })}
+        </div>
+      ) : null}
+
+      {/* Only offered once a district is chosen: the place belongs to it, and the
+          form cannot guess one. Placed after the list so the existing places stay
+          the first thing a guide reaches for. */}
+      {districtId && !placesError ? (
+        <div className="flex flex-col gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setCreating(true)}
+          >
+            <Plus className="size-4" />
+            Create a new place in {districtName ?? "this district"}
+          </Button>
+          <CreatePlaceDialog
+            open={creating}
+            onOpenChange={setCreating}
+            districtId={districtId}
+            districtName={districtName ?? "this district"}
+            onCreated={addCreated}
+          />
         </div>
       ) : null}
 

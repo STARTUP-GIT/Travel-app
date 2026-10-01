@@ -37,7 +37,7 @@ import type { GuideWithContext } from "@/features/guides/types";
 import { MapEmbed } from "@/features/maps/ui/map-embed";
 import { MapActionButtons } from "@/features/maps/ui/map-action-buttons";
 import { ReviewsSection } from "@/features/reviews/ui/reviews";
-import type { Place } from "@/features/places/types";
+import type { Place, PlacePricingBand } from "@/features/places/types";
 import { formatCurrency } from "@/lib/utils";
 
 export function PlaceView({
@@ -69,6 +69,31 @@ export function PlaceView({
   // Only approved guides' packages reach this page — the backend filters them on
   // the way out — so a package listed here is always bookable.
   const packages = place.commonGuidePackages ?? [];
+
+  /*
+   * Per-band pricing, when the place has it.
+   *
+   * Bands are stored one row per (visitor, age group) but read better as one row
+   * per age group with a column per visitor type, so they are pivoted here. The
+   * bands themselves come from the same rows the guide entered and the admin panel
+   * edits, so there is no second set of prices to drift.
+   */
+  const bands: PlacePricingBand[] = place.pricing ?? [];
+  const hasPricingBands = bands.length > 0;
+
+  const pricingRows = React.useMemo(() => {
+    const byAge = new Map<string, { domestic: number | null; foreign: number | null }>();
+    for (const band of bands) {
+      const row = byAge.get(band.ageGroup) ?? { domestic: null, foreign: null };
+      row[band.visitor === "DOMESTIC" ? "domestic" : "foreign"] = band.amount;
+      byAge.set(band.ageGroup, row);
+    }
+    // Sorted so the table order is stable and predictable rather than whatever
+    // order the database returned the rows in.
+    return [...byAge.entries()]
+      .map(([ageGroup, prices]) => ({ ageGroup, ...prices }))
+      .sort((a, b) => a.ageGroup.localeCompare(b.ageGroup));
+  }, [bands]);
 
   const services: ServiceItem[] = [
     {
@@ -160,7 +185,7 @@ export function PlaceView({
             </div>
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-card px-3 py-2 text-sm font-bold ring-1 ring-border sm:bg-white/15 sm:text-white sm:ring-0 sm:backdrop-blur-md">
               <Ticket className="size-4 text-amber-500 sm:text-amber-300" />
-              {formatCurrency(place.entryfee)}
+              {headlinePrice(place)}
             </span>
           </div>
         </div>
@@ -230,11 +255,80 @@ export function PlaceView({
               <section>
                 <SectionHeader title="Good to know" />
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <InfoPill icon={<Ticket className="size-4" />} label="Entry fee" value={formatCurrency(place.entryfee)} />
+                  <InfoPill
+                    icon={<Ticket className="size-4" />}
+                    label={hasPricingBands ? "Entry from" : "Entry fee"}
+                    value={headlinePrice(place)}
+                  />
                   <InfoPill icon={<Compass className="size-4" />} label="Category" value={place.category || "—"} />
                   <InfoPill icon={<Clock className="size-4" />} label="Best time" value="Check locally" />
                 </div>
               </section>
+
+              {/*
+                The full per-band table, only when the place actually has bands.
+                Every other place — including every place created before bands
+                existed — keeps the single "Entry fee" pill above and sees nothing
+                here, rather than being shown an empty table.
+              */}
+              {hasPricingBands ? (
+                <section aria-labelledby="pricing-label">
+                  <SectionHeader
+                    title="Entry pricing"
+                    subtitle="Prices by age group and visitor type"
+                  />
+                  <div className="card-surface overflow-hidden rounded-2xl">
+                    <table className="w-full text-sm">
+                      <caption className="sr-only">
+                        Entry prices for {place.name} by age group and visitor type
+                      </caption>
+                      <thead>
+                        <tr className="border-b border-border bg-muted/50 text-left">
+                          <th scope="col" className="px-4 py-2.5 font-semibold">
+                            Age group
+                          </th>
+                          <th scope="col" className="px-4 py-2.5 text-right font-semibold">
+                            Indian visitors
+                          </th>
+                          <th scope="col" className="px-4 py-2.5 text-right font-semibold">
+                            Foreign visitors
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pricingRows.map((row) => (
+                          <tr key={row.ageGroup} className="border-b border-border/60 last:border-0">
+                            <th
+                              scope="row"
+                              className="px-4 py-2.5 text-left font-medium"
+                            >
+                              {row.ageGroup}
+                            </th>
+                            <td className="px-4 py-2.5 text-right tabular-nums">
+                              {row.domestic === null ? (
+                                <span className="text-muted-foreground">—</span>
+                              ) : (
+                                formatCurrency(row.domestic)
+                              )}
+                            </td>
+                            <td className="px-4 py-2.5 text-right tabular-nums">
+                              {row.foreign === null ? (
+                                <span className="text-muted-foreground">—</span>
+                              ) : (
+                                formatCurrency(row.foreign)
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="mt-2 px-1 text-xs text-muted-foreground">
+                    A dash means that visitor type is not charged separately for
+                    that age group.
+                  </p>
+                </section>
+              ) : null}
 
               {/* Services at place */}
               <section aria-labelledby="services-label">
@@ -405,6 +499,22 @@ function InfoPill({ icon, label, value }: { icon: React.ReactNode; label: string
       <span className="text-sm font-semibold">{value}</span>
     </div>
   );
+}
+
+/**
+ * The one price shown where there is only room for a single figure: the cheapest
+ * band when the place has several, otherwise the flat fee, otherwise "Free".
+ *
+ * Falls back to the flat `entryfee` rather than treating an empty band list as
+ * free, because that is what every place without bands — including every place
+ * created before bands existed — actually means.
+ */
+function headlinePrice(place: Place): string {
+  const bands = place.pricing ?? [];
+  if (bands.length > 0) {
+    return `From ${formatCurrency(Math.min(...bands.map((band) => band.amount)))}`;
+  }
+  return place.entryfee === null ? "Free" : formatCurrency(place.entryfee);
 }
 
 function placeLatLng(place: Place): string | null {

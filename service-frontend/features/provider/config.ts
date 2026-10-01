@@ -167,6 +167,23 @@ export function placesInDistrictPath(districtId: string): string {
   return `/${SCOPE}/services/api/places/district/${districtId}`;
 }
 
+/**
+ * The guide-scoped district place list: approved places, plus the signed-in
+ * guide's own places that are still awaiting review.
+ *
+ * Needs the provider session, so it is called from a server action rather than
+ * through the unauthenticated client. Separate from the public route above on
+ * purpose — that one must keep serving approved places only.
+ */
+export function manageablePlacesInDistrictPath(districtId: string): string {
+  return `/${SCOPE}/services/api/places/manageable/${districtId}`;
+}
+
+/** Create a place as the signed-in guide, honouring the existing approval flow. */
+export function submitPlacePath(): string {
+  return `/${SCOPE}/services/api/places/submit`;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Request status transitions                                                */
 /* -------------------------------------------------------------------------- */

@@ -116,6 +116,11 @@ export const commonGuideProfileUpdateSchema = z.object({
   phonenumber: z.string().min(10).max(15).optional(),
   profile_pic: z.string().optional(),
   tagline: z.string().optional(),
+  // Optional and free of any required value: "" clears it, anything else is the
+  // guide's agency trading name. Length is capped like the other free-text
+  // profile fields so a single field cannot carry a paragraph into every card
+  // that renders it.
+  agency_name: z.string().max(120).optional(),
   description: z.string().optional(),
   experience: z.number().int().nonnegative().optional(),
   cost: z.number().int().nonnegative().optional(),

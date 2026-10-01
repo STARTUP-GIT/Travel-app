@@ -60,6 +60,7 @@ export const ModelName = {
   state: 'state',
   district: 'district',
   place: 'place',
+  place_pricing: 'place_pricing',
   place_submission: 'place_submission',
   specific_guide: 'specific_guide',
   common_guide: 'common_guide',
@@ -215,6 +216,17 @@ export const PlaceScalarFieldEnum = {
 export type PlaceScalarFieldEnum = (typeof PlaceScalarFieldEnum)[keyof typeof PlaceScalarFieldEnum]
 
 
+export const Place_pricingScalarFieldEnum = {
+  id: 'id',
+  placeId: 'placeId',
+  visitor: 'visitor',
+  ageGroup: 'ageGroup',
+  amount: 'amount'
+} as const
+
+export type Place_pricingScalarFieldEnum = (typeof Place_pricingScalarFieldEnum)[keyof typeof Place_pricingScalarFieldEnum]
+
+
 export const Place_submissionScalarFieldEnum = {
   id: 'id',
   placeId: 'placeId',
@@ -226,6 +238,7 @@ export const Place_submissionScalarFieldEnum = {
   category: 'category',
   latitude: 'latitude',
   longitude: 'longitude',
+  pricing: 'pricing',
   status: 'status',
   rejectionReason: 'rejectionReason',
   specificGuideId: 'specificGuideId',
@@ -272,6 +285,7 @@ export const Common_guideScalarFieldEnum = {
   phonenumber: 'phonenumber',
   profile_pic: 'profile_pic',
   tagline: 'tagline',
+  agencyName: 'agencyName',
   authprovider: 'authprovider',
   review: 'review',
   rating: 'rating',
@@ -480,6 +494,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -494,4 +516,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

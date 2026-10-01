@@ -9,6 +9,24 @@ import type { Place } from "@/features/places/types";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
+/**
+ * The price a card shows.
+ *
+ * A card only has room for one figure, so a place with per-band prices shows the
+ * cheapest one it charges — anything else would either overstate the entry cost
+ * or need a second line the card does not have. A place with no bands falls back
+ * to the flat `entryfee`, and an empty band list is explicitly *not* read as
+ * free, since that is how every place created before bands existed reads.
+ */
+function cardPrice(place: Place): string {
+  const bands = place.pricing ?? [];
+  if (bands.length > 0) {
+    return `From ${formatCurrency(Math.min(...bands.map((band) => band.amount)))}`;
+  }
+  if (place.entryfee === null) return "Free entry";
+  return `${formatCurrency(place.entryfee)} entry`;
+}
+
 export function PlaceCard({
   place,
   districtSlug,
@@ -42,7 +60,7 @@ export function PlaceCard({
             <div className="min-w-0">
               <h3 className="truncate text-sm font-semibold">{place.name}</h3>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {formatCurrency(place.entryfee)} entry fee
+                {cardPrice(place)}
               </p>
             </div>
             <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-primary">
@@ -87,7 +105,7 @@ export function PlaceCard({
               {place.name}
             </h3>
             <span className="shrink-0 text-sm font-semibold text-primary">
-              {formatCurrency(place.entryfee)}
+              {cardPrice(place)}
             </span>
           </div>
 
@@ -114,7 +132,7 @@ export function PlaceFeatureList({ place }: { place: Place }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant="secondary" className="gap-1">
-        {formatCurrency(place.entryfee)} entry
+        {cardPrice(place)}
       </Badge>
       {place.category ? (
         <Badge variant="secondary" className="capitalize">

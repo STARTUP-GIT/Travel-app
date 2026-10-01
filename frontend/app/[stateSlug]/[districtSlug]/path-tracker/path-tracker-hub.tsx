@@ -117,7 +117,7 @@ export function PathTrackerHub({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{place.name}</span>
                       <span className="block truncate text-xs text-muted-foreground">
-                        {place.category ?? "Place"} · ₹{Math.round(place.entryfee)} entry
+                        {place.category ?? "Place"} · {trackerPlacePrice(place)}
                       </span>
                     </span>
                   </button>
@@ -190,4 +190,21 @@ export function PathTrackerHub({
       </div>
     </div>
   );
+}
+
+/**
+ * The price shown next to a place in the trip list.
+ *
+ * Falls back to the flat `entryfee` when the place has no per-band pricing, so a
+ * place created before bands existed shows its real price rather than reading as
+ * free.
+ */
+function trackerPlacePrice(place: Place): string {
+  const bands = place.pricing ?? [];
+  if (bands.length > 0) {
+    return `From ₹${Math.round(Math.min(...bands.map((band) => band.amount)))}`;
+  }
+  return place.entryfee === null
+    ? "Free entry"
+    : `₹${Math.round(place.entryfee)} entry`;
 }

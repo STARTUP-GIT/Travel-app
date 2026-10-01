@@ -9,6 +9,7 @@ import {
   deleteListingPath,
   googleAuthPath,
   listingPath,
+  manageablePlacesInDistrictPath,
   profilePath,
   providerMeta,
   ownerListingsPath,
@@ -17,11 +18,14 @@ import {
   publicRestaurantListingsPath,
   requestPath,
   requestsPath,
+  submitPlacePath,
 } from "@/features/provider/config";
 import type {
   FoodCategory,
   HotelRecord,
   ManagedRecord,
+  ManageablePlace,
+  PlaceSubmissionInput,
   ProviderKind,
   ProviderListing,
   ProviderListingInput,
@@ -316,11 +320,26 @@ type RawGuideProfile = {
   phonenumber: string | null;
   profile_pic: string | null;
   tagline: string | null;
+  /** Common guides only. Absent on a specific guide, and null when unset. */
+  agencyName?: string | null;
   authprovider: string;
   review: string[];
   rating: number | null;
   description: string | null;
   placeid?: string | null;
+  /**
+   * The linked place, read through the relation by the backend. Only a specific
+   * guide has one; `placeid` alone is an id the UI cannot render.
+   */
+  place?: {
+    id: string;
+    name: string;
+    category: string;
+    images: string[];
+    entryfee: number | null;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    district: { id: string; name: string; slug: string } | null;
+  } | null;
   isReported: boolean;
   experience: number;
   cost: number;
@@ -346,6 +365,9 @@ export function normalizeProfile(
       phone: owner.phone_number ?? "",
       photo: owner.profile_pic ?? null,
       tagline: "",
+      // Venues are businesses, not guides, and there is no agency field on the
+      // owner profile at all.
+      agencyName: "",
       description: "",
       experience: 0,
       cost: 0,
@@ -353,6 +375,7 @@ export function normalizeProfile(
       rating: null,
       reviews: [],
       placeIds: [],
+      linkedPlace: null,
       isReported: false,
       authProvider: "EMAIL",
       createdAt: owner.createdAt,
@@ -370,6 +393,9 @@ export function normalizeProfile(
     phone: guide.phonenumber ?? "",
     photo: guide.profile_pic || null,
     tagline: guide.tagline ?? "",
+    // Only the common-guide response carries `agencyName`; every other guide
+    // kind reads back as "" and the UI hides the field.
+    agencyName: guide.agencyName ?? "",
     description: guide.description ?? "",
     experience: guide.experience ?? 0,
     cost: guide.cost ?? 0,
@@ -380,6 +406,7 @@ export function normalizeProfile(
     // response has no place relation at all, so coverage is only knowable for
     // the single-place guide.
     placeIds: guide.placeid ? [guide.placeid] : [],
+    linkedPlace: guide.place ?? null,
     isReported: guide.isReported === true,
     authProvider: guide.authprovider ?? "EMAIL",
     createdAt: guide.createdAt,
@@ -439,6 +466,13 @@ export function profilePayload(
     if (input.experience !== undefined) payload.experience = input.experience;
     if (input.cost !== undefined) payload.cost = input.cost;
     if (input.languages !== undefined) payload.language = input.languages;
+  }
+
+  // Common Guide only. Gated on the kind as well as the field, because a
+  // specific guide's profile schema does not have `agency_name` at all and
+  // sending it would be rejected as an unknown key.
+  if (kind === "common_guide" && input.agencyName !== undefined) {
+    payload.agency_name = input.agencyName;
   }
 
   return payload;
@@ -522,6 +556,17 @@ type RawTourPackage = {
   places: RawPackagePlace[];
 };
 
+/** The guide-scoped district place list, as the backend selects it. */
+type RawManageablePlace = {
+  id: string;
+  name: string;
+  images: string[] | null;
+  category: string | null;
+  entryfee: number | null;
+  status: ManageablePlace["status"];
+  district: { id: string; name: string } | null;
+};
+
 export type { TourPackagesResult };
 
 function normalizePackage(raw: RawTourPackage): TourPackage {
@@ -552,8 +597,99 @@ export function packagePayload(
   };
 }
 
-export async function getTourPackages(token: string): Promise<TourPackagesResult> {
+/**
+ * The places a guide may pick for a package in one district.
+ *
+ * A failure is reported as a failure rather than as an empty district, so the
+ * picker can tell "this district has no places" apart from "the list could not
+ * be loaded" — only the first is a reason to offer the create-place action.
+ */
+export async function getManageablePlaces(
+  token: string,
+  districtId: string
+): Promise<{ places: ManageablePlace[]; error: string | null }> {
   try {
+    const rows = await authorized<RawManageablePlace[]>(
+      manageablePlacesInDistrictPath(districtId),
+      token,
+      { fallback: "The places in this district could not be loaded." }
+    );
+    return {
+      places: (rows ?? []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        images: row.images ?? [],
+        category: row.category ?? "",
+        entryfee: row.entryfee ?? null,
+        status: row.status,
+        district: row.district ?? null,
+      })),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      places: [],
+      error:
+        error instanceof ProviderApiError
+          ? error.message
+          : "The places in this district could not be loaded.",
+    };
+  }
+}
+
+/**
+ * Creates a place as the signed-in guide.
+ *
+ * Returns the created place even when it is still awaiting review, because the
+ * whole point of creating it from here is to put it in a package straight away —
+ * so the caller gets an id it can select regardless of approval state. The
+ * backend decides approval; this only reports what it decided.
+ */
+export async function submitPlaceAsGuide(
+  token: string,
+  input: PlaceSubmissionInput
+): Promise<ManageablePlace> {
+  const data = await authorized<{ place?: RawManageablePlace }>(
+    submitPlacePath(),
+    token,
+    {
+      method: "POST",
+      body: {
+        name: input.name.trim(),
+        description: input.description.trim(),
+        districtId: input.districtId,
+        images: input.images,
+        entryfee: input.entryfee,
+        category: input.category.trim(),
+        latitude: input.latitude,
+        longitude: input.longitude,
+        // Only sent when bands exist, so a place with one flat price is not
+        // rewritten to have no pricing data at all.
+        ...(input.pricing && input.pricing.length > 0
+          ? { pricing: input.pricing }
+          : {}),
+      },
+      fallback: "The place could not be created.",
+    }
+  );
+
+  if (!data?.place) {
+    // No field map: the backend reports this per-message, not per field.
+    throw new ProviderApiError("The place could not be created.", 502, {});
+  }
+
+  return {
+    id: data.place.id,
+    name: data.place.name,
+    images: data.place.images ?? [],
+    category: data.place.category ?? "",
+    entryfee: data.place.entryfee ?? null,
+    status: data.place.status,
+    district: data.place.district ?? null,
+  };
+}
+
+export async function getTourPackages(token: string): Promise<TourPackagesResult> {  try {
     const rows = await authorized<RawTourPackage[]>(packagesPath(), token, {
       fallback: "Your tour packages could not be loaded.",
     });

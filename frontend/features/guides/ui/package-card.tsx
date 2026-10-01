@@ -48,9 +48,26 @@ export function PackageCard({
               <Route className="size-4 shrink-0 text-primary" />
               {pkg.name}
             </h3>
-            <p className="mt-0.5 truncate text-sm text-muted-foreground">
-              with {person.full_name}
-            </p>
+            {/*
+              The agency is named in preference to the individual when there is
+              one: a traveller choosing a tour is usually choosing the company.
+              The guide is still credited below it, because for an agency-run tour
+              the person who actually leads it is part of what is being sold.
+            */}
+            {person.agencyName ? (
+              <>
+                <p className="mt-0.5 truncate text-sm font-medium">
+                  {person.agencyName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  with {person.full_name}
+                </p>
+              </>
+            ) : (
+              <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                with {person.full_name}
+              </p>
+            )}
           </div>
         </div>
 

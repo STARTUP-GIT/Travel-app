@@ -67,24 +67,38 @@ type ResolvedPlaces =
   | { ok: false; unavailable: string[] };
 
 /**
- * Every place a package uses has to exist and be approved.
+ * Every place a package uses has to exist, and be either approved or the
+ * session guide's own awaiting approval.
  *
- * Packages are only ever discovered through the places they contain (the public
- * place detail route carries them), so a package pointing at a pending or
- * missing place would be invisible or broken for customers while looking fine
- * in the manager. Rejecting it here is what keeps a package always bookable.
+ * Approved places are the normal case, and a missing place is still rejected
+ * outright: a package pointing at a place that does not exist would look fine in
+ * the manager and be broken for customers.
+ *
+ * A place the guide submitted and that is still PENDING is allowed, and only for
+ * the guide who submitted it. That is what lets a guide create a place from the
+ * package form and put it in the package straight away instead of being blocked
+ * until an admin acts. Ownership is read from the submission that created the
+ * place rather than from the place row, so a pending place belonging to another
+ * guide is still rejected — no guide can attach anyone else's unapproved place
+ * to their package. The package itself stays invisible to customers until the
+ * place is approved, because packages are discovered through the public place
+ * routes, which filter on APPROVED.
  *
  * The ids are also checked against the *session* guide, not the body: the guide
  * is never taken from the payload, so there is no id in the request that could
  * point a write at another guide's data.
  */
 async function resolveApprovedPlaceIds(
-  placeIds: string[]
+  placeIds: string[],
+  commonGuideId: string
 ): Promise<ResolvedPlaces> {
   const places = await prisma.place.findMany({
     where: {
       id: { in: placeIds },
-      status: "APPROVED",
+      OR: [
+        { status: "APPROVED" },
+        { placeSubmissions: { some: { commonGuideId } } },
+      ],
     },
     select: packagePlaceSelect,
   });
@@ -167,7 +181,7 @@ export const createPackage = async (req: Request, res: Response) => {
     }
 
     const data = commonGuidePackageSchema.parse(req.body);
-    const resolved = await resolveApprovedPlaceIds(data.placeIds);
+    const resolved = await resolveApprovedPlaceIds(data.placeIds, commonGuideId);
 
     if (!resolved.ok) {
       return res.status(400).json({
@@ -252,7 +266,7 @@ export const updatePackage = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Package not found" });
     }
 
-    const resolved = await resolveApprovedPlaceIds(data.placeIds);
+    const resolved = await resolveApprovedPlaceIds(data.placeIds, commonGuideId);
 
     if (!resolved.ok) {
       return res.status(400).json({

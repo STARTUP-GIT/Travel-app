@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { GuideCard } from "@/features/guides/ui/guide-card";
 import { useCurrentDistrict } from "@/features/locations/state/current-district-provider";
 import { resolveDistrictBySlug } from "@/features/locations/api/locations.api";
+import type { Place } from "@/features/places/types";
 import { searchDistrict, type SearchResults } from "@/features/search/api/search.api";
 import { cn } from "@/lib/utils";
 
@@ -164,7 +165,7 @@ export default function SearchScreen() {
                             image={p.images?.[0]}
                             title={p.name}
                             subtitle={p.category ?? p.district?.name ?? "Place"}
-                            badge={`₹${Math.round(p.entryfee)}`}
+                            badge={searchPriceBadge(p)}
                           />
                         ))}
                       </div>
@@ -216,6 +217,17 @@ export default function SearchScreen() {
       </div>
     </div>
   );
+}
+
+/**
+ * The price badge for a search result.
+ *
+ * Reads the flat `entryfee` only, because a badge has room for one figure; the
+ * per-band table is on the place page. A null fee is a free place and is labelled
+ * as such rather than rendered as a bare `₹0`.
+ */
+function searchPriceBadge(place: Place): string {
+  return place.entryfee === null ? "Free" : `₹${Math.round(place.entryfee)}`;
 }
 
 const GROUP_LABEL: Record<"places" | "hotels" | "restaurants" | "guides", string> = {

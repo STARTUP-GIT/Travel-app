@@ -1,4 +1,10 @@
-import { ArrowRight, BadgeCheck, Languages, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Building2,
+  Languages,
+  MapPin,
+} from "lucide-react";
 import Link from "next/link";
 
 import { AppImage } from "@/components/shared/app-image";
@@ -44,6 +50,13 @@ export function GuideCard({
 }) {
   const isSpecific = guide.type === "specific";
   const person = guide.guide;
+  /*
+   * Read off the narrowed `guide.guide` rather than the aliased `person`: the
+   * agency exists only on the common-guide variant, and TypeScript cannot narrow
+   * an alias by testing `guide.type`. Resolved once here so every render site
+   * just reads `agencyName`, including the `null` case that means "show nothing".
+   */
+  const agencyName = guide.type === "common" ? guide.guide.agencyName : null;
   const subtitle = isSpecific
     ? guide.place.name
     : `${guide.places.length} places covered`;
@@ -71,6 +84,17 @@ export function GuideCard({
             <p className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
               {person.tagline ?? subtitle}
             </p>
+            {/*
+              Only for a common guide with an agency — a specific guide is tied to
+              one place and does not trade as a company, so the field is absent
+              there and no empty label is rendered.
+            */}
+            {agencyName ? (
+              <p className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-primary">
+                <Building2 className="size-3" />
+                <span className="truncate">{agencyName}</span>
+              </p>
+            ) : null}
             <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
               {typeof person.rating === "number" && person.rating > 0 ? (
                 <span className="inline-flex items-center gap-1 font-semibold text-amber-600">

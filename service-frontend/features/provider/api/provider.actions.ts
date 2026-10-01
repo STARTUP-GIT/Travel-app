@@ -7,11 +7,15 @@ import {
   providerKindFromToken,
   readServiceSessionToken,
 } from "@/features/auth/api/service-session";
-import { PROFILE_PHOTO_FOLDER } from "@/lib/upload/image";
+import { PLACE_PHOTO_FOLDER, PROFILE_PHOTO_FOLDER } from "@/lib/upload/image";
 import { uploadImageWithToken } from "@/features/provider/api/upload.server";
 
 import { requireProviderSession } from "@/features/provider/state/provider-session";
-import type { ProviderKind } from "@/features/provider/types";
+import type {
+  ManageablePlace,
+  PlaceSubmissionInput,
+  ProviderKind,
+} from "@/features/provider/types";
 import { ApiError } from "@/lib/api/client";
 import {
   ProviderApiError,
@@ -22,9 +26,11 @@ import {
   deleteProviderProfile,
   deleteTourPackage,
   getProviderListings,
+  getManageablePlaces,
   getProviderProfile,
   getProviderRequests,
   getTourPackages,
+  submitPlaceAsGuide,
   updateProviderListing,
   updateTourPackage,
   signinWithEmail,
@@ -303,6 +309,50 @@ export async function requireCommonGuide() {
 export async function loadTourPackages(): Promise<TourPackagesResult> {
   const session = await requireCommonGuide();
   return getTourPackages(session.token);
+}
+
+/**
+ * Places the guide may pick for a package in a district. Both guide kinds can
+ * read it, because a specific guide's place picker needs the same list; only
+ * tour packages themselves are restricted to common guides.
+ */
+export async function loadManageablePlaces(
+  districtId: string
+): Promise<{ places: ManageablePlace[]; error: string | null }> {
+  const session = await requireProviderSession("/profile");
+  return getManageablePlaces(session.token, districtId);
+}
+
+/**
+ * Creates a place from the package form.
+ *
+ * Does not revalidate the profile path: the guide is already on it, and the
+ * caller inserts the returned place into the open draft itself, which avoids
+ * throwing away the half-finished package they were editing.
+ */
+export async function submitGuidePlace(
+  input: PlaceSubmissionInput
+): Promise<ActionResult<ManageablePlace>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    return submitPlaceAsGuide(session.token, input);
+  });
+}
+
+/**
+ * Uploads one place photo.
+ *
+ * Uses the same Cloudinary endpoint as every other provider image, so a place
+ * created here carries the same kind of URL an admin-entered place does and the
+ * customer place page renders it identically.
+ */
+export async function uploadPlacePhoto(
+  file: File
+): Promise<ActionResult<string>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    return uploadImageWithToken(session.token, file, PLACE_PHOTO_FOLDER);
+  });
 }
 
 export async function addTourPackage(

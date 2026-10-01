@@ -282,6 +282,7 @@ export type placeWhereInput = {
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
   specificGuideBookings?: Prisma.Specific_guide_bookingListRelationFilter
   commonGuideBookingPlaces?: Prisma.Common_guide_booking_placesListRelationFilter
+  pricing?: Prisma.Place_pricingListRelationFilter
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
 }
@@ -305,6 +306,7 @@ export type placeOrderByWithRelationInput = {
   placeSubmissions?: Prisma.place_submissionOrderByRelationAggregateInput
   specificGuideBookings?: Prisma.specific_guide_bookingOrderByRelationAggregateInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesOrderByRelationAggregateInput
+  pricing?: Prisma.place_pricingOrderByRelationAggregateInput
   district?: Prisma.districtOrderByWithRelationInput
   user_fav_place?: Prisma.user_fav_placeOrderByRelationAggregateInput
 }
@@ -331,6 +333,7 @@ export type placeWhereUniqueInput = Prisma.AtLeast<{
   placeSubmissions?: Prisma.Place_submissionListRelationFilter
   specificGuideBookings?: Prisma.Specific_guide_bookingListRelationFilter
   commonGuideBookingPlaces?: Prisma.Common_guide_booking_placesListRelationFilter
+  pricing?: Prisma.Place_pricingListRelationFilter
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   user_fav_place?: Prisma.User_fav_placeListRelationFilter
 }, "id">
@@ -391,6 +394,7 @@ export type placeCreateInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -414,6 +418,7 @@ export type placeUncheckedCreateInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -435,6 +440,7 @@ export type placeUpdateInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -458,6 +464,7 @@ export type placeUncheckedUpdateInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -657,6 +664,20 @@ export type EnumplaceSubmissionStatusFieldUpdateOperationsInput = {
   set?: $Enums.placeSubmissionStatus
 }
 
+export type placeCreateNestedOneWithoutPricingInput = {
+  create?: Prisma.XOR<Prisma.placeCreateWithoutPricingInput, Prisma.placeUncheckedCreateWithoutPricingInput>
+  connectOrCreate?: Prisma.placeCreateOrConnectWithoutPricingInput
+  connect?: Prisma.placeWhereUniqueInput
+}
+
+export type placeUpdateOneRequiredWithoutPricingNestedInput = {
+  create?: Prisma.XOR<Prisma.placeCreateWithoutPricingInput, Prisma.placeUncheckedCreateWithoutPricingInput>
+  connectOrCreate?: Prisma.placeCreateOrConnectWithoutPricingInput
+  upsert?: Prisma.placeUpsertWithoutPricingInput
+  connect?: Prisma.placeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.placeUpdateToOneWithWhereWithoutPricingInput, Prisma.placeUpdateWithoutPricingInput>, Prisma.placeUncheckedUpdateWithoutPricingInput>
+}
+
 export type placeCreateNestedOneWithoutPlaceSubmissionsInput = {
   create?: Prisma.XOR<Prisma.placeCreateWithoutPlaceSubmissionsInput, Prisma.placeUncheckedCreateWithoutPlaceSubmissionsInput>
   connectOrCreate?: Prisma.placeCreateOrConnectWithoutPlaceSubmissionsInput
@@ -763,6 +784,7 @@ export type placeCreateWithoutUser_fav_placeInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
 }
 
@@ -785,6 +807,7 @@ export type placeUncheckedCreateWithoutUser_fav_placeInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type placeCreateOrConnectWithoutUser_fav_placeInput = {
@@ -821,6 +844,7 @@ export type placeUpdateWithoutUser_fav_placeInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
 }
 
@@ -843,6 +867,7 @@ export type placeUncheckedUpdateWithoutUser_fav_placeInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
 export type placeCreateWithoutDistrictInput = {
@@ -863,6 +888,7 @@ export type placeCreateWithoutDistrictInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
 
@@ -884,6 +910,7 @@ export type placeUncheckedCreateWithoutDistrictInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -931,6 +958,110 @@ export type placeScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"place"> | Date | string
 }
 
+export type placeCreateWithoutPricingInput = {
+  id?: string
+  name: string
+  description: string
+  images?: Prisma.placeCreateimagesInput | string[]
+  entryfee?: number | null
+  category: string
+  status?: $Enums.placeSubmissionStatus
+  latitude: number
+  longitude: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  specificguide?: Prisma.specific_guideCreateNestedManyWithoutPlaceInput
+  commonGuidePlaces?: Prisma.common_guide_placesCreateNestedManyWithoutPlaceInput
+  commonGuidePackagePlaces?: Prisma.common_guide_package_placesCreateNestedManyWithoutPlaceInput
+  placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
+  specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
+  commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  district: Prisma.districtCreateNestedOneWithoutPlacesInput
+  user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
+}
+
+export type placeUncheckedCreateWithoutPricingInput = {
+  id?: string
+  name: string
+  description: string
+  districtId: string
+  images?: Prisma.placeCreateimagesInput | string[]
+  entryfee?: number | null
+  category: string
+  status?: $Enums.placeSubmissionStatus
+  latitude: number
+  longitude: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  specificguide?: Prisma.specific_guideUncheckedCreateNestedManyWithoutPlaceInput
+  commonGuidePlaces?: Prisma.common_guide_placesUncheckedCreateNestedManyWithoutPlaceInput
+  commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPlaceInput
+  placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
+  specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
+  commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
+}
+
+export type placeCreateOrConnectWithoutPricingInput = {
+  where: Prisma.placeWhereUniqueInput
+  create: Prisma.XOR<Prisma.placeCreateWithoutPricingInput, Prisma.placeUncheckedCreateWithoutPricingInput>
+}
+
+export type placeUpsertWithoutPricingInput = {
+  update: Prisma.XOR<Prisma.placeUpdateWithoutPricingInput, Prisma.placeUncheckedUpdateWithoutPricingInput>
+  create: Prisma.XOR<Prisma.placeCreateWithoutPricingInput, Prisma.placeUncheckedCreateWithoutPricingInput>
+  where?: Prisma.placeWhereInput
+}
+
+export type placeUpdateToOneWithWhereWithoutPricingInput = {
+  where?: Prisma.placeWhereInput
+  data: Prisma.XOR<Prisma.placeUpdateWithoutPricingInput, Prisma.placeUncheckedUpdateWithoutPricingInput>
+}
+
+export type placeUpdateWithoutPricingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  images?: Prisma.placeUpdateimagesInput | string[]
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  specificguide?: Prisma.specific_guideUpdateManyWithoutPlaceNestedInput
+  commonGuidePlaces?: Prisma.common_guide_placesUpdateManyWithoutPlaceNestedInput
+  commonGuidePackagePlaces?: Prisma.common_guide_package_placesUpdateManyWithoutPlaceNestedInput
+  placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
+  specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
+  commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
+  user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
+}
+
+export type placeUncheckedUpdateWithoutPricingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  images?: Prisma.placeUpdateimagesInput | string[]
+  entryfee?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  specificguide?: Prisma.specific_guideUncheckedUpdateManyWithoutPlaceNestedInput
+  commonGuidePlaces?: Prisma.common_guide_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
+  specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
+  commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
+}
+
 export type placeCreateWithoutPlaceSubmissionsInput = {
   id?: string
   name: string
@@ -948,6 +1079,7 @@ export type placeCreateWithoutPlaceSubmissionsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -970,6 +1102,7 @@ export type placeUncheckedCreateWithoutPlaceSubmissionsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1006,6 +1139,7 @@ export type placeUpdateWithoutPlaceSubmissionsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1028,6 +1162,7 @@ export type placeUncheckedUpdateWithoutPlaceSubmissionsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1048,6 +1183,7 @@ export type placeCreateWithoutSpecificguideInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -1070,6 +1206,7 @@ export type placeUncheckedCreateWithoutSpecificguideInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1106,6 +1243,7 @@ export type placeUpdateWithoutSpecificguideInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1128,6 +1266,7 @@ export type placeUncheckedUpdateWithoutSpecificguideInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1148,6 +1287,7 @@ export type placeCreateWithoutCommonGuidePlacesInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -1170,6 +1310,7 @@ export type placeUncheckedCreateWithoutCommonGuidePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1206,6 +1347,7 @@ export type placeUpdateWithoutCommonGuidePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1228,6 +1370,7 @@ export type placeUncheckedUpdateWithoutCommonGuidePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1248,6 +1391,7 @@ export type placeCreateWithoutCommonGuidePackagePlacesInput = {
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -1270,6 +1414,7 @@ export type placeUncheckedCreateWithoutCommonGuidePackagePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1306,6 +1451,7 @@ export type placeUpdateWithoutCommonGuidePackagePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1328,6 +1474,7 @@ export type placeUncheckedUpdateWithoutCommonGuidePackagePlacesInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1348,6 +1495,7 @@ export type placeCreateWithoutSpecificGuideBookingsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesCreateNestedManyWithoutPlaceInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -1370,6 +1518,7 @@ export type placeUncheckedCreateWithoutSpecificGuideBookingsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPlaceInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1406,6 +1555,7 @@ export type placeUpdateWithoutSpecificGuideBookingsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUpdateManyWithoutPlaceNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1428,6 +1578,7 @@ export type placeUncheckedUpdateWithoutSpecificGuideBookingsInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPlaceNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1448,6 +1599,7 @@ export type placeCreateWithoutCommonGuideBookingPlacesInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesCreateNestedManyWithoutPlaceInput
   placeSubmissions?: Prisma.place_submissionCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingCreateNestedManyWithoutPlaceInput
   district: Prisma.districtCreateNestedOneWithoutPlacesInput
   user_fav_place?: Prisma.user_fav_placeCreateNestedManyWithoutPlaceInput
 }
@@ -1470,6 +1622,7 @@ export type placeUncheckedCreateWithoutCommonGuideBookingPlacesInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPlaceInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutPlaceInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedCreateNestedManyWithoutPlaceInput
+  pricing?: Prisma.place_pricingUncheckedCreateNestedManyWithoutPlaceInput
   user_fav_place?: Prisma.user_fav_placeUncheckedCreateNestedManyWithoutPlaceInput
 }
 
@@ -1506,6 +1659,7 @@ export type placeUpdateWithoutCommonGuideBookingPlacesInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUpdateManyWithoutPlaceNestedInput
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutPlacesNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
@@ -1528,6 +1682,7 @@ export type placeUncheckedUpdateWithoutCommonGuideBookingPlacesInput = {
   commonGuidePackagePlaces?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPlaceNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1563,6 +1718,7 @@ export type placeUpdateWithoutDistrictInput = {
   placeSubmissions?: Prisma.place_submissionUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1584,6 +1740,7 @@ export type placeUncheckedUpdateWithoutDistrictInput = {
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutPlaceNestedInput
   specificGuideBookings?: Prisma.specific_guide_bookingUncheckedUpdateManyWithoutPlaceNestedInput
   commonGuideBookingPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutPlaceNestedInput
+  pricing?: Prisma.place_pricingUncheckedUpdateManyWithoutPlaceNestedInput
   user_fav_place?: Prisma.user_fav_placeUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
@@ -1613,6 +1770,7 @@ export type PlaceCountOutputType = {
   placeSubmissions: number
   specificGuideBookings: number
   commonGuideBookingPlaces: number
+  pricing: number
   user_fav_place: number
 }
 
@@ -1623,6 +1781,7 @@ export type PlaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   placeSubmissions?: boolean | PlaceCountOutputTypeCountPlaceSubmissionsArgs
   specificGuideBookings?: boolean | PlaceCountOutputTypeCountSpecificGuideBookingsArgs
   commonGuideBookingPlaces?: boolean | PlaceCountOutputTypeCountCommonGuideBookingPlacesArgs
+  pricing?: boolean | PlaceCountOutputTypeCountPricingArgs
   user_fav_place?: boolean | PlaceCountOutputTypeCountUser_fav_placeArgs
 }
 
@@ -1681,6 +1840,13 @@ export type PlaceCountOutputTypeCountCommonGuideBookingPlacesArgs<ExtArgs extend
 /**
  * PlaceCountOutputType without action
  */
+export type PlaceCountOutputTypeCountPricingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.place_pricingWhereInput
+}
+
+/**
+ * PlaceCountOutputType without action
+ */
 export type PlaceCountOutputTypeCountUser_fav_placeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.user_fav_placeWhereInput
 }
@@ -1705,6 +1871,7 @@ export type placeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   placeSubmissions?: boolean | Prisma.place$placeSubmissionsArgs<ExtArgs>
   specificGuideBookings?: boolean | Prisma.place$specificGuideBookingsArgs<ExtArgs>
   commonGuideBookingPlaces?: boolean | Prisma.place$commonGuideBookingPlacesArgs<ExtArgs>
+  pricing?: boolean | Prisma.place$pricingArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
   user_fav_place?: boolean | Prisma.place$user_fav_placeArgs<ExtArgs>
   _count?: boolean | Prisma.PlaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1765,6 +1932,7 @@ export type placeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   placeSubmissions?: boolean | Prisma.place$placeSubmissionsArgs<ExtArgs>
   specificGuideBookings?: boolean | Prisma.place$specificGuideBookingsArgs<ExtArgs>
   commonGuideBookingPlaces?: boolean | Prisma.place$commonGuideBookingPlacesArgs<ExtArgs>
+  pricing?: boolean | Prisma.place$pricingArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
   user_fav_place?: boolean | Prisma.place$user_fav_placeArgs<ExtArgs>
   _count?: boolean | Prisma.PlaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1785,6 +1953,7 @@ export type $placePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     placeSubmissions: Prisma.$place_submissionPayload<ExtArgs>[]
     specificGuideBookings: Prisma.$specific_guide_bookingPayload<ExtArgs>[]
     commonGuideBookingPlaces: Prisma.$common_guide_booking_placesPayload<ExtArgs>[]
+    pricing: Prisma.$place_pricingPayload<ExtArgs>[]
     district: Prisma.$districtPayload<ExtArgs>
     user_fav_place: Prisma.$user_fav_placePayload<ExtArgs>[]
   }
@@ -2201,6 +2370,7 @@ export interface Prisma__placeClient<T, Null = never, ExtArgs extends runtime.Ty
   placeSubmissions<T extends Prisma.place$placeSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$placeSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$place_submissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   specificGuideBookings<T extends Prisma.place$specificGuideBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$specificGuideBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$specific_guide_bookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commonGuideBookingPlaces<T extends Prisma.place$commonGuideBookingPlacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$commonGuideBookingPlacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_booking_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pricing<T extends Prisma.place$pricingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$pricingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$place_pricingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   district<T extends Prisma.districtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.districtDefaultArgs<ExtArgs>>): Prisma.Prisma__districtClient<runtime.Types.Result.GetResult<Prisma.$districtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user_fav_place<T extends Prisma.place$user_fav_placeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.place$user_fav_placeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$user_fav_placePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2786,6 +2956,30 @@ export type place$commonGuideBookingPlacesArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.Common_guide_booking_placesScalarFieldEnum | Prisma.Common_guide_booking_placesScalarFieldEnum[]
+}
+
+/**
+ * place.pricing
+ */
+export type place$pricingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the place_pricing
+   */
+  select?: Prisma.place_pricingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the place_pricing
+   */
+  omit?: Prisma.place_pricingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.place_pricingInclude<ExtArgs> | null
+  where?: Prisma.place_pricingWhereInput
+  orderBy?: Prisma.place_pricingOrderByWithRelationInput | Prisma.place_pricingOrderByWithRelationInput[]
+  cursor?: Prisma.place_pricingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Place_pricingScalarFieldEnum | Prisma.Place_pricingScalarFieldEnum[]
 }
 
 /**

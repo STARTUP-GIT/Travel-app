@@ -5,6 +5,7 @@ import { districtServiceMiddleware } from "../../../middlewares/districtService.
 
 import {
   getPlacesByDistrict,
+  getManageablePlacesByDistrict,
   addPlace,
   getPlaceById,
   submitPlace,
@@ -18,6 +19,14 @@ import {
 const router = express.Router();
 
 router.get("/api/places/district/:districtId", districtServiceMiddleware, getPlacesByDistrict);
+
+// Must be declared before `/api/places/:placeId`, otherwise "manageable" is read
+// as a place id and every request for this list 404s on a place lookup.
+router.get(
+  "/api/places/manageable/:districtId",
+  guideAuthMiddleware,
+  getManageablePlacesByDistrict
+);
 
 router.get("/api/places/:placeId", getPlaceById);
 

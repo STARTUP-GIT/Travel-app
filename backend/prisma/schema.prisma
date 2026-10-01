@@ -138,12 +138,41 @@ model place {
   entryfee        Float?
   category        String
   status          placeSubmissionStatus @default(PENDING)
+  pricing         place_pricing[]
   latitude        Float
   longitude       Float
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   district        district @relation(fields: [districtId], references: [id])
   user_fav_place  user_fav_place[]
+}
+
+/**
+ * One ticket band of a place: who it is for and what they pay.
+ *
+ * `place.entryfee` stays the single flat price, so a place with one fee, a free
+ * place, and every place created before this table existed are all still read
+ * exactly as before. This table only exists for the places that genuinely charge
+ * different amounts per band, and a place with no rows simply keeps using
+ * `entryfee`. It is a real relation rather than a packed string, so the same rows
+ * drive the service form, the customer place page and the admin place screens.
+ */
+model place_pricing {
+  id        String             @id @default(uuid())
+  placeId   String
+  visitor   placeVisitorType
+  /// Free text on purpose: the bands a real attraction uses differ per place
+  /// (Adult / Child / Senior Citizen / Student / Infant / Foreigner …), so the
+  /// set cannot be a fixed enum without a migration every time one is added.
+  ageGroup  String
+  amount    Float
+
+  place     place              @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  // The same band cannot be listed twice for one place; the same band may of
+  // course exist for any number of different places.
+  @@unique([placeId, visitor, ageGroup])
+  @@index([placeId])
 }
 
 model place_submission {
@@ -157,6 +186,13 @@ model place_submission {
   category        String
   latitude        Float
   longitude       Float
+  // Pending ticket bands, stored the same way this row already stores the
+  // pending name, description and fee: as the snapshot awaiting review. It is
+  // NOT a second source of truth — the live bands are always `place_pricing`,
+  // and approving a submission copies this snapshot across. Null means the
+  // submission changes no pricing, which is what every submission created
+  // before this column existed means.
+  pricing         Json?
   status          placeSubmissionStatus @default(PENDING)
   rejectionReason String?
   specificGuideId String?
@@ -211,6 +247,11 @@ model common_guide {
   phonenumber     String
   profile_pic     String
   tagline         String?
+  // Optional trading name for the guide's agency, e.g. "Mysuru Heritage Tours".
+  // Nullable and never required: with no agency the guide is simply presented as
+  // an individual Common Guide, so the customer surfaces hide the field entirely
+  // rather than showing an empty label.
+  agencyName      String?
   authprovider        authProviders
   review          String[]
   rating          Float?
@@ -494,6 +535,10 @@ enum placeSubmissionStatus{
   PENDING
   APPROVED
   REJECTED
+}
+enum placeVisitorType{
+  DOMESTIC
+  FOREIGN
 }
 
 

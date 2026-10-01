@@ -24,6 +24,7 @@ const commonGuideSafeSelect = {
   phonenumber: true,
   profile_pic: true,
   tagline: true,
+  agencyName: true,
   authprovider: true,
   review: true,
   rating: true,
@@ -133,6 +134,11 @@ export const editProfile = async (req: Request, res: Response) => {
         ...(data.phonenumber !== undefined ? { phonenumber: data.phonenumber } : {}),
         ...(data.profile_pic !== undefined ? { profile_pic: data.profile_pic } : {}),
         ...(data.tagline !== undefined ? { tagline: data.tagline } : {}),
+        // An empty string clears the agency, so the guide can go back to being
+        // presented as an individual rather than keeping a stale trading name.
+        ...(data.agency_name !== undefined
+          ? { agencyName: data.agency_name.trim() ? data.agency_name.trim() : null }
+          : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.experience !== undefined ? { experience: data.experience } : {}),
         ...(data.cost !== undefined ? { cost: data.cost } : {}),

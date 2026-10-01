@@ -63,6 +63,19 @@ export type district = Prisma.districtModel
  */
 export type place = Prisma.placeModel
 /**
+ * Model place_pricing
+ * *
+ *  * One ticket band of a place: who it is for and what they pay.
+ *  *
+ *  * `place.entryfee` stays the single flat price, so a place with one fee, a free
+ *  * place, and every place created before this table existed are all still read
+ *  * exactly as before. This table only exists for the places that genuinely charge
+ *  * different amounts per band, and a place with no rows simply keeps using
+ *  * `entryfee`. It is a real relation rather than a packed string, so the same rows
+ *  * drive the service form, the customer place page and the admin place screens.
+ */
+export type place_pricing = Prisma.place_pricingModel
+/**
  * Model place_submission
  * 
  */

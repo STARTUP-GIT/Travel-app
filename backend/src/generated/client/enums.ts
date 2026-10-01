@@ -44,3 +44,11 @@ export const placeSubmissionStatus = {
 } as const
 
 export type placeSubmissionStatus = (typeof placeSubmissionStatus)[keyof typeof placeSubmissionStatus]
+
+
+export const placeVisitorType = {
+  DOMESTIC: 'DOMESTIC',
+  FOREIGN: 'FOREIGN'
+} as const
+
+export type placeVisitorType = (typeof placeVisitorType)[keyof typeof placeVisitorType]

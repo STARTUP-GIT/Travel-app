@@ -406,6 +406,7 @@ export const ModelName = {
   state: 'state',
   district: 'district',
   place: 'place',
+  place_pricing: 'place_pricing',
   place_submission: 'place_submission',
   specific_guide: 'specific_guide',
   common_guide: 'common_guide',
@@ -436,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "restaurent" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation"
+    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_pricing" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "restaurent" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1103,6 +1104,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.placeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PlaceCountAggregateOutputType> | number
+        }
+      }
+    }
+    place_pricing: {
+      payload: Prisma.$place_pricingPayload<ExtArgs>
+      fields: Prisma.place_pricingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.place_pricingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.place_pricingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        findFirst: {
+          args: Prisma.place_pricingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.place_pricingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        findMany: {
+          args: Prisma.place_pricingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>[]
+        }
+        create: {
+          args: Prisma.place_pricingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        createMany: {
+          args: Prisma.place_pricingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.place_pricingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>[]
+        }
+        delete: {
+          args: Prisma.place_pricingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        update: {
+          args: Prisma.place_pricingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        deleteMany: {
+          args: Prisma.place_pricingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.place_pricingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.place_pricingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>[]
+        }
+        upsert: {
+          args: Prisma.place_pricingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$place_pricingPayload>
+        }
+        aggregate: {
+          args: Prisma.Place_pricingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlace_pricing>
+        }
+        groupBy: {
+          args: Prisma.place_pricingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Place_pricingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.place_pricingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Place_pricingCountAggregateOutputType> | number
         }
       }
     }
@@ -2377,6 +2452,17 @@ export const PlaceScalarFieldEnum = {
 export type PlaceScalarFieldEnum = (typeof PlaceScalarFieldEnum)[keyof typeof PlaceScalarFieldEnum]
 
 
+export const Place_pricingScalarFieldEnum = {
+  id: 'id',
+  placeId: 'placeId',
+  visitor: 'visitor',
+  ageGroup: 'ageGroup',
+  amount: 'amount'
+} as const
+
+export type Place_pricingScalarFieldEnum = (typeof Place_pricingScalarFieldEnum)[keyof typeof Place_pricingScalarFieldEnum]
+
+
 export const Place_submissionScalarFieldEnum = {
   id: 'id',
   placeId: 'placeId',
@@ -2388,6 +2474,7 @@ export const Place_submissionScalarFieldEnum = {
   category: 'category',
   latitude: 'latitude',
   longitude: 'longitude',
+  pricing: 'pricing',
   status: 'status',
   rejectionReason: 'rejectionReason',
   specificGuideId: 'specificGuideId',
@@ -2434,6 +2521,7 @@ export const Common_guideScalarFieldEnum = {
   phonenumber: 'phonenumber',
   profile_pic: 'profile_pic',
   tagline: 'tagline',
+  agencyName: 'agencyName',
   authprovider: 'authprovider',
   review: 'review',
   rating: 'rating',
@@ -2642,6 +2730,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -2656,6 +2752,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -2738,6 +2843,34 @@ export type EnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'placeSubmissionStatus[]'
  */
 export type ListEnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeSubmissionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'placeVisitorType'
+ */
+export type EnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType'>
+    
+
+
+/**
+ * Reference to a field of type 'placeVisitorType[]'
+ */
+export type ListEnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2942,6 +3075,7 @@ export type GlobalOmitConfig = {
   state?: Prisma.stateOmit
   district?: Prisma.districtOmit
   place?: Prisma.placeOmit
+  place_pricing?: Prisma.place_pricingOmit
   place_submission?: Prisma.place_submissionOmit
   specific_guide?: Prisma.specific_guideOmit
   common_guide?: Prisma.common_guideOmit

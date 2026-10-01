@@ -47,6 +47,7 @@ export type Common_guideMinAggregateOutputType = {
   phonenumber: string | null
   profile_pic: string | null
   tagline: string | null
+  agencyName: string | null
   authprovider: $Enums.authProviders | null
   rating: number | null
   description: string | null
@@ -67,6 +68,7 @@ export type Common_guideMaxAggregateOutputType = {
   phonenumber: string | null
   profile_pic: string | null
   tagline: string | null
+  agencyName: string | null
   authprovider: $Enums.authProviders | null
   rating: number | null
   description: string | null
@@ -87,6 +89,7 @@ export type Common_guideCountAggregateOutputType = {
   phonenumber: number
   profile_pic: number
   tagline: number
+  agencyName: number
   authprovider: number
   review: number
   rating: number
@@ -123,6 +126,7 @@ export type Common_guideMinAggregateInputType = {
   phonenumber?: true
   profile_pic?: true
   tagline?: true
+  agencyName?: true
   authprovider?: true
   rating?: true
   description?: true
@@ -143,6 +147,7 @@ export type Common_guideMaxAggregateInputType = {
   phonenumber?: true
   profile_pic?: true
   tagline?: true
+  agencyName?: true
   authprovider?: true
   rating?: true
   description?: true
@@ -163,6 +168,7 @@ export type Common_guideCountAggregateInputType = {
   phonenumber?: true
   profile_pic?: true
   tagline?: true
+  agencyName?: true
   authprovider?: true
   review?: true
   rating?: true
@@ -272,6 +278,7 @@ export type Common_guideGroupByOutputType = {
   phonenumber: string
   profile_pic: string
   tagline: string | null
+  agencyName: string | null
   authprovider: $Enums.authProviders
   review: string[]
   rating: number | null
@@ -317,6 +324,7 @@ export type common_guideWhereInput = {
   phonenumber?: Prisma.StringFilter<"common_guide"> | string
   profile_pic?: Prisma.StringFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyName?: Prisma.StringNullableFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableFilter<"common_guide"> | number | null
@@ -344,6 +352,7 @@ export type common_guideOrderByWithRelationInput = {
   phonenumber?: Prisma.SortOrder
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyName?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,6 +383,7 @@ export type common_guideWhereUniqueInput = Prisma.AtLeast<{
   phonenumber?: Prisma.StringFilter<"common_guide"> | string
   profile_pic?: Prisma.StringFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyName?: Prisma.StringNullableFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableFilter<"common_guide"> | number | null
@@ -401,6 +411,7 @@ export type common_guideOrderByWithAggregationInput = {
   phonenumber?: Prisma.SortOrder
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyName?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -431,6 +442,7 @@ export type common_guideScalarWhereWithAggregatesInput = {
   phonenumber?: Prisma.StringWithAggregatesFilter<"common_guide"> | string
   profile_pic?: Prisma.StringWithAggregatesFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
+  agencyName?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableWithAggregatesFilter<"common_guide"> | number | null
@@ -453,6 +465,7 @@ export type common_guideCreateInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -480,6 +493,7 @@ export type common_guideUncheckedCreateInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -507,6 +521,7 @@ export type common_guideUpdateInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -534,6 +549,7 @@ export type common_guideUncheckedUpdateInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -561,6 +577,7 @@ export type common_guideCreateManyInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -583,6 +600,7 @@ export type common_guideUpdateManyMutationInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -605,6 +623,7 @@ export type common_guideUncheckedUpdateManyInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -632,6 +651,7 @@ export type common_guideCountOrderByAggregateInput = {
   phonenumber?: Prisma.SortOrder
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
+  agencyName?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrder
@@ -660,6 +680,7 @@ export type common_guideMaxOrderByAggregateInput = {
   phonenumber?: Prisma.SortOrder
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
+  agencyName?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -680,6 +701,7 @@ export type common_guideMinOrderByAggregateInput = {
   phonenumber?: Prisma.SortOrder
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
+  agencyName?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -803,6 +825,7 @@ export type common_guideCreateWithoutTestimonialsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -829,6 +852,7 @@ export type common_guideUncheckedCreateWithoutTestimonialsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -871,6 +895,7 @@ export type common_guideUpdateWithoutTestimonialsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -897,6 +922,7 @@ export type common_guideUncheckedUpdateWithoutTestimonialsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -923,6 +949,7 @@ export type common_guideCreateWithoutPlaceSubmissionsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -949,6 +976,7 @@ export type common_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -991,6 +1019,7 @@ export type common_guideUpdateWithoutPlaceSubmissionsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1017,6 +1046,7 @@ export type common_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1043,6 +1073,7 @@ export type common_guideCreateWithoutPlacesInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1069,6 +1100,7 @@ export type common_guideUncheckedCreateWithoutPlacesInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1111,6 +1143,7 @@ export type common_guideUpdateWithoutPlacesInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1137,6 +1170,7 @@ export type common_guideUncheckedUpdateWithoutPlacesInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1163,6 +1197,7 @@ export type common_guideCreateWithoutPackagesInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1189,6 +1224,7 @@ export type common_guideUncheckedCreateWithoutPackagesInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1231,6 +1267,7 @@ export type common_guideUpdateWithoutPackagesInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1257,6 +1294,7 @@ export type common_guideUncheckedUpdateWithoutPackagesInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1283,6 +1321,7 @@ export type common_guideCreateWithoutBookingsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1309,6 +1348,7 @@ export type common_guideUncheckedCreateWithoutBookingsInput = {
   phonenumber: string
   profile_pic: string
   tagline?: string | null
+  agencyName?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1351,6 +1391,7 @@ export type common_guideUpdateWithoutBookingsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1377,6 +1418,7 @@ export type common_guideUncheckedUpdateWithoutBookingsInput = {
   phonenumber?: Prisma.StringFieldUpdateOperationsInput | string
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1470,6 +1512,7 @@ export type common_guideSelect<ExtArgs extends runtime.Types.Extensions.Internal
   phonenumber?: boolean
   profile_pic?: boolean
   tagline?: boolean
+  agencyName?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1498,6 +1541,7 @@ export type common_guideSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   phonenumber?: boolean
   profile_pic?: boolean
   tagline?: boolean
+  agencyName?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1520,6 +1564,7 @@ export type common_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   phonenumber?: boolean
   profile_pic?: boolean
   tagline?: boolean
+  agencyName?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1542,6 +1587,7 @@ export type common_guideSelectScalar = {
   phonenumber?: boolean
   profile_pic?: boolean
   tagline?: boolean
+  agencyName?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1555,7 +1601,7 @@ export type common_guideSelectScalar = {
   status?: boolean
 }
 
-export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["common_guide"]>
+export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "agencyName" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["common_guide"]>
 export type common_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   packages?: boolean | Prisma.common_guide$packagesArgs<ExtArgs>
@@ -1585,6 +1631,7 @@ export type $common_guidePayload<ExtArgs extends runtime.Types.Extensions.Intern
     phonenumber: string
     profile_pic: string
     tagline: string | null
+    agencyName: string | null
     authprovider: $Enums.authProviders
     review: string[]
     rating: number | null
@@ -2032,6 +2079,7 @@ export interface common_guideFieldRefs {
   readonly phonenumber: Prisma.FieldRef<"common_guide", 'String'>
   readonly profile_pic: Prisma.FieldRef<"common_guide", 'String'>
   readonly tagline: Prisma.FieldRef<"common_guide", 'String'>
+  readonly agencyName: Prisma.FieldRef<"common_guide", 'String'>
   readonly authprovider: Prisma.FieldRef<"common_guide", 'authProviders'>
   readonly review: Prisma.FieldRef<"common_guide", 'String[]'>
   readonly rating: Prisma.FieldRef<"common_guide", 'Float'>

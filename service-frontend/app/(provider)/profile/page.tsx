@@ -1,5 +1,6 @@
 import {
   Award,
+  Building2,
   CalendarDays,
   IndianRupee,
   Languages,
@@ -24,7 +25,7 @@ import {
 } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
-import type { ProviderKind, TourPackage } from "@/features/provider/types";
+import type { ProviderKind, ProviderLinkedPlace, TourPackage } from "@/features/provider/types";
 import { formatCurrency, formatDate, pluralize } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My profile" };
@@ -133,6 +134,27 @@ export default async function ProfilePage() {
             <p className="text-sm text-muted-foreground">{profile.tagline}</p>
           ) : null}
 
+          {/*
+            A specific guide is linked to exactly one place, so the place is named
+            here rather than counted: "1 place" tells the guide nothing about
+            which place their profile is attached to.
+          */}
+          {session.kind === "specific_guide" ? (
+            <LinkedPlaceCard place={profile.linkedPlace} />
+          ) : null}
+
+          {/*
+            Shown only for a common guide that filled the field in. A guide with
+            no agency, and every specific guide, gets no agency line at all
+            rather than an empty label.
+          */}
+          {session.kind === "common_guide" && profile.agencyName ? (
+            <p className="flex items-center gap-1.5 text-sm font-medium">
+              <Building2 className="size-4 text-muted-foreground" />
+              {profile.agencyName}
+            </p>
+          ) : null}
+
           <div className="h-px w-full bg-border" />
 
           <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -172,7 +194,12 @@ export default async function ProfilePage() {
             </div>
           ) : null}
 
-          {profile.placeIds.length > 0 ? (
+          {/*
+            Coverage count, for kinds that can have many places. A specific guide
+            is deliberately excluded: it has exactly one linked place, already
+            named above, so a "1 place" badge would just repeat it.
+          */}
+          {session.kind !== "specific_guide" && profile.placeIds.length > 0 ? (
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="flex items-center gap-1.5 text-[0.65rem] uppercase tracking-wide text-muted-foreground">
                 <MapPin className="size-3.5" />
@@ -219,8 +246,59 @@ export default async function ProfilePage() {
   );
 }
 
-function Fact({
-  icon: Icon,
+/**
+ * The place a specific guide is linked to, named in full.
+ *
+ * Three states, because they need different words: a real place, a place still
+ * awaiting review, and no place at all. The middle one matters most — a place
+ * that exists but is not live is not the same as having no place, and a guide
+ * looking at their profile cannot tell the difference without being told.
+ */
+function LinkedPlaceCard({ place }: { place: ProviderLinkedPlace | null }) {
+  if (!place) {
+    return (
+      <div className="flex items-start gap-2.5 rounded-xl border border-dashed border-border bg-muted/30 p-3.5">
+        <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm font-medium">No place selected</p>
+          <p className="text-xs text-muted-foreground">
+            Your profile is not linked to a place yet, so it will not appear on
+            any place page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-2.5 rounded-xl border border-border/70 bg-muted/40 p-3.5">
+      <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-sm font-medium break-words">{place.name}</p>
+          {place.status === "APPROVED" ? null : (
+            <Badge variant="warning">
+              {place.status === "PENDING" ? "Awaiting review" : "Not live"}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground break-words">
+          {[
+            place.district?.name,
+            place.category,
+            place.entryfee === null
+              ? "Free entry"
+              : `${formatCurrency(place.entryfee)} entry`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Fact({  icon: Icon,
   label,
   children,
 }: {

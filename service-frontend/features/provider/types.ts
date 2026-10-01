@@ -11,6 +11,25 @@
 /** Mirrors the backend `placeSubmissionStatus` enum. */
 export type ListingStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+/**
+ * The one place a specific guide is linked to, as the profile API returns it.
+ *
+ * `placeid` on its own is an opaque uuid the UI cannot render, so the backend
+ * reads the relation and the profile shows the place's actual name. `status` is
+ * carried through because a guide whose place is still awaiting review needs to
+ * see that it is not live yet, which is otherwise indistinguishable from a
+ * place that has been rejected.
+ */
+export type ProviderLinkedPlace = {
+  id: string;
+  name: string;
+  category: string;
+  images: string[];
+  entryfee: number | null;
+  status: ListingStatus;
+  district: { id: string; name: string; slug: string } | null;
+};
+
 /** Mirrors the backend `bookingStatus` enum. */
 export type RequestStatus =
   | "PENDING"
@@ -27,7 +46,7 @@ export const PROVIDER_KINDS = [
   "specific_guide",
 ] as const;
 
-export type ProviderKind = (typeof PROVIDER_KINDS)[number];
+export type ProviderKind =(typeof PROVIDER_KINDS)[number];
 
 export function isProviderKind(value: unknown): value is ProviderKind {
   return (
@@ -66,7 +85,22 @@ export type ProviderProfile = {
   languages: string[];
   rating: number | null;
   reviews: string[];
+  /**
+   * Common guides only: the agency the guide trades as.
+   *
+   * Empty for a guide with no agency and for every specific guide, which is the
+   * signal the UI uses to hide the agency entirely rather than show an empty
+   * field. A single optional profile field, so a new guide who leaves it blank is
+   * exactly as valid as one who fills it in.
+   */
+  agencyName: string;
   placeIds: string[];
+  /**
+   * The place a specific guide is linked to. `null` for a guide who registered
+   * without one, and for every other kind — a common guide's coverage comes from
+   * its packages, not from a single linked place.
+   */
+  linkedPlace: ProviderLinkedPlace | null;
   isReported: boolean;
   authProvider: string;
   createdAt: string;
@@ -80,6 +114,7 @@ export type ProviderProfileInput = {
   phone?: string;
   photo?: string;
   tagline?: string;
+  agencyName?: string;
   description?: string;
   experience?: number;
   cost?: number;
@@ -117,8 +152,70 @@ export type TourPackageInput = {
   placeIds: string[];
 };
 
-export type TourPackagesResult = {
-  packages: TourPackage[];
+/**
+ * Who a ticket price applies to.
+ *
+ * Mirrors the backend `placeVisitorType` enum, so the two UIs cannot drift into
+ * different spellings of the same value.
+ */
+export type PlaceVisitor = "DOMESTIC" | "FOREIGN";
+
+/**
+ * One ticket band: an amount for a given age group and visitor type.
+ *
+ * `ageGroup` is free text rather than an enum because the bands a real attraction
+ * uses differ per place (Adult / Child / Senior Citizen / Student / Infant …),
+ * and the same band may legitimately differ for domestic and foreign visitors.
+ * The backend enforces that one band is not listed twice for the same visitor
+ * type.
+ */
+export type PlacePricingBand = {
+  visitor: PlaceVisitor;
+  ageGroup: string;
+  amount: number;
+};
+
+/**
+ * A place a guide can offer in a tour package.
+ *
+ * The approved places of a district, plus the guide's own places that are still
+ * awaiting review — a guide is allowed to build a package from a place they just
+ * created, so the backend offers it to them and to nobody else. `status` is what
+ * lets the picker say so rather than presenting an unapproved place as live.
+ */
+export type ManageablePlace = {
+  id: string;
+  name: string;
+  images: string[];
+  category: string;
+  entryfee: number | null;
+  status: ListingStatus;
+  district: { id: string; name: string } | null;
+};
+
+/** Everything the existing place form collects, plus the ticket bands. */
+export type PlaceSubmissionInput = {
+  name: string;
+  description: string;
+  districtId: string;
+  images: string[];
+  /**
+   * The single flat price, kept because most places charge one amount. Left null
+   * for a free place; ignored by the customer when bands are supplied, which are
+   * then the only prices shown.
+   */
+  entryfee: number | null;
+  category: string;
+  latitude: number;
+  longitude: number;
+  /**
+   * Optional. An empty list means the place has one flat price (or is free), which
+   * is exactly how every place without bands already reads.
+   */
+  pricing?: PlacePricingBand[];
+};
+
+export type TourPackagesResult = {  packages: TourPackage[];
   /**
    * Set only when the package service itself failed — e.g. the deployed backend
    * answers 503 because the package tables have not been migrated yet, or the

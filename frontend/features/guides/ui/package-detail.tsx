@@ -67,7 +67,11 @@ export function PackageDetail({
     <div className="pb-8">
       <ScreenHeader
         title={pkg.name}
-        subtitle={`${pkg.placeCount} stop${pkg.placeCount === 1 ? "" : "s"} · guided by ${person.full_name}`}
+        subtitle={
+          person.agencyName
+            ? `${pkg.placeCount} stop${pkg.placeCount === 1 ? "" : "s"} · ${person.agencyName} with ${person.full_name}`
+            : `${pkg.placeCount} stop${pkg.placeCount === 1 ? "" : "s"} · guided by ${person.full_name}`
+        }
         backHref={`${districtBase}/guides/${person.id}`}
       />
 
@@ -80,11 +84,17 @@ export function PackageDetail({
               className="size-12 shrink-0 ring-2 ring-border"
             />
             <div className="min-w-0 flex-1">
+              {/* The agency leads where there is one: on a package page the
+                  traveller is booking the company, with the guide credited below. */}
               <p className="truncate font-semibold leading-tight">
-                {person.full_name}
+                {person.agencyName ?? person.full_name}
               </p>
               <p className="truncate text-sm text-muted-foreground">
-                {person.tagline ?? "Local guide"}
+                {person.agencyName
+                  ? `with ${person.full_name}${
+                      person.tagline ? ` · ${person.tagline}` : ""
+                    }`
+                  : (person.tagline ?? "Local guide")}
               </p>
             </div>
             <Button asChild variant="outline" className="shrink-0">

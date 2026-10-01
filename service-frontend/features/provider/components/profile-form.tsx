@@ -24,6 +24,7 @@ type Values = {
   phone: string;
   photo: string;
   tagline: string;
+  agencyName: string;
   description: string;
   experience: string;
   cost: string;
@@ -41,6 +42,7 @@ function initialValues(profile: ProviderProfile): Values {
     phone: profile.phone,
     photo: profile.photo ?? "",
     tagline: profile.tagline,
+    agencyName: profile.agencyName,
     description: profile.description,
     experience: String(profile.experience ?? 0),
     cost: String(profile.cost ?? 0),
@@ -61,6 +63,10 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
   const [busy, setBusy] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const isGuide = profile.kind === "common_guide" || profile.kind === "specific_guide";
+  // The agency is a Common Guide concept: a specific guide is tied to one place
+  // rather than trading as a business, so the field is not shown at all and
+  // never sent for them.
+  const isCommonGuide = profile.kind === "common_guide";
 
   function set<K extends keyof Values>(key: K, value: Values[K]) {
     setValues((previous) => ({ ...previous, [key]: value }));
@@ -86,6 +92,10 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
         next.experience = "Years of experience cannot be negative";
       if (Number(values.cost) < 0) next.cost = "The price cannot be negative";
     }
+    // Optional by design, so there is no "required" case here — only a length
+    // cap, to stop a long string being pushed onto every card that shows it.
+    if (values.agencyName.length > 120)
+      next.agencyName = "Keep the agency name under 120 characters";
     if (values.password.length > 0 && values.password.length < 6)
       next.password = "Passwords need at least 6 characters";
 
@@ -100,6 +110,14 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
       const original = initialValues(profile)[key as keyof Values];
       return value !== original;
     });
+
+    // A blank agency is sent as an empty string on purpose: that is how the
+    // backend clears a previously saved agency, so a guide who deletes the text
+    // goes back to being shown as an individual.
+    if (!isCommonGuide) {
+      const index = changed.findIndex(([key]) => key === "agencyName");
+      if (index >= 0) changed.splice(index, 1);
+    }
 
     if (changed.length === 0) {
       setBusy(false);
@@ -207,6 +225,21 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
               placeholder="Local historian and food storyteller"
             />
           </Field>
+
+          {isCommonGuide ? (
+            <Field
+              label="Agency name (optional)"
+              error={errors.agencyName}
+              hint="Shown to customers as the agency behind your packages. Leave blank to trade in your own name."
+            >
+              <Input
+                value={values.agencyName}
+                onChange={(event) => set("agencyName", event.target.value)}
+                maxLength={120}
+                placeholder="Mysuru Heritage Tours"
+              />
+            </Field>
+          ) : null}
 
           <Field label="About you" error={errors.description}>
             <Textarea

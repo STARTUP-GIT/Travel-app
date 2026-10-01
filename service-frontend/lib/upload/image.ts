@@ -28,6 +28,16 @@ export const IMAGE_SIZE_LABEL = "JPG, PNG or WEBP · up to 5 MB";
 export const PROFILE_PHOTO_FOLDER = "provider-profiles";
 
 /**
+ * Where place photos go.
+ *
+ * The admin panel already uploads place images into the backend's Cloudinary
+ * account under `places`; reusing that folder means a place created by a guide
+ * lands beside the admin-entered ones and both render the same way, instead of
+ * introducing a second place image store.
+ */
+export const PLACE_PHOTO_FOLDER = "places";
+
+/**
  * Client-side guard so an obviously wrong file never costs a round-trip. The
  * server action repeats every one of these checks, because the browser is not
  * trusted to have run them.

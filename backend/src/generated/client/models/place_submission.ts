@@ -85,6 +85,7 @@ export type Place_submissionCountAggregateOutputType = {
   category: number
   latitude: number
   longitude: number
+  pricing: number
   status: number
   rejectionReason: number
   specificGuideId: number
@@ -154,6 +155,7 @@ export type Place_submissionCountAggregateInputType = {
   category?: true
   latitude?: true
   longitude?: true
+  pricing?: true
   status?: true
   rejectionReason?: true
   specificGuideId?: true
@@ -260,6 +262,7 @@ export type Place_submissionGroupByOutputType = {
   category: string
   latitude: number
   longitude: number
+  pricing: runtime.JsonValue | null
   status: $Enums.placeSubmissionStatus
   rejectionReason: string | null
   specificGuideId: string | null
@@ -302,6 +305,7 @@ export type place_submissionWhereInput = {
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
+  pricing?: Prisma.JsonNullableFilter<"place_submission">
   status?: Prisma.EnumplaceSubmissionStatusFilter<"place_submission"> | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.StringNullableFilter<"place_submission"> | string | null
   specificGuideId?: Prisma.StringNullableFilter<"place_submission"> | string | null
@@ -325,6 +329,7 @@ export type place_submissionOrderByWithRelationInput = {
   category?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  pricing?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   specificGuideId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -351,6 +356,7 @@ export type place_submissionWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
+  pricing?: Prisma.JsonNullableFilter<"place_submission">
   status?: Prisma.EnumplaceSubmissionStatusFilter<"place_submission"> | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.StringNullableFilter<"place_submission"> | string | null
   specificGuideId?: Prisma.StringNullableFilter<"place_submission"> | string | null
@@ -374,6 +380,7 @@ export type place_submissionOrderByWithAggregationInput = {
   category?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  pricing?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   specificGuideId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -401,6 +408,7 @@ export type place_submissionScalarWhereWithAggregatesInput = {
   category?: Prisma.StringWithAggregatesFilter<"place_submission"> | string
   latitude?: Prisma.FloatWithAggregatesFilter<"place_submission"> | number
   longitude?: Prisma.FloatWithAggregatesFilter<"place_submission"> | number
+  pricing?: Prisma.JsonNullableWithAggregatesFilter<"place_submission">
   status?: Prisma.EnumplaceSubmissionStatusWithAggregatesFilter<"place_submission"> | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"place_submission"> | string | null
   specificGuideId?: Prisma.StringNullableWithAggregatesFilter<"place_submission"> | string | null
@@ -418,6 +426,7 @@ export type place_submissionCreateInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   createdAt?: Date | string
@@ -439,6 +448,7 @@ export type place_submissionUncheckedCreateInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -456,6 +466,7 @@ export type place_submissionUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -477,6 +488,7 @@ export type place_submissionUncheckedUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -496,6 +508,7 @@ export type place_submissionCreateManyInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -513,6 +526,7 @@ export type place_submissionUpdateManyMutationInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -530,6 +544,7 @@ export type place_submissionUncheckedUpdateManyInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,6 +574,7 @@ export type place_submissionCountOrderByAggregateInput = {
   category?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  pricing?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   specificGuideId?: Prisma.SortOrder
@@ -801,6 +817,7 @@ export type place_submissionCreateWithoutDistrictInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   createdAt?: Date | string
@@ -820,6 +837,7 @@ export type place_submissionUncheckedCreateWithoutDistrictInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -868,6 +886,7 @@ export type place_submissionScalarWhereInput = {
   category?: Prisma.StringFilter<"place_submission"> | string
   latitude?: Prisma.FloatFilter<"place_submission"> | number
   longitude?: Prisma.FloatFilter<"place_submission"> | number
+  pricing?: Prisma.JsonNullableFilter<"place_submission">
   status?: Prisma.EnumplaceSubmissionStatusFilter<"place_submission"> | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.StringNullableFilter<"place_submission"> | string | null
   specificGuideId?: Prisma.StringNullableFilter<"place_submission"> | string | null
@@ -885,6 +904,7 @@ export type place_submissionCreateWithoutPlaceInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   createdAt?: Date | string
@@ -904,6 +924,7 @@ export type place_submissionUncheckedCreateWithoutPlaceInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -947,6 +968,7 @@ export type place_submissionCreateWithoutSpecificGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   createdAt?: Date | string
@@ -967,6 +989,7 @@ export type place_submissionUncheckedCreateWithoutSpecificGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   commonGuideId?: string | null
@@ -1009,6 +1032,7 @@ export type place_submissionCreateWithoutCommonGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   createdAt?: Date | string
@@ -1029,6 +1053,7 @@ export type place_submissionUncheckedCreateWithoutCommonGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -1072,6 +1097,7 @@ export type place_submissionCreateManyDistrictInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -1089,6 +1115,7 @@ export type place_submissionUpdateWithoutDistrictInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1108,6 +1135,7 @@ export type place_submissionUncheckedUpdateWithoutDistrictInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1126,6 +1154,7 @@ export type place_submissionUncheckedUpdateManyWithoutDistrictInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1144,6 +1173,7 @@ export type place_submissionCreateManyPlaceInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -1161,6 +1191,7 @@ export type place_submissionUpdateWithoutPlaceInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1180,6 +1211,7 @@ export type place_submissionUncheckedUpdateWithoutPlaceInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1198,6 +1230,7 @@ export type place_submissionUncheckedUpdateManyWithoutPlaceInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1217,6 +1250,7 @@ export type place_submissionCreateManySpecificGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   commonGuideId?: string | null
@@ -1233,6 +1267,7 @@ export type place_submissionUpdateWithoutSpecificGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1253,6 +1288,7 @@ export type place_submissionUncheckedUpdateWithoutSpecificGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commonGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1271,6 +1307,7 @@ export type place_submissionUncheckedUpdateManyWithoutSpecificGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commonGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1289,6 +1326,7 @@ export type place_submissionCreateManyCommonGuideInput = {
   category: string
   latitude: number
   longitude: number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.placeSubmissionStatus
   rejectionReason?: string | null
   specificGuideId?: string | null
@@ -1305,6 +1343,7 @@ export type place_submissionUpdateWithoutCommonGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1325,6 +1364,7 @@ export type place_submissionUncheckedUpdateWithoutCommonGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1343,6 +1383,7 @@ export type place_submissionUncheckedUpdateManyWithoutCommonGuideInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricing?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1363,6 +1404,7 @@ export type place_submissionSelect<ExtArgs extends runtime.Types.Extensions.Inte
   category?: boolean
   latitude?: boolean
   longitude?: boolean
+  pricing?: boolean
   status?: boolean
   rejectionReason?: boolean
   specificGuideId?: boolean
@@ -1386,6 +1428,7 @@ export type place_submissionSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   category?: boolean
   latitude?: boolean
   longitude?: boolean
+  pricing?: boolean
   status?: boolean
   rejectionReason?: boolean
   specificGuideId?: boolean
@@ -1409,6 +1452,7 @@ export type place_submissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   category?: boolean
   latitude?: boolean
   longitude?: boolean
+  pricing?: boolean
   status?: boolean
   rejectionReason?: boolean
   specificGuideId?: boolean
@@ -1432,6 +1476,7 @@ export type place_submissionSelectScalar = {
   category?: boolean
   latitude?: boolean
   longitude?: boolean
+  pricing?: boolean
   status?: boolean
   rejectionReason?: boolean
   specificGuideId?: boolean
@@ -1440,7 +1485,7 @@ export type place_submissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type place_submissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "placeId" | "name" | "description" | "districtId" | "images" | "entryfee" | "category" | "latitude" | "longitude" | "status" | "rejectionReason" | "specificGuideId" | "commonGuideId" | "createdAt" | "updatedAt", ExtArgs["result"]["place_submission"]>
+export type place_submissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "placeId" | "name" | "description" | "districtId" | "images" | "entryfee" | "category" | "latitude" | "longitude" | "pricing" | "status" | "rejectionReason" | "specificGuideId" | "commonGuideId" | "createdAt" | "updatedAt", ExtArgs["result"]["place_submission"]>
 export type place_submissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   place?: boolean | Prisma.place_submission$placeArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
@@ -1479,6 +1524,7 @@ export type $place_submissionPayload<ExtArgs extends runtime.Types.Extensions.In
     category: string
     latitude: number
     longitude: number
+    pricing: runtime.JsonValue | null
     status: $Enums.placeSubmissionStatus
     rejectionReason: string | null
     specificGuideId: string | null
@@ -1922,6 +1968,7 @@ export interface place_submissionFieldRefs {
   readonly category: Prisma.FieldRef<"place_submission", 'String'>
   readonly latitude: Prisma.FieldRef<"place_submission", 'Float'>
   readonly longitude: Prisma.FieldRef<"place_submission", 'Float'>
+  readonly pricing: Prisma.FieldRef<"place_submission", 'Json'>
   readonly status: Prisma.FieldRef<"place_submission", 'placeSubmissionStatus'>
   readonly rejectionReason: Prisma.FieldRef<"place_submission", 'String'>
   readonly specificGuideId: Prisma.FieldRef<"place_submission", 'String'>

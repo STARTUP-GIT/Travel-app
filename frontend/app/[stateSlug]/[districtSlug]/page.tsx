@@ -5,6 +5,7 @@ import {
   Footprints,
 } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { SectionHeader } from "@/components/shared/section-header";
 import { ServiceGrid, type ServiceItem } from "@/components/shared/service-card";
@@ -17,6 +18,10 @@ import { slugify } from "@/features/locations/utils/slug";
 import { PlaceCard } from "@/features/places/ui/place-card";
 import { HotelCard } from "@/features/hotels/ui/hotel-card";
 import { RestaurantCard } from "@/features/restaurants/ui/restaurant-card";
+import {
+  DistrictCommonGuides,
+  DistrictCommonGuidesFallback,
+} from "@/features/guides/ui/district-common-guides";
 
 import { DistrictHero } from "./district-hero";
 
@@ -127,6 +132,20 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
             </div>
           ) : <p className="py-4 text-sm text-muted-foreground">No approved destinations are published for {district.name} yet.</p>}
         </section>
+
+        {/*
+          Common Guide tour packages. Suspended rather than awaited with the rest
+          of the page: these resolve through the district's place details, so the
+          destinations, stays and dining sections above and below render without
+          waiting on them, and a failure stays contained to this section.
+        */}
+        <Suspense fallback={<DistrictCommonGuidesFallback />}>
+          <DistrictCommonGuides
+            districtId={district.id}
+            districtSlug={district.slug}
+            stateSlug={state.slug}
+          />
+        </Suspense>
 
         <section aria-labelledby="stays-heading">
           <SectionHeader title="Hotels & stays" subtitle={`Hotels in ${district.name}`} href={`${base}/hotels`} />
