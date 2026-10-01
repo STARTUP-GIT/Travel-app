@@ -298,7 +298,7 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
     });
 
     if (!guide) {
-      return res.status(404).json({ message: "Common guide not found" });
+      return res.status(404).json({ message: "Tour guide not found" });
     }
 
     // A guide that is still PENDING or was REJECTED by an admin must not be
@@ -323,7 +323,7 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
 
     if (invalidPlaceIds.length > 0) {
       return res.status(400).json({
-        message: "One or more selected places are not associated with this common guide",
+        message: "One or more selected places are not associated with this tour guide",
         invalidPlaceIds,
       });
     }
@@ -364,7 +364,7 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
-      message: "Common guide booking created successfully",
+      message: "Tour guide booking created successfully",
       numberOfPlaces: booking.selectedPlaces.length,
       booking,
     });

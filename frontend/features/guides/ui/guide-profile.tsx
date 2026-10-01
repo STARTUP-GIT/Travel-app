@@ -100,7 +100,7 @@ export function GuideProfile({
               <h1 className="text-2xl font-bold tracking-tight">{person.full_name}</h1>
               <BadgeCheck className="size-5 text-emerald-300" />
               <Badge variant={isSpecific ? "info" : "success"} className="border-white/20 bg-white/15 text-white hover:bg-white/20">
-                {isSpecific ? "Specific guide" : "Common guide"}
+                {isSpecific ? "Specific Guide" : "Tour Guide"}
               </Badge>
               {/*
                 Shown ahead of the guide's own name as the headline a traveller
@@ -179,7 +179,7 @@ export function GuideProfile({
         <section>
           <SectionHeader
             title={isSpecific ? "Guide for" : "Places covered"}
-            subtitle={isSpecific ? "This guide specialises at this place" : "Select these places when you book this common guide"}
+            subtitle={isSpecific ? "This guide specialises at this place" : "Select these places when you book this tour guide"}
           />
           <div className="space-y-2.5">
             {placesForGuide.map((place) => (
@@ -198,7 +198,7 @@ export function GuideProfile({
         {guide.type === "common" && guide.packages.length > 0 ? (
           <section>
             <SectionHeader
-              title="Common Guide packages"
+              title="Tour Guide packages"
               subtitle="Ready-made tours covering several of these places"
             />
             <div className="space-y-2.5">
@@ -354,7 +354,7 @@ export function GuideBookingSheet({
 
   const rows: { label: React.ReactNode; value: React.ReactNode; strong?: boolean }[] = [
     { label: "Guide", value: guide.guide.full_name },
-    { label: "Type", value: isCommon ? "Common guide" : "Specific guide" },
+    { label: "Type", value: isCommon ? "Tour Guide" : "Specific Guide" },
     ...(isCommon
       ? [
           {

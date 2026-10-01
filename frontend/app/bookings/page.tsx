@@ -66,7 +66,7 @@ export default function BookingsScreen() {
                 </Group>
               ) : null}
               {data?.commonGuideBookings.length ? (
-                <Group title="Common guides" count={data.commonGuideBookings.length} icon={<Compass className="size-4" />}>
+                <Group title="Tour guides" count={data.commonGuideBookings.length} icon={<Compass className="size-4" />}>
                   {data.commonGuideBookings.map((b) => (
                     <CommonRow key={b.id} booking={b} />
                   ))}
@@ -202,7 +202,7 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
   return (
     <RowShell
       image={booking.commonGuide?.profile_pic}
-      title={booking.commonGuide?.full_name ?? "Common guide"}
+      title={booking.commonGuide?.full_name ?? "Tour guide"}
       subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
       meta={booking.selectedPlaces?.map((p) => p.place?.name).filter(Boolean).join(", ")}
       status={booking.status}

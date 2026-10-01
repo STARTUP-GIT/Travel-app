@@ -127,7 +127,7 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
-      message: "Common guide created successfully",
+      message: "Tour guide created successfully",
       common_guide,
     });
 

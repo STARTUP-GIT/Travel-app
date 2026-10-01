@@ -77,7 +77,7 @@ export default function BookingsPage() {
               updateGuide
             )}
           </BookingSection>
-          <BookingSection title="Common guide bookings">
+          <BookingSection title="Tour guide bookings">
             {renderGuideRows(
               guide,
               guide.data?.commonBookings,

@@ -27,7 +27,7 @@ const FEATURES = [
   {
     icon: Compass,
     title: "Local guides",
-    desc: "Specific guides who know one place deeply, and common guides who can take you across several places in a trip.",
+    desc: "Specific guides who know one place deeply, and tour guides who can take you across several places in a trip.",
   },
   {
     icon: UtensilsCrossed,

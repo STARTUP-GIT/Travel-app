@@ -251,7 +251,7 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
             </div>
             <div className="mono-card p-5">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Common guides ({place.commonGuidePlaces?.length ?? 0})
+                Tour guides ({place.commonGuidePlaces?.length ?? 0})
               </h2>
               {place.commonGuidePlaces && place.commonGuidePlaces.length > 0 ? (
                 <ul className="divide-y divide-border">
@@ -266,7 +266,7 @@ export default function PlaceDetailPage({ params }: { params: Promise<{ id: stri
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground">Not part of any common guide.</p>
+                <p className="text-sm text-muted-foreground">Not part of any tour guide.</p>
               )}
             </div>
           </div>

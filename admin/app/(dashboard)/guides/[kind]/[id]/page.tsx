@@ -50,7 +50,7 @@ export default function GuideDetailPage({
     <div>
       <PageHeader
         title={guide?.full_name ?? "Guide"}
-        subtitle={kind === "specific" ? "Specific guide" : "Common guide"}
+        subtitle={kind === "specific" ? "Specific Guide" : "Tour Guide"}
       >
         <Button asChild variant="outline" size="sm">
           <Link href="/guides">

@@ -61,7 +61,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
     if (!commonGuide) {
       return res.status(404).json({
-        message: "Common guide not found",
+        message: "Tour guide not found",
       });
     }
 
@@ -98,7 +98,7 @@ export const editProfile = async (req: Request, res: Response) => {
 
     if (!commonGuide) {
       return res.status(404).json({
-        message: "Common guide not found",
+        message: "Tour guide not found",
       });
     }
 
@@ -201,7 +201,7 @@ export const deleteProfile = async (req: Request, res: Response) => {
 
     if (!commonGuide) {
       return res.status(404).json({
-        message: "Common guide not found",
+        message: "Tour guide not found",
       });
     }
 

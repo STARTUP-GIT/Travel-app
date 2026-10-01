@@ -46,7 +46,7 @@ export function GuidesList({
       <TabsList className="grid w-full max-w-md grid-cols-4 rounded-2xl bg-muted p-1">
         <TabsTrigger value="all" className="rounded-xl">All ({guides.length + packages.length})</TabsTrigger>
         <TabsTrigger value="specific" className="rounded-xl">Specific ({specific.length})</TabsTrigger>
-        <TabsTrigger value="common" className="rounded-xl">Common ({common.length})</TabsTrigger>
+        <TabsTrigger value="common" className="rounded-xl">Tour Guides ({common.length})</TabsTrigger>
         <TabsTrigger value="packages" className="rounded-xl">
           <Route className="size-3.5" />
           Tours ({packages.length})
@@ -72,7 +72,7 @@ export function GuidesList({
           guides={common}
           districtSlug={districtSlug}
           stateSlug={stateSlug}
-          desc="Common guides cover multiple places in one trip."
+          desc="Tour guides cover multiple places in one trip."
         />
       </TabsContent>
       <TabsContent value="packages" className="pt-4 animate-fade-in">
@@ -99,8 +99,8 @@ function PackageGrid({
     return (
       <EmptyState
         icon={Route}
-        title="No Common Guide packages here yet"
-        description="Common Guide packages group the places they cover into named tours. None of those packages touch this district yet."
+        title="No Tour Guide packages here yet"
+        description="Tour Guide packages group the places they cover into named tours. None of those packages touch this district yet."
       />
     );
   }

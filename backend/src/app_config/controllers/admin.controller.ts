@@ -766,7 +766,7 @@ export const getCommonGuideById = async (req: Request, res: Response) => {
         places: { include: { place: { select: placeSelect } } },
       },
     });
-    if (!guide) return res.status(404).json({ message: "Common guide not found" });
+    if (!guide) return res.status(404).json({ message: "Tour guide not found" });
     return res.status(200).json({ guide });
   } catch (error) {
     return handleError(res, error);

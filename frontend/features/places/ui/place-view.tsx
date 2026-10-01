@@ -398,7 +398,7 @@ export function PlaceView({
               {commonGuides.length > 0 ? (
                 <section aria-labelledby="common-guides-label">
                   <SectionHeader
-                    title="Common guides covering this place"
+                    title="Tour guides covering this place"
                     subtitle="Guides who can take you to several places"
                     href={`${districtBase}/guides`}
                   />

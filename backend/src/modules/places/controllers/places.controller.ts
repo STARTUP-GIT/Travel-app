@@ -266,7 +266,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
 
         ...(hasPackages
           ? {
-              commonGuidePackages: {
+              commonGuidePackagePlaces: {
                 include: {
                   package: {
                     select: {
@@ -327,7 +327,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
     const relations = place as unknown as {
       specificguide?: { status?: string | null }[];
       commonGuidePlaces?: { commonGuide?: { status?: string | null } | null }[];
-      commonGuidePackages?: {
+      commonGuidePackagePlaces?: {
         package: {
           id: string;
           name: string;
@@ -358,7 +358,7 @@ export const getPlaceById = async (req: Request, res: Response) => {
     // the guide without a second lookup, and the membership row count is
     // flattened to a plain `placeCount`.
     const commonGuidePackages = hasPackages
-      ? (relations.commonGuidePackages ?? [])
+      ? (relations.commonGuidePackagePlaces ?? [])
           .filter((entry) => entry.package?.commonGuide?.status === "APPROVED")
           .map((entry) => {
             const { commonGuide, _count, ...pkg } = entry.package!;

@@ -22,8 +22,8 @@ export async function generateMetadata({
   if (!resolved) return { title: "Local Guides" };
   const { state, district } = resolved;
   return {
-    title: `Local Guides in ${district.name}`,
-    description: `Book vetted specific and common guides in ${district.name}, ${state.name}.`,
+    title: `Tour Guides in ${district.name}`,
+    description: `Book vetted specific and tour guides in ${district.name}, ${state.name}.`,
   };
 }
 

@@ -1,3 +1,4 @@
+import type { Prisma } from "../generated/client/client.js";
 import prisma from "../db/prisma.js";
 
 /**
@@ -100,10 +101,10 @@ export async function replacePlacePricing(
 }
 
 /** The bands as the clients read them: a stable, UI-friendly order. */
-export const placePricingOrderBy = {
-  visitor: "asc",
-  ageGroup: "asc",
-} as const;
+export const placePricingOrderBy: Prisma.place_pricingOrderByWithRelationInput[] = [
+  { visitor: "asc" },
+  { ageGroup: "asc" },
+];
 
 /** Every place read that feeds a customer or provider screen carries its bands. */
 export const placePricingInclude = {

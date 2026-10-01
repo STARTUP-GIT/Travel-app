@@ -122,7 +122,7 @@ export default function GuidesPage() {
 
   return (
     <div>
-      <PageHeader title="Guides" subtitle="Specific and common guides across all districts.">
+      <PageHeader title="Guides" subtitle="Specific and tour guides across all districts.">
         <div className="flex flex-wrap items-center gap-2">
           <SearchInput value={search} onChange={setSearch} placeholder="Search guides…" className="w-full sm:w-56" />
           <select
@@ -139,8 +139,8 @@ export default function GuidesPage() {
       </PageHeader>
       <Tabs value={kind} onValueChange={(v) => setKind(v as Kind)} className="mb-4">
         <TabsList>
-          <TabsTrigger value="specific">Specific</TabsTrigger>
-          <TabsTrigger value="common">Common</TabsTrigger>
+          <TabsTrigger value="specific">Specific Guide</TabsTrigger>
+          <TabsTrigger value="common">Tour Guide</TabsTrigger>
         </TabsList>
       </Tabs>
 
