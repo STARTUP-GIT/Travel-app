@@ -11,19 +11,23 @@ export class ApiError extends Error {
 }
 
 export function getApiBaseUrl(): string {
-  const fallbackUrl = "https://travel-app-backend-ashen.vercel.app";
   const configured = (
     typeof window === "undefined"
       ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
   )?.trim() ?? "";
 
-  // A malformed/relative env value must not turn every request into a broken
-  // URL (e.g. "api" or "https://"): fall back to the deployed backend instead.
-  const isUsable =
-    configured.length > 0 && /^https?:\/\/[^\s/]+/i.test(configured);
+  // The public customer app must not silently fall through to a stale hardcoded
+  // backend URL in production. If the deployment is missing a backend target,
+  // fail loudly rather than querying the wrong database and pretending the data
+  // is empty.
+  if (!configured || !/^https?:\/\/[^\s/]+/i.test(configured)) {
+    throw new Error(
+      "BACKEND_URL or NEXT_PUBLIC_API_URL is not configured for the customer frontend. Set the deployed backend URL for this Vercel project."
+    );
+  }
 
-  return (isUsable ? configured : fallbackUrl).replace(/\/+$/, "");
+  return configured.replace(/\/+$/, "");
 }
 
 export function isBrowser(): boolean {

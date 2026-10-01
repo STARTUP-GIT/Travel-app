@@ -1,6 +1,10 @@
 type CacheEntry = { data: unknown; expires: number };
 
-const TTL_MS = 60_000;
+// Approved public listings can change as soon as an admin updates status or
+// adds/removes a package, so the customer home page sees the new data without a
+// full rebuild. A short cache window keeps the API responses fresh while still
+// de-duping repeated reads in the same process.
+const TTL_MS = 15_000;
 
 const store = new Map<string, CacheEntry>();
 const inflight = new Map<string, Promise<unknown>>();

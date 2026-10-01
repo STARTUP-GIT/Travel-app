@@ -1,6 +1,9 @@
 type CacheEntry = { data: unknown; expires: number };
 
-const TTL_MS = 60_000;
+// Provider/public listing content is refreshed by admin actions, so a shorter
+// cache window keeps district and place data aligned with current approval
+// state without a full redeploy.
+const TTL_MS = 15_000;
 
 const store = new Map<string, CacheEntry>();
 const inflight = new Map<string, Promise<unknown>>();
