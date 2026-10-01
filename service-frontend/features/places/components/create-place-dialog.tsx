@@ -217,10 +217,19 @@ export function CreatePlaceDialog({
   onCreated: (place: ManageablePlace) => void;
 }) {
   const [state, setState] = React.useState<FormState>(initialState);
+  const [customCategory, setCustomCategory] = React.useState(false);
   const [errors, setErrors] = React.useState<Errors>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+
+  const revokePhotoUrls = React.useCallback((photos: Photo[]) => {
+    photos.forEach((photo) => {
+      if (photo.file && photo.url.startsWith("blob:")) {
+        URL.revokeObjectURL(photo.url);
+      }
+    });
+  }, []);
   /**
    * The link's coordinates, kept with the exact link they came from. Any edit to
    * the link drops them, so a place can never be saved with coordinates belonging
@@ -239,12 +248,14 @@ export function CreatePlaceDialog({
   // A draft that survives closing the dialog: reopening the form should not
   // silently discard a half-written description and photos.
   const reset = React.useCallback(() => {
+    revokePhotoUrls(state.photos);
     setState(initialState());
+    setCustomCategory(false);
     setErrors({});
     setFormError(null);
     setResolved(null);
     setLocationResolutionFailed(false);
-  }, []);
+  }, [revokePhotoUrls, state.photos]);
 
   // Resolves the pasted link through the same backend the admin place form uses,
   // debounced so a link that is still being pasted is not fetched once per
@@ -293,16 +304,22 @@ export function CreatePlaceDialog({
       const room = MAX_PHOTOS - previous.photos.length;
       const next = Array.from(files)
         .slice(0, Math.max(room, 0))
-        .map((file) => ({ file, url: "" }));
+        .map((file) => ({ file, url: URL.createObjectURL(file) }));
       return { ...previous, photos: [...previous.photos, ...next] };
     });
   }
 
   function removePhoto(index: number) {
-    setState((previous) => ({
-      ...previous,
-      photos: previous.photos.filter((_, at) => at !== index),
-    }));
+    setState((previous) => {
+      const [removed] = previous.photos.filter((_, at) => at === index);
+      if (removed?.file && removed.url.startsWith("blob:")) {
+        URL.revokeObjectURL(removed.url);
+      }
+      return {
+        ...previous,
+        photos: previous.photos.filter((_, at) => at !== index),
+      };
+    });
   }
 
   function addBand(visitor: PlaceVisitor = "DOMESTIC") {
@@ -358,20 +375,21 @@ export function CreatePlaceDialog({
       // failure is worth reporting before anything is written.
       const images: string[] = [];
       for (const photo of state.photos) {
-        if (photo.url) {
-          images.push(photo.url);
+        if (photo.file) {
+          setUploading(true);
+          const uploaded = await uploadPlacePhoto(photo.file);
+          setUploading(false);
+          if (!uploaded.ok) {
+            setFormError(uploaded.message);
+            toast.error(uploaded.message);
+            return;
+          }
+          images.push(uploaded.data);
           continue;
         }
-        if (!photo.file) continue;
-        setUploading(true);
-        const uploaded = await uploadPlacePhoto(photo.file);
-        setUploading(false);
-        if (!uploaded.ok) {
-          setFormError(uploaded.message);
-          toast.error(uploaded.message);
-          return;
+        if (photo.url) {
+          images.push(photo.url);
         }
-        images.push(uploaded.data);
       }
 
       const result = await submitGuidePlace({
@@ -460,34 +478,67 @@ export function CreatePlaceDialog({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="place-category">Category</Label>
-            <Select
-              value={CATEGORY_OPTIONS.includes(state.category as never) ? state.category : undefined}
-              onValueChange={(value) => set("category", value)}
-            >
-              <SelectTrigger id="place-category">
-                <SelectValue placeholder="Choose a category, or type one below" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORY_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              value={state.category}
-              maxLength={CATEGORY_LIMIT}
-              onChange={(event) => set("category", event.target.value)}
-              placeholder="Or type your own category"
-              aria-label="Category"
-            />
+            {!customCategory ? (
+              <div className="flex flex-col gap-2">
+                <Select
+                  value={CATEGORY_OPTIONS.includes(state.category as never) ? state.category : undefined}
+                  onValueChange={(value) => {
+                    set("category", value);
+                    setCustomCategory(false);
+                  }}
+                >
+                  <SelectTrigger id="place-category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__custom">Type my own category</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-fit"
+                  onClick={() => {
+                    set("category", "");
+                    setCustomCategory(true);
+                  }}
+                >
+                  Use custom category
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Input
+                  value={state.category}
+                  maxLength={CATEGORY_LIMIT}
+                  onChange={(event) => set("category", event.target.value)}
+                  placeholder="Type your own category"
+                  aria-label="Custom category"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-fit"
+                  onClick={() => {
+                    set("category", "");
+                    setCustomCategory(false);
+                  }}
+                >
+                  Choose an existing category
+                </Button>
+              </div>
+            )}
             {errors.category ? (
               <p className="text-xs text-destructive">{errors.category}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Used to group the place for travellers, so matching an existing
-                category keeps it easy to find.
+                Pick one category only. Existing categories keep places easy to
+                find, and a custom category is used when no standard one fits.
               </p>
             )}
           </div>

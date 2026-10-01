@@ -130,8 +130,16 @@ export type ProviderProfileInput = {
 export type PackagePlace = {
   id: string;
   name: string;
+  description: string | null;
   images: string[];
   category: string;
+  entryfee: number | null;
+  pricing?: {
+    id: string;
+    visitor: PlaceVisitor;
+    ageGroup: string;
+    amount: number;
+  }[];
   district: { id: string; name: string } | null;
 };
 

@@ -63,7 +63,7 @@ export const PROVIDER_KIND_META: Record<ProviderKind, ProviderKindMeta> = {
   },
   common_guide: {
     kind: "common_guide",
-    label: "Tour guide",
+    label: "Common Guide",
     blurb: "Guide travellers across several places in a district.",
     serviceKind: "guide",
     managesVenues: false,

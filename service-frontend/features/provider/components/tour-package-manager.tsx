@@ -58,8 +58,11 @@ function toPackagePlace(place: ManageablePlace): PackagePlace {
   return {
     id: place.id,
     name: place.name,
+    description: null,
     images: place.images,
     category: place.category,
+    entryfee: place.entryfee,
+    pricing: [],
     district: place.district,
   };
 }

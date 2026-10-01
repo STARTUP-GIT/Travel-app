@@ -1,12 +1,11 @@
 "use client";
 
-import { ArrowLeft, MapPin, Route } from "lucide-react";
+import { ArrowLeft, MapPin, Route, Ticket } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
 import { EmptyState } from "@/components/shared/states";
 import { GlassCard } from "@/components/shared/glass-card";
-import { MediaRowCard } from "@/components/shared/media-row-card";
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +61,32 @@ export function PackageDetail({
   };
 
   const placesForGuide = scopedGuide.type === "common" ? scopedGuide.places : [];
+
+  function priceSummary(place: (typeof pkg.places)[number]): string {
+    const pricing = place.pricing ?? [];
+    if (pricing.length > 0) {
+      const adultDomestic = pricing.find(
+        (band) => band.visitor === "DOMESTIC" && band.ageGroup.toLowerCase() === "adult"
+      );
+      const adultForeign = pricing.find(
+        (band) => band.visitor === "FOREIGN" && band.ageGroup.toLowerCase() === "adult"
+      );
+
+      if (adultDomestic || adultForeign) {
+        return [
+          adultDomestic ? `Indian: ${formatCurrency(adultDomestic.amount)}` : "Indian: —",
+          adultForeign ? `Foreign: ${formatCurrency(adultForeign.amount)}` : "Foreign: —",
+        ].join(" · ");
+      }
+
+      const cheapest = Math.min(...pricing.map((band) => band.amount));
+      return `From ${formatCurrency(cheapest)}`;
+    }
+
+    return place.entryfee === null || place.entryfee === undefined
+      ? "Free entry"
+      : formatCurrency(place.entryfee);
+  }
 
   return (
     <div className="pb-8">
@@ -155,15 +180,53 @@ export function PackageDetail({
               description="This tour does not cover any place in this district yet."
             />
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {pkg.places.map((place) => (
-                <MediaRowCard
-                  key={place.id}
-                  href={`${districtBase}/places/${place.id}`}
-                  title={place.name}
-                  subtitle={place.districtName}
-                  icon={<MapPin className="size-4" />}
-                />
+                <div key={place.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <Link
+                    href={`${districtBase}/places/${place.id}`}
+                    className="flex flex-col gap-3 p-3 sm:flex-row"
+                  >
+                    <div className="relative h-24 w-full overflow-hidden rounded-xl sm:w-32">
+                      {place.images?.[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={place.images[0]}
+                          alt={place.name}
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center bg-muted text-muted-foreground">
+                          <MapPin className="size-4" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold">{place.name}</p>
+                          <p className="text-xs text-muted-foreground">{place.districtName}</p>
+                        </div>
+                        <Badge variant="outline" className="shrink-0">
+                          {place.category || "Place"}
+                        </Badge>
+                      </div>
+
+                      {place.description ? (
+                        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                          {place.description}
+                        </p>
+                      ) : null}
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
+                          <Ticket className="size-3.5" />
+                          {priceSummary(place)}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
               ))}
             </div>
           )}

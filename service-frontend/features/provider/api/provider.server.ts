@@ -550,8 +550,16 @@ export async function deleteProviderProfile(
 type RawPackagePlace = {
   id: string;
   name: string;
+  description?: string | null;
   images?: string[] | null;
   category?: string | null;
+  entryfee?: number | null;
+  pricing?: {
+    id: string;
+    visitor: "DOMESTIC" | "FOREIGN";
+    ageGroup: string;
+    amount: number;
+  }[] | null;
   district?: { id: string; name: string } | null;
 };
 
@@ -587,8 +595,11 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
     places: (raw.places ?? []).map((place) => ({
       id: place.id,
       name: place.name,
+      description: place.description ?? null,
       images: place.images ?? [],
       category: place.category ?? "",
+      entryfee: place.entryfee ?? null,
+      pricing: place.pricing ?? [],
       district: place.district ?? null,
     })),
   };

@@ -68,7 +68,11 @@ export async function listDistrictGuideDirectory(
       name: place.name,
       slug: slugify(place.name),
       districtName,
+      description: place.description,
       images: place.images,
+      category: place.category,
+      entryfee: place.entryfee,
+      pricing: place.pricing ?? [],
     };
 
     for (const guide of place.specificguide ?? []) {

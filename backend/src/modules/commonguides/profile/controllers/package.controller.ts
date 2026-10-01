@@ -18,10 +18,20 @@ import {
 const packagePlaceSelect = {
   id: true,
   name: true,
+  description: true,
   images: true,
   category: true,
+  entryfee: true,
   district: { select: { id: true, name: true } },
-} as const;
+  pricing: {
+    select: {
+      id: true,
+      visitor: true,
+      ageGroup: true,
+      amount: true,
+    },
+  },
+};
 
 /**
  * The shape every package is read with, so the service profile manager and the
@@ -30,16 +40,24 @@ const packagePlaceSelect = {
 const packageInclude = {
   places: {
     include: { place: { select: packagePlaceSelect } },
-    orderBy: { place: { name: "asc" } },
+    orderBy: { place: { name: "asc" as const } },
   },
-} as const;
+};
 
 type PackagePlace = {
   id: string;
   name: string;
+  description: string | null;
   images: string[];
   category: string;
+  entryfee: number | null;
   district: { id: string; name: string } | null;
+  pricing: {
+    id: string;
+    visitor: "DOMESTIC" | "FOREIGN";
+    ageGroup: string;
+    amount: number;
+  }[];
 };
 
 /**
@@ -113,7 +131,9 @@ async function resolveApprovedPlaceIds(
 
   // Keep the guide's own ordering (the order the picker sent) rather than
   // whatever order the database happened to return the rows in.
-  const byId = new Map(places.map((place) => [place.id, place]));
+  const byId = new Map<string, PackagePlace>(
+    places.map((place) => [place.id, place as PackagePlace])
+  );
   return { ok: true, places: placeIds.map((id) => byId.get(id)!) };
 }
 

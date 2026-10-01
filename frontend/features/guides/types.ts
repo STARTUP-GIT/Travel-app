@@ -74,14 +74,25 @@ export type TourPackageSummary = {
 };
 
 /** A package resolved to the places it contains inside the current district. */
-export type TourPackage = TourPackageSummary & {
-  places: {
+export type TourPackagePlace = {
+  id: string;
+  name: string;
+  slug: string;
+  districtName: string;
+  description?: string | null;
+  images?: string[];
+  category?: string;
+  entryfee?: number | null;
+  pricing?: {
     id: string;
-    name: string;
-    slug: string;
-    districtName: string;
-    images?: string[];
+    visitor: "DOMESTIC" | "FOREIGN";
+    ageGroup: string;
+    amount: number;
   }[];
+};
+
+export type TourPackage = TourPackageSummary & {
+  places: TourPackagePlace[];
 };
 
 export type PackageWithContext = TourPackage & {
