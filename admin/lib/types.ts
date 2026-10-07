@@ -325,3 +325,85 @@ export type ListResponse<T> = {
 };
 
 export type SearchParams = Record<string, string | string[] | undefined>;
+
+export type AuditLog = {
+  id: string;
+  adminId: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  detail: string;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  createdAt: string;
+  admin?: { id: string; name: string; username: string };
+};
+
+export type SupportTicket = {
+  id: string;
+  userId: string;
+  subject: string;
+  message: string;
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  adminReply: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: UserAdmin;
+};
+
+export type AdminNotification = {
+  id: string;
+  adminId: string;
+  title: string;
+  message: string;
+  target: "ALL_USERS" | "ALL_GUIDES" | "ALL_OWNERS" | "EVERYONE";
+  createdAt: string;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discount: number;
+  discountType: "PERCENTAGE" | "FLAT";
+  minBookingAmount: number;
+  maxUses: number | null;
+  usedCount: number;
+  validUntil: string | null;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type AppVersionConfig = {
+  id: string;
+  app: "CLIENT" | "SERVICE";
+  minVersion: string;
+  latestVersion: string;
+  forceUpdate: boolean;
+  updateMessage: string;
+  storeUrl: string | null;
+  updatedAt: string;
+};
+
+export type AdminRole = "SUPER_ADMIN" | "ADMIN" | "MODERATOR" | "SUPPORT";
+
+export type AdminUserRoleItem = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  role: AdminRole;
+  profilepic: string | null;
+  createdAt: string;
+};
+
+export type AdminSession = {
+  id: string;
+  adminId: string;
+  ip: string | null;
+  userAgent: string | null;
+  issuedAt: string;
+  expiresAt: string;
+  isRevoked: boolean;
+  admin?: { id: string; name: string; username: string; email: string };
+};

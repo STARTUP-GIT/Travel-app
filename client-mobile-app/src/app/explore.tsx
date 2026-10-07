@@ -1,180 +1,209 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+/**
+ * Destination picker: State -> District.
+ *
+ * This is the app's entry point for browsing and is entirely dynamic: states and
+ * districts come from the backend's public location endpoints, already filtered
+ * to what an admin has enabled. There is no default state and no pre-selected
+ * district — the user always starts at the top of the real list.
+ *
+ * Search filters the loaded list client-side; these lists are small (tens of
+ * entries) and already in memory, so a round trip per keystroke would be slower
+ * and no more accurate.
+ */
 
-import { ExternalLink } from '@/components/external-link';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useMemo, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TextField } from "@/components/ui/text-field";
+import { Badge, Chip } from "@/components/ui/badge";
+import { Touchable } from "@/components/ui/pressable";
+import { RemoteImage } from "@/components/ui/remote-image";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
+import { useQuery } from "@/hooks/use-query";
+import {
+  getDistricts,
+  getStates,
+  type DistrictSummary,
+  type StateSummary,
+} from "@/services/locations.service";
+import { colors, radii, spacing, typography } from "@/theme";
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
-  const theme = useTheme();
+export default function ExploreScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
+  const [selectedStateId, setSelectedStateId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+
+  const states = useQuery<StateSummary[]>(() => getStates(), []);
+  const districts = useQuery<DistrictSummary[]>(() => getDistricts(), []);
+
+  const activeState = useMemo(() => {
+    if (!selectedStateId) return null;
+    return states.data?.find((state) => state.id === selectedStateId) ?? null;
+  }, [selectedStateId, states.data]);
+
+  const visibleDistricts = useMemo(() => {
+    const all = districts.data ?? [];
+    const scoped = selectedStateId ? all.filter((d) => d.stateId === selectedStateId) : all;
+    const needle = query.trim().toLowerCase();
+    if (needle.length < 2) return scoped;
+    return scoped.filter((district) => district.name.toLowerCase().includes(needle));
+  }, [districts.data, selectedStateId, query]);
+
+  const loading = states.loading || districts.loading;
 
   return (
     <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
-          <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
-          </ThemedText>
-
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
-        </ThemedView>
-
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
-              </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
+      style={styles.screen}
+      contentContainerStyle={{ padding: spacing.xl, paddingBottom: insets.bottom + spacing.huge }}
+      keyboardShouldPersistTaps="handled"
+    >
+      {loading ? (
+        <LoadingState label="Loading destinations…" />
+      ) : states.error && !states.data ? (
+        <ErrorState message={states.error} onRetry={states.reload} />
+      ) : (
+        <>
+          <Text style={styles.stepLabel}>Step 1 · Choose a state</Text>
+          <View style={styles.chips}>
+            {(states.data ?? []).map((state) => (
+              <Chip
+                key={state.id}
+                label={state.name}
+                selected={state.id === selectedStateId}
+                onPress={() =>
+                  setSelectedStateId((current) => (current === state.id ? null : state.id))
+                }
               />
-            </ThemedView>
-          </Collapsible>
+            ))}
+            {(states.data ?? []).length === 0 ? (
+              <Text style={styles.noStates}>
+                No states are published for tourism yet.
+              </Text>
+            ) : null}
+          </View>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          <Text style={styles.stepLabel}>
+            Step 2 · {activeState ? `Districts in ${activeState.name}` : "Choose a district"}
+          </Text>
 
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          <TextField
+            label="Search districts"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Type at least two letters"
+            autoCapitalize="none"
+          />
 
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
-        </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
+          {districts.error && !districts.data ? (
+            <ErrorState message={districts.error} onRetry={districts.reload} />
+          ) : visibleDistricts.length === 0 ? (
+            <EmptyState
+              title="No districts found"
+              description={
+                query.trim().length >= 2
+                  ? "Try a different name, or clear the search."
+                  : "No districts are published yet."
+              }
+              icon="map-outline"
+              action={
+                query.trim().length >= 2
+                  ? { label: "Clear search", onPress: () => setQuery("") }
+                  : undefined
+              }
+            />
+          ) : (
+            visibleDistricts.map((district) => (
+              <DistrictRow
+                key={district.id}
+                district={district}
+                onPress={() =>
+                  router.push(`/d/${district.state?.slug ?? "india"}/${district.slug}`)
+                }
+              />
+            ))
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }
 
+function DistrictRow({
+  district,
+  onPress,
+}: {
+  district: DistrictSummary;
+  onPress: () => void;
+}) {
+  return (
+    <Touchable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${district.name}${district.state?.name ? `, ${district.state.name}` : ""}`}
+      style={styles.row}
+    >
+      <RemoteImage
+        uri={district.state?.primaryImage ?? null}
+        style={styles.image}
+        fallbackLabel={district.name}
+        accessibilityLabel={district.name}
+      />
+
+      <View style={styles.rowBody}>
+        <Text style={styles.rowName}>{district.name}</Text>
+        {district.state?.name ? (
+          <Text style={styles.rowState}>{district.state.name}</Text>
+        ) : null}
+
+        <View style={styles.rowBadges}>
+          <Badge label={`${district.placeCount} places`} tone="primary" />
+          {district.hotelCount > 0 ? (
+            <Badge label={`${district.hotelCount} hotels`} tone="neutral" />
+          ) : null}
+          {district.restaurantCount > 0 ? (
+            <Badge label={`${district.restaurantCount} restaurants`} tone="neutral" />
+          ) : null}
+        </View>
+      </View>
+
+      <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+    </Touchable>
+  );
+}
+
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
+  screen: { flex: 1, backgroundColor: colors.background },
+  stepLabel: {
+    ...typography.subheading,
+    color: colors.text,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  chips: { flexDirection: "row", flexWrap: "wrap", marginBottom: spacing.lg },
+  noStates: { ...typography.small, color: colors.textMuted },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.md,
   },
-  container: {
-    maxWidth: MaxContentWidth,
-    flexGrow: 1,
-  },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
-  },
-  centerText: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
+  image: { width: 64, height: 64 },
+  rowBody: { flex: 1 },
+  rowName: { ...typography.subheading, color: colors.text },
+  rowState: { ...typography.small, color: colors.textMuted, marginTop: 2 },
+  rowBadges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
   },
 });

@@ -86,3 +86,5 @@ export function deleteJSON(path: string): Promise<unknown> {
     method: "DELETE",
   });
 }
+
+export { deleteJSON as del };

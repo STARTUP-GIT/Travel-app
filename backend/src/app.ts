@@ -60,6 +60,8 @@ import placeRoutes from './modules/places/routes/places.routes.js';
 import appSettingsRoutes from './app_config/routes/appSettings.routes.js';
 import adminConfigRoutes from './app_config/routes/admin.routes.js';
 import uploadRoutes from './app_config/routes/upload.routes.js';
+import brandingPublicRoutes from './app_config/routes/brandingPublic.routes.js';
+import versionPublicRoutes from './app_config/routes/versionPublic.routes.js';
 
 /**
  CUSTOMER (PUBLIC) LOCATION ROUTES
@@ -177,6 +179,12 @@ ADMIN PANEL CONFIGURATION ROUTES
 app.use('/api', appSettingsRoutes);
 app.use('/api', customerLocationRoutes);
 app.use('/api/admin', adminConfigRoutes);
+
+/**
+ PUBLIC BRANDING + VERSION ENDPOINTS
+**/
+app.use('/api', brandingPublicRoutes);
+app.use('/api', versionPublicRoutes);
 
 /**
  GENERIC IMAGE UPLOAD (single endpoint → Cloudinary → secure_url)

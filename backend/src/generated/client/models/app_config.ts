@@ -26,6 +26,7 @@ export type AggregateApp_config = {
 
 export type App_configMinAggregateOutputType = {
   id: string | null
+  scope: $Enums.BrandingScope | null
   app_name: string | null
   icon: string | null
   webTitle: string | null
@@ -42,6 +43,7 @@ export type App_configMinAggregateOutputType = {
 
 export type App_configMaxAggregateOutputType = {
   id: string | null
+  scope: $Enums.BrandingScope | null
   app_name: string | null
   icon: string | null
   webTitle: string | null
@@ -58,6 +60,7 @@ export type App_configMaxAggregateOutputType = {
 
 export type App_configCountAggregateOutputType = {
   id: number
+  scope: number
   app_name: number
   imageBanners: number
   icon: number
@@ -77,6 +80,7 @@ export type App_configCountAggregateOutputType = {
 
 export type App_configMinAggregateInputType = {
   id?: true
+  scope?: true
   app_name?: true
   icon?: true
   webTitle?: true
@@ -93,6 +97,7 @@ export type App_configMinAggregateInputType = {
 
 export type App_configMaxAggregateInputType = {
   id?: true
+  scope?: true
   app_name?: true
   icon?: true
   webTitle?: true
@@ -109,6 +114,7 @@ export type App_configMaxAggregateInputType = {
 
 export type App_configCountAggregateInputType = {
   id?: true
+  scope?: true
   app_name?: true
   imageBanners?: true
   icon?: true
@@ -199,6 +205,7 @@ export type app_configGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type App_configGroupByOutputType = {
   id: string
+  scope: $Enums.BrandingScope
   app_name: string
   imageBanners: string[]
   icon: string
@@ -237,6 +244,7 @@ export type app_configWhereInput = {
   OR?: Prisma.app_configWhereInput[]
   NOT?: Prisma.app_configWhereInput | Prisma.app_configWhereInput[]
   id?: Prisma.StringFilter<"app_config"> | string
+  scope?: Prisma.EnumBrandingScopeFilter<"app_config"> | $Enums.BrandingScope
   app_name?: Prisma.StringFilter<"app_config"> | string
   imageBanners?: Prisma.StringNullableListFilter<"app_config">
   icon?: Prisma.StringFilter<"app_config"> | string
@@ -256,6 +264,7 @@ export type app_configWhereInput = {
 
 export type app_configOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   app_name?: Prisma.SortOrder
   imageBanners?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -278,6 +287,7 @@ export type app_configWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.app_configWhereInput | Prisma.app_configWhereInput[]
   OR?: Prisma.app_configWhereInput[]
   NOT?: Prisma.app_configWhereInput | Prisma.app_configWhereInput[]
+  scope?: Prisma.EnumBrandingScopeFilter<"app_config"> | $Enums.BrandingScope
   app_name?: Prisma.StringFilter<"app_config"> | string
   imageBanners?: Prisma.StringNullableListFilter<"app_config">
   icon?: Prisma.StringFilter<"app_config"> | string
@@ -297,6 +307,7 @@ export type app_configWhereUniqueInput = Prisma.AtLeast<{
 
 export type app_configOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   app_name?: Prisma.SortOrder
   imageBanners?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -320,6 +331,7 @@ export type app_configScalarWhereWithAggregatesInput = {
   OR?: Prisma.app_configScalarWhereWithAggregatesInput[]
   NOT?: Prisma.app_configScalarWhereWithAggregatesInput | Prisma.app_configScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"app_config"> | string
+  scope?: Prisma.EnumBrandingScopeWithAggregatesFilter<"app_config"> | $Enums.BrandingScope
   app_name?: Prisma.StringWithAggregatesFilter<"app_config"> | string
   imageBanners?: Prisma.StringNullableListFilter<"app_config">
   icon?: Prisma.StringWithAggregatesFilter<"app_config"> | string
@@ -337,6 +349,7 @@ export type app_configScalarWhereWithAggregatesInput = {
 
 export type app_configCreateInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -356,6 +369,7 @@ export type app_configCreateInput = {
 
 export type app_configUncheckedCreateInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -375,6 +389,7 @@ export type app_configUncheckedCreateInput = {
 
 export type app_configUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -394,6 +409,7 @@ export type app_configUpdateInput = {
 
 export type app_configUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -413,6 +429,7 @@ export type app_configUncheckedUpdateInput = {
 
 export type app_configCreateManyInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -430,6 +447,7 @@ export type app_configCreateManyInput = {
 
 export type app_configUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -447,6 +465,7 @@ export type app_configUpdateManyMutationInput = {
 
 export type app_configUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -472,6 +491,7 @@ export type StringNullableListFilter<$PrismaModel = never> = {
 
 export type app_configCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   app_name?: Prisma.SortOrder
   imageBanners?: Prisma.SortOrder
   icon?: Prisma.SortOrder
@@ -489,6 +509,7 @@ export type app_configCountOrderByAggregateInput = {
 
 export type app_configMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   app_name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   webTitle?: Prisma.SortOrder
@@ -505,6 +526,7 @@ export type app_configMaxOrderByAggregateInput = {
 
 export type app_configMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  scope?: Prisma.SortOrder
   app_name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   webTitle?: Prisma.SortOrder
@@ -530,6 +552,10 @@ export type app_configCreateimageBannersInput = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type EnumBrandingScopeFieldUpdateOperationsInput = {
+  set?: $Enums.BrandingScope
 }
 
 export type app_configUpdateimageBannersInput = {
@@ -575,6 +601,7 @@ export type app_configUpdateOneWithoutAdminNestedInput = {
 
 export type app_configCreateWithoutTestimonialsInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -593,6 +620,7 @@ export type app_configCreateWithoutTestimonialsInput = {
 
 export type app_configUncheckedCreateWithoutTestimonialsInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -627,6 +655,7 @@ export type app_configUpdateToOneWithWhereWithoutTestimonialsInput = {
 
 export type app_configUpdateWithoutTestimonialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -645,6 +674,7 @@ export type app_configUpdateWithoutTestimonialsInput = {
 
 export type app_configUncheckedUpdateWithoutTestimonialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -663,6 +693,7 @@ export type app_configUncheckedUpdateWithoutTestimonialsInput = {
 
 export type app_configCreateWithoutAdminInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -681,6 +712,7 @@ export type app_configCreateWithoutAdminInput = {
 
 export type app_configUncheckedCreateWithoutAdminInput = {
   id?: string
+  scope?: $Enums.BrandingScope
   app_name: string
   imageBanners?: Prisma.app_configCreateimageBannersInput | string[]
   icon: string
@@ -715,6 +747,7 @@ export type app_configUpdateToOneWithWhereWithoutAdminInput = {
 
 export type app_configUpdateWithoutAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -733,6 +766,7 @@ export type app_configUpdateWithoutAdminInput = {
 
 export type app_configUncheckedUpdateWithoutAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  scope?: Prisma.EnumBrandingScopeFieldUpdateOperationsInput | $Enums.BrandingScope
   app_name?: Prisma.StringFieldUpdateOperationsInput | string
   imageBanners?: Prisma.app_configUpdateimageBannersInput | string[]
   icon?: Prisma.StringFieldUpdateOperationsInput | string
@@ -791,6 +825,7 @@ export type App_configCountOutputTypeCountAdminArgs<ExtArgs extends runtime.Type
 
 export type app_configSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  scope?: boolean
   app_name?: boolean
   imageBanners?: boolean
   icon?: boolean
@@ -811,6 +846,7 @@ export type app_configSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type app_configSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  scope?: boolean
   app_name?: boolean
   imageBanners?: boolean
   icon?: boolean
@@ -828,6 +864,7 @@ export type app_configSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
 
 export type app_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  scope?: boolean
   app_name?: boolean
   imageBanners?: boolean
   icon?: boolean
@@ -845,6 +882,7 @@ export type app_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 
 export type app_configSelectScalar = {
   id?: boolean
+  scope?: boolean
   app_name?: boolean
   imageBanners?: boolean
   icon?: boolean
@@ -860,7 +898,7 @@ export type app_configSelectScalar = {
   restaurantsAutoApproval?: boolean
 }
 
-export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description" | "placesAutoApproval" | "guidesAutoApproval" | "hotelsAutoApproval" | "restaurantsAutoApproval", ExtArgs["result"]["app_config"]>
+export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description" | "placesAutoApproval" | "guidesAutoApproval" | "hotelsAutoApproval" | "restaurantsAutoApproval", ExtArgs["result"]["app_config"]>
 export type app_configInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   testimonials?: boolean | Prisma.app_config$testimonialsArgs<ExtArgs>
   admin?: boolean | Prisma.app_config$adminArgs<ExtArgs>
@@ -877,6 +915,7 @@ export type $app_configPayload<ExtArgs extends runtime.Types.Extensions.Internal
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    scope: $Enums.BrandingScope
     app_name: string
     imageBanners: string[]
     icon: string
@@ -1316,6 +1355,7 @@ export interface Prisma__app_configClient<T, Null = never, ExtArgs extends runti
  */
 export interface app_configFieldRefs {
   readonly id: Prisma.FieldRef<"app_config", 'String'>
+  readonly scope: Prisma.FieldRef<"app_config", 'BrandingScope'>
   readonly app_name: Prisma.FieldRef<"app_config", 'String'>
   readonly imageBanners: Prisma.FieldRef<"app_config", 'String[]'>
   readonly icon: Prisma.FieldRef<"app_config", 'String'>

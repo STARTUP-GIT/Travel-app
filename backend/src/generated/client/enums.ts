@@ -52,3 +52,39 @@ export const placeVisitorType = {
 } as const
 
 export type placeVisitorType = (typeof placeVisitorType)[keyof typeof placeVisitorType]
+
+
+export const BrandingScope = {
+  CLIENT: 'CLIENT',
+  SERVICE: 'SERVICE'
+} as const
+
+export type BrandingScope = (typeof BrandingScope)[keyof typeof BrandingScope]
+
+
+export const AdminRole = {
+  SUPER: 'SUPER',
+  MANAGER: 'MANAGER',
+  VIEWER: 'VIEWER'
+} as const
+
+export type AdminRole = (typeof AdminRole)[keyof typeof AdminRole]
+
+
+export const TicketStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+} as const
+
+export type TicketStatus = (typeof TicketStatus)[keyof typeof TicketStatus]
+
+
+export const NotificationTarget = {
+  ALL: 'ALL',
+  USERS: 'USERS',
+  GUIDES: 'GUIDES'
+} as const
+
+export type NotificationTarget = (typeof NotificationTarget)[keyof typeof NotificationTarget]

@@ -32,6 +32,11 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+
+# The example documents which variables the app expects and holds no secrets,
+# so it is tracked even though real env files are not.
+!.env.example
 
 # typescript
 *.tsbuildinfo

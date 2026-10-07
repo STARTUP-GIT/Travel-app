@@ -13,7 +13,10 @@ datasource db {
 }
 
 model app_config{
-  id                  String   @id @default(uuid())
+  id                  String        @id @default(uuid())
+  // CLIENT = customer web + mobile; SERVICE = service web + mobile.
+  // Existing rows (created before this column) are treated as CLIENT.
+  scope               BrandingScope @default(CLIENT)
   app_name            String
   imageBanners        String[]
   icon                String
@@ -53,15 +56,21 @@ model testimonials{
 }
 
 model admin{
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String 
-  username      String   @unique
-  email         String   @unique
+  username      String      @unique
+  email         String      @unique
   password      String   
   appConfigId   String?
-  appConfig   app_config? @relation(fields: [appConfigId], references: [id])
-  authprovider      authProviders
+  appConfig     app_config? @relation(fields: [appConfigId], references: [id])
+  authprovider  authProviders
   profilepic    String?
+  // Role-based access: SUPER can access everything; VIEWER is read-only.
+  // Defaults to SUPER so existing admin accounts are unaffected.
+  role          AdminRole   @default(SUPER)
+  isSuspended   Boolean     @default(false)
+  audit_logs    audit_log[]
+  sessions      admin_session[]
 }
 
 model user {
@@ -541,4 +550,123 @@ enum placeVisitorType{
   FOREIGN
 }
 
+enum BrandingScope {
+  CLIENT
+  SERVICE
+}
 
+enum AdminRole {
+  SUPER
+  MANAGER
+  VIEWER
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationTarget {
+  ALL
+  USERS
+  GUIDES
+}
+
+// Mobile app version control — one row per app type (CLIENT | SERVICE).
+// The mobile apps call GET /api/app-version?app=CLIENT (or SERVICE) on startup
+// and enforce the minimum version / force-update message themselves.
+model app_version_config {
+  id              String        @id @default(uuid())
+  app             BrandingScope @unique
+  minVersion      String        @default("1.0.0")
+  latestVersion   String        @default("1.0.0")
+  forceUpdate     Boolean       @default(false)
+  updateMessage   String        @default("A new version is available. Please update to continue.")
+  storeUrl        String        @default("")
+  updatedAt       DateTime      @updatedAt
+}
+
+// Immutable append-only log of significant admin actions.
+model audit_log {
+  id          String   @id @default(uuid())
+  adminId     String
+  admin       admin    @relation(fields: [adminId], references: [id])
+  action      String   // e.g. "UPDATE_PLACE_STATUS"
+  entity      String   // e.g. "place"
+  entityId    String   // id of the affected record
+  detail      String   // human-readable summary
+  before      Json?    // snapshot of changed fields before
+  after       Json?    // snapshot of changed fields after
+  createdAt   DateTime @default(now())
+
+  @@index([adminId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// Customer/guide support tickets.
+model support_ticket {
+  id          String        @id @default(uuid())
+  subject     String
+  body        String
+  status      TicketStatus  @default(OPEN)
+  // Who raised the ticket — one of these will be set.
+  userId      String?
+  guideEmail  String?
+  // Admin assigned to resolve it.
+  assignedTo  String?
+  resolution  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([userId])
+}
+
+// Admin-composed notification records (audit trail + content).
+model admin_notification {
+  id          String              @id @default(uuid())
+  title       String
+  body        String
+  target      NotificationTarget  @default(ALL)
+  targetId    String?             // specific user/guide id when target is narrow
+  sentAt      DateTime            @default(now())
+  adminId     String
+
+  @@index([adminId])
+  @@index([sentAt])
+}
+
+// Discount coupons.
+model coupon {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  description   String   @default("")
+  discountPct   Float    // e.g. 15 = 15 %
+  maxUses       Int?     // null = unlimited
+  usedCount     Int      @default(0)
+  isActive      Boolean  @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+}
+
+// Admin login sessions (one row per token issued).
+model admin_session {
+  id          String   @id @default(uuid())
+  adminId     String
+  admin       admin    @relation(fields: [adminId], references: [id])
+  userAgent   String   @default("")
+  ipAddress   String   @default("")
+  isRevoked   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([isRevoked])
+}

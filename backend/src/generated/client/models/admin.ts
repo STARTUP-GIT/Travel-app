@@ -33,6 +33,8 @@ export type AdminMinAggregateOutputType = {
   appConfigId: string | null
   authprovider: $Enums.authProviders | null
   profilepic: string | null
+  role: $Enums.AdminRole | null
+  isSuspended: boolean | null
 }
 
 export type AdminMaxAggregateOutputType = {
@@ -44,6 +46,8 @@ export type AdminMaxAggregateOutputType = {
   appConfigId: string | null
   authprovider: $Enums.authProviders | null
   profilepic: string | null
+  role: $Enums.AdminRole | null
+  isSuspended: boolean | null
 }
 
 export type AdminCountAggregateOutputType = {
@@ -55,6 +59,8 @@ export type AdminCountAggregateOutputType = {
   appConfigId: number
   authprovider: number
   profilepic: number
+  role: number
+  isSuspended: number
   _all: number
 }
 
@@ -68,6 +74,8 @@ export type AdminMinAggregateInputType = {
   appConfigId?: true
   authprovider?: true
   profilepic?: true
+  role?: true
+  isSuspended?: true
 }
 
 export type AdminMaxAggregateInputType = {
@@ -79,6 +87,8 @@ export type AdminMaxAggregateInputType = {
   appConfigId?: true
   authprovider?: true
   profilepic?: true
+  role?: true
+  isSuspended?: true
 }
 
 export type AdminCountAggregateInputType = {
@@ -90,6 +100,8 @@ export type AdminCountAggregateInputType = {
   appConfigId?: true
   authprovider?: true
   profilepic?: true
+  role?: true
+  isSuspended?: true
   _all?: true
 }
 
@@ -174,6 +186,8 @@ export type AdminGroupByOutputType = {
   appConfigId: string | null
   authprovider: $Enums.authProviders
   profilepic: string | null
+  role: $Enums.AdminRole
+  isSuspended: boolean
   _count: AdminCountAggregateOutputType | null
   _min: AdminMinAggregateOutputType | null
   _max: AdminMaxAggregateOutputType | null
@@ -206,7 +220,11 @@ export type adminWhereInput = {
   appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
+  role?: Prisma.EnumAdminRoleFilter<"admin"> | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFilter<"admin"> | boolean
   appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
+  audit_logs?: Prisma.Audit_logListRelationFilter
+  sessions?: Prisma.Admin_sessionListRelationFilter
 }
 
 export type adminOrderByWithRelationInput = {
@@ -218,7 +236,11 @@ export type adminOrderByWithRelationInput = {
   appConfigId?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isSuspended?: Prisma.SortOrder
   appConfig?: Prisma.app_configOrderByWithRelationInput
+  audit_logs?: Prisma.audit_logOrderByRelationAggregateInput
+  sessions?: Prisma.admin_sessionOrderByRelationAggregateInput
 }
 
 export type adminWhereUniqueInput = Prisma.AtLeast<{
@@ -233,7 +255,11 @@ export type adminWhereUniqueInput = Prisma.AtLeast<{
   appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
+  role?: Prisma.EnumAdminRoleFilter<"admin"> | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFilter<"admin"> | boolean
   appConfig?: Prisma.XOR<Prisma.App_configNullableScalarRelationFilter, Prisma.app_configWhereInput> | null
+  audit_logs?: Prisma.Audit_logListRelationFilter
+  sessions?: Prisma.Admin_sessionListRelationFilter
 }, "id" | "username" | "email">
 
 export type adminOrderByWithAggregationInput = {
@@ -245,6 +271,8 @@ export type adminOrderByWithAggregationInput = {
   appConfigId?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrderInput | Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isSuspended?: Prisma.SortOrder
   _count?: Prisma.adminCountOrderByAggregateInput
   _max?: Prisma.adminMaxOrderByAggregateInput
   _min?: Prisma.adminMinOrderByAggregateInput
@@ -262,6 +290,8 @@ export type adminScalarWhereWithAggregatesInput = {
   appConfigId?: Prisma.StringNullableWithAggregatesFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableWithAggregatesFilter<"admin"> | string | null
+  role?: Prisma.EnumAdminRoleWithAggregatesFilter<"admin"> | $Enums.AdminRole
+  isSuspended?: Prisma.BoolWithAggregatesFilter<"admin"> | boolean
 }
 
 export type adminCreateInput = {
@@ -272,7 +302,11 @@ export type adminCreateInput = {
   password: string
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
   appConfig?: Prisma.app_configCreateNestedOneWithoutAdminInput
+  audit_logs?: Prisma.audit_logCreateNestedManyWithoutAdminInput
+  sessions?: Prisma.admin_sessionCreateNestedManyWithoutAdminInput
 }
 
 export type adminUncheckedCreateInput = {
@@ -284,6 +318,10 @@ export type adminUncheckedCreateInput = {
   appConfigId?: string | null
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  audit_logs?: Prisma.audit_logUncheckedCreateNestedManyWithoutAdminInput
+  sessions?: Prisma.admin_sessionUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type adminUpdateInput = {
@@ -294,7 +332,11 @@ export type adminUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   appConfig?: Prisma.app_configUpdateOneWithoutAdminNestedInput
+  audit_logs?: Prisma.audit_logUpdateManyWithoutAdminNestedInput
+  sessions?: Prisma.admin_sessionUpdateManyWithoutAdminNestedInput
 }
 
 export type adminUncheckedUpdateInput = {
@@ -306,6 +348,10 @@ export type adminUncheckedUpdateInput = {
   appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  audit_logs?: Prisma.audit_logUncheckedUpdateManyWithoutAdminNestedInput
+  sessions?: Prisma.admin_sessionUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type adminCreateManyInput = {
@@ -317,6 +363,8 @@ export type adminCreateManyInput = {
   appConfigId?: string | null
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
 }
 
 export type adminUpdateManyMutationInput = {
@@ -327,6 +375,8 @@ export type adminUpdateManyMutationInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type adminUncheckedUpdateManyInput = {
@@ -338,6 +388,8 @@ export type adminUncheckedUpdateManyInput = {
   appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type AdminListRelationFilter = {
@@ -359,6 +411,8 @@ export type adminCountOrderByAggregateInput = {
   appConfigId?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isSuspended?: Prisma.SortOrder
 }
 
 export type adminMaxOrderByAggregateInput = {
@@ -370,6 +424,8 @@ export type adminMaxOrderByAggregateInput = {
   appConfigId?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isSuspended?: Prisma.SortOrder
 }
 
 export type adminMinOrderByAggregateInput = {
@@ -381,6 +437,13 @@ export type adminMinOrderByAggregateInput = {
   appConfigId?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   profilepic?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isSuspended?: Prisma.SortOrder
+}
+
+export type AdminScalarRelationFilter = {
+  is?: Prisma.adminWhereInput
+  isNot?: Prisma.adminWhereInput
 }
 
 export type adminCreateNestedManyWithoutAppConfigInput = {
@@ -429,6 +492,38 @@ export type EnumauthProvidersFieldUpdateOperationsInput = {
   set?: $Enums.authProviders
 }
 
+export type EnumAdminRoleFieldUpdateOperationsInput = {
+  set?: $Enums.AdminRole
+}
+
+export type adminCreateNestedOneWithoutAudit_logsInput = {
+  create?: Prisma.XOR<Prisma.adminCreateWithoutAudit_logsInput, Prisma.adminUncheckedCreateWithoutAudit_logsInput>
+  connectOrCreate?: Prisma.adminCreateOrConnectWithoutAudit_logsInput
+  connect?: Prisma.adminWhereUniqueInput
+}
+
+export type adminUpdateOneRequiredWithoutAudit_logsNestedInput = {
+  create?: Prisma.XOR<Prisma.adminCreateWithoutAudit_logsInput, Prisma.adminUncheckedCreateWithoutAudit_logsInput>
+  connectOrCreate?: Prisma.adminCreateOrConnectWithoutAudit_logsInput
+  upsert?: Prisma.adminUpsertWithoutAudit_logsInput
+  connect?: Prisma.adminWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.adminUpdateToOneWithWhereWithoutAudit_logsInput, Prisma.adminUpdateWithoutAudit_logsInput>, Prisma.adminUncheckedUpdateWithoutAudit_logsInput>
+}
+
+export type adminCreateNestedOneWithoutSessionsInput = {
+  create?: Prisma.XOR<Prisma.adminCreateWithoutSessionsInput, Prisma.adminUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.adminCreateOrConnectWithoutSessionsInput
+  connect?: Prisma.adminWhereUniqueInput
+}
+
+export type adminUpdateOneRequiredWithoutSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.adminCreateWithoutSessionsInput, Prisma.adminUncheckedCreateWithoutSessionsInput>
+  connectOrCreate?: Prisma.adminCreateOrConnectWithoutSessionsInput
+  upsert?: Prisma.adminUpsertWithoutSessionsInput
+  connect?: Prisma.adminWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.adminUpdateToOneWithWhereWithoutSessionsInput, Prisma.adminUpdateWithoutSessionsInput>, Prisma.adminUncheckedUpdateWithoutSessionsInput>
+}
+
 export type adminCreateWithoutAppConfigInput = {
   id?: string
   name: string
@@ -437,6 +532,10 @@ export type adminCreateWithoutAppConfigInput = {
   password: string
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  audit_logs?: Prisma.audit_logCreateNestedManyWithoutAdminInput
+  sessions?: Prisma.admin_sessionCreateNestedManyWithoutAdminInput
 }
 
 export type adminUncheckedCreateWithoutAppConfigInput = {
@@ -447,6 +546,10 @@ export type adminUncheckedCreateWithoutAppConfigInput = {
   password: string
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  audit_logs?: Prisma.audit_logUncheckedCreateNestedManyWithoutAdminInput
+  sessions?: Prisma.admin_sessionUncheckedCreateNestedManyWithoutAdminInput
 }
 
 export type adminCreateOrConnectWithoutAppConfigInput = {
@@ -487,6 +590,152 @@ export type adminScalarWhereInput = {
   appConfigId?: Prisma.StringNullableFilter<"admin"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"admin"> | $Enums.authProviders
   profilepic?: Prisma.StringNullableFilter<"admin"> | string | null
+  role?: Prisma.EnumAdminRoleFilter<"admin"> | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFilter<"admin"> | boolean
+}
+
+export type adminCreateWithoutAudit_logsInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password: string
+  authprovider: $Enums.authProviders
+  profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  appConfig?: Prisma.app_configCreateNestedOneWithoutAdminInput
+  sessions?: Prisma.admin_sessionCreateNestedManyWithoutAdminInput
+}
+
+export type adminUncheckedCreateWithoutAudit_logsInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password: string
+  appConfigId?: string | null
+  authprovider: $Enums.authProviders
+  profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  sessions?: Prisma.admin_sessionUncheckedCreateNestedManyWithoutAdminInput
+}
+
+export type adminCreateOrConnectWithoutAudit_logsInput = {
+  where: Prisma.adminWhereUniqueInput
+  create: Prisma.XOR<Prisma.adminCreateWithoutAudit_logsInput, Prisma.adminUncheckedCreateWithoutAudit_logsInput>
+}
+
+export type adminUpsertWithoutAudit_logsInput = {
+  update: Prisma.XOR<Prisma.adminUpdateWithoutAudit_logsInput, Prisma.adminUncheckedUpdateWithoutAudit_logsInput>
+  create: Prisma.XOR<Prisma.adminCreateWithoutAudit_logsInput, Prisma.adminUncheckedCreateWithoutAudit_logsInput>
+  where?: Prisma.adminWhereInput
+}
+
+export type adminUpdateToOneWithWhereWithoutAudit_logsInput = {
+  where?: Prisma.adminWhereInput
+  data: Prisma.XOR<Prisma.adminUpdateWithoutAudit_logsInput, Prisma.adminUncheckedUpdateWithoutAudit_logsInput>
+}
+
+export type adminUpdateWithoutAudit_logsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  appConfig?: Prisma.app_configUpdateOneWithoutAdminNestedInput
+  sessions?: Prisma.admin_sessionUpdateManyWithoutAdminNestedInput
+}
+
+export type adminUncheckedUpdateWithoutAudit_logsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessions?: Prisma.admin_sessionUncheckedUpdateManyWithoutAdminNestedInput
+}
+
+export type adminCreateWithoutSessionsInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password: string
+  authprovider: $Enums.authProviders
+  profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  appConfig?: Prisma.app_configCreateNestedOneWithoutAdminInput
+  audit_logs?: Prisma.audit_logCreateNestedManyWithoutAdminInput
+}
+
+export type adminUncheckedCreateWithoutSessionsInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password: string
+  appConfigId?: string | null
+  authprovider: $Enums.authProviders
+  profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
+  audit_logs?: Prisma.audit_logUncheckedCreateNestedManyWithoutAdminInput
+}
+
+export type adminCreateOrConnectWithoutSessionsInput = {
+  where: Prisma.adminWhereUniqueInput
+  create: Prisma.XOR<Prisma.adminCreateWithoutSessionsInput, Prisma.adminUncheckedCreateWithoutSessionsInput>
+}
+
+export type adminUpsertWithoutSessionsInput = {
+  update: Prisma.XOR<Prisma.adminUpdateWithoutSessionsInput, Prisma.adminUncheckedUpdateWithoutSessionsInput>
+  create: Prisma.XOR<Prisma.adminCreateWithoutSessionsInput, Prisma.adminUncheckedCreateWithoutSessionsInput>
+  where?: Prisma.adminWhereInput
+}
+
+export type adminUpdateToOneWithWhereWithoutSessionsInput = {
+  where?: Prisma.adminWhereInput
+  data: Prisma.XOR<Prisma.adminUpdateWithoutSessionsInput, Prisma.adminUncheckedUpdateWithoutSessionsInput>
+}
+
+export type adminUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  appConfig?: Prisma.app_configUpdateOneWithoutAdminNestedInput
+  audit_logs?: Prisma.audit_logUpdateManyWithoutAdminNestedInput
+}
+
+export type adminUncheckedUpdateWithoutSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  appConfigId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
+  profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  audit_logs?: Prisma.audit_logUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type adminCreateManyAppConfigInput = {
@@ -497,6 +746,8 @@ export type adminCreateManyAppConfigInput = {
   password: string
   authprovider: $Enums.authProviders
   profilepic?: string | null
+  role?: $Enums.AdminRole
+  isSuspended?: boolean
 }
 
 export type adminUpdateWithoutAppConfigInput = {
@@ -507,6 +758,10 @@ export type adminUpdateWithoutAppConfigInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  audit_logs?: Prisma.audit_logUpdateManyWithoutAdminNestedInput
+  sessions?: Prisma.admin_sessionUpdateManyWithoutAdminNestedInput
 }
 
 export type adminUncheckedUpdateWithoutAppConfigInput = {
@@ -517,6 +772,10 @@ export type adminUncheckedUpdateWithoutAppConfigInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  audit_logs?: Prisma.audit_logUncheckedUpdateManyWithoutAdminNestedInput
+  sessions?: Prisma.admin_sessionUncheckedUpdateManyWithoutAdminNestedInput
 }
 
 export type adminUncheckedUpdateManyWithoutAppConfigInput = {
@@ -527,8 +786,48 @@ export type adminUncheckedUpdateManyWithoutAppConfigInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   profilepic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
+
+/**
+ * Count Type AdminCountOutputType
+ */
+
+export type AdminCountOutputType = {
+  audit_logs: number
+  sessions: number
+}
+
+export type AdminCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  audit_logs?: boolean | AdminCountOutputTypeCountAudit_logsArgs
+  sessions?: boolean | AdminCountOutputTypeCountSessionsArgs
+}
+
+/**
+ * AdminCountOutputType without action
+ */
+export type AdminCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdminCountOutputType
+   */
+  select?: Prisma.AdminCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AdminCountOutputType without action
+ */
+export type AdminCountOutputTypeCountAudit_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.audit_logWhereInput
+}
+
+/**
+ * AdminCountOutputType without action
+ */
+export type AdminCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.admin_sessionWhereInput
+}
 
 
 export type adminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -540,7 +839,12 @@ export type adminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
+  role?: boolean
+  isSuspended?: boolean
   appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
+  audit_logs?: boolean | Prisma.admin$audit_logsArgs<ExtArgs>
+  sessions?: boolean | Prisma.admin$sessionsArgs<ExtArgs>
+  _count?: boolean | Prisma.AdminCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
 export type adminSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -552,6 +856,8 @@ export type adminSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
+  role?: boolean
+  isSuspended?: boolean
   appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
@@ -564,6 +870,8 @@ export type adminSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
+  role?: boolean
+  isSuspended?: boolean
   appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
@@ -576,11 +884,16 @@ export type adminSelectScalar = {
   appConfigId?: boolean
   authprovider?: boolean
   profilepic?: boolean
+  role?: boolean
+  isSuspended?: boolean
 }
 
-export type adminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "appConfigId" | "authprovider" | "profilepic", ExtArgs["result"]["admin"]>
+export type adminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "appConfigId" | "authprovider" | "profilepic" | "role" | "isSuspended", ExtArgs["result"]["admin"]>
 export type adminInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
+  audit_logs?: boolean | Prisma.admin$audit_logsArgs<ExtArgs>
+  sessions?: boolean | Prisma.admin$sessionsArgs<ExtArgs>
+  _count?: boolean | Prisma.AdminCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type adminIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   appConfig?: boolean | Prisma.admin$appConfigArgs<ExtArgs>
@@ -593,6 +906,8 @@ export type $adminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name: "admin"
   objects: {
     appConfig: Prisma.$app_configPayload<ExtArgs> | null
+    audit_logs: Prisma.$audit_logPayload<ExtArgs>[]
+    sessions: Prisma.$admin_sessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -603,6 +918,8 @@ export type $adminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     appConfigId: string | null
     authprovider: $Enums.authProviders
     profilepic: string | null
+    role: $Enums.AdminRole
+    isSuspended: boolean
   }, ExtArgs["result"]["admin"]>
   composites: {}
 }
@@ -998,6 +1315,8 @@ readonly fields: adminFieldRefs;
 export interface Prisma__adminClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   appConfig<T extends Prisma.admin$appConfigArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.admin$appConfigArgs<ExtArgs>>): Prisma.Prisma__app_configClient<runtime.Types.Result.GetResult<Prisma.$app_configPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  audit_logs<T extends Prisma.admin$audit_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.admin$audit_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$audit_logPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessions<T extends Prisma.admin$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.admin$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$admin_sessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1035,6 +1354,8 @@ export interface adminFieldRefs {
   readonly appConfigId: Prisma.FieldRef<"admin", 'String'>
   readonly authprovider: Prisma.FieldRef<"admin", 'authProviders'>
   readonly profilepic: Prisma.FieldRef<"admin", 'String'>
+  readonly role: Prisma.FieldRef<"admin", 'AdminRole'>
+  readonly isSuspended: Prisma.FieldRef<"admin", 'Boolean'>
 }
     
 
@@ -1452,6 +1773,54 @@ export type admin$appConfigArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.app_configInclude<ExtArgs> | null
   where?: Prisma.app_configWhereInput
+}
+
+/**
+ * admin.audit_logs
+ */
+export type admin$audit_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the audit_log
+   */
+  select?: Prisma.audit_logSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the audit_log
+   */
+  omit?: Prisma.audit_logOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.audit_logInclude<ExtArgs> | null
+  where?: Prisma.audit_logWhereInput
+  orderBy?: Prisma.audit_logOrderByWithRelationInput | Prisma.audit_logOrderByWithRelationInput[]
+  cursor?: Prisma.audit_logWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Audit_logScalarFieldEnum | Prisma.Audit_logScalarFieldEnum[]
+}
+
+/**
+ * admin.sessions
+ */
+export type admin$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the admin_session
+   */
+  select?: Prisma.admin_sessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the admin_session
+   */
+  omit?: Prisma.admin_sessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.admin_sessionInclude<ExtArgs> | null
+  where?: Prisma.admin_sessionWhereInput
+  orderBy?: Prisma.admin_sessionOrderByWithRelationInput | Prisma.admin_sessionOrderByWithRelationInput[]
+  cursor?: Prisma.admin_sessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Admin_sessionScalarFieldEnum | Prisma.Admin_sessionScalarFieldEnum[]
 }
 
 /**

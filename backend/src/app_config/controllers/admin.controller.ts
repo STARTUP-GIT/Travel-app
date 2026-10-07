@@ -1847,3 +1847,75 @@ export const deleteTestimonial = async (req: Request, res: Response) => {
     return handleError(res, error);
   }
 };
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ADMIN ROLE MANAGEMENT
+// ──────────────────────────────────────────────────────────────────────────────
+
+const ADMIN_ROLES = ["SUPER", "MANAGER", "VIEWER"] as const;
+type AdminRole = (typeof ADMIN_ROLES)[number];
+
+/** GET /api/admin/admins — list all admin accounts */
+export const listAdmins = async (_req: Request, res: Response) => {
+  try {
+    const admins = await prisma.admin.findMany({
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        authprovider: true,
+        profilepic: true,
+        role: true,
+        isSuspended: true,
+      },
+      orderBy: { name: "asc" },
+    });
+    return res.status(200).json({ admins });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+/** PATCH /api/admin/admins/:id/role — update the role of an admin account */
+export const updateAdminRole = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { role } = req.body ?? {};
+    if (!ADMIN_ROLES.includes(role as AdminRole)) {
+      return res.status(400).json({ message: "role must be SUPER, MANAGER, or VIEWER" });
+    }
+    const existing = await prisma.admin.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) return res.status(404).json({ message: "Admin not found" });
+    const admin = await prisma.admin.update({ where: { id }, data: { role } });
+    return res.status(200).json({ message: "Admin role updated", adminId: admin.id, role: admin.role });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+/** PATCH /api/admin/admins/:id/suspend — suspend an admin account */
+export const suspendAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const existing = await prisma.admin.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) return res.status(404).json({ message: "Admin not found" });
+    await prisma.admin.update({ where: { id }, data: { isSuspended: true } });
+    return res.status(200).json({ message: "Admin suspended" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+/** PATCH /api/admin/admins/:id/restore — restore a suspended admin account */
+export const restoreAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    const existing = await prisma.admin.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) return res.status(404).json({ message: "Admin not found" });
+    await prisma.admin.update({ where: { id }, data: { isSuspended: false } });
+    return res.status(200).json({ message: "Admin restored" });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};

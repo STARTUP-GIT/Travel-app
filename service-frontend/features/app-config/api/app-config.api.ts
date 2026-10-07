@@ -12,7 +12,7 @@ import { FALLBACK_CONFIG } from "../types";
 export async function getAppConfig(): Promise<AppConfig> {
   return memoizedGet("app-config", async () => {
     try {
-      return await api.get<AppConfig>("/api/settings");
+      return await api.get<AppConfig>("/api/service-settings");
     } catch {
       return { ...(FALLBACK_CONFIG as AppConfig) };
     }

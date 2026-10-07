@@ -75,7 +75,13 @@ export const ModelName = {
   hotel_owner: 'hotel_owner',
   restaurent_owner: 'restaurent_owner',
   hotel_booking: 'hotel_booking',
-  restaurant_reservation: 'restaurant_reservation'
+  restaurant_reservation: 'restaurant_reservation',
+  app_version_config: 'app_version_config',
+  audit_log: 'audit_log',
+  support_ticket: 'support_ticket',
+  admin_notification: 'admin_notification',
+  coupon: 'coupon',
+  admin_session: 'admin_session'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -96,6 +102,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const App_configScalarFieldEnum = {
   id: 'id',
+  scope: 'scope',
   app_name: 'app_name',
   imageBanners: 'imageBanners',
   icon: 'icon',
@@ -136,7 +143,9 @@ export const AdminScalarFieldEnum = {
   password: 'password',
   appConfigId: 'appConfigId',
   authprovider: 'authprovider',
-  profilepic: 'profilepic'
+  profilepic: 'profilepic',
+  role: 'role',
+  isSuspended: 'isSuspended'
 } as const
 
 export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
@@ -484,6 +493,93 @@ export const Restaurant_reservationScalarFieldEnum = {
 } as const
 
 export type Restaurant_reservationScalarFieldEnum = (typeof Restaurant_reservationScalarFieldEnum)[keyof typeof Restaurant_reservationScalarFieldEnum]
+
+
+export const App_version_configScalarFieldEnum = {
+  id: 'id',
+  app: 'app',
+  minVersion: 'minVersion',
+  latestVersion: 'latestVersion',
+  forceUpdate: 'forceUpdate',
+  updateMessage: 'updateMessage',
+  storeUrl: 'storeUrl',
+  updatedAt: 'updatedAt'
+} as const
+
+export type App_version_configScalarFieldEnum = (typeof App_version_configScalarFieldEnum)[keyof typeof App_version_configScalarFieldEnum]
+
+
+export const Audit_logScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  detail: 'detail',
+  before: 'before',
+  after: 'after',
+  createdAt: 'createdAt'
+} as const
+
+export type Audit_logScalarFieldEnum = (typeof Audit_logScalarFieldEnum)[keyof typeof Audit_logScalarFieldEnum]
+
+
+export const Support_ticketScalarFieldEnum = {
+  id: 'id',
+  subject: 'subject',
+  body: 'body',
+  status: 'status',
+  userId: 'userId',
+  guideEmail: 'guideEmail',
+  assignedTo: 'assignedTo',
+  resolution: 'resolution',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Support_ticketScalarFieldEnum = (typeof Support_ticketScalarFieldEnum)[keyof typeof Support_ticketScalarFieldEnum]
+
+
+export const Admin_notificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  target: 'target',
+  targetId: 'targetId',
+  sentAt: 'sentAt',
+  adminId: 'adminId'
+} as const
+
+export type Admin_notificationScalarFieldEnum = (typeof Admin_notificationScalarFieldEnum)[keyof typeof Admin_notificationScalarFieldEnum]
+
+
+export const CouponScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  description: 'description',
+  discountPct: 'discountPct',
+  maxUses: 'maxUses',
+  usedCount: 'usedCount',
+  isActive: 'isActive',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CouponScalarFieldEnum = (typeof CouponScalarFieldEnum)[keyof typeof CouponScalarFieldEnum]
+
+
+export const Admin_sessionScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  isRevoked: 'isRevoked',
+  createdAt: 'createdAt',
+  lastSeenAt: 'lastSeenAt'
+} as const
+
+export type Admin_sessionScalarFieldEnum = (typeof Admin_sessionScalarFieldEnum)[keyof typeof Admin_sessionScalarFieldEnum]
 
 
 export const SortOrder = {

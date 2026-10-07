@@ -1,42 +1,80 @@
 {
   "expo": {
-    "name": "HelloWorld",
-    "slug": "expo-template-default",
+    "name": "Karnataka Tourism Guide",
+    "slug": "karnataka-tourism-guide",
     "version": "1.0.0",
+    "scheme": "karnatakatourism",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "helloworld",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2D50BE"
+    },
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tourism.karnatakaguide",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location is used to show how far away a destination is and to record your trip with Path Tracker.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Path Tracker records your trip in the background so distance and duration stay accurate while your screen is off.",
+        "NSPhotoLibraryUsageDescription": "Choose a photo to use as your profile picture.",
+        "NSCameraUsageDescription": "Take a photo to use as your profile picture.",
+        "NSLocationTemporaryUsageDescriptionDictionary": {
+          "TripTracking": "Used while Path Tracker records an active trip."
+        }
+      }
     },
     "android": {
+      "package": "com.tourism.karnatakaguide",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
+        "backgroundColor": "#2D50BE",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.VIBRATE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
     },
     "web": {
-      "output": "static",
+      "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "expo-secure-store",
       [
-        "expo-splash-screen",
+        "expo-image-picker",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Karnataka Tourism Guide to record your trip in the background with Path Tracker.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
         }
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a5a59b82-5e75-4df4-9b5f-e5029c669401"
+      }
     }
   }
 }

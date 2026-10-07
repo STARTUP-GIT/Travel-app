@@ -1,34 +1,90 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldAlert, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { PageHeader } from "@/components/admin/page-header";
 import { ErrorState, LoadingState } from "@/components/admin/state";
 import { Button } from "@/components/ui/button";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
+import { postJSON } from "@/lib/api/mutate";
 import { formatDate } from "@/lib/utils";
 import type { UserAdminDetail } from "@/lib/types";
 
 export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
-  const { data, loading, error, refetch } = useAdminData<{ user: UserAdminDetail }>(
+  const { data, loading, error, refetch } = useAdminData<{ user: UserAdminDetail & { isSuspended?: boolean } }>(
     `/admin/api/users/${id}`
   );
 
+  const [suspending, setSuspending] = React.useState(false);
   const user = data?.user;
   const c = user?._count;
+
+  const handleSuspend = async () => {
+    const reason = prompt("Reason for suspending this user account:", "Terms of service violation");
+    if (!reason) return;
+    try {
+      setSuspending(true);
+      await postJSON(`/admin/api/users/${id}/suspend`, { reason });
+      toast.success("User account suspended");
+      refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to suspend user");
+    } finally {
+      setSuspending(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      setSuspending(true);
+      await postJSON(`/admin/api/users/${id}/restore`, {});
+      toast.success("User account restored");
+      refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to restore user");
+    } finally {
+      setSuspending(false);
+    }
+  };
 
   return (
     <div>
       <PageHeader title={user?.name ?? "User"} subtitle={user?.email ?? "Loading…"}>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/users">
-            <ArrowLeft className="size-4" /> All users
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {user && (
+            user.isSuspended ? (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={suspending}
+                onClick={handleRestore}
+                className="gap-1 text-green-600 border-green-200"
+              >
+                <ShieldCheck className="h-4 w-4" /> Restore Account
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={suspending}
+                onClick={handleSuspend}
+                className="gap-1"
+              >
+                <ShieldAlert className="h-4 w-4" /> Suspend Account
+              </Button>
+            )
+          )}
+          <Button asChild variant="outline" size="sm">
+            <Link href="/users">
+              <ArrowLeft className="size-4" /> All users
+            </Link>
+          </Button>
+        </div>
       </PageHeader>
 
       {loading ? (
@@ -47,6 +103,11 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex flex-wrap justify-center gap-2 text-xs">
                 <span className="rounded-full bg-muted px-2.5 py-1">{user.authprovider}</span>
                 <span className="rounded-full bg-muted px-2.5 py-1">Joined {formatDate(user.createdAt)}</span>
+                {user.isSuspended && (
+                  <span className="rounded-full bg-red-500/10 px-2.5 py-1 font-semibold text-red-600 dark:text-red-400">
+                    SUSPENDED
+                  </span>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -81,7 +142,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                     <li key={b.id} className="rounded-lg bg-muted/40 p-3 text-sm">
                       <span className="font-medium">{b.hotel?.name ?? "—"}</span>
                       <span className="text-muted-foreground">
-                        {" "}· {formatDate(b.checkIn)} → {formatDate(b.checkOut)} · ₹{b.totalAmount} · {b.status}
+                        {" "}· {formatDate(b.checkIn)} → {formatDate(b.checkOut)} · ${b.totalAmount} · {b.status}
                       </span>
                     </li>
                   ))}

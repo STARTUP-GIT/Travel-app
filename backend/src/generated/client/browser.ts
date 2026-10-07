@@ -156,3 +156,33 @@ export type hotel_booking = Prisma.hotel_bookingModel
  * 
  */
 export type restaurant_reservation = Prisma.restaurant_reservationModel
+/**
+ * Model app_version_config
+ * 
+ */
+export type app_version_config = Prisma.app_version_configModel
+/**
+ * Model audit_log
+ * 
+ */
+export type audit_log = Prisma.audit_logModel
+/**
+ * Model support_ticket
+ * 
+ */
+export type support_ticket = Prisma.support_ticketModel
+/**
+ * Model admin_notification
+ * 
+ */
+export type admin_notification = Prisma.admin_notificationModel
+/**
+ * Model coupon
+ * 
+ */
+export type coupon = Prisma.couponModel
+/**
+ * Model admin_session
+ * 
+ */
+export type admin_session = Prisma.admin_sessionModel

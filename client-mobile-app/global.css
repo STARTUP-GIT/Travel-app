@@ -1,0 +1,15 @@
+/*
+ * Global web styles.
+ *
+ * `constants/theme.ts` references these custom properties for the web platform's
+ * font stack. The native platforms ignore this file entirely — Metro only loads
+ * CSS for web targets — and the values fall back to the platform defaults
+ * declared in the same theme file.
+ */
+
+:root {
+  --font-display: system-ui;
+  --font-serif: ui-serif;
+  --font-rounded: ui-rounded;
+  --font-mono: ui-monospace;
+}
