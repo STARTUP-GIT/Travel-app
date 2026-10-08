@@ -37,7 +37,7 @@ export default function PaymentsPage() {
   const { data, loading, error, refetch } = useAdminData<ReportsData>("/admin/api/reports");
 
   if (loading) return <LoadingState rows={5} />;
-  if (error || !data) return <ErrorState message={error ?? "Failed to load"} onRetry={refetch} />;
+  if (error || !data) return <ErrorState message="Unable to load payment information right now. Please try again." onRetry={refetch} />;
 
   const { revenue, recentBookings } = data;
 

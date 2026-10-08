@@ -159,156 +159,191 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         privacy: form.privacy,
         imageBanners: form.imageBanners,
       });
-      toast.success(`${scope.toUpperCase()} app settings saved`);
+      toast.success(`${scope === "client" ? "Client" : "Service"} app settings saved successfully`);
       refetch();
-    } catch (err) {
-      toast.error("Save failed", { description: err instanceof Error ? err.message : undefined });
+    } catch {
+      toast.error("Unable to save settings right now. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
   if (loading) return <LoadingState rows={6} />;
-  if (error || !data?.settings) return <ErrorState message={error ?? "Settings not found"} onRetry={refetch} />;
+  if (error || !data?.settings) {
+    return (
+      <ErrorState
+        message="Unable to load branding settings right now. Please try again."
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const scopeInfo = {
+    client: {
+      title: "CLIENT BRANDING SCOPE",
+      subtitle: "Customer Web + Customer Mobile",
+      description: "Controls branding exclusively for customer web (frontend/) and customer mobile (client-mobile-app/). Does not alter Service App.",
+    },
+    service: {
+      title: "SERVICE BRANDING SCOPE",
+      subtitle: "Guides & Owners Web + Service Mobile",
+      description: "Controls branding exclusively for partner web (service-frontend/) and service mobile (service-mobile-app/). Does not alter Client App.",
+    },
+  };
 
   return (
-    <form onSubmit={save} className="mono-card max-w-2xl space-y-5 p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="App name">
-          <Input value={form.app_name ?? ""} onChange={(e) => set("app_name", e.target.value)} required />
-        </Field>
-        <Field label="Web title">
-          <Input value={form.webTitle ?? ""} onChange={(e) => set("webTitle", e.target.value)} />
-        </Field>
+    <div className="max-w-2xl space-y-4">
+      <div className="mono-card border-l-4 border-l-primary bg-muted/20 p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            {scopeInfo[scope].title}
+          </span>
+          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+            {scope === "client" ? "Customer Product" : "Partner Product"}
+          </span>
+        </div>
+        <h4 className="mt-1 text-sm font-semibold text-foreground">{scopeInfo[scope].subtitle}</h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">{scopeInfo[scope].description}</p>
       </div>
 
-      <Field label="App icon">
-        <div className="flex items-center gap-4 rounded-xl border border-border p-4">
-          <ImageThumb src={form.icon} alt="App icon" className="size-16 rounded-xl" />
-          <div className="min-w-0 flex-1">
+      <form onSubmit={save} className="mono-card space-y-5 p-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="App name">
+            <Input value={form.app_name ?? ""} onChange={(e) => set("app_name", e.target.value)} required />
+          </Field>
+          <Field label="Web title">
+            <Input value={form.webTitle ?? ""} onChange={(e) => set("webTitle", e.target.value)} />
+          </Field>
+        </div>
+
+        <Field label="App icon">
+          <div className="flex items-center gap-4 rounded-xl border border-border p-4">
+            <ImageThumb src={form.icon} alt="App icon" className="size-16 rounded-xl" />
+            <div className="min-w-0 flex-1">
+              <input
+                ref={iconInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                className="hidden"
+                onChange={handleIconFile}
+                disabled={uploadingIcon}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => iconInputRef.current?.click()}
+                disabled={uploadingIcon}
+              >
+                {uploadingIcon ? (
+                  <>
+                    <Loader2 className="animate-spin" /> Uploading…
+                  </>
+                ) : (
+                  <>
+                    <Upload /> Upload image
+                  </>
+                )}
+              </Button>
+              <p className="mt-1.5 text-xs text-muted-foreground">PNG, JPG, WEBP or SVG · up to 5 MB</p>
+            </div>
+          </div>
+        </Field>
+
+        <Field label="Tagline / Subtitle">
+          <Input value={form.text ?? ""} onChange={(e) => set("text", e.target.value)} />
+        </Field>
+
+        <Field label="App description">
+          <Textarea
+            value={form.app_description ?? ""}
+            onChange={(e) => set("app_description", e.target.value)}
+            rows={3}
+          />
+        </Field>
+
+        <Field label="Contacts">
+          <Textarea
+            value={form.contacts ?? ""}
+            onChange={(e) => set("contacts", e.target.value)}
+            rows={3}
+          />
+        </Field>
+
+        <Field label="Terms & conditions">
+          <Textarea
+            value={form.termsandconditions ?? ""}
+            onChange={(e) => set("termsandconditions", e.target.value)}
+            rows={4}
+          />
+        </Field>
+
+        <Field label="Privacy policy">
+          <Textarea
+            value={form.privacy ?? ""}
+            onChange={(e) => set("privacy", e.target.value)}
+            rows={4}
+          />
+        </Field>
+
+        <Field label="Banner images">
+          <div className="space-y-3">
+            {form.imageBanners.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {form.imageBanners.map((url) => (
+                  <div key={url} className="group relative overflow-hidden rounded-lg border border-border">
+                    <ImageThumb src={url} alt="Banner image" className="h-24 w-full rounded-none" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-1 top-1 size-6 rounded-md"
+                      onClick={() => removeBanner(url)}
+                      aria-label="Remove banner image"
+                    >
+                      <X className="size-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <input
-              ref={iconInputRef}
+              ref={bannersInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
               className="hidden"
-              onChange={handleIconFile}
-              disabled={uploadingIcon}
+              onChange={handleBannerFiles}
+              disabled={uploadingBanners}
             />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => iconInputRef.current?.click()}
-              disabled={uploadingIcon}
+              onClick={() => bannersInputRef.current?.click()}
+              disabled={uploadingBanners}
             >
-              {uploadingIcon ? (
+              {uploadingBanners ? (
                 <>
                   <Loader2 className="animate-spin" /> Uploading…
                 </>
               ) : (
                 <>
-                  <Upload /> Upload image
+                  <Upload /> Upload images
                 </>
               )}
             </Button>
-            <p className="mt-1.5 text-xs text-muted-foreground">PNG, JPG, WEBP or SVG · up to 5 MB</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG or WEBP · up to 5 MB each</p>
           </div>
-        </div>
-      </Field>
+        </Field>
 
-      <Field label="Tagline / Subtitle">
-        <Input value={form.text ?? ""} onChange={(e) => set("text", e.target.value)} />
-      </Field>
-
-      <Field label="App description">
-        <Textarea
-          value={form.app_description ?? ""}
-          onChange={(e) => set("app_description", e.target.value)}
-          rows={3}
-        />
-      </Field>
-
-      <Field label="Contacts">
-        <Textarea
-          value={form.contacts ?? ""}
-          onChange={(e) => set("contacts", e.target.value)}
-          rows={3}
-        />
-      </Field>
-
-      <Field label="Terms & conditions">
-        <Textarea
-          value={form.termsandconditions ?? ""}
-          onChange={(e) => set("termsandconditions", e.target.value)}
-          rows={4}
-        />
-      </Field>
-
-      <Field label="Privacy policy">
-        <Textarea
-          value={form.privacy ?? ""}
-          onChange={(e) => set("privacy", e.target.value)}
-          rows={4}
-        />
-      </Field>
-
-      <Field label="Banner images">
-        <div className="space-y-3">
-          {form.imageBanners.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {form.imageBanners.map((url) => (
-                <div key={url} className="group relative overflow-hidden rounded-lg border border-border">
-                  <ImageThumb src={url} alt="Banner image" className="h-24 w-full rounded-none" />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute right-1 top-1 size-6 rounded-md"
-                    onClick={() => removeBanner(url)}
-                    aria-label="Remove banner image"
-                  >
-                    <X className="size-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : null}
-          <input
-            ref={bannersInputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            multiple
-            className="hidden"
-            onChange={handleBannerFiles}
-            disabled={uploadingBanners}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => bannersInputRef.current?.click()}
-            disabled={uploadingBanners}
-          >
-            {uploadingBanners ? (
-              <>
-                <Loader2 className="animate-spin" /> Uploading…
-              </>
-            ) : (
-              <>
-                <Upload /> Upload images
-              </>
-            )}
+        <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving…" : `Save ${scope === "client" ? "Client" : "Service"} Settings`}
           </Button>
-          <p className="text-xs text-muted-foreground">PNG, JPG or WEBP · up to 5 MB each</p>
         </div>
-      </Field>
-
-      <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
-        <Button type="submit" disabled={saving}>
-          {saving ? "Saving…" : `Save ${scope.toUpperCase()} Settings`}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
 

@@ -108,14 +108,15 @@ async function handle<T>(res: Response): Promise<T> {
       window.location.assign("/login");
     }
 
-    let message = `Request failed with status ${res.status}`;
+    let message = "Unable to process this request right now. Please try again.";
     let details: unknown;
     try {
       const data = await res.json();
       details = data;
-      if (typeof data?.message === "string" && data.message) message = data.message;
-      else if (typeof data?.error === "string" && data.error) message = data.error;
-      else if (typeof data === "string" && data) message = data;
+      const raw = typeof data?.message === "string" ? data.message : typeof data?.error === "string" ? data.error : typeof data === "string" ? data : "";
+      if (raw && !/prisma|sql|migration|route|failed with status/i.test(raw)) {
+        message = raw;
+      }
     } catch {
       // non-JSON error body
     }

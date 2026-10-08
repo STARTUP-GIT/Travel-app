@@ -49,15 +49,15 @@ export default function ReportsPage() {
       a.remove();
       window.URL.revokeObjectURL(url);
       toast.success(`${type.toUpperCase()} report exported successfully`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Export failed");
+    } catch {
+      toast.error("Unable to export report right now. Please try again.");
     } finally {
       setDownloading(null);
     }
   };
 
   if (loading) return <LoadingState rows={5} />;
-  if (error || !data) return <ErrorState message={error ?? "Failed to load"} onRetry={refetch} />;
+  if (error || !data) return <ErrorState message="Unable to load reports right now. Please try again." onRetry={refetch} />;
 
   const { counts, revenue } = data;
 

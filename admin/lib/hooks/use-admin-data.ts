@@ -71,27 +71,15 @@ export function useAdminData<T>(path: string, opts: Options = {}): DataState<T> 
         }
 
         if (!res.ok) {
-          let message = `Request failed (${res.status})`;
-          let details: unknown;
+          let message = "Unable to load this information right now. Please try again.";
           try {
-            details = await res.json();
-            if (
-              typeof details === "object" &&
-              details !== null &&
-              "message" in details &&
-              typeof (details as { message?: unknown }).message === "string"
-            ) {
-              message = String((details as { message: unknown }).message);
-            } else if (
-              typeof details === "object" &&
-              details !== null &&
-              "error" in details &&
-              typeof (details as { error?: unknown }).error === "string"
-            ) {
-              message = String((details as { error: unknown }).error);
+            const details = await res.json();
+            const raw = typeof details?.message === "string" ? details.message : typeof details?.error === "string" ? details.error : "";
+            if (raw && !/prisma|sql|migration|route|failed \(\d+\)/i.test(raw)) {
+              message = raw;
             }
           } catch {
-            details = undefined;
+            // non-JSON response
           }
           throw new Error(message);
         }

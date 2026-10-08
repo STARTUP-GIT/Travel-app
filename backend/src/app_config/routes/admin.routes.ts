@@ -109,6 +109,8 @@ import {
 } from "../controllers/session.controller.js";
 
 import {
+  getReports,
+  exportReportsCsv,
   getReportSummary,
   getUsersReport,
   getBookingsReport,
@@ -246,7 +248,9 @@ router.delete("/coupons/:id", deleteCoupon);
 router.get("/sessions", listSessions);
 router.delete("/sessions/:id", revokeSession);
 
-// ── REPORTS ──
+// ── REPORTS & PAYMENTS ──
+router.get("/reports", getReports);
+router.get("/reports/export", exportReportsCsv);
 router.get("/reports/summary", getReportSummary);
 router.get("/reports/users", getUsersReport);
 router.get("/reports/bookings", getBookingsReport);
