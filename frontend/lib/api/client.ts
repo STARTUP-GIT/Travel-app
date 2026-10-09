@@ -89,29 +89,16 @@ export async function http<T>(
 ): Promise<T> {
   const headers = new Headers(init.headers);
 
-  if (!headers.has("authorization")) {
-    if (typeof window !== "undefined") {
-      try {
-        const { getSession } = await import("next-auth/react");
-        const session = await getSession();
-        const token = session?.backendToken || (session?.user as any)?.backendToken;
-        if (token) {
-          headers.set("authorization", `Bearer ${token}`);
-        }
-      } catch {
-        // session fetch fallback
+  if (!headers.has("authorization") && typeof window !== "undefined") {
+    try {
+      const { getSession } = await import("next-auth/react");
+      const session = await getSession();
+      const token = session?.backendToken || (session?.user as any)?.backendToken;
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
       }
-    } else {
-      try {
-        const { auth } = await import("@/auth");
-        const session = await auth();
-        const token = session?.backendToken || (session?.user as any)?.backendToken;
-        if (token) {
-          headers.set("authorization", `Bearer ${token}`);
-        }
-      } catch {
-        // session fetch fallback
-      }
+    } catch {
+      // session fetch fallback
     }
   }
 
