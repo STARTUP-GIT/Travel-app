@@ -8,6 +8,7 @@ import {
   Calendar,
   Clock,
   Compass,
+  ExternalLink,
   Flag,
   Languages as LanguagesIcon,
   MapPin,
@@ -83,6 +84,15 @@ export function GuideProfile({
    * hero and the byline both hide on.
    */
   const agencyName = guide.type === "common" ? guide.guide.agencyName : null;
+  const agencyAddress = guide.type === "common" ? guide.guide.agencyAddress : null;
+  const agencyMapsUrl = guide.type === "common" ? guide.guide.agencyMapsUrl : null;
+  const agencyBanner = guide.type === "common" ? guide.guide.agencyBanner : null;
+
+  const mapsTargetUrl = agencyMapsUrl
+    ? agencyMapsUrl
+    : agencyAddress
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(agencyAddress)}`
+    : null;
 
   return (
     <div className="pb-8">
@@ -167,6 +177,53 @@ export function GuideProfile({
       </section>
 
       <div className="app-container mt-6 space-y-8">
+        {/* Agency Location & Details */}
+        {guide.type === "common" && (agencyName || agencyAddress || agencyMapsUrl || agencyBanner) ? (
+          <section>
+            <SectionHeader
+              title={agencyName ? agencyName : "Agency Office & Location"}
+              subtitle="Agency location details for in-person meetings & visits"
+            />
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
+              {agencyBanner ? (
+                <div className="relative h-44 w-full overflow-hidden bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={agencyBanner}
+                    alt={agencyName ?? "Agency Banner"}
+                    className="size-full object-cover"
+                  />
+                </div>
+              ) : null}
+              <div className="p-4 space-y-3">
+                {agencyName ? (
+                  <div className="flex items-center gap-2 text-base font-semibold">
+                    <Building2 className="size-5 text-primary shrink-0" />
+                    <span>{agencyName}</span>
+                  </div>
+                ) : null}
+                {agencyAddress ? (
+                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <MapPin className="size-4 text-primary shrink-0 mt-0.5" />
+                    <span>{agencyAddress}</span>
+                  </div>
+                ) : null}
+                {mapsTargetUrl ? (
+                  <div className="pt-1">
+                    <Button asChild variant="outline" className="gap-2 rounded-xl">
+                      <a href={mapsTargetUrl} target="_blank" rel="noopener noreferrer">
+                        <MapPin className="size-4 text-primary" />
+                        Open in Google Maps
+                        <ExternalLink className="size-3.5 text-muted-foreground" />
+                      </a>
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {/* About */}
         <section>
           <SectionHeader title="About" />

@@ -32,6 +32,7 @@ export type CommonGuide = {
   agencyName?: string | null;
   agencyAddress?: string | null;
   agencyBanner?: string | null;
+  agencyMapsUrl?: string | null;
   rating?: number | null;
   review: string[];
   description?: string | null;

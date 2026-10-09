@@ -96,6 +96,7 @@ export type ProviderProfile = {
   agencyName: string;
   agencyAddress?: string | null;
   agencyBanner?: string | null;
+  agencyMapsUrl?: string | null;
   placeIds: string[];
   linkedPlace: ProviderLinkedPlace | null;
   isReported: boolean;
@@ -114,6 +115,7 @@ export type ProviderProfileInput = {
   agencyName?: string;
   agencyAddress?: string;
   agencyBanner?: string;
+  agencyMapsUrl?: string;
   description?: string;
   experience?: number;
   cost?: number;

@@ -328,6 +328,7 @@ type RawGuideProfile = {
   agencyName?: string | null;
   agencyAddress?: string | null;
   agencyBanner?: string | null;
+  agencyMapsUrl?: string | null;
   authprovider: string;
   review: string[];
   rating: number | null;
@@ -370,6 +371,7 @@ export function normalizeProfile(
       agencyName: "",
       agencyAddress: "",
       agencyBanner: null,
+      agencyMapsUrl: null,
       description: "",
       experience: 0,
       cost: 0,
@@ -398,6 +400,7 @@ export function normalizeProfile(
     agencyName: guide.agencyName ?? "",
     agencyAddress: guide.agencyAddress ?? "",
     agencyBanner: guide.agencyBanner || null,
+    agencyMapsUrl: guide.agencyMapsUrl || null,
     description: guide.description ?? "",
     experience: guide.experience ?? 0,
     cost: guide.cost ?? 0,
@@ -471,6 +474,7 @@ export function profilePayload(
   if (kind === "common_guide") {
     if (input.agencyName !== undefined) payload.agency_name = input.agencyName;
     if (input.agencyAddress !== undefined) payload.agency_address = input.agencyAddress;
+    if (input.agencyMapsUrl !== undefined) payload.agency_maps_url = input.agencyMapsUrl;
     if (input.agencyBanner !== undefined) payload.agency_banner = input.agencyBanner;
   }
 

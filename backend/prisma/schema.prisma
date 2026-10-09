@@ -267,6 +267,7 @@ model common_guide {
   agencyName      String?
   agencyAddress   String?
   agencyBanner    String?
+  agencyMapsUrl   String?
   authprovider        authProviders
   review          String[]
   rating          Float?

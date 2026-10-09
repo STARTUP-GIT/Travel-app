@@ -119,6 +119,7 @@ export const commonGuideProfileUpdateSchema = z.object({
   agency_name: z.string().max(120).optional(),
   agency_address: z.string().max(300).optional(),
   agency_banner: z.string().optional(),
+  agency_maps_url: z.string().optional(),
   description: z.string().optional(),
   experience: z.number().int().nonnegative().optional(),
   cost: z.number().int().nonnegative().optional(),

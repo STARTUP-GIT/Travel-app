@@ -26,6 +26,7 @@ type Values = {
   tagline: string;
   agencyName: string;
   agencyAddress: string;
+  agencyMapsUrl: string;
   agencyBanner: string;
   description: string;
   experience: string;
@@ -35,6 +36,23 @@ type Values = {
 };
 
 type Errors = Partial<Record<keyof Values, string>>;
+
+function isValidGoogleMapsUrl(urlStr: string): boolean {
+  const trimmed = urlStr.trim();
+  if (!trimmed) return true;
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    return (
+      host === "maps.app.goo.gl" ||
+      host === "goo.gl" ||
+      /(^|\.)google\.(com|[a-z]{2,3}(?:\.[a-z]{2})?)$/i.test(host)
+    );
+  } catch {
+    return false;
+  }
+}
 
 /**
  * What a failed save says when the failure is not the guide's to fix.
@@ -67,6 +85,7 @@ function initialValues(profile: ProviderProfile): Values {
     tagline: profile.tagline,
     agencyName: profile.agencyName,
     agencyAddress: profile.agencyAddress ?? "",
+    agencyMapsUrl: profile.agencyMapsUrl ?? "",
     agencyBanner: profile.agencyBanner ?? "",
     description: profile.description,
     experience: String(profile.experience ?? 0),
@@ -121,6 +140,8 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
     // cap, to stop a long string being pushed onto every card that shows it.
     if (values.agencyName.length > 120)
       next.agencyName = "Keep the agency name under 120 characters";
+    if (!isValidGoogleMapsUrl(values.agencyMapsUrl))
+      next.agencyMapsUrl = "Please enter a valid Google Maps sharing link";
     if (values.password.length > 0 && values.password.length < 6)
       next.password = "Passwords need at least 6 characters";
 
@@ -140,7 +161,7 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
     // backend clears a previously saved agency, so a guide who deletes the text
     // goes back to being shown as an individual.
     if (!isCommonGuide) {
-      for (const k of ["agencyName", "agencyAddress", "agencyBanner"]) {
+      for (const k of ["agencyName", "agencyAddress", "agencyMapsUrl", "agencyBanner"]) {
         const index = changed.findIndex(([key]) => key === k);
         if (index >= 0) changed.splice(index, 1);
       }
@@ -257,7 +278,7 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
           {isCommonGuide ? (
             <>
               <Field
-                label="Agency name (optional)"
+                label="Agency Name"
                 error={errors.agencyName}
                 hint="Shown to customers as the agency behind your packages. Leave blank to trade in your own name."
               >
@@ -270,7 +291,7 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
               </Field>
 
               <Field
-                label="Agency address (optional)"
+                label="Agency Address"
                 error={errors.agencyAddress}
                 hint="Physical address or office location of your agency."
               >
@@ -281,8 +302,20 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
                 />
               </Field>
 
+              <Field
+                label="Agency Google Maps Location"
+                error={errors.agencyMapsUrl}
+                hint="Share your agency's office or meeting location so customers can open it directly in Google Maps."
+              >
+                <Input
+                  value={values.agencyMapsUrl}
+                  onChange={(event) => set("agencyMapsUrl", event.target.value)}
+                  placeholder="Paste your agency's Google Maps sharing link"
+                />
+              </Field>
+
               <div className="flex flex-col gap-1.5">
-                <Label>Agency banner image (optional)</Label>
+                <Label>Agency Banner Image</Label>
                 <PhotoUploadField
                   value={values.agencyBanner}
                   fallbackLabel="Agency Banner"

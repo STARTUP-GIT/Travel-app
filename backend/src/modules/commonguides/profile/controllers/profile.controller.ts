@@ -42,6 +42,7 @@ const commonGuideSafeSelect = {
   agencyName: true,
   agencyAddress: true,
   agencyBanner: true,
+  agencyMapsUrl: true,
 } as const;
 
 export const getProfile = async (req: Request, res: Response) => {
@@ -156,6 +157,9 @@ export const editProfile = async (req: Request, res: Response) => {
           : {}),
         ...(data.agency_banner !== undefined
           ? { agencyBanner: data.agency_banner.trim() ? data.agency_banner.trim() : null }
+          : {}),
+        ...(data.agency_maps_url !== undefined
+          ? { agencyMapsUrl: data.agency_maps_url.trim() ? data.agency_maps_url.trim() : null }
           : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.experience !== undefined ? { experience: data.experience } : {}),

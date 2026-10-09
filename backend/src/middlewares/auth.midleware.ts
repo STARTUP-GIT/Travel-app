@@ -38,23 +38,29 @@ const buildRoleMiddleware = (expectedRole: SessionRole) => {
       });
     }
 
-    let decoded: SessionPayload;
+    let decoded: any;
 
     try {
-      decoded = jwt.verify(token, secret) as SessionPayload;
+      decoded = jwt.verify(token, secret);
     } catch {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    if (decoded.role !== expectedRole) {
+    const role = decoded.role;
+    if (role !== expectedRole) {
       return res.status(403).json({
         message: "Forbidden",
       });
     }
 
-    const identityId = decoded.userId;
+    const identityId = decoded.userId || decoded.id;
+    if (!identityId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
 
     switch (expectedRole) {
       case "user":
@@ -117,34 +123,36 @@ export const anyAuthMiddleware = (
     });
   }
 
-  let decoded: SessionPayload;
+  let decoded: any;
 
   try {
-    decoded = jwt.verify(token, secret) as SessionPayload;
+    decoded = jwt.verify(token, secret);
   } catch {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
+  const identityId = decoded.userId || decoded.id;
+
   switch (decoded.role) {
     case "user":
-      req.userId = decoded.userId;
+      req.userId = identityId;
       break;
     case "admin":
-      req.admin = decoded.userId;
+      req.admin = identityId;
       break;
     case "specific_guide":
-      req.specific_guide = decoded.userId;
+      req.specific_guide = identityId;
       break;
     case "common_guide":
-      req.common_guide = decoded.userId;
+      req.common_guide = identityId;
       break;
     case "hotel_owner":
-      req.hotel_owner = decoded.userId;
+      req.hotel_owner = identityId;
       break;
     case "restaurent_owner":
-      req.restaurent_owner = decoded.userId;
+      req.restaurent_owner = identityId;
       break;
     default:
       return res.status(401).json({
@@ -178,20 +186,22 @@ export const guideAuthMiddleware = (
     });
   }
 
-  let decoded: SessionPayload;
+  let decoded: any;
 
   try {
-    decoded = jwt.verify(token, secret) as SessionPayload;
+    decoded = jwt.verify(token, secret);
   } catch {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
+  const identityId = decoded.userId || decoded.id;
+
   if (decoded.role === "specific_guide") {
-    req.specific_guide = decoded.userId;
+    req.specific_guide = identityId;
   } else if (decoded.role === "common_guide") {
-    req.common_guide = decoded.userId;
+    req.common_guide = identityId;
   } else {
     return res.status(403).json({
       message: "Forbidden",

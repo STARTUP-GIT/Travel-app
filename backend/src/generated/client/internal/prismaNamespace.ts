@@ -2981,6 +2981,7 @@ export const Common_guideScalarFieldEnum = {
   agencyName: 'agencyName',
   agencyAddress: 'agencyAddress',
   agencyBanner: 'agencyBanner',
+  agencyMapsUrl: 'agencyMapsUrl',
   authprovider: 'authprovider',
   review: 'review',
   rating: 'rating',
