@@ -240,7 +240,14 @@ model specific_guide {
   experience      Int
   cost            Int
   language        String[]
-   createdAt       DateTime @default(now())
+
+  // Opt-in customer location sharing for Specific Guide
+  isSharingLocation Boolean   @default(false)
+  sharedLatitude    Float?
+  sharedLongitude   Float?
+  locationUpdatedAt DateTime?
+
+  createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   // PENDING until an admin approves the guide, or APPROVED straight away at
@@ -257,10 +264,9 @@ model common_guide {
   profile_pic     String
   tagline         String?
   // Optional trading name for the guide's agency, e.g. "Mysuru Heritage Tours".
-  // Nullable and never required: with no agency the guide is simply presented as
-  // an individual Common Guide, so the customer surfaces hide the field entirely
-  // rather than showing an empty label.
   agencyName      String?
+  agencyAddress   String?
+  agencyBanner    String?
   authprovider        authProviders
   review          String[]
   rating          Float?
@@ -273,7 +279,7 @@ model common_guide {
   language        String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-    testimonials    testimonials[]
+  testimonials    testimonials[]
   placeSubmissions place_submission[]
   bookings        common_guide_booking[]
 
@@ -289,35 +295,40 @@ model common_guide_places {
   commonGuideId String
 
   place        place        @relation(fields: [placeId], references: [id])
-  // A coverage row carries no meaning of its own once the guide is gone, so it
-  // is removed along with it. Without this the foreign key restricts, and every
-  // attempt to delete a guide that covers at least one place fails with a
-  // constraint error — which is what made the admin guide DELETE return a 500.
   commonGuide  common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
 
   @@unique([placeId, commonGuideId])
 }
 
-/// A named tour a Common Guide sells: one guide, many packages, each package a
-/// set of places. Kept separate from `common_guide_places` on purpose — that
-/// table is the guide's overall coverage, which booking validation and the
-/// public guide list read, and it must keep working for guides that have never
-/// created a package. Saving a package also adds its places to the guide's
-/// coverage (a package only ever uses places the guide covers), so a customer
-/// can book a package's places without any change to the booking flow.
 model common_guide_package {
   id            String   @id @default(uuid())
   commonGuideId String
   name          String
   description   String?
+  pricingMode   String   @default("WHOLE_TOUR")
+  pricingUnit   String   @default("PER_TOUR")
+  price         Float    @default(0)
+  allowCustomerPlaceSelection Boolean @default(true)
+  cancellationPolicy String?
+  foodStatus        String   @default("EXCLUDED")
+  foodDetails       String?
+  transportStatus   String   @default("EXCLUDED")
+  transportDetails  String?
+  entryFeeStatus    String   @default("EXCLUDED")
+  entryFeeDetails   String?
+  additionalCostsDetails String?
+  tripStartTime String?
+  pickupName    String?
+  pickupAddress String?
+  pickupLat     Float?
+  pickupLng     Float?
+  pickupMapsUrl String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Package rows exist only as part of their guide, so they go with it. The
-  // admin guide DELETE clears `common_guide_places` for the same reason: without
-  // a cascade the foreign key restricts and deleting a guide fails outright.
   commonGuide common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
   places      common_guide_package_places[]
+  bookings    common_guide_booking[]
 
   @@index([commonGuideId])
 }
@@ -326,16 +337,11 @@ model common_guide_package_places {
   id        String @id @default(uuid())
   packageId String
   placeId   String
+  price     Float?
 
   package common_guide_package @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  // Same reasoning as the guide side: a membership row has no meaning without
-  // the package. It is also unreachable in practice, because every package
-  // place is also a `common_guide_places` row, which already blocks the admin
-  // place DELETE with a 409 before this cascade could fire.
-  place    place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  place   place @relation(fields: [placeId], references: [id], onDelete: Cascade)
 
-  // A place cannot be listed twice in the same package; the same place in two
-  // different packages of one guide is allowed.
   @@unique([packageId, placeId])
   @@index([placeId])
 }
@@ -347,6 +353,15 @@ model specific_guide_booking {
   placeId         String
   bookingDate     DateTime
   bookingTime     String?
+  numberOfPeople  Int      @default(1)
+  totalPrice      Float    @default(0)
+  pickupName      String?
+  pickupAddress   String?
+  cancellationPolicy String?
+  paymentStatus   String   @default("NOT_VERIFIED")
+  rescheduleStatus String  @default("NONE")
+  requestedBookingDate DateTime?
+  requestedBookingTime String?
   status          bookingStatus @default(PENDING)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -356,17 +371,46 @@ model specific_guide_booking {
 }
 
 model common_guide_booking {
-  id            String   @id @default(uuid())
-  userId        String
-  commonGuideId String
-  bookingDate   DateTime
-  bookingTime   String?
-  status        bookingStatus @default(PENDING)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  user          user     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commonGuide   common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
-  selectedPlaces common_guide_booking_places[]
+  id                      String   @id @default(uuid())
+  userId                  String
+  commonGuideId           String
+  packageId               String?
+  package                 common_guide_package? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  bookingDate             DateTime
+  bookingTime             String?
+  numberOfPeople          Int      @default(1)
+  totalPrice              Float    @default(0)
+  pricingMode             String   @default("WHOLE_TOUR")
+  pricingUnit             String   @default("PER_TOUR")
+  allowCustomerPlaceSelection Boolean @default(true)
+  cancellationPolicy      String?
+  foodStatus              String?
+  foodDetails             String?
+  transportStatus         String?
+  transportDetails        String?
+  entryFeeStatus          String?
+  entryFeeDetails         String?
+  additionalCostsDetails  String?
+  paymentStatus           String   @default("NOT_VERIFIED")
+  rescheduleStatus        String   @default("NONE")
+  requestedBookingDate    DateTime?
+  requestedBookingTime    String?
+  tripStartTime           String?
+  pickupName              String?
+  pickupAddress           String?
+  pickupLat               Float?
+  pickupLng               Float?
+  pickupRequestStatus     String   @default("DEFAULT")
+  requestedPickupName     String?
+  requestedPickupAddress  String?
+  requestedPickupLat      Float?
+  requestedPickupLng      Float?
+  status                  bookingStatus @default(PENDING)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  user                    user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commonGuide             common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
+  selectedPlaces          common_guide_booking_places[]
 }
 
 model common_guide_booking_places {

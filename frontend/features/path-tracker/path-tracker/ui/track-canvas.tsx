@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Crosshair } from "lucide-react";
 import * as React from "react";
 
-import type { Coordinate, TripPoint } from "../types";
+import type { Checkpoint, Coordinate, TripPoint } from "../types";
 
 const TRACK_W = 320;
 const TRACK_H = 220;
@@ -19,11 +19,13 @@ export type ProjectedPoint = { x: number; y: number };
 export function projectPoints(
   points: Pick<TripPoint, "latitude" | "longitude">[],
   width = TRACK_W,
-  height = TRACK_H
+  height = TRACK_H,
+  boundsPoints: Pick<TripPoint, "latitude" | "longitude">[] = points
 ): ProjectedPoint[] {
   if (points.length === 0) return [];
-  const lats = points.map((p) => p.latitude);
-  const lngs = points.map((p) => p.longitude);
+  const refPoints = boundsPoints.length > 0 ? boundsPoints : points;
+  const lats = refPoints.map((p) => p.latitude);
+  const lngs = refPoints.map((p) => p.longitude);
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
   const minLng = Math.min(...lngs);
@@ -46,20 +48,33 @@ function last<T>(arr: T[]): T {
 
 /**
  * Renders the recorded trip path, the trip start marker and the live position.
- * Optionally overlays the same-path return corridor while RETURNING.
+ * Optionally overlays the same-path return corridor while RETURNING and checkpoints.
  */
 export function TrackCanvas({
   points,
   currentPosition,
   returnCorridor,
   recording,
+  checkpoints,
 }: {
   points: TripPoint[];
   currentPosition: Coordinate | null;
   returnCorridor: Coordinate[] | null;
   recording: boolean;
+  checkpoints?: Checkpoint[];
 }) {
-  const projected = projectPoints(points, TRACK_W, TRACK_H);
+  const boundsPoints = React.useMemo(() => {
+    const list: Pick<TripPoint, "latitude" | "longitude">[] = [...points];
+    if (checkpoints) {
+      checkpoints.forEach((cp) => list.push({ latitude: cp.latitude, longitude: cp.longitude }));
+    }
+    if (currentPosition) {
+      list.push({ latitude: currentPosition.latitude, longitude: currentPosition.longitude });
+    }
+    return list;
+  }, [points, checkpoints, currentPosition]);
+
+  const projected = projectPoints(points, TRACK_W, TRACK_H, boundsPoints);
   const pathD =
     projected.length > 1
       ? projected
@@ -67,13 +82,23 @@ export function TrackCanvas({
           .join(" ")
       : "";
 
-  const projectedCorridor = returnCorridor ? projectPoints(returnCorridor, TRACK_W, TRACK_H) : [];
+  const projectedCorridor = returnCorridor ? projectPoints(returnCorridor, TRACK_W, TRACK_H, boundsPoints) : [];
   const corridorD =
     projectedCorridor.length > 1
       ? projectedCorridor
           .map((p, i) => (i === 0 ? `M ${p.x},${p.y}` : `L ${p.x},${p.y}`))
           .join(" ")
       : "";
+
+  const projectedCheckpoints = React.useMemo(() => {
+    if (!checkpoints || checkpoints.length === 0) return [];
+    return projectPoints(
+      checkpoints.map((cp) => ({ latitude: cp.latitude, longitude: cp.longitude })),
+      TRACK_W,
+      TRACK_H,
+      boundsPoints
+    );
+  }, [checkpoints, boundsPoints]);
 
   const live = currentPosition
     ? projectPoints(
@@ -82,7 +107,8 @@ export function TrackCanvas({
           currentPosition,
         ],
         TRACK_W,
-        TRACK_H
+        TRACK_H,
+        boundsPoints
       )
     : [];
   const liveMarker = live.length === 2 ? live[1] : null;
@@ -133,6 +159,21 @@ export function TrackCanvas({
           </linearGradient>
         </defs>
       </svg>
+
+      {projectedCheckpoints.map((cp, idx) => (
+        <motion.div
+          key={`cp-${idx}-${cp.x}-${cp.y}`}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute flex size-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white"
+          style={{
+            left: `${(cp.x / TRACK_W) * 100}%`,
+            top: `${(cp.y / TRACK_H) * 100}%`,
+          }}
+        >
+          {checkpoints?.[idx]?.checkpointNumber ?? idx + 1}
+        </motion.div>
+      ))}
 
       {projected.length > 0 ? (
         <>

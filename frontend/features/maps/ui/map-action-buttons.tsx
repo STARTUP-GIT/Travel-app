@@ -23,12 +23,46 @@ export function MapActionButtons({
   label?: string;
 }) {
   const isValid = validPoint(point);
+  const [userLocation, setUserLocation] = React.useState<GeoPoint | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocation({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          });
+        },
+        () => {},
+        { timeout: 5000, maximumAge: 60000 }
+      );
+    }
+  }, []);
+
+  const handleDirectionsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isValid) return;
+    if ("geolocation" in navigator && !userLocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const origin = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+          window.open(buildDirectionsUrl(point, origin), "_blank", "noopener,noreferrer");
+        },
+        () => {
+          window.open(buildDirectionsUrl(point), "_blank", "noopener,noreferrer");
+        },
+        { timeout: 3000 }
+      );
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="grid grid-cols-2 gap-2">
       <Button asChild variant="action" className="rounded-xl" disabled={!isValid}>
         <a
-          href={isValid ? buildDirectionsUrl(point) : undefined}
+          href={isValid ? buildDirectionsUrl(point, userLocation ?? undefined) : undefined}
+          onClick={handleDirectionsClick}
           target="_blank"
           rel="noopener noreferrer"
           aria-disabled={!isValid}

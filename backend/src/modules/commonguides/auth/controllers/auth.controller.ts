@@ -266,12 +266,12 @@ export const signIn = async (req: Request, res: Response) => {
   try {
     const { email, username, password } = common_guide_signinSchema.parse(req.body);
 
-    const cleanEmail = email.trim();
+    const cleanInput = email.trim();
     const common_guide_exists = await prisma.common_guide.findFirst({
       where: {
         OR: [
-          { email: { equals: cleanEmail, mode: "insensitive" } },
-          { email: cleanEmail },
+          { email: { equals: cleanInput, mode: "insensitive" } },
+          { username: { equals: cleanInput, mode: "insensitive" } },
           ...(username ? [{ username: username.trim() }] : []),
         ],
       },
@@ -280,6 +280,7 @@ export const signIn = async (req: Request, res: Response) => {
         email: true,
         username: true,
         password: true,
+        status: true,
       },
     });
 

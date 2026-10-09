@@ -1,4 +1,4 @@
-import { Coordinate, MapRegion } from '../types';
+import { Coordinate, MapRegion } from './types';
 
 const EARTH_RADIUS_M = 6371000;
 
@@ -49,7 +49,6 @@ export function interpolateAngle(from: number, to: number, alpha: number): numbe
   return (from + alpha * diff + 360) % 360;
 }
 
-
 export function smoothHeading(headings: number[]): number {
   if (headings.length === 0) return 0;
   if (headings.length === 1) return headings[0];
@@ -64,10 +63,6 @@ export function smoothHeading(headings: number[]): number {
   return (toDeg(Math.atan2(sinSum, cosSum)) + 360) % 360;
 }
 
-/**
- * Perpendicular distance from a point to the line segment [a, b], in metres.
- * Works in projected XY space local to the segment origin.
- */
 export function pointToSegmentDistance(
   point: Coordinate,
   a: Coordinate,
@@ -100,7 +95,6 @@ export function pointToSegmentDistance(
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-/** Project a point onto line segment [a, b], returning projected point and parameter t in [0, 1]. */
 export function projectPointOnSegment(
   point: Coordinate,
   a: Coordinate,
@@ -136,7 +130,6 @@ export function projectPointOnSegment(
   return { projectedPoint, t, distanceMeters };
 }
 
-/** Find nearest segment of a polyline corridor to a given point. */
 export function findNearestSegmentAndProjection(
   point: Coordinate,
   line: Coordinate[]
@@ -170,15 +163,6 @@ export function findNearestSegmentAndProjection(
   };
 }
 
-/**
- * Extract same-path return corridor:
- * 1. Find nearest segment on recordedPath [P0, P1, ..., Pn] to currentPosition.
- * 2. Project currentPosition onto that segment.
- * 3. Extract slice from P0 up to segment end P_k.
- * 4. Append projected point at the end.
- * 5. Reverse array so direction is [P_proj, P_k, P_{k-1}, ..., P1, P0].
- * 6. Calculate cumulative distance along this return path.
- */
 export function extractSamePathReturnCorridor(
   recordedPath: Coordinate[],
   currentPosition: Coordinate
@@ -207,19 +191,14 @@ export function extractSamePathReturnCorridor(
 
   const { segmentIndex, projectedPoint, distanceMeters } = nearest;
 
-  // recordedPath slice from P0 up to segmentIndex
-  // Note: if user is on segment [P_i, P_{i+1}], the path back to start goes:
-  // projectedPoint -> P_i -> P_{i-1} -> ... -> P0
   const slicedForward: Coordinate[] = [];
   for (let i = 0; i <= segmentIndex; i++) {
     slicedForward.push(recordedPath[i]);
   }
   slicedForward.push(projectedPoint);
 
-  // Reverse so it starts at projectedPoint and ends at P0 (START)
   const returnCorridor = slicedForward.reverse();
 
-  // Deduplicate very close points if any
   const cleanedCorridor: Coordinate[] = [returnCorridor[0]];
   for (let i = 1; i < returnCorridor.length; i++) {
     if (haversineDistance(cleanedCorridor[cleanedCorridor.length - 1], returnCorridor[i]) > 0.5) {
@@ -238,7 +217,6 @@ export function extractSamePathReturnCorridor(
   };
 }
 
-/** Distance from a point to the nearest segment of a polyline corridor. */
 export function distanceToPolyline(
   point: Coordinate,
   line: Coordinate[]
@@ -262,7 +240,6 @@ export function calculateTotalDistance(points: Coordinate[]): number {
   return total;
 }
 
-/** Estimate active travel time from a sequence of timed points. */
 export function calculateDurationMs(points: Coordinate[]): number {
   if (points.length < 2) return 0;
   return points[points.length - 1].timestamp - points[0].timestamp;
@@ -287,28 +264,24 @@ export function generateId(): string {
   );
 }
 
-export function validateCoordinate(coord: Coordinate): boolean {
+export function validateCoordinate(coord: Coordinate | null | undefined): boolean {
   if (!coord) return false;
   if (typeof coord.latitude !== 'number' || typeof coord.longitude !== 'number') return false;
   if (isNaN(coord.latitude) || isNaN(coord.longitude)) return false;
   if (coord.latitude < -90 || coord.latitude > 90) return false;
   if (coord.longitude < -180 || coord.longitude > 180) return false;
-  if (coord.accuracy !== undefined && (coord.accuracy < 0 || coord.accuracy > 500)) return false;
-  if (coord.speed !== undefined && (coord.speed < -10 || coord.speed > 100)) return false;
+  if (coord.accuracy !== undefined && coord.accuracy !== null && (coord.accuracy < 0 || coord.accuracy > 500)) return false;
+  if (coord.speed !== undefined && coord.speed !== null && (coord.speed < -10 || coord.speed > 100)) return false;
   if (coord.timestamp <= 0) return false;
   return true;
 }
 
 export function formatDistance(meters: number): string {
+  if (!isFinite(meters) || meters < 0) return '0 m';
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(2)} km`;
 }
 
-/**
- * Compute a map region (center + span deltas) that frames a set of
- * coordinates with a safety margin, handling the degenerate single-point /
- * zero-span cases.
- */
 export function regionForCoordinates(
   coords: Coordinate[],
   paddingFactor = 0.18
@@ -328,7 +301,7 @@ export function regionForCoordinates(
   const centerLng = (minLng + maxLng) / 2;
   let latDelta = (maxLat - minLat) * (1 + paddingFactor * 2);
   let lngDelta = (maxLng - minLng) * (1 + paddingFactor * 2);
-  const minDelta = 0.0012; // ~130 m — enough for a short stroll
+  const minDelta = 0.0012;
   if (latDelta < minDelta) latDelta = minDelta;
   if (lngDelta < minDelta) lngDelta = minDelta;
   return {
@@ -340,6 +313,7 @@ export function regionForCoordinates(
 }
 
 export function formatDuration(ms: number): string {
+  if (!isFinite(ms) || ms < 0) return '0:00';
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -350,7 +324,6 @@ export function formatDuration(ms: number): string {
   return `${minutes}:${pad(seconds)}`;
 }
 
-/** Average pace in seconds per km, or null if no meaningful distance. */
 export function paceSecPerKm(distanceMeters: number, durationMs: number): number | null {
   const km = distanceMeters / 1000;
   if (km < 0.01 || durationMs <= 0) return null;
@@ -358,32 +331,37 @@ export function paceSecPerKm(distanceMeters: number, durationMs: number): number
 }
 
 export function formatPace(secPerKm: number | null): string {
-  if (secPerKm === null || !isFinite(secPerKm)) return '--:--';
+  if (secPerKm === null || !isFinite(secPerKm) || secPerKm <= 0) return '--:--';
   const total = Math.round(secPerKm);
   const m = Math.floor(total / 60);
   const s = total % 60;
   return `${m}:${String(s).padStart(2, '0')} /km`;
 }
 
-/** Speed in km/h from (distanceMeters, durationMs) OR from raw speed (m/s). */
+/**
+ * SPEED IS ALWAYS RETURNED IN KM/H (Requirement).
+ * Overloaded: accepts either (distanceMeters, durationMs) OR (mPerSec).
+ */
 export function formatSpeed(arg1: number, arg2?: number): string {
-  let speedKmh = 0;
   if (arg2 !== undefined) {
-    if (arg2 <= 0 || arg1 <= 0) return '0.0 km/h';
-    const distanceKm = arg1 / 1000;
-    const durationHours = arg2 / 3600000;
-    speedKmh = distanceKm / durationHours;
+    // Called with (distanceMeters, durationMs)
+    const distanceMeters = arg1;
+    const durationMs = arg2;
+    if (durationMs <= 0 || distanceMeters <= 0) return '0.0 km/h';
+    const distanceKm = distanceMeters / 1000;
+    const durationHours = durationMs / 3600000;
+    const speedKmh = distanceKm / durationHours;
+    if (!isFinite(speedKmh) || isNaN(speedKmh)) return '0.0 km/h';
+    return `${speedKmh.toFixed(1)} km/h`;
   } else {
-    if (!isFinite(arg1) || isNaN(arg1) || arg1 <= 0) return '0.0 km/h';
-    speedKmh = arg1 * 3.6;
+    // Called with (metersPerSecond)
+    const mPerSec = arg1;
+    if (!isFinite(mPerSec) || mPerSec <= 0) return '0.0 km/h';
+    const speedKmh = mPerSec * 3.6;
+    return `${speedKmh.toFixed(1)} km/h`;
   }
-  if (!isFinite(speedKmh) || isNaN(speedKmh) || speedKmh < 0) return '0.0 km/h';
-  return `${speedKmh.toFixed(1)} km/h`;
 }
 
-// ── Movement-confidence helpers ────────────────────────────────────────────
-
-/** Geographic centroid (mean lat/lng) of a set of coordinates. */
 export function computeCentroid(coords: Coordinate[]): Coordinate {
   if (coords.length === 0) return { latitude: 0, longitude: 0, timestamp: 0 };
   let latSum = 0;
@@ -399,7 +377,6 @@ export function computeCentroid(coords: Coordinate[]): Coordinate {
   };
 }
 
-/** Average haversine distance of points from a centroid. */
 export function averageDistanceFromCentroid(
   coords: Coordinate[],
   center: Coordinate
@@ -412,7 +389,6 @@ export function averageDistanceFromCentroid(
   return total / coords.length;
 }
 
-/** Maximum haversine distance of points from a centroid. */
 export function maxDistanceFromCentroid(
   coords: Coordinate[],
   center: Coordinate
@@ -425,14 +401,6 @@ export function maxDistanceFromCentroid(
   return max;
 }
 
-/**
- * Direction consistency of consecutive displacements (0–1).
- *
- * 1 = all displacements point in the same direction (coherent walking).
- * 0 = displacements are randomly distributed (GPS noise / phone shake).
- *
- * Uses circular variance of displacement bearings.
- */
 export function directionConsistency(coords: Coordinate[]): number {
   if (coords.length < 3) return 0;
 
@@ -453,23 +421,10 @@ export function directionConsistency(coords: Coordinate[]): number {
     cosSum += Math.cos(toRad(d));
   }
 
-  // R = resultant length / count: 1 = perfectly aligned, 0 = uniform random
   const R = Math.sqrt(sinSum * sinSum + cosSum * cosSum) / directions.length;
   return R;
 }
 
-/**
- * Compute a movement-confidence score (0–1) from recent GPS positions.
- *
- * 0 = definitely stationary (GPS noise / phone shake).
- * 1 = definitely moving (coherent translational displacement).
- *
- * Combines four signals:
- *   1. Position spread relative to accuracy  (is the GPS cloud tight?)
- *   2. Direction consistency                 (are displacements coherent?)
- *   3. Speed (reported or derived)           (does the device think it's moving?)
- *   4. Position drift over time              (is the centroid shifting?)
- */
 export function computeMovementConfidence(
   positions: Coordinate[],
   currentAccuracy: number,
@@ -479,58 +434,35 @@ export function computeMovementConfidence(
   if (positions.length < 3) return 0;
   if (isCalibrating) return 0;
 
-  // ── Signal 1: Position spread relative to accuracy ──────────────────────
   const centroid = computeCentroid(positions);
   const avgSpread = averageDistanceFromCentroid(positions, centroid);
   const accuracy = Math.max(currentAccuracy, 1);
   const spreadRatio = avgSpread / accuracy;
   const spreadConfidence = clamp((spreadRatio - 0.35) / 0.55, 0, 1);
 
-  // ── Signal 2: Direction consistency ─────────────────────────────────────
   const dirConsistency = directionConsistency(positions);
 
-  // ── Signal 3: Speed (GPS-reported or derived from displacement over time) ──
-  let speedMps = currentSpeed;
-  if ((speedMps === undefined || speedMps === null || isNaN(speedMps) || speedMps < 0) && positions.length >= 2) {
-    const pPrev = positions[positions.length - 2];
-    const pLast = positions[positions.length - 1];
-    const dt = (pLast.timestamp - pPrev.timestamp) / 1000;
-    if (dt > 0) {
-      speedMps = haversineDistance(pPrev, pLast) / dt;
-    }
-  }
   let speedConfidence = 0;
-  if (speedMps !== undefined && speedMps !== null && speedMps >= 0 && isFinite(speedMps)) {
-    speedConfidence = clamp(speedMps / 1.2, 0, 1);
+  if (currentSpeed !== undefined && currentSpeed !== null && currentSpeed >= 0) {
+    speedConfidence = clamp(currentSpeed / 1.2, 0, 1);
   }
 
-  // ── Signal 4: Centroid drift over time ──────────────────────────────────
   let driftConfidence = 0;
-  let hasDriftSignal = false;
-  if (positions.length >= 4) {
-    hasDriftSignal = true;
+  if (positions.length >= 6) {
     const mid = Math.floor(positions.length / 2);
     const firstHalf = positions.slice(0, mid);
     const secondHalf = positions.slice(mid);
     const c1 = computeCentroid(firstHalf);
     const c2 = computeCentroid(secondHalf);
     const centroidDrift = haversineDistance(c1, c2);
-    driftConfidence = clamp((centroidDrift - accuracy * 0.25) / (accuracy * 0.4), 0, 1);
+    driftConfidence = clamp((centroidDrift - accuracy * 0.3) / (accuracy * 0.5), 0, 1);
   }
 
-  // ── Weighted combination (normalized by active weights) ─────────────────
-  const wSpread = 0.28;
-  const wDir = 0.27;
-  const wSpeed = 0.22;
-  const wDrift = hasDriftSignal ? 0.23 : 0;
-  const totalWeight = wSpread + wDir + wSpeed + wDrift;
-
   const confidence =
-    (wSpread * spreadConfidence +
-      wDir * dirConsistency +
-      wSpeed * speedConfidence +
-      wDrift * driftConfidence) /
-    totalWeight;
+    0.28 * spreadConfidence +
+    0.27 * dirConsistency +
+    0.22 * speedConfidence +
+    0.23 * driftConfidence;
 
   return clamp(confidence, 0, 1);
 }

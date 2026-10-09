@@ -20,16 +20,64 @@ export type common_guide_bookingModel = runtime.Types.Result.DefaultSelection<Pr
 
 export type AggregateCommon_guide_booking = {
   _count: Common_guide_bookingCountAggregateOutputType | null
+  _avg: Common_guide_bookingAvgAggregateOutputType | null
+  _sum: Common_guide_bookingSumAggregateOutputType | null
   _min: Common_guide_bookingMinAggregateOutputType | null
   _max: Common_guide_bookingMaxAggregateOutputType | null
+}
+
+export type Common_guide_bookingAvgAggregateOutputType = {
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pickupLat: number | null
+  pickupLng: number | null
+  requestedPickupLat: number | null
+  requestedPickupLng: number | null
+}
+
+export type Common_guide_bookingSumAggregateOutputType = {
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pickupLat: number | null
+  pickupLng: number | null
+  requestedPickupLat: number | null
+  requestedPickupLng: number | null
 }
 
 export type Common_guide_bookingMinAggregateOutputType = {
   id: string | null
   userId: string | null
   commonGuideId: string | null
+  packageId: string | null
   bookingDate: Date | null
   bookingTime: string | null
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pricingMode: string | null
+  pricingUnit: string | null
+  allowCustomerPlaceSelection: boolean | null
+  cancellationPolicy: string | null
+  foodStatus: string | null
+  foodDetails: string | null
+  transportStatus: string | null
+  transportDetails: string | null
+  entryFeeStatus: string | null
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  paymentStatus: string | null
+  rescheduleStatus: string | null
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupRequestStatus: string | null
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupLat: number | null
+  requestedPickupLng: number | null
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,8 +87,36 @@ export type Common_guide_bookingMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   commonGuideId: string | null
+  packageId: string | null
   bookingDate: Date | null
   bookingTime: string | null
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pricingMode: string | null
+  pricingUnit: string | null
+  allowCustomerPlaceSelection: boolean | null
+  cancellationPolicy: string | null
+  foodStatus: string | null
+  foodDetails: string | null
+  transportStatus: string | null
+  transportDetails: string | null
+  entryFeeStatus: string | null
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  paymentStatus: string | null
+  rescheduleStatus: string | null
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupRequestStatus: string | null
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupLat: number | null
+  requestedPickupLng: number | null
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -50,8 +126,36 @@ export type Common_guide_bookingCountAggregateOutputType = {
   id: number
   userId: number
   commonGuideId: number
+  packageId: number
   bookingDate: number
   bookingTime: number
+  numberOfPeople: number
+  totalPrice: number
+  pricingMode: number
+  pricingUnit: number
+  allowCustomerPlaceSelection: number
+  cancellationPolicy: number
+  foodStatus: number
+  foodDetails: number
+  transportStatus: number
+  transportDetails: number
+  entryFeeStatus: number
+  entryFeeDetails: number
+  additionalCostsDetails: number
+  paymentStatus: number
+  rescheduleStatus: number
+  requestedBookingDate: number
+  requestedBookingTime: number
+  tripStartTime: number
+  pickupName: number
+  pickupAddress: number
+  pickupLat: number
+  pickupLng: number
+  pickupRequestStatus: number
+  requestedPickupName: number
+  requestedPickupAddress: number
+  requestedPickupLat: number
+  requestedPickupLng: number
   status: number
   createdAt: number
   updatedAt: number
@@ -59,12 +163,58 @@ export type Common_guide_bookingCountAggregateOutputType = {
 }
 
 
+export type Common_guide_bookingAvgAggregateInputType = {
+  numberOfPeople?: true
+  totalPrice?: true
+  pickupLat?: true
+  pickupLng?: true
+  requestedPickupLat?: true
+  requestedPickupLng?: true
+}
+
+export type Common_guide_bookingSumAggregateInputType = {
+  numberOfPeople?: true
+  totalPrice?: true
+  pickupLat?: true
+  pickupLng?: true
+  requestedPickupLat?: true
+  requestedPickupLng?: true
+}
+
 export type Common_guide_bookingMinAggregateInputType = {
   id?: true
   userId?: true
   commonGuideId?: true
+  packageId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pricingMode?: true
+  pricingUnit?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupRequestStatus?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupLat?: true
+  requestedPickupLng?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -74,8 +224,36 @@ export type Common_guide_bookingMaxAggregateInputType = {
   id?: true
   userId?: true
   commonGuideId?: true
+  packageId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pricingMode?: true
+  pricingUnit?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupRequestStatus?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupLat?: true
+  requestedPickupLng?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -85,8 +263,36 @@ export type Common_guide_bookingCountAggregateInputType = {
   id?: true
   userId?: true
   commonGuideId?: true
+  packageId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pricingMode?: true
+  pricingUnit?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupRequestStatus?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupLat?: true
+  requestedPickupLng?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -131,6 +337,18 @@ export type Common_guide_bookingAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: Common_guide_bookingAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: Common_guide_bookingSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: Common_guide_bookingMinAggregateInputType
@@ -161,6 +379,8 @@ export type common_guide_bookingGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: Common_guide_bookingCountAggregateInputType | true
+  _avg?: Common_guide_bookingAvgAggregateInputType
+  _sum?: Common_guide_bookingSumAggregateInputType
   _min?: Common_guide_bookingMinAggregateInputType
   _max?: Common_guide_bookingMaxAggregateInputType
 }
@@ -169,12 +389,42 @@ export type Common_guide_bookingGroupByOutputType = {
   id: string
   userId: string
   commonGuideId: string
+  packageId: string | null
   bookingDate: Date
   bookingTime: string | null
+  numberOfPeople: number
+  totalPrice: number
+  pricingMode: string
+  pricingUnit: string
+  allowCustomerPlaceSelection: boolean
+  cancellationPolicy: string | null
+  foodStatus: string | null
+  foodDetails: string | null
+  transportStatus: string | null
+  transportDetails: string | null
+  entryFeeStatus: string | null
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  paymentStatus: string
+  rescheduleStatus: string
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupRequestStatus: string
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupLat: number | null
+  requestedPickupLng: number | null
   status: $Enums.bookingStatus
   createdAt: Date
   updatedAt: Date
   _count: Common_guide_bookingCountAggregateOutputType | null
+  _avg: Common_guide_bookingAvgAggregateOutputType | null
+  _sum: Common_guide_bookingSumAggregateOutputType | null
   _min: Common_guide_bookingMinAggregateOutputType | null
   _max: Common_guide_bookingMaxAggregateOutputType | null
 }
@@ -201,11 +451,40 @@ export type common_guide_bookingWhereInput = {
   id?: Prisma.StringFilter<"common_guide_booking"> | string
   userId?: Prisma.StringFilter<"common_guide_booking"> | string
   commonGuideId?: Prisma.StringFilter<"common_guide_booking"> | string
+  packageId?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   bookingDate?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"common_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"common_guide_booking"> | number
+  pricingMode?: Prisma.StringFilter<"common_guide_booking"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_booking"> | string
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_booking"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"common_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
+  package?: Prisma.XOR<Prisma.Common_guide_packageNullableScalarRelationFilter, Prisma.common_guide_packageWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
   selectedPlaces?: Prisma.Common_guide_booking_placesListRelationFilter
@@ -215,11 +494,40 @@ export type common_guide_bookingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   commonGuideId?: Prisma.SortOrder
+  packageId?: Prisma.SortOrderInput | Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupRequestStatus?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  package?: Prisma.common_guide_packageOrderByWithRelationInput
   user?: Prisma.userOrderByWithRelationInput
   commonGuide?: Prisma.common_guideOrderByWithRelationInput
   selectedPlaces?: Prisma.common_guide_booking_placesOrderByRelationAggregateInput
@@ -232,11 +540,40 @@ export type common_guide_bookingWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.common_guide_bookingWhereInput | Prisma.common_guide_bookingWhereInput[]
   userId?: Prisma.StringFilter<"common_guide_booking"> | string
   commonGuideId?: Prisma.StringFilter<"common_guide_booking"> | string
+  packageId?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   bookingDate?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"common_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"common_guide_booking"> | number
+  pricingMode?: Prisma.StringFilter<"common_guide_booking"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_booking"> | string
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_booking"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"common_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
+  package?: Prisma.XOR<Prisma.Common_guide_packageNullableScalarRelationFilter, Prisma.common_guide_packageWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
   selectedPlaces?: Prisma.Common_guide_booking_placesListRelationFilter
@@ -246,14 +583,44 @@ export type common_guide_bookingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   commonGuideId?: Prisma.SortOrder
+  packageId?: Prisma.SortOrderInput | Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupRequestStatus?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.common_guide_bookingCountOrderByAggregateInput
+  _avg?: Prisma.common_guide_bookingAvgOrderByAggregateInput
   _max?: Prisma.common_guide_bookingMaxOrderByAggregateInput
   _min?: Prisma.common_guide_bookingMinOrderByAggregateInput
+  _sum?: Prisma.common_guide_bookingSumOrderByAggregateInput
 }
 
 export type common_guide_bookingScalarWhereWithAggregatesInput = {
@@ -263,8 +630,36 @@ export type common_guide_bookingScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
   userId?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
   commonGuideId?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  packageId?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
   bookingDate?: Prisma.DateTimeWithAggregatesFilter<"common_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntWithAggregatesFilter<"common_guide_booking"> | number
+  totalPrice?: Prisma.FloatWithAggregatesFilter<"common_guide_booking"> | number
+  pricingMode?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  pricingUnit?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  allowCustomerPlaceSelection?: Prisma.BoolWithAggregatesFilter<"common_guide_booking"> | boolean
+  cancellationPolicy?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  foodStatus?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  foodDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  transportStatus?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  transportDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  entryFeeStatus?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  entryFeeDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableWithAggregatesFilter<"common_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  tripStartTime?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  pickupName?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
+  pickupRequestStatus?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
+  requestedPickupName?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  requestedPickupLat?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
+  requestedPickupLng?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusWithAggregatesFilter<"common_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide_booking"> | Date | string
@@ -274,9 +669,37 @@ export type common_guide_bookingCreateInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  package?: Prisma.common_guide_packageCreateNestedOneWithoutBookingsInput
   user: Prisma.userCreateNestedOneWithoutCommonGuideBookingsInput
   commonGuide: Prisma.common_guideCreateNestedOneWithoutBookingsInput
   selectedPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutBookingInput
@@ -286,8 +709,36 @@ export type common_guide_bookingUncheckedCreateInput = {
   id?: string
   userId: string
   commonGuideId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -298,9 +749,37 @@ export type common_guide_bookingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  package?: Prisma.common_guide_packageUpdateOneWithoutBookingsNestedInput
   user?: Prisma.userUpdateOneRequiredWithoutCommonGuideBookingsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutBookingsNestedInput
   selectedPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutBookingNestedInput
@@ -310,8 +789,36 @@ export type common_guide_bookingUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -322,8 +829,36 @@ export type common_guide_bookingCreateManyInput = {
   id?: string
   userId: string
   commonGuideId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -333,6 +868,33 @@ export type common_guide_bookingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -342,8 +904,36 @@ export type common_guide_bookingUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -363,19 +953,84 @@ export type common_guide_bookingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   commonGuideId?: Prisma.SortOrder
+  packageId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupRequestStatus?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type common_guide_bookingAvgOrderByAggregateInput = {
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrder
 }
 
 export type common_guide_bookingMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   commonGuideId?: Prisma.SortOrder
+  packageId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupRequestStatus?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -385,11 +1040,48 @@ export type common_guide_bookingMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   commonGuideId?: Prisma.SortOrder
+  packageId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupRequestStatus?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type common_guide_bookingSumOrderByAggregateInput = {
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  requestedPickupLat?: Prisma.SortOrder
+  requestedPickupLng?: Prisma.SortOrder
 }
 
 export type Common_guide_bookingScalarRelationFilter = {
@@ -481,6 +1173,48 @@ export type common_guide_bookingUncheckedUpdateManyWithoutCommonGuideNestedInput
   deleteMany?: Prisma.common_guide_bookingScalarWhereInput | Prisma.common_guide_bookingScalarWhereInput[]
 }
 
+export type common_guide_bookingCreateNestedManyWithoutPackageInput = {
+  create?: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput> | Prisma.common_guide_bookingCreateWithoutPackageInput[] | Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput[]
+  connectOrCreate?: Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput | Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput[]
+  createMany?: Prisma.common_guide_bookingCreateManyPackageInputEnvelope
+  connect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+}
+
+export type common_guide_bookingUncheckedCreateNestedManyWithoutPackageInput = {
+  create?: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput> | Prisma.common_guide_bookingCreateWithoutPackageInput[] | Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput[]
+  connectOrCreate?: Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput | Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput[]
+  createMany?: Prisma.common_guide_bookingCreateManyPackageInputEnvelope
+  connect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+}
+
+export type common_guide_bookingUpdateManyWithoutPackageNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput> | Prisma.common_guide_bookingCreateWithoutPackageInput[] | Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput[]
+  connectOrCreate?: Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput | Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput[]
+  upsert?: Prisma.common_guide_bookingUpsertWithWhereUniqueWithoutPackageInput | Prisma.common_guide_bookingUpsertWithWhereUniqueWithoutPackageInput[]
+  createMany?: Prisma.common_guide_bookingCreateManyPackageInputEnvelope
+  set?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  disconnect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  delete?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  connect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  update?: Prisma.common_guide_bookingUpdateWithWhereUniqueWithoutPackageInput | Prisma.common_guide_bookingUpdateWithWhereUniqueWithoutPackageInput[]
+  updateMany?: Prisma.common_guide_bookingUpdateManyWithWhereWithoutPackageInput | Prisma.common_guide_bookingUpdateManyWithWhereWithoutPackageInput[]
+  deleteMany?: Prisma.common_guide_bookingScalarWhereInput | Prisma.common_guide_bookingScalarWhereInput[]
+}
+
+export type common_guide_bookingUncheckedUpdateManyWithoutPackageNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput> | Prisma.common_guide_bookingCreateWithoutPackageInput[] | Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput[]
+  connectOrCreate?: Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput | Prisma.common_guide_bookingCreateOrConnectWithoutPackageInput[]
+  upsert?: Prisma.common_guide_bookingUpsertWithWhereUniqueWithoutPackageInput | Prisma.common_guide_bookingUpsertWithWhereUniqueWithoutPackageInput[]
+  createMany?: Prisma.common_guide_bookingCreateManyPackageInputEnvelope
+  set?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  disconnect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  delete?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  connect?: Prisma.common_guide_bookingWhereUniqueInput | Prisma.common_guide_bookingWhereUniqueInput[]
+  update?: Prisma.common_guide_bookingUpdateWithWhereUniqueWithoutPackageInput | Prisma.common_guide_bookingUpdateWithWhereUniqueWithoutPackageInput[]
+  updateMany?: Prisma.common_guide_bookingUpdateManyWithWhereWithoutPackageInput | Prisma.common_guide_bookingUpdateManyWithWhereWithoutPackageInput[]
+  deleteMany?: Prisma.common_guide_bookingScalarWhereInput | Prisma.common_guide_bookingScalarWhereInput[]
+}
+
 export type common_guide_bookingCreateNestedOneWithoutSelectedPlacesInput = {
   create?: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutSelectedPlacesInput, Prisma.common_guide_bookingUncheckedCreateWithoutSelectedPlacesInput>
   connectOrCreate?: Prisma.common_guide_bookingCreateOrConnectWithoutSelectedPlacesInput
@@ -499,9 +1233,37 @@ export type common_guide_bookingCreateWithoutUserInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  package?: Prisma.common_guide_packageCreateNestedOneWithoutBookingsInput
   commonGuide: Prisma.common_guideCreateNestedOneWithoutBookingsInput
   selectedPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutBookingInput
 }
@@ -509,8 +1271,36 @@ export type common_guide_bookingCreateWithoutUserInput = {
 export type common_guide_bookingUncheckedCreateWithoutUserInput = {
   id?: string
   commonGuideId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -550,8 +1340,36 @@ export type common_guide_bookingScalarWhereInput = {
   id?: Prisma.StringFilter<"common_guide_booking"> | string
   userId?: Prisma.StringFilter<"common_guide_booking"> | string
   commonGuideId?: Prisma.StringFilter<"common_guide_booking"> | string
+  packageId?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   bookingDate?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"common_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"common_guide_booking"> | number
+  pricingMode?: Prisma.StringFilter<"common_guide_booking"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_booking"> | string
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_booking"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeStatus?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"common_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
+  requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_booking"> | Date | string
@@ -561,9 +1379,37 @@ export type common_guide_bookingCreateWithoutCommonGuideInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  package?: Prisma.common_guide_packageCreateNestedOneWithoutBookingsInput
   user: Prisma.userCreateNestedOneWithoutCommonGuideBookingsInput
   selectedPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutBookingInput
 }
@@ -571,8 +1417,36 @@ export type common_guide_bookingCreateWithoutCommonGuideInput = {
 export type common_guide_bookingUncheckedCreateWithoutCommonGuideInput = {
   id?: string
   userId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -605,13 +1479,145 @@ export type common_guide_bookingUpdateManyWithWhereWithoutCommonGuideInput = {
   data: Prisma.XOR<Prisma.common_guide_bookingUpdateManyMutationInput, Prisma.common_guide_bookingUncheckedUpdateManyWithoutCommonGuideInput>
 }
 
+export type common_guide_bookingCreateWithoutPackageInput = {
+  id?: string
+  bookingDate: Date | string
+  bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
+  status?: $Enums.bookingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.userCreateNestedOneWithoutCommonGuideBookingsInput
+  commonGuide: Prisma.common_guideCreateNestedOneWithoutBookingsInput
+  selectedPlaces?: Prisma.common_guide_booking_placesCreateNestedManyWithoutBookingInput
+}
+
+export type common_guide_bookingUncheckedCreateWithoutPackageInput = {
+  id?: string
+  userId: string
+  commonGuideId: string
+  bookingDate: Date | string
+  bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
+  status?: $Enums.bookingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  selectedPlaces?: Prisma.common_guide_booking_placesUncheckedCreateNestedManyWithoutBookingInput
+}
+
+export type common_guide_bookingCreateOrConnectWithoutPackageInput = {
+  where: Prisma.common_guide_bookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput>
+}
+
+export type common_guide_bookingCreateManyPackageInputEnvelope = {
+  data: Prisma.common_guide_bookingCreateManyPackageInput | Prisma.common_guide_bookingCreateManyPackageInput[]
+  skipDuplicates?: boolean
+}
+
+export type common_guide_bookingUpsertWithWhereUniqueWithoutPackageInput = {
+  where: Prisma.common_guide_bookingWhereUniqueInput
+  update: Prisma.XOR<Prisma.common_guide_bookingUpdateWithoutPackageInput, Prisma.common_guide_bookingUncheckedUpdateWithoutPackageInput>
+  create: Prisma.XOR<Prisma.common_guide_bookingCreateWithoutPackageInput, Prisma.common_guide_bookingUncheckedCreateWithoutPackageInput>
+}
+
+export type common_guide_bookingUpdateWithWhereUniqueWithoutPackageInput = {
+  where: Prisma.common_guide_bookingWhereUniqueInput
+  data: Prisma.XOR<Prisma.common_guide_bookingUpdateWithoutPackageInput, Prisma.common_guide_bookingUncheckedUpdateWithoutPackageInput>
+}
+
+export type common_guide_bookingUpdateManyWithWhereWithoutPackageInput = {
+  where: Prisma.common_guide_bookingScalarWhereInput
+  data: Prisma.XOR<Prisma.common_guide_bookingUpdateManyMutationInput, Prisma.common_guide_bookingUncheckedUpdateManyWithoutPackageInput>
+}
+
 export type common_guide_bookingCreateWithoutSelectedPlacesInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  package?: Prisma.common_guide_packageCreateNestedOneWithoutBookingsInput
   user: Prisma.userCreateNestedOneWithoutCommonGuideBookingsInput
   commonGuide: Prisma.common_guideCreateNestedOneWithoutBookingsInput
 }
@@ -620,8 +1626,36 @@ export type common_guide_bookingUncheckedCreateWithoutSelectedPlacesInput = {
   id?: string
   userId: string
   commonGuideId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -647,9 +1681,37 @@ export type common_guide_bookingUpdateWithoutSelectedPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  package?: Prisma.common_guide_packageUpdateOneWithoutBookingsNestedInput
   user?: Prisma.userUpdateOneRequiredWithoutCommonGuideBookingsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutBookingsNestedInput
 }
@@ -658,8 +1720,36 @@ export type common_guide_bookingUncheckedUpdateWithoutSelectedPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -668,8 +1758,36 @@ export type common_guide_bookingUncheckedUpdateWithoutSelectedPlacesInput = {
 export type common_guide_bookingCreateManyUserInput = {
   id?: string
   commonGuideId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -679,9 +1797,37 @@ export type common_guide_bookingUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  package?: Prisma.common_guide_packageUpdateOneWithoutBookingsNestedInput
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutBookingsNestedInput
   selectedPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutBookingNestedInput
 }
@@ -689,8 +1835,36 @@ export type common_guide_bookingUpdateWithoutUserInput = {
 export type common_guide_bookingUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -700,8 +1874,36 @@ export type common_guide_bookingUncheckedUpdateWithoutUserInput = {
 export type common_guide_bookingUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -710,8 +1912,36 @@ export type common_guide_bookingUncheckedUpdateManyWithoutUserInput = {
 export type common_guide_bookingCreateManyCommonGuideInput = {
   id?: string
   userId: string
+  packageId?: string | null
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -721,9 +1951,37 @@ export type common_guide_bookingUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  package?: Prisma.common_guide_packageUpdateOneWithoutBookingsNestedInput
   user?: Prisma.userUpdateOneRequiredWithoutCommonGuideBookingsNestedInput
   selectedPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutBookingNestedInput
 }
@@ -731,8 +1989,36 @@ export type common_guide_bookingUpdateWithoutCommonGuideInput = {
 export type common_guide_bookingUncheckedUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -742,8 +2028,190 @@ export type common_guide_bookingUncheckedUpdateWithoutCommonGuideInput = {
 export type common_guide_bookingUncheckedUpdateManyWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type common_guide_bookingCreateManyPackageInput = {
+  id?: string
+  userId: string
+  commonGuideId: string
+  bookingDate: Date | string
+  bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pricingMode?: string
+  pricingUnit?: string
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string | null
+  foodDetails?: string | null
+  transportStatus?: string | null
+  transportDetails?: string | null
+  entryFeeStatus?: string | null
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupRequestStatus?: string
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupLat?: number | null
+  requestedPickupLng?: number | null
+  status?: $Enums.bookingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type common_guide_bookingUpdateWithoutPackageInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.userUpdateOneRequiredWithoutCommonGuideBookingsNestedInput
+  commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutBookingsNestedInput
+  selectedPlaces?: Prisma.common_guide_booking_placesUpdateManyWithoutBookingNestedInput
+}
+
+export type common_guide_bookingUncheckedUpdateWithoutPackageInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  selectedPlaces?: Prisma.common_guide_booking_placesUncheckedUpdateManyWithoutBookingNestedInput
+}
+
+export type common_guide_bookingUncheckedUpdateManyWithoutPackageInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -784,11 +2252,40 @@ export type common_guide_bookingSelect<ExtArgs extends runtime.Types.Extensions.
   id?: boolean
   userId?: boolean
   commonGuideId?: boolean
+  packageId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupRequestStatus?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupLat?: boolean
+  requestedPickupLng?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
   selectedPlaces?: boolean | Prisma.common_guide_booking$selectedPlacesArgs<ExtArgs>
@@ -799,11 +2296,40 @@ export type common_guide_bookingSelectCreateManyAndReturn<ExtArgs extends runtim
   id?: boolean
   userId?: boolean
   commonGuideId?: boolean
+  packageId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupRequestStatus?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupLat?: boolean
+  requestedPickupLng?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_booking"]>
@@ -812,11 +2338,40 @@ export type common_guide_bookingSelectUpdateManyAndReturn<ExtArgs extends runtim
   id?: boolean
   userId?: boolean
   commonGuideId?: boolean
+  packageId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupRequestStatus?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupLat?: boolean
+  requestedPickupLng?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_booking"]>
@@ -825,25 +2380,56 @@ export type common_guide_bookingSelectScalar = {
   id?: boolean
   userId?: boolean
   commonGuideId?: boolean
+  packageId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupRequestStatus?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupLat?: boolean
+  requestedPickupLng?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type common_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "commonGuideId" | "bookingDate" | "bookingTime" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_booking"]>
+export type common_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "commonGuideId" | "packageId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pricingMode" | "pricingUnit" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "transportStatus" | "transportDetails" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupRequestStatus" | "requestedPickupName" | "requestedPickupAddress" | "requestedPickupLat" | "requestedPickupLng" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_booking"]>
 export type common_guide_bookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
   selectedPlaces?: boolean | Prisma.common_guide_booking$selectedPlacesArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guide_bookingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type common_guide_bookingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
 }
 export type common_guide_bookingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
 }
@@ -851,6 +2437,7 @@ export type common_guide_bookingIncludeUpdateManyAndReturn<ExtArgs extends runti
 export type $common_guide_bookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "common_guide_booking"
   objects: {
+    package: Prisma.$common_guide_packagePayload<ExtArgs> | null
     user: Prisma.$userPayload<ExtArgs>
     commonGuide: Prisma.$common_guidePayload<ExtArgs>
     selectedPlaces: Prisma.$common_guide_booking_placesPayload<ExtArgs>[]
@@ -859,8 +2446,36 @@ export type $common_guide_bookingPayload<ExtArgs extends runtime.Types.Extension
     id: string
     userId: string
     commonGuideId: string
+    packageId: string | null
     bookingDate: Date
     bookingTime: string | null
+    numberOfPeople: number
+    totalPrice: number
+    pricingMode: string
+    pricingUnit: string
+    allowCustomerPlaceSelection: boolean
+    cancellationPolicy: string | null
+    foodStatus: string | null
+    foodDetails: string | null
+    transportStatus: string | null
+    transportDetails: string | null
+    entryFeeStatus: string | null
+    entryFeeDetails: string | null
+    additionalCostsDetails: string | null
+    paymentStatus: string
+    rescheduleStatus: string
+    requestedBookingDate: Date | null
+    requestedBookingTime: string | null
+    tripStartTime: string | null
+    pickupName: string | null
+    pickupAddress: string | null
+    pickupLat: number | null
+    pickupLng: number | null
+    pickupRequestStatus: string
+    requestedPickupName: string | null
+    requestedPickupAddress: string | null
+    requestedPickupLat: number | null
+    requestedPickupLng: number | null
     status: $Enums.bookingStatus
     createdAt: Date
     updatedAt: Date
@@ -1258,6 +2873,7 @@ readonly fields: common_guide_bookingFieldRefs;
  */
 export interface Prisma__common_guide_bookingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  package<T extends Prisma.common_guide_booking$packageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_booking$packageArgs<ExtArgs>>): Prisma.Prisma__common_guide_packageClient<runtime.Types.Result.GetResult<Prisma.$common_guide_packagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.userDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.userDefaultArgs<ExtArgs>>): Prisma.Prisma__userClient<runtime.Types.Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   commonGuide<T extends Prisma.common_guideDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guideDefaultArgs<ExtArgs>>): Prisma.Prisma__common_guideClient<runtime.Types.Result.GetResult<Prisma.$common_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   selectedPlaces<T extends Prisma.common_guide_booking$selectedPlacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_booking$selectedPlacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_booking_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1293,8 +2909,36 @@ export interface common_guide_bookingFieldRefs {
   readonly id: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly userId: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly commonGuideId: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly packageId: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly bookingDate: Prisma.FieldRef<"common_guide_booking", 'DateTime'>
   readonly bookingTime: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly numberOfPeople: Prisma.FieldRef<"common_guide_booking", 'Int'>
+  readonly totalPrice: Prisma.FieldRef<"common_guide_booking", 'Float'>
+  readonly pricingMode: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly pricingUnit: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly allowCustomerPlaceSelection: Prisma.FieldRef<"common_guide_booking", 'Boolean'>
+  readonly cancellationPolicy: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly foodStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly foodDetails: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly transportStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly transportDetails: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly entryFeeStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly entryFeeDetails: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly additionalCostsDetails: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly paymentStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly rescheduleStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly requestedBookingDate: Prisma.FieldRef<"common_guide_booking", 'DateTime'>
+  readonly requestedBookingTime: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly tripStartTime: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly pickupName: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly pickupAddress: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly pickupLat: Prisma.FieldRef<"common_guide_booking", 'Float'>
+  readonly pickupLng: Prisma.FieldRef<"common_guide_booking", 'Float'>
+  readonly pickupRequestStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly requestedPickupName: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly requestedPickupAddress: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly requestedPickupLat: Prisma.FieldRef<"common_guide_booking", 'Float'>
+  readonly requestedPickupLng: Prisma.FieldRef<"common_guide_booking", 'Float'>
   readonly status: Prisma.FieldRef<"common_guide_booking", 'bookingStatus'>
   readonly createdAt: Prisma.FieldRef<"common_guide_booking", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"common_guide_booking", 'DateTime'>
@@ -1696,6 +3340,25 @@ export type common_guide_bookingDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many common_guide_bookings to delete.
    */
   limit?: number
+}
+
+/**
+ * common_guide_booking.package
+ */
+export type common_guide_booking$packageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the common_guide_package
+   */
+  select?: Prisma.common_guide_packageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the common_guide_package
+   */
+  omit?: Prisma.common_guide_packageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.common_guide_packageInclude<ExtArgs> | null
+  where?: Prisma.common_guide_packageWhereInput
 }
 
 /**

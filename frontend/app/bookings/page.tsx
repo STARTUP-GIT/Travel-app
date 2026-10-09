@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, Compass, Hotel, RefreshCw, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, Compass, Hotel, Printer, RefreshCw, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 
 import { AuthGate } from "@/components/shared/auth-gate";
@@ -10,6 +10,14 @@ import { EmptyState } from "@/components/shared/states";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { AppImage } from "@/components/shared/app-image";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { MapEmbed } from "@/features/maps/ui/map-embed";
+import { PrintableBookingModal } from "@/components/shared/printable-booking";
 import { useBookings } from "@/features/bookings/hooks/useBookings";
 import { slugify } from "@/features/locations/utils/slug";
 import type {
@@ -19,7 +27,7 @@ import type {
   RestaurantReservation,
   SpecificGuideBooking,
 } from "@/features/bookings/types";
-import type { AllBookings } from "@/features/bookings/api/bookings.api";
+import { getSpecificGuideLocation, type AllBookings } from "@/features/bookings/api/bookings.api";
 
 export default function BookingsScreen() {
   const { data, isLoading, refetch } = useBookings();
@@ -178,7 +186,6 @@ function ReservationRow({ booking }: { booking: RestaurantReservation }) {
 }
 
 function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
-  // District routes need both slugs; without the state we link to /explore.
   const district = booking.place?.district;
   const districtSlug = district ? slugify(district.name) : null;
   const stateSlug = district?.state?.name ? slugify(district.state.name) : null;
@@ -186,28 +193,205 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
     districtSlug && stateSlug
       ? `/${stateSlug}/${districtSlug}/guides/${booking.specificGuideId}`
       : null;
+
+  const [openTrack, setOpenTrack] = React.useState(false);
+  const [openPrint, setOpenPrint] = React.useState(false);
+  const [locData, setLocData] = React.useState<{
+    loading: boolean;
+    data: {
+      isSharingLocation: boolean;
+      sharedLatitude: number | null;
+      sharedLongitude: number | null;
+      locationUpdatedAt: string | null;
+    } | null;
+    error: string | null;
+  }>({ loading: false, data: null, error: null });
+
+  const fetchLocation = async () => {
+    setOpenTrack(true);
+    setLocData({ loading: true, data: null, error: null });
+    try {
+      const res = await getSpecificGuideLocation(booking.id);
+      setLocData({ loading: false, data: res, error: null });
+    } catch {
+      setLocData({ loading: false, data: null, error: "Guide location is not available." });
+    }
+  };
+
   return (
-    <RowShell
-      image={booking.specificGuide?.profile_pic}
-      title={booking.specificGuide?.full_name ?? "Specific guide"}
-      subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
-      status={booking.status}
-      href={href}
-    />
+    <div className="space-y-2">
+      <RowShell
+        image={booking.specificGuide?.profile_pic}
+        title={booking.specificGuide?.full_name ?? "Specific guide"}
+        subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
+        status={booking.status}
+        href={href}
+      />
+      <div className="flex justify-end gap-2 px-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+          onClick={() => setOpenPrint(true)}
+        >
+          <Printer className="size-3.5 text-primary" /> Print Confirmation
+        </Button>
+        {booking.status === "CONFIRMED" ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 rounded-xl text-xs gap-1.5"
+            onClick={fetchLocation}
+          >
+            <Compass className="size-3.5 text-primary" /> Track Guide Location
+          </Button>
+        ) : null}
+      </div>
+
+      <PrintableBookingModal
+        open={openPrint}
+        onOpenChange={setOpenPrint}
+        booking={{
+          id: booking.id,
+          type: "specific",
+          status: booking.status,
+          createdAt: booking.createdAt,
+          guideOrAgencyName: booking.specificGuide?.full_name ?? "Specific Guide",
+          guideName: booking.specificGuide?.full_name,
+          guidePhone: booking.specificGuide?.phone,
+          guideEmail: booking.specificGuide?.email,
+          places: booking.place ? [{ id: booking.place.id, name: booking.place.name, districtName: booking.place.district?.name }] : [],
+          numberOfPeople: booking.numberOfPeople || 1,
+          bookingDate: booking.bookingDate,
+          bookingTime: booking.tripStartTime,
+          pickupName: booking.pickupName,
+          pickupAddress: booking.pickupAddress,
+          requestedPickupName: booking.requestedPickupName,
+          requestedPickupAddress: booking.requestedPickupAddress,
+          pricingMode: "WHOLE_TOUR",
+          totalPrice: booking.totalPrice || 0,
+          cancellationPolicy: booking.cancellationPolicy,
+          foodStatus: booking.foodStatus,
+          foodDetails: booking.foodDetails,
+          transportStatus: booking.transportStatus,
+          transportDetails: booking.transportDetails,
+          entryFeeStatus: booking.entryFeeStatus,
+          entryFeeDetails: booking.entryFeeDetails,
+          additionalCostsDetails: booking.additionalCostsDetails,
+          paymentStatus: booking.paymentStatus,
+        }}
+      />
+
+      <Dialog open={openTrack} onOpenChange={setOpenTrack}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Guide Location - {booking.specificGuide?.full_name}</DialogTitle>
+          </DialogHeader>
+          {locData.loading ? (
+            <div className="p-8 text-center text-sm text-muted-foreground animate-pulse">
+              Fetching guide location…
+            </div>
+          ) : locData.error ? (
+            <div className="p-6 text-center text-sm text-destructive">{locData.error}</div>
+          ) : locData.data?.isSharingLocation &&
+            locData.data.sharedLatitude &&
+            locData.data.sharedLongitude ? (
+            <div className="space-y-3">
+              <MapEmbed
+                point={{
+                  latitude: locData.data.sharedLatitude,
+                  longitude: locData.data.sharedLongitude,
+                }}
+                label={booking.specificGuide?.full_name ?? "Guide Location"}
+                height={260}
+              />
+              {locData.data.locationUpdatedAt ? (
+                <p className="text-xs text-muted-foreground text-right">
+                  Updated: {new Date(locData.data.locationUpdatedAt).toLocaleTimeString()}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="p-6 text-center text-sm text-muted-foreground">
+              Guide is not currently sharing live location.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
 function CommonRow({ booking }: { booking: CommonGuideBooking }) {
   const firstName = booking.selectedPlaces?.find((p) => p.place?.name)?.place?.name;
+  const [openPrint, setOpenPrint] = React.useState(false);
+
   return (
-    <RowShell
-      image={booking.commonGuide?.profile_pic}
-      title={booking.commonGuide?.full_name ?? "Tour guide"}
-      subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
-      meta={booking.selectedPlaces?.map((p) => p.place?.name).filter(Boolean).join(", ")}
-      status={booking.status}
-      href={firstName ? "/explore" : null}
-    />
+    <div className="space-y-2">
+      <RowShell
+        image={booking.commonGuide?.profile_pic}
+        title={booking.commonGuide?.agencyName || booking.commonGuide?.full_name || "Tour guide"}
+        subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
+        meta={booking.selectedPlaces?.map((p) => p.place?.name).filter(Boolean).join(", ")}
+        status={booking.status}
+        href={firstName ? "/explore" : null}
+      />
+      <div className="flex justify-end px-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+          onClick={() => setOpenPrint(true)}
+        >
+          <Printer className="size-3.5 text-primary" /> Print Confirmation
+        </Button>
+      </div>
+
+      <PrintableBookingModal
+        open={openPrint}
+        onOpenChange={setOpenPrint}
+        booking={{
+          id: booking.id,
+          type: "common",
+          status: booking.status,
+          createdAt: booking.createdAt,
+          guideOrAgencyName: booking.commonGuide?.agencyName || booking.commonGuide?.full_name || "Tour Guide",
+          agencyName: booking.commonGuide?.agencyName,
+          agencyAddress: booking.commonGuide?.agencyAddress,
+          agencyBanner: booking.commonGuide?.agencyBanner,
+          guideName: booking.commonGuide?.full_name,
+          guidePhone: booking.commonGuide?.phone,
+          guideEmail: booking.commonGuide?.email,
+          places: booking.selectedPlaces?.map((p) => ({
+            id: p.place?.id || p.id,
+            name: p.place?.name || "Place",
+            districtName: p.place?.district?.name,
+          })) || [],
+          numberOfPeople: booking.numberOfPeople || 1,
+          bookingDate: booking.bookingDate,
+          bookingTime: booking.tripStartTime,
+          pickupName: booking.pickupName,
+          pickupAddress: booking.pickupAddress,
+          requestedPickupName: booking.requestedPickupName,
+          requestedPickupAddress: booking.requestedPickupAddress,
+          pricingMode: booking.pricingMode,
+          pricingUnit: booking.pricingUnit,
+          totalPrice: booking.totalPrice || 0,
+          cancellationPolicy: booking.cancellationPolicy,
+          foodStatus: booking.foodStatus,
+          foodDetails: booking.foodDetails,
+          transportStatus: booking.transportStatus,
+          transportDetails: booking.transportDetails,
+          entryFeeStatus: booking.entryFeeStatus,
+          entryFeeDetails: booking.entryFeeDetails,
+          additionalCostsDetails: booking.additionalCostsDetails,
+          paymentStatus: booking.paymentStatus,
+        }}
+      />
+    </div>
   );
 }
 

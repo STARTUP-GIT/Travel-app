@@ -20,46 +20,70 @@ export type common_guide_package_placesModel = runtime.Types.Result.DefaultSelec
 
 export type AggregateCommon_guide_package_places = {
   _count: Common_guide_package_placesCountAggregateOutputType | null
+  _avg: Common_guide_package_placesAvgAggregateOutputType | null
+  _sum: Common_guide_package_placesSumAggregateOutputType | null
   _min: Common_guide_package_placesMinAggregateOutputType | null
   _max: Common_guide_package_placesMaxAggregateOutputType | null
+}
+
+export type Common_guide_package_placesAvgAggregateOutputType = {
+  price: number | null
+}
+
+export type Common_guide_package_placesSumAggregateOutputType = {
+  price: number | null
 }
 
 export type Common_guide_package_placesMinAggregateOutputType = {
   id: string | null
   packageId: string | null
   placeId: string | null
+  price: number | null
 }
 
 export type Common_guide_package_placesMaxAggregateOutputType = {
   id: string | null
   packageId: string | null
   placeId: string | null
+  price: number | null
 }
 
 export type Common_guide_package_placesCountAggregateOutputType = {
   id: number
   packageId: number
   placeId: number
+  price: number
   _all: number
 }
 
+
+export type Common_guide_package_placesAvgAggregateInputType = {
+  price?: true
+}
+
+export type Common_guide_package_placesSumAggregateInputType = {
+  price?: true
+}
 
 export type Common_guide_package_placesMinAggregateInputType = {
   id?: true
   packageId?: true
   placeId?: true
+  price?: true
 }
 
 export type Common_guide_package_placesMaxAggregateInputType = {
   id?: true
   packageId?: true
   placeId?: true
+  price?: true
 }
 
 export type Common_guide_package_placesCountAggregateInputType = {
   id?: true
   packageId?: true
   placeId?: true
+  price?: true
   _all?: true
 }
 
@@ -101,6 +125,18 @@ export type Common_guide_package_placesAggregateArgs<ExtArgs extends runtime.Typ
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: Common_guide_package_placesAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: Common_guide_package_placesSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: Common_guide_package_placesMinAggregateInputType
@@ -131,6 +167,8 @@ export type common_guide_package_placesGroupByArgs<ExtArgs extends runtime.Types
   take?: number
   skip?: number
   _count?: Common_guide_package_placesCountAggregateInputType | true
+  _avg?: Common_guide_package_placesAvgAggregateInputType
+  _sum?: Common_guide_package_placesSumAggregateInputType
   _min?: Common_guide_package_placesMinAggregateInputType
   _max?: Common_guide_package_placesMaxAggregateInputType
 }
@@ -139,7 +177,10 @@ export type Common_guide_package_placesGroupByOutputType = {
   id: string
   packageId: string
   placeId: string
+  price: number | null
   _count: Common_guide_package_placesCountAggregateOutputType | null
+  _avg: Common_guide_package_placesAvgAggregateOutputType | null
+  _sum: Common_guide_package_placesSumAggregateOutputType | null
   _min: Common_guide_package_placesMinAggregateOutputType | null
   _max: Common_guide_package_placesMaxAggregateOutputType | null
 }
@@ -166,6 +207,7 @@ export type common_guide_package_placesWhereInput = {
   id?: Prisma.StringFilter<"common_guide_package_places"> | string
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
+  price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
   package?: Prisma.XOR<Prisma.Common_guide_packageScalarRelationFilter, Prisma.common_guide_packageWhereInput>
   place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
 }
@@ -174,6 +216,7 @@ export type common_guide_package_placesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
+  price?: Prisma.SortOrderInput | Prisma.SortOrder
   package?: Prisma.common_guide_packageOrderByWithRelationInput
   place?: Prisma.placeOrderByWithRelationInput
 }
@@ -186,6 +229,7 @@ export type common_guide_package_placesWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.common_guide_package_placesWhereInput | Prisma.common_guide_package_placesWhereInput[]
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
+  price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
   package?: Prisma.XOR<Prisma.Common_guide_packageScalarRelationFilter, Prisma.common_guide_packageWhereInput>
   place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
 }, "id" | "packageId_placeId">
@@ -194,9 +238,12 @@ export type common_guide_package_placesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
+  price?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.common_guide_package_placesCountOrderByAggregateInput
+  _avg?: Prisma.common_guide_package_placesAvgOrderByAggregateInput
   _max?: Prisma.common_guide_package_placesMaxOrderByAggregateInput
   _min?: Prisma.common_guide_package_placesMinOrderByAggregateInput
+  _sum?: Prisma.common_guide_package_placesSumOrderByAggregateInput
 }
 
 export type common_guide_package_placesScalarWhereWithAggregatesInput = {
@@ -206,10 +253,12 @@ export type common_guide_package_placesScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
   packageId?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
+  price?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package_places"> | number | null
 }
 
 export type common_guide_package_placesCreateInput = {
   id?: string
+  price?: number | null
   package: Prisma.common_guide_packageCreateNestedOneWithoutPlacesInput
   place: Prisma.placeCreateNestedOneWithoutCommonGuidePackagePlacesInput
 }
@@ -218,10 +267,12 @@ export type common_guide_package_placesUncheckedCreateInput = {
   id?: string
   packageId: string
   placeId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   package?: Prisma.common_guide_packageUpdateOneRequiredWithoutPlacesNestedInput
   place?: Prisma.placeUpdateOneRequiredWithoutCommonGuidePackagePlacesNestedInput
 }
@@ -230,22 +281,26 @@ export type common_guide_package_placesUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesCreateManyInput = {
   id?: string
   packageId: string
   placeId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type Common_guide_package_placesListRelationFilter = {
@@ -267,18 +322,29 @@ export type common_guide_package_placesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+}
+
+export type common_guide_package_placesAvgOrderByAggregateInput = {
+  price?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
+  price?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+}
+
+export type common_guide_package_placesSumOrderByAggregateInput = {
+  price?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesCreateNestedManyWithoutPlaceInput = {
@@ -367,12 +433,14 @@ export type common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedIn
 
 export type common_guide_package_placesCreateWithoutPlaceInput = {
   id?: string
+  price?: number | null
   package: Prisma.common_guide_packageCreateNestedOneWithoutPlacesInput
 }
 
 export type common_guide_package_placesUncheckedCreateWithoutPlaceInput = {
   id?: string
   packageId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesCreateOrConnectWithoutPlaceInput = {
@@ -408,16 +476,19 @@ export type common_guide_package_placesScalarWhereInput = {
   id?: Prisma.StringFilter<"common_guide_package_places"> | string
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
+  price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
 }
 
 export type common_guide_package_placesCreateWithoutPackageInput = {
   id?: string
+  price?: number | null
   place: Prisma.placeCreateNestedOneWithoutCommonGuidePackagePlacesInput
 }
 
 export type common_guide_package_placesUncheckedCreateWithoutPackageInput = {
   id?: string
   placeId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesCreateOrConnectWithoutPackageInput = {
@@ -449,41 +520,49 @@ export type common_guide_package_placesUpdateManyWithWhereWithoutPackageInput = 
 export type common_guide_package_placesCreateManyPlaceInput = {
   id?: string
   packageId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesUpdateWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   package?: Prisma.common_guide_packageUpdateOneRequiredWithoutPlacesNestedInput
 }
 
 export type common_guide_package_placesUncheckedUpdateWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesCreateManyPackageInput = {
   id?: string
   placeId: string
+  price?: number | null
 }
 
 export type common_guide_package_placesUpdateWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   place?: Prisma.placeUpdateOneRequiredWithoutCommonGuidePackagePlacesNestedInput
 }
 
 export type common_guide_package_placesUncheckedUpdateWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 
@@ -492,6 +571,7 @@ export type common_guide_package_placesSelect<ExtArgs extends runtime.Types.Exte
   id?: boolean
   packageId?: boolean
   placeId?: boolean
+  price?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -500,6 +580,7 @@ export type common_guide_package_placesSelectCreateManyAndReturn<ExtArgs extends
   id?: boolean
   packageId?: boolean
   placeId?: boolean
+  price?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -508,6 +589,7 @@ export type common_guide_package_placesSelectUpdateManyAndReturn<ExtArgs extends
   id?: boolean
   packageId?: boolean
   placeId?: boolean
+  price?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -516,9 +598,10 @@ export type common_guide_package_placesSelectScalar = {
   id?: boolean
   packageId?: boolean
   placeId?: boolean
+  price?: boolean
 }
 
-export type common_guide_package_placesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "placeId", ExtArgs["result"]["common_guide_package_places"]>
+export type common_guide_package_placesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "placeId" | "price", ExtArgs["result"]["common_guide_package_places"]>
 export type common_guide_package_placesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
@@ -542,6 +625,7 @@ export type $common_guide_package_placesPayload<ExtArgs extends runtime.Types.Ex
     id: string
     packageId: string
     placeId: string
+    price: number | null
   }, ExtArgs["result"]["common_guide_package_places"]>
   composites: {}
 }
@@ -970,6 +1054,7 @@ export interface common_guide_package_placesFieldRefs {
   readonly id: Prisma.FieldRef<"common_guide_package_places", 'String'>
   readonly packageId: Prisma.FieldRef<"common_guide_package_places", 'String'>
   readonly placeId: Prisma.FieldRef<"common_guide_package_places", 'String'>
+  readonly price: Prisma.FieldRef<"common_guide_package_places", 'Float'>
 }
     
 

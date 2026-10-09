@@ -8,7 +8,7 @@ import {
   loadGoogleMaps,
   type GoogleMapsLibrary,
 } from "@/lib/google-maps/loader";
-import type { Coordinate, TripPoint } from "../types";
+import type { Checkpoint, Coordinate, TripPoint } from "../types";
 import { MapConfig, RouteColors } from "../constants/theme";
 import { TrackCanvas } from "./track-canvas";
 
@@ -32,6 +32,7 @@ export function GoogleTripMap({
   currentPosition,
   returnCorridor,
   recording,
+  checkpoints,
   apiKey,
   className,
 }: {
@@ -39,6 +40,7 @@ export function GoogleTripMap({
   currentPosition: Coordinate | null;
   returnCorridor: Coordinate[] | null;
   recording: boolean;
+  checkpoints?: Checkpoint[];
   apiKey: string;
   className?: string;
 }) {
@@ -53,6 +55,7 @@ export function GoogleTripMap({
   const corridorRef = React.useRef<google.maps.Polyline | null>(null);
   const startMarkerRef = React.useRef<google.maps.Marker | null>(null);
   const currentMarkerRef = React.useRef<google.maps.Marker | null>(null);
+  const checkpointMarkersRef = React.useRef<google.maps.Marker[]>([]);
   const didCentreRef = React.useRef(false);
   const lastFollowRef = React.useRef(0);
 
@@ -150,6 +153,8 @@ export function GoogleTripMap({
       // Full teardown: no map, overlays or markers outlive the component.
       startMarkerRef.current?.setMap(null);
       currentMarkerRef.current?.setMap(null);
+      checkpointMarkersRef.current.forEach((m) => m.setMap(null));
+      checkpointMarkersRef.current = [];
       pathRef.current?.setMap(null);
       corridorRef.current?.setMap(null);
       startMarkerRef.current = null;
@@ -190,6 +195,34 @@ export function GoogleTripMap({
       currentMarkerRef.current?.setVisible(false);
     }
 
+    // Render checkpoint markers
+    checkpointMarkersRef.current.forEach((m) => m.setMap(null));
+    checkpointMarkersRef.current = [];
+    if (checkpoints && checkpoints.length > 0 && maps && mapRef.current) {
+      checkpointMarkersRef.current = checkpoints.map((cp) => {
+        return new maps.Marker({
+          map: mapRef.current!,
+          position: { lat: cp.latitude, lng: cp.longitude },
+          zIndex: 6,
+          title: `Checkpoint ${cp.checkpointNumber}`,
+          label: {
+            text: `${cp.checkpointNumber}`,
+            color: "#ffffff",
+            fontWeight: "700",
+            fontSize: "11px",
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: "#9333ea",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+          },
+        });
+      });
+    }
+
     // Centre once on the first real position, then follow the live position
     // using the original MapConfig throttle. This is camera movement only —
     // it does not request or read any location.
@@ -213,7 +246,7 @@ export function GoogleTripMap({
         });
       }
     }
-  }, [maps, points, currentPosition, returnCorridor, recording]);
+  }, [maps, points, currentPosition, returnCorridor, recording, checkpoints]);
 
   // Still loading, or not configured: keep the exact pre-existing Path Tracker
   // view, so a blank key or a slow Maps load never breaks the screen.
@@ -224,6 +257,7 @@ export function GoogleTripMap({
         currentPosition={currentPosition}
         returnCorridor={returnCorridor}
         recording={recording}
+        checkpoints={checkpoints}
       />
     );
   }

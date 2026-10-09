@@ -4,6 +4,7 @@ export type SpecificGuide = {
   username: string;
   email: string;
   phonenumber: string;
+  phone?: string;
   profile_pic?: string | null;
   tagline?: string | null;
   password?: string;
@@ -25,17 +26,12 @@ export type CommonGuide = {
   username: string;
   email: string;
   phonenumber: string;
+  phone?: string;
   profile_pic?: string;
   tagline?: string | null;
-  /**
-   * The guide's agency, e.g. "Mysuru Heritage Tours".
-   *
-   * Optional because most guides are individuals: `null`/absent means the guide
-   * trades in their own name, and the customer surfaces hide the agency block
-   * rather than printing an empty label. The backend only ever returns what it
-   * put in this list, so there is no password field to ignore.
-   */
   agencyName?: string | null;
+  agencyAddress?: string | null;
+  agencyBanner?: string | null;
   rating?: number | null;
   review: string[];
   description?: string | null;

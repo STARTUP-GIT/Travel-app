@@ -83,6 +83,7 @@ export const getProfile = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({
+      specific_guide: specificGuide,
       user: specificGuide,
     });
   } catch (error) {
@@ -320,5 +321,42 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     return res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+export const updateLocation = async (req: Request, res: Response) => {
+  try {
+    const specificGuideId = req.specific_guide;
+
+    if (!specificGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { isSharing, latitude, longitude } = req.body;
+
+    const updated = await prisma.specific_guide.update({
+      where: { id: specificGuideId },
+      data: {
+        isSharingLocation: Boolean(isSharing),
+        ...(typeof latitude === "number" ? { sharedLatitude: latitude } : {}),
+        ...(typeof longitude === "number" ? { sharedLongitude: longitude } : {}),
+        locationUpdatedAt: new Date(),
+      },
+      select: {
+        id: true,
+        isSharingLocation: true,
+        sharedLatitude: true,
+        sharedLongitude: true,
+        locationUpdatedAt: true,
+      },
+    });
+
+    return res.status(200).json({
+      message: isSharing ? "Location sharing started" : "Location sharing stopped",
+      location: updated,
+    });
+  } catch (error) {
+    console.error("Update specific guide location error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };

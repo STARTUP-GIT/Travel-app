@@ -36,6 +36,7 @@ import {
   formatDistance,
   formatDuration,
   formatPace,
+  formatSpeed,
   haversineDistance,
 } from "../utils/geo";
 import type { MovementState, ReturnState } from "../types";
@@ -90,6 +91,7 @@ export function LiveTracker({
   const gpsAccuracy = useTripStore((s) => s.gpsAccuracy);
   const pointCount = useTripStore((s) => s.pointCount);
   const activeTrip = useTripStore((s) => s.activeTrip);
+  const activeCheckpoints = useTripStore((s) => s.activeCheckpoints);
   const hasInitialPosition = useTripStore((s) => s.hasInitialPosition);
   const currentPosition = useTripStore((s) => s.currentPosition);
   const recoveredActive = useTripStore((s) => s.recoveredActive);
@@ -112,6 +114,16 @@ export function LiveTracker({
     void bootstrap();
     void loadHistory();
   }, [bootstrap, loadHistory]);
+
+  const speedDisplay = React.useMemo(() => {
+    if (currentPosition?.speed !== undefined && currentPosition.speed !== null && currentPosition.speed > 0) {
+      return formatSpeed(currentPosition.speed);
+    }
+    if (stats.avgSpeed > 0) {
+      return formatSpeed(stats.avgSpeed);
+    }
+    return "0.0 km/h";
+  }, [currentPosition?.speed, stats.avgSpeed]);
 
   // Off-route advisory: notification + vibration, same calls the original
   // makes from its return UI. The budget/cooldown live in alert-service.
@@ -366,15 +378,20 @@ export function LiveTracker({
         currentPosition={currentPosition}
         returnCorridor={isReturning ? returnState.returnCorridor : null}
         recording={isActive}
+        checkpoints={activeCheckpoints}
         apiKey={googleMapsApiKey}
       />
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Metric value={formatDistance(stats.distance)} label="DISTANCE" />
         <Metric value={formatDuration(stats.activeDurationMs)} label="TIME" />
         <Metric
           value={isActive || isReturning ? formatPace(stats.avgPaceSecPerKm) : "—"}
           label="PACE"
+        />
+        <Metric
+          value={isActive || isReturning ? speedDisplay : "0.0 km/h"}
+          label="SPEED"
         />
       </div>
 
@@ -385,6 +402,9 @@ export function LiveTracker({
         </span>
         <span>
           POINTS <span className="font-semibold text-foreground">{pointCount}</span>
+        </span>
+        <span>
+          CHECKPOINTS <span className="font-semibold text-foreground">{activeCheckpoints.length}</span>
         </span>
         {isActive || isReturning ? (
           <span>

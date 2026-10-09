@@ -39,9 +39,9 @@ const commonGuideBaseSelect = {
 
 const commonGuideSafeSelect = {
   ...commonGuideBaseSelect,
-  // Optional trading name, nullable: a guide with no agency simply reads back
-  // as null, which is the state the customer surfaces already hide.
   agencyName: true,
+  agencyAddress: true,
+  agencyBanner: true,
 } as const;
 
 export const getProfile = async (req: Request, res: Response) => {
@@ -150,6 +150,12 @@ export const editProfile = async (req: Request, res: Response) => {
         // presented as an individual rather than keeping a stale trading name.
         ...(data.agency_name !== undefined
           ? { agencyName: data.agency_name.trim() ? data.agency_name.trim() : null }
+          : {}),
+        ...(data.agency_address !== undefined
+          ? { agencyAddress: data.agency_address.trim() ? data.agency_address.trim() : null }
+          : {}),
+        ...(data.agency_banner !== undefined
+          ? { agencyBanner: data.agency_banner.trim() ? data.agency_banner.trim() : null }
           : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.experience !== undefined ? { experience: data.experience } : {}),

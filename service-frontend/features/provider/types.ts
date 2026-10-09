@@ -94,12 +94,9 @@ export type ProviderProfile = {
    * exactly as valid as one who fills it in.
    */
   agencyName: string;
+  agencyAddress?: string | null;
+  agencyBanner?: string | null;
   placeIds: string[];
-  /**
-   * The place a specific guide is linked to. `null` for a guide who registered
-   * without one, and for every other kind — a common guide's coverage comes from
-   * its packages, not from a single linked place.
-   */
   linkedPlace: ProviderLinkedPlace | null;
   isReported: boolean;
   authProvider: string;
@@ -115,6 +112,8 @@ export type ProviderProfileInput = {
   photo?: string;
   tagline?: string;
   agencyName?: string;
+  agencyAddress?: string;
+  agencyBanner?: string;
   description?: string;
   experience?: number;
   cost?: number;
@@ -127,6 +126,9 @@ export type ProviderProfileInput = {
 /* -------------------------------------------------------------------------- */
 
 /** A place as it appears inside a package. */
+export type PricingMode = "WHOLE_TOUR" | "PLACE_BASED";
+export type PricingUnit = "PER_TOUR" | "PER_PERSON";
+
 export type PackagePlace = {
   id: string;
   name: string;
@@ -134,6 +136,7 @@ export type PackagePlace = {
   images: string[];
   category: string;
   entryfee: number | null;
+  price?: number | null;
   pricing?: {
     id: string;
     visitor: PlaceVisitor;
@@ -148,6 +151,24 @@ export type TourPackage = {
   id: string;
   name: string;
   description: string | null;
+  pricingMode: PricingMode;
+  pricingUnit: PricingUnit;
+  price: number;
+  allowCustomerPlaceSelection: boolean;
+  cancellationPolicy: string | null;
+  foodStatus: string;
+  foodDetails: string | null;
+  transportStatus: string;
+  transportDetails: string | null;
+  entryFeeStatus: string;
+  entryFeeDetails: string | null;
+  additionalCostsDetails: string | null;
+  tripStartTime: string | null;
+  pickupName: string | null;
+  pickupAddress: string | null;
+  pickupLat: number | null;
+  pickupLng: number | null;
+  pickupMapsUrl: string | null;
   places: PackagePlace[];
   createdAt: string;
   updatedAt: string;
@@ -156,8 +177,26 @@ export type TourPackage = {
 export type TourPackageInput = {
   name: string;
   description: string;
-  /** At least one place; a place may appear in several packages of one guide. */
+  pricingMode: PricingMode;
+  pricingUnit: PricingUnit;
+  price: number;
+  allowCustomerPlaceSelection?: boolean;
+  cancellationPolicy?: string;
+  foodStatus?: string;
+  foodDetails?: string;
+  transportStatus?: string;
+  transportDetails?: string;
+  entryFeeStatus?: string;
+  entryFeeDetails?: string;
+  additionalCostsDetails?: string;
+  tripStartTime?: string;
+  pickupName?: string;
+  pickupAddress?: string;
+  pickupLat?: number;
+  pickupLng?: number;
+  pickupMapsUrl?: string;
   placeIds: string[];
+  placePrices?: Record<string, number>;
 };
 
 /**

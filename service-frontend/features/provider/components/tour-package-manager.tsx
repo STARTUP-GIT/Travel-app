@@ -44,13 +44,50 @@ type Draft = {
   id: string | null;
   name: string;
   description: string;
-  /** Selected ids plus the places already known for them, so the chips can be shown for every district. */
+  pricingMode: "WHOLE_TOUR" | "PLACE_BASED";
+  pricingUnit: "PER_TOUR" | "PER_PERSON";
+  price: number;
+  allowCustomerPlaceSelection: boolean;
+  cancellationPolicy: string;
+  foodStatus: string;
+  foodDetails: string;
+  transportStatus: string;
+  transportDetails: string;
+  entryFeeStatus: string;
+  entryFeeDetails: string;
+  additionalCostsDetails: string;
+  tripStartTime: string;
+  pickupName: string;
+  pickupAddress: string;
   placeIds: string[];
+  placePrices: Record<string, number>;
   places: Record<string, PackagePlace>;
 };
 
 function emptyDraft(): Draft {
-  return { id: null, name: "", description: "", placeIds: [], places: {} };
+  return {
+    id: null,
+    name: "",
+    description: "",
+    pricingMode: "WHOLE_TOUR",
+    pricingUnit: "PER_TOUR",
+    price: 0,
+    allowCustomerPlaceSelection: true,
+    cancellationPolicy: "Free cancellation up to 24h before trip start",
+    foodStatus: "EXCLUDED",
+    foodDetails: "",
+    transportStatus: "EXCLUDED",
+    transportDetails: "",
+    entryFeeStatus: "EXCLUDED",
+    entryFeeDetails: "",
+    additionalCostsDetails: "",
+    tripStartTime: "09:00 AM",
+    pickupName: "",
+    pickupAddress: "",
+    placeIds: [],
+    placePrices: {},
+    places: {},
+  };
 }
 
 /** Narrows a picker place to the fields a package stores and shows. */
@@ -72,7 +109,23 @@ function draftFrom(pkg: TourPackage): Draft {
     id: pkg.id,
     name: pkg.name,
     description: pkg.description ?? "",
+    pricingMode: pkg.pricingMode ?? "WHOLE_TOUR",
+    pricingUnit: pkg.pricingUnit ?? "PER_TOUR",
+    price: pkg.price ?? 0,
+    allowCustomerPlaceSelection: pkg.allowCustomerPlaceSelection ?? true,
+    cancellationPolicy: pkg.cancellationPolicy ?? "Free cancellation up to 24h before trip start",
+    foodStatus: pkg.foodStatus ?? "EXCLUDED",
+    foodDetails: pkg.foodDetails ?? "",
+    transportStatus: pkg.transportStatus ?? "EXCLUDED",
+    transportDetails: pkg.transportDetails ?? "",
+    entryFeeStatus: pkg.entryFeeStatus ?? "EXCLUDED",
+    entryFeeDetails: pkg.entryFeeDetails ?? "",
+    additionalCostsDetails: pkg.additionalCostsDetails ?? "",
+    tripStartTime: pkg.tripStartTime ?? "09:00 AM",
+    pickupName: pkg.pickupName ?? "",
+    pickupAddress: pkg.pickupAddress ?? "",
     placeIds: pkg.places.map((place) => place.id),
+    placePrices: Object.fromEntries(pkg.places.map((p) => [p.id, p.price ?? 0])),
     places: Object.fromEntries(pkg.places.map((place) => [place.id, place])),
   };
 }
@@ -80,20 +133,12 @@ function draftFrom(pkg: TourPackage): Draft {
 function validate(draft: Draft): string | null {
   if (draft.name.trim().length < 2) return "Give the package a name of at least 2 characters.";
   if (draft.placeIds.length === 0) return "Add at least one place to the package.";
+  if (draft.pricingMode === "WHOLE_TOUR" && draft.price <= 0) {
+    return "Please enter a valid whole-tour price.";
+  }
   return null;
 }
 
-/**
- * Create / edit / delete for the signed-in tour guide's packages.
- *
- * The list is rendered from server data and every mutation returns the saved
- * record, so the local state is replaced with what the backend actually stored
- * rather than with the form values — the same pattern the profile form uses.
- *
- * `error` is a real service failure and nothing else: a guide with no packages
- * passes `null` and sees the empty state, so a fresh account is never told the
- * feature is unavailable.
- */
 export function TourPackageManager({
   packages,
   error,
@@ -108,8 +153,6 @@ export function TourPackageManager({
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [formError, setFormError] = React.useState<string | null>(null);
 
-  // `router.refresh()` re-runs the server component, which re-reads the package
-  // list; the pending transition is what the loading state is driven from.
   const router = useRouter();
   const [refreshing, startRefresh] = React.useTransition();
   const retrying = refreshing;
@@ -131,7 +174,23 @@ export function TourPackageManager({
     const input: TourPackageInput = {
       name: draft.name.trim(),
       description: draft.description,
+      pricingMode: draft.pricingMode,
+      pricingUnit: draft.pricingUnit,
+      price: Number(draft.price) || 0,
+      allowCustomerPlaceSelection: draft.allowCustomerPlaceSelection,
+      cancellationPolicy: draft.cancellationPolicy,
+      foodStatus: draft.foodStatus,
+      foodDetails: draft.foodDetails,
+      transportStatus: draft.transportStatus,
+      transportDetails: draft.transportDetails,
+      entryFeeStatus: draft.entryFeeStatus,
+      entryFeeDetails: draft.entryFeeDetails,
+      additionalCostsDetails: draft.additionalCostsDetails,
+      tripStartTime: draft.tripStartTime,
+      pickupName: draft.pickupName,
+      pickupAddress: draft.pickupAddress,
       placeIds: draft.placeIds,
+      placePrices: draft.placePrices,
     };
 
     setSaving(true);
@@ -252,6 +311,234 @@ export function TourPackageManager({
             />
           </div>
 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="pricing-mode">Pricing Mode</Label>
+              <Select
+                value={draft.pricingMode}
+                onValueChange={(val: "WHOLE_TOUR" | "PLACE_BASED") =>
+                  setDraft({ ...draft, pricingMode: val })
+                }
+              >
+                <SelectTrigger id="pricing-mode">
+                  <SelectValue placeholder="Select pricing mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="WHOLE_TOUR">Whole-tour pricing (Default)</SelectItem>
+                  <SelectItem value="PLACE_BASED">Optional place-based pricing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="pricing-unit">Pricing Unit</Label>
+              <Select
+                value={draft.pricingUnit}
+                onValueChange={(val: "PER_TOUR" | "PER_PERSON") =>
+                  setDraft({ ...draft, pricingUnit: val })
+                }
+              >
+                <SelectTrigger id="pricing-unit">
+                  <SelectValue placeholder="Select pricing unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PER_TOUR">Per Tour / Group</SelectItem>
+                  <SelectItem value="PER_PERSON">Per Person</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {draft.pricingMode === "WHOLE_TOUR" ? (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="package-price">Whole-tour price (₹)</Label>
+              <Input
+                id="package-price"
+                type="number"
+                min={0}
+                value={draft.price}
+                onChange={(event) =>
+                  setDraft({ ...draft, price: Number(event.target.value) || 0 })
+                }
+                placeholder="2400"
+              />
+              <p className="text-xs text-muted-foreground">
+                Single flat cost for the whole tour, regardless of place selection.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-xl border p-3 bg-card/40">
+              <Label className="text-sm font-semibold">Place-based prices (₹)</Label>
+              <p className="text-xs text-muted-foreground">
+                Set individual price for each included place.
+              </p>
+              {draft.placeIds.map((pid) => {
+                const place = draft.places[pid];
+                return (
+                  <div key={pid} className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-medium truncate min-w-0 flex-1">
+                      {place?.name || pid}
+                    </span>
+                    <Input
+                      type="number"
+                      min={0}
+                      className="w-28 h-8 text-xs"
+                      value={draft.placePrices[pid] ?? 0}
+                      onChange={(e) => {
+                        const val = Number(e.target.value) || 0;
+                        setDraft({
+                          ...draft,
+                          placePrices: { ...draft.placePrices, [pid]: val },
+                        });
+                      }}
+                      placeholder="Price in ₹"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2.5 rounded-xl border p-3 bg-muted/20">
+            <input
+              type="checkbox"
+              id="allow-place-selection"
+              checked={draft.allowCustomerPlaceSelection}
+              onChange={(e) =>
+                setDraft({ ...draft, allowCustomerPlaceSelection: e.target.checked })
+              }
+              className="size-4 rounded border-border text-primary focus:ring-ring"
+            />
+            <div className="flex flex-col">
+              <Label htmlFor="allow-place-selection" className="text-sm font-semibold cursor-pointer">
+                Allow customers to choose individual places
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                When turned OFF, customers must book the complete tour and cannot deselect places.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="trip-start-time">Trip start time</Label>
+              <Input
+                id="trip-start-time"
+                value={draft.tripStartTime}
+                placeholder="09:00 AM"
+                onChange={(e) => setDraft({ ...draft, tripStartTime: e.target.value })}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="pickup-name">Meeting / Pickup point name</Label>
+              <Input
+                id="pickup-name"
+                value={draft.pickupName}
+                placeholder="Central Bus Stand / Hotel Lobby"
+                onChange={(e) => setDraft({ ...draft, pickupName: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="pickup-address">Full Pickup Address / Instructions</Label>
+            <Input
+              id="pickup-address"
+              value={draft.pickupAddress}
+              placeholder="Main Gate Entrance, Opposite Clock Tower"
+              onChange={(e) => setDraft({ ...draft, pickupAddress: e.target.value })}
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-xl border p-4 bg-card/50">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Facilities & Cost Disclosures
+            </h3>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="food-status" className="text-xs">Food / Meals</Label>
+                <Select
+                  value={draft.foodStatus}
+                  onValueChange={(val) => setDraft({ ...draft, foodStatus: val })}
+                >
+                  <SelectTrigger id="food-status" className="h-9 text-xs">
+                    <SelectValue placeholder="Food status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EXCLUDED">Excluded (Customer pays)</SelectItem>
+                    <SelectItem value="INCLUDED">Included in price</SelectItem>
+                    <SelectItem value="OPTIONAL">Optional arrangement</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="e.g. Breakfast included"
+                  value={draft.foodDetails}
+                  onChange={(e) => setDraft({ ...draft, foodDetails: e.target.value })}
+                  className="h-8 text-xs"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="transport-status" className="text-xs">Transport</Label>
+                <Select
+                  value={draft.transportStatus}
+                  onValueChange={(val) => setDraft({ ...draft, transportStatus: val })}
+                >
+                  <SelectTrigger id="transport-status" className="h-9 text-xs">
+                    <SelectValue placeholder="Transport status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EXCLUDED">Excluded</SelectItem>
+                    <SelectItem value="INCLUDED">Included (AC Cab)</SelectItem>
+                    <SelectItem value="OPTIONAL">Optional add-on</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="e.g. Sedan for up to 4"
+                  value={draft.transportDetails}
+                  onChange={(e) => setDraft({ ...draft, transportDetails: e.target.value })}
+                  className="h-8 text-xs"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="entry-fee-status" className="text-xs">Entry Fees</Label>
+                <Select
+                  value={draft.entryFeeStatus}
+                  onValueChange={(val) => setDraft({ ...draft, entryFeeStatus: val })}
+                >
+                  <SelectTrigger id="entry-fee-status" className="h-9 text-xs">
+                    <SelectValue placeholder="Entry fee policy" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EXCLUDED">Excluded (Paid separately)</SelectItem>
+                    <SelectItem value="INCLUDED">Included in tour price</SelectItem>
+                    <SelectItem value="FREE">Free entry places</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="e.g. Approx ₹150/head"
+                  value={draft.entryFeeDetails}
+                  onChange={(e) => setDraft({ ...draft, entryFeeDetails: e.target.value })}
+                  className="h-8 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 pt-1">
+              <Label htmlFor="cancellation-policy" className="text-xs font-semibold">Cancellation Policy</Label>
+              <Input
+                id="cancellation-policy"
+                placeholder="Free cancellation up to 24h before trip start"
+                value={draft.cancellationPolicy}
+                onChange={(e) => setDraft({ ...draft, cancellationPolicy: e.target.value })}
+                className="h-9 text-xs"
+              />
+            </div>
+          </div>
+
           <PackagePlacePicker
             draft={draft}
             onChange={(placeIds, places) =>
@@ -351,11 +638,37 @@ export function TourPackageManager({
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2 text-xs">
+                <Badge variant="secondary">
+                  {pkg.pricingMode === "WHOLE_TOUR" ? "Whole Tour" : "Place Based"}
+                </Badge>
+                <Badge variant="outline">
+                  {pkg.pricingUnit === "PER_TOUR" ? "Per Tour" : "Per Person"}
+                </Badge>
+                {pkg.pricingMode === "WHOLE_TOUR" ? (
+                  <Badge variant="info" className="font-semibold">
+                    ₹{pkg.price} {pkg.pricingUnit === "PER_PERSON" ? "/ person" : "/ tour"}
+                  </Badge>
+                ) : null}
+                {pkg.tripStartTime ? (
+                  <Badge variant="outline">Start: {pkg.tripStartTime}</Badge>
+                ) : null}
+                {pkg.pickupName ? (
+                  <Badge variant="outline" className="gap-1">
+                    <MapPin className="size-3" />
+                    {pkg.pickupName}
+                  </Badge>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 pt-1">
                 {pkg.places.map((place) => (
                   <Badge key={place.id} variant="outline" className="gap-1">
                     <MapPin className="size-3" />
                     {place.name}
+                    {pkg.pricingMode === "PLACE_BASED" && place.price ? (
+                      <span className="font-semibold text-primary ml-1">₹{place.price}</span>
+                    ) : null}
                   </Badge>
                 ))}
               </div>

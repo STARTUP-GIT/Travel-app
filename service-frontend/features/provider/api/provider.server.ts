@@ -325,17 +325,14 @@ type RawGuideProfile = {
   phonenumber: string | null;
   profile_pic: string | null;
   tagline: string | null;
-  /** Common guides only. Absent on a specific guide, and null when unset. */
   agencyName?: string | null;
+  agencyAddress?: string | null;
+  agencyBanner?: string | null;
   authprovider: string;
   review: string[];
   rating: number | null;
   description: string | null;
   placeid?: string | null;
-  /**
-   * The linked place, read through the relation by the backend. Only a specific
-   * guide has one; `placeid` alone is an id the UI cannot render.
-   */
   place?: {
     id: string;
     name: string;
@@ -370,9 +367,9 @@ export function normalizeProfile(
       phone: owner.phone_number ?? "",
       photo: owner.profile_pic ?? null,
       tagline: "",
-      // Venues are businesses, not guides, and there is no agency field on the
-      // owner profile at all.
       agencyName: "",
+      agencyAddress: "",
+      agencyBanner: null,
       description: "",
       experience: 0,
       cost: 0,
@@ -398,18 +395,15 @@ export function normalizeProfile(
     phone: guide.phonenumber ?? "",
     photo: guide.profile_pic || null,
     tagline: guide.tagline ?? "",
-    // Only the common-guide response carries `agencyName`; every other guide
-    // kind reads back as "" and the UI hides the field.
     agencyName: guide.agencyName ?? "",
+    agencyAddress: guide.agencyAddress ?? "",
+    agencyBanner: guide.agencyBanner || null,
     description: guide.description ?? "",
     experience: guide.experience ?? 0,
     cost: guide.cost ?? 0,
     languages: guide.language ?? [],
     rating: guide.rating ?? null,
     reviews: guide.review ?? [],
-    // The specific-guide profile carries its place id; the common-guide profile
-    // response has no place relation at all, so coverage is only knowable for
-    // the single-place guide.
     placeIds: guide.placeid ? [guide.placeid] : [],
     linkedPlace: guide.place ?? null,
     isReported: guide.isReported === true,
@@ -425,6 +419,7 @@ function pickProfile(data: Record<string, unknown>): RawProfile | null {
     (data.hotel_owner as RawOwnerProfile) ??
     (data.restaurent_owner as RawOwnerProfile) ??
     (data.common_guide as RawGuideProfile) ??
+    (data.specific_guide as RawGuideProfile) ??
     (data.user as RawGuideProfile) ??
     null
   );
@@ -473,11 +468,10 @@ export function profilePayload(
     if (input.languages !== undefined) payload.language = input.languages;
   }
 
-  // Common Guide only. Gated on the kind as well as the field, because a
-  // specific guide's profile schema does not have `agency_name` at all and
-  // sending it would be rejected as an unknown key.
-  if (kind === "common_guide" && input.agencyName !== undefined) {
-    payload.agency_name = input.agencyName;
+  if (kind === "common_guide") {
+    if (input.agencyName !== undefined) payload.agency_name = input.agencyName;
+    if (input.agencyAddress !== undefined) payload.agency_address = input.agencyAddress;
+    if (input.agencyBanner !== undefined) payload.agency_banner = input.agencyBanner;
   }
 
   return payload;
@@ -567,9 +561,27 @@ type RawTourPackage = {
   id: string;
   name: string;
   description: string | null;
+  pricingMode?: "WHOLE_TOUR" | "PLACE_BASED";
+  pricingUnit?: "PER_TOUR" | "PER_PERSON";
+  price?: number;
+  allowCustomerPlaceSelection?: boolean;
+  cancellationPolicy?: string | null;
+  foodStatus?: string;
+  foodDetails?: string | null;
+  transportStatus?: string;
+  transportDetails?: string | null;
+  entryFeeStatus?: string;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  tripStartTime?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupLat?: number | null;
+  pickupLng?: number | null;
+  pickupMapsUrl?: string | null;
   createdAt: string;
   updatedAt: string;
-  places: RawPackagePlace[];
+  places: (RawPackagePlace & { price?: number | null })[];
 };
 
 /** The guide-scoped district place list, as the backend selects it. */
@@ -590,6 +602,24 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
     id: raw.id,
     name: raw.name,
     description: raw.description ?? null,
+    pricingMode: raw.pricingMode ?? "WHOLE_TOUR",
+    pricingUnit: raw.pricingUnit ?? "PER_TOUR",
+    price: raw.price ?? 0,
+    allowCustomerPlaceSelection: raw.allowCustomerPlaceSelection ?? true,
+    cancellationPolicy: raw.cancellationPolicy ?? null,
+    foodStatus: raw.foodStatus ?? "EXCLUDED",
+    foodDetails: raw.foodDetails ?? null,
+    transportStatus: raw.transportStatus ?? "EXCLUDED",
+    transportDetails: raw.transportDetails ?? null,
+    entryFeeStatus: raw.entryFeeStatus ?? "EXCLUDED",
+    entryFeeDetails: raw.entryFeeDetails ?? null,
+    additionalCostsDetails: raw.additionalCostsDetails ?? null,
+    tripStartTime: raw.tripStartTime ?? null,
+    pickupName: raw.pickupName ?? null,
+    pickupAddress: raw.pickupAddress ?? null,
+    pickupLat: raw.pickupLat ?? null,
+    pickupLng: raw.pickupLng ?? null,
+    pickupMapsUrl: raw.pickupMapsUrl ?? null,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     places: (raw.places ?? []).map((place) => ({
@@ -599,20 +629,39 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
       images: place.images ?? [],
       category: place.category ?? "",
       entryfee: place.entryfee ?? null,
+      price: place.price ?? null,
       pricing: place.pricing ?? [],
       district: place.district ?? null,
     })),
   };
 }
 
-/** Empty description is sent as the API's own "no value" (null), not "". */
 export function packagePayload(
   input: TourPackageInput
 ): Record<string, unknown> {
   return {
     name: input.name,
     description: input.description.trim() ? input.description.trim() : null,
+    pricingMode: input.pricingMode ?? "WHOLE_TOUR",
+    pricingUnit: input.pricingUnit ?? "PER_TOUR",
+    price: input.price ?? 0,
+    allowCustomerPlaceSelection: input.allowCustomerPlaceSelection ?? true,
+    cancellationPolicy: input.cancellationPolicy?.trim() || null,
+    foodStatus: input.foodStatus || "EXCLUDED",
+    foodDetails: input.foodDetails?.trim() || null,
+    transportStatus: input.transportStatus || "EXCLUDED",
+    transportDetails: input.transportDetails?.trim() || null,
+    entryFeeStatus: input.entryFeeStatus || "EXCLUDED",
+    entryFeeDetails: input.entryFeeDetails?.trim() || null,
+    additionalCostsDetails: input.additionalCostsDetails?.trim() || null,
+    tripStartTime: input.tripStartTime?.trim() || null,
+    pickupName: input.pickupName?.trim() || null,
+    pickupAddress: input.pickupAddress?.trim() || null,
+    pickupLat: input.pickupLat ?? null,
+    pickupLng: input.pickupLng ?? null,
+    pickupMapsUrl: input.pickupMapsUrl?.trim() || null,
     placeIds: input.placeIds,
+    placePrices: input.placePrices ?? {},
   };
 }
 

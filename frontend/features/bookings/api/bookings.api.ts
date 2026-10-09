@@ -45,6 +45,22 @@ export async function listHotelBookings(): Promise<HotelBooking[]> {
   return api.get<HotelBooking[]>("/users/booking/api/hotel-bookings");
 }
 
+export type SpecificGuideLocationResult = {
+  isSharingLocation: boolean;
+  sharedLatitude: number | null;
+  sharedLongitude: number | null;
+  locationUpdatedAt: string | null;
+  guideName?: string;
+};
+
+export async function getSpecificGuideLocation(
+  bookingId: string
+): Promise<SpecificGuideLocationResult> {
+  return api.get<SpecificGuideLocationResult>(
+    `/users/booking/api/specific-guide-location/${bookingId}`
+  );
+}
+
 export type AllBookings = {
   hotelBookings: HotelBooking[];
   restaurantReservations: RestaurantReservation[];

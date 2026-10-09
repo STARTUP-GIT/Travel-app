@@ -10,18 +10,18 @@ import {
   TripSummary,
   ReturnState,
   Checkpoint,
-} from '../types';
+} from './types';
+import { tripEngine } from './trip-service';
 import {
-  tripEngine,
-} from '../services/trip-service';
-import { loadTripSummaries, deleteTrip as dbDelete, loadTrip as dbLoad, loadActiveTrip as dbLoadActive, saveCheckpoint as dbSaveCheckpoint, loadCheckpoints as dbLoadCheckpoints } from '../services/database-service';
-import { getCurrentLocation } from '../services/location-service';
-import { generateId } from '../utils/geo';
-
-/**
- * UI-facing store. Bridges the TripEngine (source of truth) to React.
- * Holds only throttled/derived state so components re-render sparingly.
- */
+  loadTripSummaries,
+  deleteTrip as dbDelete,
+  loadTrip as dbLoad,
+  loadActiveTrip as dbLoadActive,
+  saveCheckpoint as dbSaveCheckpoint,
+  loadCheckpoints as dbLoadCheckpoints,
+} from './database-service';
+import { getCurrentLocation } from './location-service';
+import { generateId } from './geo';
 
 const EMPTY_STATS: TripStats = {
   distance: 0,
@@ -53,22 +53,16 @@ const EMPTY_RETURN: ReturnState = {
 };
 
 interface TripStoreState {
-  // Engine snapshot projection (UI copy)
   state: TripState;
   currentPosition: Coordinate | null;
-  /** Last ACCEPTED (filtered) GPS fix — use for navigation decisions and camera. */
   acceptedPosition: Coordinate | null;
   gpsAccuracy: number;
   pointCount: number;
   stats: TripStats;
   returnState: ReturnState;
-  /** Movement state derived by the engine from consecutive accepted fixes. */
   movementState: MovementState;
-  /** Movement confidence 0–1 from multi-signal fusion. */
   movementConfidence: number;
-  /** Average spread of recent positions around centroid (metres). */
   positionSpreadM: number;
-  /** True during initial GPS calibration period. */
   isCalibrating: boolean;
 
   networkState: NetworkState;
@@ -82,11 +76,9 @@ interface TripStoreState {
   lastCompletedTrip: Trip | null;
   activeCheckpoints: Checkpoint[];
 
-  // bootstrapping
   bootstrapped: boolean;
   recoveredActive: Trip | null;
 
-  // actions
   bootstrap: () => Promise<void>;
   startTrip: () => Promise<void>;
   pauseTrip: () => void;
@@ -115,7 +107,6 @@ interface TripStoreState {
 }
 
 export const useTripStore = create<TripStoreState>((set, get) => {
-  // Subscribe to engine snapshots and mirror into UI state.
   tripEngine.subscribe((snap) => {
     set({
       state: snap.state,
@@ -142,7 +133,7 @@ export const useTripStore = create<TripStoreState>((set, get) => {
     pointCount: 0,
     stats: EMPTY_STATS,
     returnState: EMPTY_RETURN,
-    movementState: 'STATIONARY' as MovementState,
+    movementState: 'STATIONARY',
     movementConfidence: 0,
     positionSpreadM: 0,
     isCalibrating: true,
@@ -163,15 +154,14 @@ export const useTripStore = create<TripStoreState>((set, get) => {
 
     bootstrap: async () => {
       const active = await dbLoadActive();
-      let cps: Checkpoint[] = [];
-      if (active) {
-        cps = await dbLoadCheckpoints(active.id);
-      }
       set({
         bootstrapped: true,
         recoveredActive: active,
-        activeCheckpoints: cps,
       });
+      if (active) {
+        const cps = await dbLoadCheckpoints(active.id);
+        set({ activeCheckpoints: cps });
+      }
     },
 
     startTrip: async () => {
@@ -184,15 +174,13 @@ export const useTripStore = create<TripStoreState>((set, get) => {
     resumeTrip: () => tripEngine.resume(),
 
     endTrip: async () => {
-      // Persist the final position (if a valid fix is available) before
-      // closing the trip so the endpoint is part of the saved record.
       const finalFix = await getCurrentLocation();
       if (finalFix) {
         tripEngine.setCurrentPosition(finalFix);
         await tripEngine.ingestFix(finalFix).catch(() => {});
       }
       const completed = await tripEngine.endTrip();
-      if (completed) set({ lastCompletedTrip: completed, activeCheckpoints: [] });
+      if (completed) set({ lastCompletedTrip: completed });
       get().loadHistory();
       return completed;
     },
@@ -203,11 +191,6 @@ export const useTripStore = create<TripStoreState>((set, get) => {
     setNetwork: (n) => set({ networkState: n }),
     setGPSActive: (a) => set({ isGPSActive: a }),
     setGpsState: (g) => set({ gpsState: g }),
-    /**
-     * Single entry point for every raw GPS fix from the location stream:
-     * updates the live UI position AND feeds the engine (recording, return
-     * metrics). The engine stays the source of truth for trip data.
-     */
     setCurrentPosition: (c) => {
       set({
         currentPosition: c,
@@ -249,18 +232,14 @@ export const useTripStore = create<TripStoreState>((set, get) => {
       if (get().recoveredActive) {
         await dbDelete(get().recoveredActive!.id);
       }
-      set({ recoveredActive: null, activeCheckpoints: [] });
+      set({ recoveredActive: null });
       get().loadHistory();
     },
 
     addCheckpoint: async () => {
+      const pos = get().acceptedPosition ?? get().currentPosition;
       const trip = get().activeTrip;
-      if (!trip) return;
-      const pos =
-        get().acceptedPosition ??
-        get().currentPosition ??
-        (trip.points.length > 0 ? trip.points[trip.points.length - 1] : null);
-      if (!pos) return;
+      if (!pos || !trip) return;
       const cp: Checkpoint = {
         checkpointId: generateId(),
         tripId: trip.id,

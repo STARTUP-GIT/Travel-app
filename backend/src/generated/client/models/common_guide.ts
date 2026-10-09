@@ -48,6 +48,8 @@ export type Common_guideMinAggregateOutputType = {
   profile_pic: string | null
   tagline: string | null
   agencyName: string | null
+  agencyAddress: string | null
+  agencyBanner: string | null
   authprovider: $Enums.authProviders | null
   rating: number | null
   description: string | null
@@ -69,6 +71,8 @@ export type Common_guideMaxAggregateOutputType = {
   profile_pic: string | null
   tagline: string | null
   agencyName: string | null
+  agencyAddress: string | null
+  agencyBanner: string | null
   authprovider: $Enums.authProviders | null
   rating: number | null
   description: string | null
@@ -90,6 +94,8 @@ export type Common_guideCountAggregateOutputType = {
   profile_pic: number
   tagline: number
   agencyName: number
+  agencyAddress: number
+  agencyBanner: number
   authprovider: number
   review: number
   rating: number
@@ -127,6 +133,8 @@ export type Common_guideMinAggregateInputType = {
   profile_pic?: true
   tagline?: true
   agencyName?: true
+  agencyAddress?: true
+  agencyBanner?: true
   authprovider?: true
   rating?: true
   description?: true
@@ -148,6 +156,8 @@ export type Common_guideMaxAggregateInputType = {
   profile_pic?: true
   tagline?: true
   agencyName?: true
+  agencyAddress?: true
+  agencyBanner?: true
   authprovider?: true
   rating?: true
   description?: true
@@ -169,6 +179,8 @@ export type Common_guideCountAggregateInputType = {
   profile_pic?: true
   tagline?: true
   agencyName?: true
+  agencyAddress?: true
+  agencyBanner?: true
   authprovider?: true
   review?: true
   rating?: true
@@ -279,6 +291,8 @@ export type Common_guideGroupByOutputType = {
   profile_pic: string
   tagline: string | null
   agencyName: string | null
+  agencyAddress: string | null
+  agencyBanner: string | null
   authprovider: $Enums.authProviders
   review: string[]
   rating: number | null
@@ -325,6 +339,8 @@ export type common_guideWhereInput = {
   profile_pic?: Prisma.StringFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableFilter<"common_guide"> | string | null
   agencyName?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyAddress?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyBanner?: Prisma.StringNullableFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableFilter<"common_guide"> | number | null
@@ -353,6 +369,8 @@ export type common_guideOrderByWithRelationInput = {
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   agencyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyBanner?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -384,6 +402,8 @@ export type common_guideWhereUniqueInput = Prisma.AtLeast<{
   profile_pic?: Prisma.StringFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableFilter<"common_guide"> | string | null
   agencyName?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyAddress?: Prisma.StringNullableFilter<"common_guide"> | string | null
+  agencyBanner?: Prisma.StringNullableFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableFilter<"common_guide"> | number | null
@@ -412,6 +432,8 @@ export type common_guideOrderByWithAggregationInput = {
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   agencyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  agencyBanner?: Prisma.SortOrderInput | Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -443,6 +465,8 @@ export type common_guideScalarWhereWithAggregatesInput = {
   profile_pic?: Prisma.StringWithAggregatesFilter<"common_guide"> | string
   tagline?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
   agencyName?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
+  agencyAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
+  agencyBanner?: Prisma.StringNullableWithAggregatesFilter<"common_guide"> | string | null
   authprovider?: Prisma.EnumauthProvidersWithAggregatesFilter<"common_guide"> | $Enums.authProviders
   review?: Prisma.StringNullableListFilter<"common_guide">
   rating?: Prisma.FloatNullableWithAggregatesFilter<"common_guide"> | number | null
@@ -466,6 +490,8 @@ export type common_guideCreateInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -494,6 +520,8 @@ export type common_guideUncheckedCreateInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -522,6 +550,8 @@ export type common_guideUpdateInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -550,6 +580,8 @@ export type common_guideUncheckedUpdateInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -578,6 +610,8 @@ export type common_guideCreateManyInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -601,6 +635,8 @@ export type common_guideUpdateManyMutationInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -624,6 +660,8 @@ export type common_guideUncheckedUpdateManyInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -652,6 +690,8 @@ export type common_guideCountOrderByAggregateInput = {
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   agencyName?: Prisma.SortOrder
+  agencyAddress?: Prisma.SortOrder
+  agencyBanner?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   review?: Prisma.SortOrder
   rating?: Prisma.SortOrder
@@ -681,6 +721,8 @@ export type common_guideMaxOrderByAggregateInput = {
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   agencyName?: Prisma.SortOrder
+  agencyAddress?: Prisma.SortOrder
+  agencyBanner?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -702,6 +744,8 @@ export type common_guideMinOrderByAggregateInput = {
   profile_pic?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   agencyName?: Prisma.SortOrder
+  agencyAddress?: Prisma.SortOrder
+  agencyBanner?: Prisma.SortOrder
   authprovider?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -826,6 +870,8 @@ export type common_guideCreateWithoutTestimonialsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -853,6 +899,8 @@ export type common_guideUncheckedCreateWithoutTestimonialsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -896,6 +944,8 @@ export type common_guideUpdateWithoutTestimonialsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -923,6 +973,8 @@ export type common_guideUncheckedUpdateWithoutTestimonialsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -950,6 +1002,8 @@ export type common_guideCreateWithoutPlaceSubmissionsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -977,6 +1031,8 @@ export type common_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1020,6 +1076,8 @@ export type common_guideUpdateWithoutPlaceSubmissionsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1047,6 +1105,8 @@ export type common_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1074,6 +1134,8 @@ export type common_guideCreateWithoutPlacesInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1101,6 +1163,8 @@ export type common_guideUncheckedCreateWithoutPlacesInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1144,6 +1208,8 @@ export type common_guideUpdateWithoutPlacesInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1171,6 +1237,8 @@ export type common_guideUncheckedUpdateWithoutPlacesInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1198,6 +1266,8 @@ export type common_guideCreateWithoutPackagesInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1225,6 +1295,8 @@ export type common_guideUncheckedCreateWithoutPackagesInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1268,6 +1340,8 @@ export type common_guideUpdateWithoutPackagesInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1295,6 +1369,8 @@ export type common_guideUncheckedUpdateWithoutPackagesInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1322,6 +1398,8 @@ export type common_guideCreateWithoutBookingsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1349,6 +1427,8 @@ export type common_guideUncheckedCreateWithoutBookingsInput = {
   profile_pic: string
   tagline?: string | null
   agencyName?: string | null
+  agencyAddress?: string | null
+  agencyBanner?: string | null
   authprovider: $Enums.authProviders
   review?: Prisma.common_guideCreatereviewInput | string[]
   rating?: number | null
@@ -1392,6 +1472,8 @@ export type common_guideUpdateWithoutBookingsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1419,6 +1501,8 @@ export type common_guideUncheckedUpdateWithoutBookingsInput = {
   profile_pic?: Prisma.StringFieldUpdateOperationsInput | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   agencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agencyBanner?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authprovider?: Prisma.EnumauthProvidersFieldUpdateOperationsInput | $Enums.authProviders
   review?: Prisma.common_guideUpdatereviewInput | string[]
   rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1513,6 +1597,8 @@ export type common_guideSelect<ExtArgs extends runtime.Types.Extensions.Internal
   profile_pic?: boolean
   tagline?: boolean
   agencyName?: boolean
+  agencyAddress?: boolean
+  agencyBanner?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1542,6 +1628,8 @@ export type common_guideSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   profile_pic?: boolean
   tagline?: boolean
   agencyName?: boolean
+  agencyAddress?: boolean
+  agencyBanner?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1565,6 +1653,8 @@ export type common_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   profile_pic?: boolean
   tagline?: boolean
   agencyName?: boolean
+  agencyAddress?: boolean
+  agencyBanner?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1588,6 +1678,8 @@ export type common_guideSelectScalar = {
   profile_pic?: boolean
   tagline?: boolean
   agencyName?: boolean
+  agencyAddress?: boolean
+  agencyBanner?: boolean
   authprovider?: boolean
   review?: boolean
   rating?: boolean
@@ -1601,7 +1693,7 @@ export type common_guideSelectScalar = {
   status?: boolean
 }
 
-export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "agencyName" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["common_guide"]>
+export type common_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "agencyName" | "agencyAddress" | "agencyBanner" | "authprovider" | "review" | "rating" | "description" | "isReported" | "experience" | "cost" | "language" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["common_guide"]>
 export type common_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Prisma.common_guide$placesArgs<ExtArgs>
   packages?: boolean | Prisma.common_guide$packagesArgs<ExtArgs>
@@ -1632,6 +1724,8 @@ export type $common_guidePayload<ExtArgs extends runtime.Types.Extensions.Intern
     profile_pic: string
     tagline: string | null
     agencyName: string | null
+    agencyAddress: string | null
+    agencyBanner: string | null
     authprovider: $Enums.authProviders
     review: string[]
     rating: number | null
@@ -2080,6 +2174,8 @@ export interface common_guideFieldRefs {
   readonly profile_pic: Prisma.FieldRef<"common_guide", 'String'>
   readonly tagline: Prisma.FieldRef<"common_guide", 'String'>
   readonly agencyName: Prisma.FieldRef<"common_guide", 'String'>
+  readonly agencyAddress: Prisma.FieldRef<"common_guide", 'String'>
+  readonly agencyBanner: Prisma.FieldRef<"common_guide", 'String'>
   readonly authprovider: Prisma.FieldRef<"common_guide", 'authProviders'>
   readonly review: Prisma.FieldRef<"common_guide", 'String[]'>
   readonly rating: Prisma.FieldRef<"common_guide", 'Float'>

@@ -97,13 +97,7 @@ export type common_guide = Prisma.common_guideModel
 export type common_guide_places = Prisma.common_guide_placesModel
 /**
  * Model common_guide_package
- * A named tour a Common Guide sells: one guide, many packages, each package a
- * set of places. Kept separate from `common_guide_places` on purpose — that
- * table is the guide's overall coverage, which booking validation and the
- * public guide list read, and it must keep working for guides that have never
- * created a package. Saving a package also adds its places to the guide's
- * coverage (a package only ever uses places the guide covers), so a customer
- * can book a package's places without any change to the booking flow.
+ * 
  */
 export type common_guide_package = Prisma.common_guide_packageModel
 /**

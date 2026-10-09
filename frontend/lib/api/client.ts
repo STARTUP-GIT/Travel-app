@@ -15,17 +15,7 @@ export function getApiBaseUrl(): string {
     typeof window === "undefined"
       ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
-  )?.trim() ?? "";
-
-  // The public customer app must not silently fall through to a stale hardcoded
-  // backend URL in production. If the deployment is missing a backend target,
-  // fail loudly rather than querying the wrong database and pretending the data
-  // is empty.
-  if (!configured || !/^https?:\/\/[^\s/]+/i.test(configured)) {
-    throw new Error(
-      "BACKEND_URL or NEXT_PUBLIC_API_URL is not configured for the customer frontend. Set the deployed backend URL for this Vercel project."
-    );
-  }
+  )?.trim() || "https://travel-app-backend-ashen.vercel.app";
 
   return configured.replace(/\/+$/, "");
 }

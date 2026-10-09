@@ -20,8 +20,20 @@ export type specific_guide_bookingModel = runtime.Types.Result.DefaultSelection<
 
 export type AggregateSpecific_guide_booking = {
   _count: Specific_guide_bookingCountAggregateOutputType | null
+  _avg: Specific_guide_bookingAvgAggregateOutputType | null
+  _sum: Specific_guide_bookingSumAggregateOutputType | null
   _min: Specific_guide_bookingMinAggregateOutputType | null
   _max: Specific_guide_bookingMaxAggregateOutputType | null
+}
+
+export type Specific_guide_bookingAvgAggregateOutputType = {
+  numberOfPeople: number | null
+  totalPrice: number | null
+}
+
+export type Specific_guide_bookingSumAggregateOutputType = {
+  numberOfPeople: number | null
+  totalPrice: number | null
 }
 
 export type Specific_guide_bookingMinAggregateOutputType = {
@@ -31,6 +43,15 @@ export type Specific_guide_bookingMinAggregateOutputType = {
   placeId: string | null
   bookingDate: Date | null
   bookingTime: string | null
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pickupName: string | null
+  pickupAddress: string | null
+  cancellationPolicy: string | null
+  paymentStatus: string | null
+  rescheduleStatus: string | null
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -43,6 +64,15 @@ export type Specific_guide_bookingMaxAggregateOutputType = {
   placeId: string | null
   bookingDate: Date | null
   bookingTime: string | null
+  numberOfPeople: number | null
+  totalPrice: number | null
+  pickupName: string | null
+  pickupAddress: string | null
+  cancellationPolicy: string | null
+  paymentStatus: string | null
+  rescheduleStatus: string | null
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -55,12 +85,31 @@ export type Specific_guide_bookingCountAggregateOutputType = {
   placeId: number
   bookingDate: number
   bookingTime: number
+  numberOfPeople: number
+  totalPrice: number
+  pickupName: number
+  pickupAddress: number
+  cancellationPolicy: number
+  paymentStatus: number
+  rescheduleStatus: number
+  requestedBookingDate: number
+  requestedBookingTime: number
   status: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type Specific_guide_bookingAvgAggregateInputType = {
+  numberOfPeople?: true
+  totalPrice?: true
+}
+
+export type Specific_guide_bookingSumAggregateInputType = {
+  numberOfPeople?: true
+  totalPrice?: true
+}
 
 export type Specific_guide_bookingMinAggregateInputType = {
   id?: true
@@ -69,6 +118,15 @@ export type Specific_guide_bookingMinAggregateInputType = {
   placeId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pickupName?: true
+  pickupAddress?: true
+  cancellationPolicy?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +139,15 @@ export type Specific_guide_bookingMaxAggregateInputType = {
   placeId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pickupName?: true
+  pickupAddress?: true
+  cancellationPolicy?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -93,6 +160,15 @@ export type Specific_guide_bookingCountAggregateInputType = {
   placeId?: true
   bookingDate?: true
   bookingTime?: true
+  numberOfPeople?: true
+  totalPrice?: true
+  pickupName?: true
+  pickupAddress?: true
+  cancellationPolicy?: true
+  paymentStatus?: true
+  rescheduleStatus?: true
+  requestedBookingDate?: true
+  requestedBookingTime?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -137,6 +213,18 @@ export type Specific_guide_bookingAggregateArgs<ExtArgs extends runtime.Types.Ex
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: Specific_guide_bookingAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: Specific_guide_bookingSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: Specific_guide_bookingMinAggregateInputType
@@ -167,6 +255,8 @@ export type specific_guide_bookingGroupByArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   _count?: Specific_guide_bookingCountAggregateInputType | true
+  _avg?: Specific_guide_bookingAvgAggregateInputType
+  _sum?: Specific_guide_bookingSumAggregateInputType
   _min?: Specific_guide_bookingMinAggregateInputType
   _max?: Specific_guide_bookingMaxAggregateInputType
 }
@@ -178,10 +268,21 @@ export type Specific_guide_bookingGroupByOutputType = {
   placeId: string
   bookingDate: Date
   bookingTime: string | null
+  numberOfPeople: number
+  totalPrice: number
+  pickupName: string | null
+  pickupAddress: string | null
+  cancellationPolicy: string | null
+  paymentStatus: string
+  rescheduleStatus: string
+  requestedBookingDate: Date | null
+  requestedBookingTime: string | null
   status: $Enums.bookingStatus
   createdAt: Date
   updatedAt: Date
   _count: Specific_guide_bookingCountAggregateOutputType | null
+  _avg: Specific_guide_bookingAvgAggregateOutputType | null
+  _sum: Specific_guide_bookingSumAggregateOutputType | null
   _min: Specific_guide_bookingMinAggregateOutputType | null
   _max: Specific_guide_bookingMaxAggregateOutputType | null
 }
@@ -211,6 +312,15 @@ export type specific_guide_bookingWhereInput = {
   placeId?: Prisma.StringFilter<"specific_guide_booking"> | string
   bookingDate?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"specific_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
+  pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"specific_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   status?: Prisma.EnumbookingStatusFilter<"specific_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
@@ -226,6 +336,15 @@ export type specific_guide_bookingOrderByWithRelationInput = {
   placeId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -244,6 +363,15 @@ export type specific_guide_bookingWhereUniqueInput = Prisma.AtLeast<{
   placeId?: Prisma.StringFilter<"specific_guide_booking"> | string
   bookingDate?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"specific_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
+  pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"specific_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   status?: Prisma.EnumbookingStatusFilter<"specific_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
@@ -259,12 +387,23 @@ export type specific_guide_bookingOrderByWithAggregationInput = {
   placeId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.specific_guide_bookingCountOrderByAggregateInput
+  _avg?: Prisma.specific_guide_bookingAvgOrderByAggregateInput
   _max?: Prisma.specific_guide_bookingMaxOrderByAggregateInput
   _min?: Prisma.specific_guide_bookingMinOrderByAggregateInput
+  _sum?: Prisma.specific_guide_bookingSumOrderByAggregateInput
 }
 
 export type specific_guide_bookingScalarWhereWithAggregatesInput = {
@@ -277,6 +416,15 @@ export type specific_guide_bookingScalarWhereWithAggregatesInput = {
   placeId?: Prisma.StringWithAggregatesFilter<"specific_guide_booking"> | string
   bookingDate?: Prisma.DateTimeWithAggregatesFilter<"specific_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntWithAggregatesFilter<"specific_guide_booking"> | number
+  totalPrice?: Prisma.FloatWithAggregatesFilter<"specific_guide_booking"> | number
+  pickupName?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  cancellationPolicy?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringWithAggregatesFilter<"specific_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringWithAggregatesFilter<"specific_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableWithAggregatesFilter<"specific_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
   status?: Prisma.EnumbookingStatusWithAggregatesFilter<"specific_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"specific_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"specific_guide_booking"> | Date | string
@@ -286,6 +434,15 @@ export type specific_guide_bookingCreateInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -301,6 +458,15 @@ export type specific_guide_bookingUncheckedCreateInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -310,6 +476,15 @@ export type specific_guide_bookingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -325,6 +500,15 @@ export type specific_guide_bookingUncheckedUpdateInput = {
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,6 +521,15 @@ export type specific_guide_bookingCreateManyInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -346,6 +539,15 @@ export type specific_guide_bookingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -358,6 +560,15 @@ export type specific_guide_bookingUncheckedUpdateManyInput = {
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -380,9 +591,23 @@ export type specific_guide_bookingCountOrderByAggregateInput = {
   placeId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type specific_guide_bookingAvgOrderByAggregateInput = {
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
 }
 
 export type specific_guide_bookingMaxOrderByAggregateInput = {
@@ -392,6 +617,15 @@ export type specific_guide_bookingMaxOrderByAggregateInput = {
   placeId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -404,9 +638,23 @@ export type specific_guide_bookingMinOrderByAggregateInput = {
   placeId?: Prisma.SortOrder
   bookingDate?: Prisma.SortOrder
   bookingTime?: Prisma.SortOrder
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
+  rescheduleStatus?: Prisma.SortOrder
+  requestedBookingDate?: Prisma.SortOrder
+  requestedBookingTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type specific_guide_bookingSumOrderByAggregateInput = {
+  numberOfPeople?: Prisma.SortOrder
+  totalPrice?: Prisma.SortOrder
 }
 
 export type specific_guide_bookingCreateNestedManyWithoutUserInput = {
@@ -543,6 +791,15 @@ export type specific_guide_bookingCreateWithoutUserInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -556,6 +813,15 @@ export type specific_guide_bookingUncheckedCreateWithoutUserInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -597,6 +863,15 @@ export type specific_guide_bookingScalarWhereInput = {
   placeId?: Prisma.StringFilter<"specific_guide_booking"> | string
   bookingDate?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   bookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  numberOfPeople?: Prisma.IntFilter<"specific_guide_booking"> | number
+  totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
+  pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
+  requestedBookingDate?: Prisma.DateTimeNullableFilter<"specific_guide_booking"> | Date | string | null
+  requestedBookingTime?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   status?: Prisma.EnumbookingStatusFilter<"specific_guide_booking"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide_booking"> | Date | string
@@ -606,6 +881,15 @@ export type specific_guide_bookingCreateWithoutPlaceInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -619,6 +903,15 @@ export type specific_guide_bookingUncheckedCreateWithoutPlaceInput = {
   specificGuideId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -654,6 +947,15 @@ export type specific_guide_bookingCreateWithoutSpecificGuideInput = {
   id?: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -667,6 +969,15 @@ export type specific_guide_bookingUncheckedCreateWithoutSpecificGuideInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -704,6 +1015,15 @@ export type specific_guide_bookingCreateManyUserInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -713,6 +1033,15 @@ export type specific_guide_bookingUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -726,6 +1055,15 @@ export type specific_guide_bookingUncheckedUpdateWithoutUserInput = {
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -737,6 +1075,15 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutUserInput = {
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -748,6 +1095,15 @@ export type specific_guide_bookingCreateManyPlaceInput = {
   specificGuideId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -757,6 +1113,15 @@ export type specific_guide_bookingUpdateWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -770,6 +1135,15 @@ export type specific_guide_bookingUncheckedUpdateWithoutPlaceInput = {
   specificGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -781,6 +1155,15 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutPlaceInput = {
   specificGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,6 +1175,15 @@ export type specific_guide_bookingCreateManySpecificGuideInput = {
   placeId: string
   bookingDate: Date | string
   bookingTime?: string | null
+  numberOfPeople?: number
+  totalPrice?: number
+  pickupName?: string | null
+  pickupAddress?: string | null
+  cancellationPolicy?: string | null
+  paymentStatus?: string
+  rescheduleStatus?: string
+  requestedBookingDate?: Date | string | null
+  requestedBookingTime?: string | null
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -801,6 +1193,15 @@ export type specific_guide_bookingUpdateWithoutSpecificGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -814,6 +1215,15 @@ export type specific_guide_bookingUncheckedUpdateWithoutSpecificGuideInput = {
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -825,6 +1235,15 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutSpecificGuideInput =
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   bookingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numberOfPeople?: Prisma.IntFieldUpdateOperationsInput | number
+  totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  requestedBookingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requestedBookingTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -839,6 +1258,15 @@ export type specific_guide_bookingSelect<ExtArgs extends runtime.Types.Extension
   placeId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  cancellationPolicy?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -854,6 +1282,15 @@ export type specific_guide_bookingSelectCreateManyAndReturn<ExtArgs extends runt
   placeId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  cancellationPolicy?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -869,6 +1306,15 @@ export type specific_guide_bookingSelectUpdateManyAndReturn<ExtArgs extends runt
   placeId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  cancellationPolicy?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -884,12 +1330,21 @@ export type specific_guide_bookingSelectScalar = {
   placeId?: boolean
   bookingDate?: boolean
   bookingTime?: boolean
+  numberOfPeople?: boolean
+  totalPrice?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  cancellationPolicy?: boolean
+  paymentStatus?: boolean
+  rescheduleStatus?: boolean
+  requestedBookingDate?: boolean
+  requestedBookingTime?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type specific_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "specificGuideId" | "placeId" | "bookingDate" | "bookingTime" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["specific_guide_booking"]>
+export type specific_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "specificGuideId" | "placeId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pickupName" | "pickupAddress" | "cancellationPolicy" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["specific_guide_booking"]>
 export type specific_guide_bookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificGuide?: boolean | Prisma.specific_guideDefaultArgs<ExtArgs>
@@ -920,6 +1375,15 @@ export type $specific_guide_bookingPayload<ExtArgs extends runtime.Types.Extensi
     placeId: string
     bookingDate: Date
     bookingTime: string | null
+    numberOfPeople: number
+    totalPrice: number
+    pickupName: string | null
+    pickupAddress: string | null
+    cancellationPolicy: string | null
+    paymentStatus: string
+    rescheduleStatus: string
+    requestedBookingDate: Date | null
+    requestedBookingTime: string | null
     status: $Enums.bookingStatus
     createdAt: Date
     updatedAt: Date
@@ -1355,6 +1819,15 @@ export interface specific_guide_bookingFieldRefs {
   readonly placeId: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly bookingDate: Prisma.FieldRef<"specific_guide_booking", 'DateTime'>
   readonly bookingTime: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly numberOfPeople: Prisma.FieldRef<"specific_guide_booking", 'Int'>
+  readonly totalPrice: Prisma.FieldRef<"specific_guide_booking", 'Float'>
+  readonly pickupName: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly pickupAddress: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly cancellationPolicy: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly paymentStatus: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly rescheduleStatus: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly requestedBookingDate: Prisma.FieldRef<"specific_guide_booking", 'DateTime'>
+  readonly requestedBookingTime: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly status: Prisma.FieldRef<"specific_guide_booking", 'bookingStatus'>
   readonly createdAt: Prisma.FieldRef<"specific_guide_booking", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"specific_guide_booking", 'DateTime'>

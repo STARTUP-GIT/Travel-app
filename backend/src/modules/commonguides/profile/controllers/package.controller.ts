@@ -64,20 +64,34 @@ type PackagePlace = {
  * Flattens the membership join into the `places` array the clients expect, so
  * no consumer has to know that a package's places are stored in a join table.
  */
-const serialize = (pkg: {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  places: { place: PackagePlace }[];
-}) => ({
+const serialize = (pkg: any) => ({
   id: pkg.id,
   name: pkg.name,
   description: pkg.description,
+  pricingMode: pkg.pricingMode ?? "WHOLE_TOUR",
+  pricingUnit: pkg.pricingUnit ?? "PER_TOUR",
+  price: pkg.price ?? 0,
+  allowCustomerPlaceSelection: pkg.allowCustomerPlaceSelection ?? true,
+  cancellationPolicy: pkg.cancellationPolicy ?? null,
+  foodStatus: pkg.foodStatus ?? "EXCLUDED",
+  foodDetails: pkg.foodDetails ?? null,
+  transportStatus: pkg.transportStatus ?? "EXCLUDED",
+  transportDetails: pkg.transportDetails ?? null,
+  entryFeeStatus: pkg.entryFeeStatus ?? "EXCLUDED",
+  entryFeeDetails: pkg.entryFeeDetails ?? null,
+  additionalCostsDetails: pkg.additionalCostsDetails ?? null,
+  tripStartTime: pkg.tripStartTime ?? null,
+  pickupName: pkg.pickupName ?? null,
+  pickupAddress: pkg.pickupAddress ?? null,
+  pickupLat: pkg.pickupLat ?? null,
+  pickupLng: pkg.pickupLng ?? null,
+  pickupMapsUrl: pkg.pickupMapsUrl ?? null,
   createdAt: pkg.createdAt,
   updatedAt: pkg.updatedAt,
-  places: pkg.places.map((entry) => entry.place),
+  places: (pkg.places ?? []).map((entry: any) => ({
+    ...entry.place,
+    price: entry.price ?? null,
+  })),
 });
 
 type ResolvedPlaces =
@@ -231,6 +245,24 @@ export const createPackage = async (req: Request, res: Response) => {
           commonGuideId,
           name: data.name,
           description: data.description ?? null,
+          pricingMode: data.pricingMode ?? "WHOLE_TOUR",
+          pricingUnit: data.pricingUnit ?? "PER_TOUR",
+          price: data.price ?? 0,
+          allowCustomerPlaceSelection: data.allowCustomerPlaceSelection ?? true,
+          cancellationPolicy: data.cancellationPolicy ?? null,
+          foodStatus: data.foodStatus ?? "EXCLUDED",
+          foodDetails: data.foodDetails ?? null,
+          transportStatus: data.transportStatus ?? "EXCLUDED",
+          transportDetails: data.transportDetails ?? null,
+          entryFeeStatus: data.entryFeeStatus ?? "EXCLUDED",
+          entryFeeDetails: data.entryFeeDetails ?? null,
+          additionalCostsDetails: data.additionalCostsDetails ?? null,
+          tripStartTime: data.tripStartTime ?? null,
+          pickupName: data.pickupName ?? null,
+          pickupAddress: data.pickupAddress ?? null,
+          pickupLat: data.pickupLat ?? null,
+          pickupLng: data.pickupLng ?? null,
+          pickupMapsUrl: data.pickupMapsUrl ?? null,
         },
       });
 
@@ -238,6 +270,7 @@ export const createPackage = async (req: Request, res: Response) => {
         data: places.map((place) => ({
           packageId: pkg.id,
           placeId: place.id,
+          price: data.placePrices?.[place.id] ?? null,
         })),
       });
 
@@ -316,13 +349,27 @@ export const updatePackage = async (req: Request, res: Response) => {
         data: {
           name: data.name,
           description: data.description ?? null,
+          pricingMode: data.pricingMode ?? "WHOLE_TOUR",
+          pricingUnit: data.pricingUnit ?? "PER_TOUR",
+          price: data.price ?? 0,
+          allowCustomerPlaceSelection: data.allowCustomerPlaceSelection ?? true,
+          cancellationPolicy: data.cancellationPolicy ?? null,
+          foodStatus: data.foodStatus ?? "EXCLUDED",
+          foodDetails: data.foodDetails ?? null,
+          transportStatus: data.transportStatus ?? "EXCLUDED",
+          transportDetails: data.transportDetails ?? null,
+          entryFeeStatus: data.entryFeeStatus ?? "EXCLUDED",
+          entryFeeDetails: data.entryFeeDetails ?? null,
+          additionalCostsDetails: data.additionalCostsDetails ?? null,
+          tripStartTime: data.tripStartTime ?? null,
+          pickupName: data.pickupName ?? null,
+          pickupAddress: data.pickupAddress ?? null,
+          pickupLat: data.pickupLat ?? null,
+          pickupLng: data.pickupLng ?? null,
+          pickupMapsUrl: data.pickupMapsUrl ?? null,
         },
       });
 
-      // Replace rather than diff: the saved package is exactly the submitted
-      // list, so a place removed in the editor really leaves the package. The
-      // join rows cascade with the package itself, so this is a plain delete of
-      // the rows that are going away.
       await tx.common_guide_package_places.deleteMany({
         where: { packageId },
       });
@@ -331,6 +378,7 @@ export const updatePackage = async (req: Request, res: Response) => {
         data: places.map((place) => ({
           packageId,
           placeId: place.id,
+          price: data.placePrices?.[place.id] ?? null,
         })),
       });
 

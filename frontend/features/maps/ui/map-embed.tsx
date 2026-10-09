@@ -58,6 +58,13 @@ export function MapEmbed({
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
       />
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 rounded-full bg-background/90 backdrop-blur-md px-3 py-1 shadow-md border border-border text-xs font-semibold">
+        <span className="relative flex size-2.5">
+          <span className="animate-ping absolute inline-flex size-full rounded-full bg-red-500 opacity-75"></span>
+          <span className="relative inline-flex size-2.5 rounded-full bg-red-600"></span>
+        </span>
+        <span className="text-foreground">{label || "Destination"}</span>
+      </div>
     </div>
   );
 }

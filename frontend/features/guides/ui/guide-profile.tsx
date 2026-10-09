@@ -264,6 +264,7 @@ export function GuideBookingSheet({
   districtId,
   placesForGuide,
   defaultSelectedPlaceIds = [],
+  allowCustomerPlaceSelection = true,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -273,6 +274,7 @@ export function GuideBookingSheet({
   districtId: string;
   placesForGuide: { id: string; name: string; slug: string; districtName: string }[];
   defaultSelectedPlaceIds?: string[];
+  allowCustomerPlaceSelection?: boolean;
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
@@ -284,14 +286,24 @@ export function GuideBookingSheet({
   );
   const [bookingDate, setBookingDate] = React.useState("");
   const [bookingTime, setBookingTime] = React.useState("10:00 AM");
+  const [numberOfPeople, setNumberOfPeople] = React.useState<number>(1);
+  const [isRequestingPickup, setIsRequestingPickup] = React.useState(false);
+  const [requestedPickupName, setRequestedPickupName] = React.useState("");
+  const [requestedPickupAddress, setRequestedPickupAddress] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
-    if (open && isCommon && defaultSelectedPlaceIds.length === 0 && placesForGuide.length === 1) {
-      setSelectedPlaces([placesForGuide[0].id]);
+    if (open && isCommon) {
+      if (!allowCustomerPlaceSelection) {
+        setSelectedPlaces(placesForGuide.map((p) => p.id));
+      } else if (defaultSelectedPlaceIds.length > 0) {
+        setSelectedPlaces(defaultSelectedPlaceIds);
+      } else if (placesForGuide.length === 1) {
+        setSelectedPlaces([placesForGuide[0].id]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, allowCustomerPlaceSelection]);
 
   React.useEffect(() => {
     if (open && !isCommon) setSelectedPlaces([]);
@@ -301,6 +313,7 @@ export function GuideBookingSheet({
   const todayIso = minDate.toISOString().slice(0, 10);
 
   function togglePlace(id: string) {
+    if (!allowCustomerPlaceSelection) return;
     setSelectedPlaces((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
@@ -320,6 +333,10 @@ export function GuideBookingSheet({
       toast.error("Select at least one place");
       return;
     }
+    if (numberOfPeople < 1) {
+      toast.error("Number of people must be at least 1");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -329,12 +346,18 @@ export function GuideBookingSheet({
           placeIds: selectedPlaces,
           bookingDate,
           bookingTime,
+          numberOfPeople,
+          requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
+          requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
         });
       } else {
         await createSpecificGuideBooking({
           specificGuideId: guide.guide.id,
           bookingDate,
           bookingTime,
+          numberOfPeople,
+          pickupName: isRequestingPickup ? requestedPickupName : undefined,
+          pickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
         });
       }
       toast.success("Booking request sent", {
@@ -343,6 +366,10 @@ export function GuideBookingSheet({
       onOpenChange(false);
       setSelectedPlaces([]);
       setBookingDate("");
+      setNumberOfPeople(1);
+      setIsRequestingPickup(false);
+      setRequestedPickupName("");
+      setRequestedPickupAddress("");
     } catch (err) {
       toast.error("Couldn't create booking", {
         description: err instanceof Error ? err.message : "Please try again later.",
@@ -352,9 +379,14 @@ export function GuideBookingSheet({
     }
   }
 
+  const calculatedTotal = isCommon
+    ? guide.guide.cost * Math.max(selectedPlaces.length, 1) * Math.max(numberOfPeople, 1)
+    : guide.guide.cost * Math.max(numberOfPeople, 1);
+
   const rows: { label: React.ReactNode; value: React.ReactNode; strong?: boolean }[] = [
     { label: "Guide", value: guide.guide.full_name },
     { label: "Type", value: isCommon ? "Tour Guide" : "Specific Guide" },
+    { label: "Number of Travellers", value: `${numberOfPeople} person${numberOfPeople > 1 ? "s" : ""}` },
     ...(isCommon
       ? [
           {
@@ -362,11 +394,13 @@ export function GuideBookingSheet({
             value: `${selectedPlaces.length} place${selectedPlaces.length === 1 ? "" : "s"} selected`,
             strong: true,
           },
-          { label: `Per place (${formatCurrency(guide.guide.cost)})`, value: formatCurrency(guide.guide.cost * Math.max(selectedPlaces.length, 0)), strong: true },
         ]
       : []),
     { label: "Date", value: bookingDate || "—" },
     { label: "Time", value: bookingTime },
+    ...(isRequestingPickup && requestedPickupName
+      ? [{ label: "Pickup requested", value: requestedPickupName }]
+      : []),
   ];
 
   return (
@@ -389,11 +423,17 @@ export function GuideBookingSheet({
           {isCommon && placesForGuide.length > 0 ? (
             <div className="space-y-3">
               <p className="text-sm font-semibold">
-                Select places <span className="text-muted-foreground">({placesForGuide.length} covered)</span>
+                Tour Places <span className="text-muted-foreground">({placesForGuide.length} included)</span>
               </p>
-              <p className="text-xs text-muted-foreground">
-                The number of places is set by your selection.
-              </p>
+              {!allowCustomerPlaceSelection ? (
+                <p className="rounded-xl border border-warning/40 bg-warning/10 p-2.5 text-xs text-warning-foreground">
+                  This tour is a complete package. Individual place selection is fixed by the guide.
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Select the places you want to visit on this tour.
+                </p>
+              )}
               <div className="space-y-2.5 pt-1">
                 {placesForGuide.map((place) => {
                   const checked = selectedPlaces.includes(place.id);
@@ -402,11 +442,13 @@ export function GuideBookingSheet({
                       key={place.id}
                       className={cn(
                         "flex items-center gap-3 rounded-2xl border bg-card p-3 transition-colors",
-                        checked ? "border-primary/50 bg-primary/5" : "border-border"
+                        checked ? "border-primary/50 bg-primary/5" : "border-border",
+                        !allowCustomerPlaceSelection && "opacity-85 cursor-not-allowed"
                       )}
                     >
                       <Checkbox
                         checked={checked}
+                        disabled={!allowCustomerPlaceSelection}
                         onCheckedChange={() => togglePlace(place.id)}
                         aria-label={`Include ${place.name}`}
                       />
@@ -428,7 +470,7 @@ export function GuideBookingSheet({
             </div>
           ) : null}
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-4">
             <div className="space-y-2">
               <Label htmlFor="booking-date" className="inline-flex items-center gap-1.5">
                 <Calendar className="size-3.5" /> Date
@@ -457,12 +499,63 @@ export function GuideBookingSheet({
                 ))}
               </select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="number-of-people" className="inline-flex items-center gap-1.5">
+                Number of People
+              </Label>
+              <Input
+                id="number-of-people"
+                type="number"
+                min={1}
+                value={numberOfPeople}
+                onChange={(e) => setNumberOfPeople(Math.max(1, parseInt(e.target.value) || 1))}
+                className="h-10 w-full rounded-xl"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 rounded-2xl border border-border bg-muted/20 p-4">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="request-pickup"
+                checked={isRequestingPickup}
+                onCheckedChange={(c) => setIsRequestingPickup(Boolean(c))}
+              />
+              <Label htmlFor="request-pickup" className="text-sm font-semibold cursor-pointer">
+                Request alternative pickup location
+              </Label>
+            </div>
+
+            {isRequestingPickup ? (
+              <div className="space-y-3 pt-2">
+                <div className="space-y-1">
+                  <Label htmlFor="req-pickup-name" className="text-xs">Pickup Location Name</Label>
+                  <Input
+                    id="req-pickup-name"
+                    placeholder="e.g. Hotel Grand Lobby / Railway Station Gate 1"
+                    value={requestedPickupName}
+                    onChange={(e) => setRequestedPickupName(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="req-pickup-address" className="text-xs">Address / Directions</Label>
+                  <Input
+                    id="req-pickup-address"
+                    placeholder="e.g. Near City Center Clock Tower"
+                    value={requestedPickupAddress}
+                    onChange={(e) => setRequestedPickupAddress(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <BookingSummary
             title="Booking summary"
             rows={rows}
-            total={isCommon ? formatCurrency(guide.guide.cost * Math.max(selectedPlaces.length, 0)) : formatCurrency(guide.guide.cost)}
+            total={formatCurrency(calculatedTotal)}
             totalLabel="Estimated amount"
           />
         </div>

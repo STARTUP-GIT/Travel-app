@@ -58,6 +58,7 @@ export function buildDirectionsUrl(
   origin?: GeoPoint
 ): string {
   const params = new URLSearchParams();
+  params.set("api", "1");
   if (origin && validPoint(origin)) {
     params.set("origin", `${origin.latitude},${origin.longitude}`);
   }
@@ -67,8 +68,8 @@ export function buildDirectionsUrl(
 }
 
 export function buildOpenUrl(point: Coordinates, label?: string): string {
-  if (label?.trim()) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(label.trim())}`;
-  }
-  return `https://www.google.com/maps/?q=${point.latitude},${point.longitude}`;
+  const query = label?.trim()
+    ? `${point.latitude},${point.longitude} (${label.trim()})`
+    : `${point.latitude},${point.longitude}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }

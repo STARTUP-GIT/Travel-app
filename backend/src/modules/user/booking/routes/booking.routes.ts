@@ -9,6 +9,7 @@ import {
   getUserRestaurantReservations,
   getUserSpecificGuideBookings,
   getUserCommonGuideBookings,
+  getSpecificGuideLocation,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.post("/api/restaurant-reservations", userauthMiddleware, createRestaurant
 router.get("/api/restaurant-reservations", userauthMiddleware, getUserRestaurantReservations);
 router.post("/api/specific-guide-bookings", userauthMiddleware, createSpecificGuideBooking);
 router.get("/api/specific-guide-bookings", userauthMiddleware, getUserSpecificGuideBookings);
+router.get("/api/specific-guide-location/:bookingId", userauthMiddleware, getSpecificGuideLocation);
 router.post("/api/common-guide-bookings", userauthMiddleware, createCommonGuideBooking);
 router.get("/api/common-guide-bookings", userauthMiddleware, getUserCommonGuideBookings);
 

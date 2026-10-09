@@ -14,20 +14,28 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model common_guide_package
- * A named tour a Common Guide sells: one guide, many packages, each package a
- * set of places. Kept separate from `common_guide_places` on purpose — that
- * table is the guide's overall coverage, which booking validation and the
- * public guide list read, and it must keep working for guides that have never
- * created a package. Saving a package also adds its places to the guide's
- * coverage (a package only ever uses places the guide covers), so a customer
- * can book a package's places without any change to the booking flow.
+ * 
  */
 export type common_guide_packageModel = runtime.Types.Result.DefaultSelection<Prisma.$common_guide_packagePayload>
 
 export type AggregateCommon_guide_package = {
   _count: Common_guide_packageCountAggregateOutputType | null
+  _avg: Common_guide_packageAvgAggregateOutputType | null
+  _sum: Common_guide_packageSumAggregateOutputType | null
   _min: Common_guide_packageMinAggregateOutputType | null
   _max: Common_guide_packageMaxAggregateOutputType | null
+}
+
+export type Common_guide_packageAvgAggregateOutputType = {
+  price: number | null
+  pickupLat: number | null
+  pickupLng: number | null
+}
+
+export type Common_guide_packageSumAggregateOutputType = {
+  price: number | null
+  pickupLat: number | null
+  pickupLng: number | null
 }
 
 export type Common_guide_packageMinAggregateOutputType = {
@@ -35,6 +43,24 @@ export type Common_guide_packageMinAggregateOutputType = {
   commonGuideId: string | null
   name: string | null
   description: string | null
+  pricingMode: string | null
+  pricingUnit: string | null
+  price: number | null
+  allowCustomerPlaceSelection: boolean | null
+  cancellationPolicy: string | null
+  foodStatus: string | null
+  foodDetails: string | null
+  transportStatus: string | null
+  transportDetails: string | null
+  entryFeeStatus: string | null
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +70,24 @@ export type Common_guide_packageMaxAggregateOutputType = {
   commonGuideId: string | null
   name: string | null
   description: string | null
+  pricingMode: string | null
+  pricingUnit: string | null
+  price: number | null
+  allowCustomerPlaceSelection: boolean | null
+  cancellationPolicy: string | null
+  foodStatus: string | null
+  foodDetails: string | null
+  transportStatus: string | null
+  transportDetails: string | null
+  entryFeeStatus: string | null
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,17 +97,65 @@ export type Common_guide_packageCountAggregateOutputType = {
   commonGuideId: number
   name: number
   description: number
+  pricingMode: number
+  pricingUnit: number
+  price: number
+  allowCustomerPlaceSelection: number
+  cancellationPolicy: number
+  foodStatus: number
+  foodDetails: number
+  transportStatus: number
+  transportDetails: number
+  entryFeeStatus: number
+  entryFeeDetails: number
+  additionalCostsDetails: number
+  tripStartTime: number
+  pickupName: number
+  pickupAddress: number
+  pickupLat: number
+  pickupLng: number
+  pickupMapsUrl: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type Common_guide_packageAvgAggregateInputType = {
+  price?: true
+  pickupLat?: true
+  pickupLng?: true
+}
+
+export type Common_guide_packageSumAggregateInputType = {
+  price?: true
+  pickupLat?: true
+  pickupLng?: true
+}
+
 export type Common_guide_packageMinAggregateInputType = {
   id?: true
   commonGuideId?: true
   name?: true
   description?: true
+  pricingMode?: true
+  pricingUnit?: true
+  price?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -73,6 +165,24 @@ export type Common_guide_packageMaxAggregateInputType = {
   commonGuideId?: true
   name?: true
   description?: true
+  pricingMode?: true
+  pricingUnit?: true
+  price?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +192,24 @@ export type Common_guide_packageCountAggregateInputType = {
   commonGuideId?: true
   name?: true
   description?: true
+  pricingMode?: true
+  pricingUnit?: true
+  price?: true
+  allowCustomerPlaceSelection?: true
+  cancellationPolicy?: true
+  foodStatus?: true
+  foodDetails?: true
+  transportStatus?: true
+  transportDetails?: true
+  entryFeeStatus?: true
+  entryFeeDetails?: true
+  additionalCostsDetails?: true
+  tripStartTime?: true
+  pickupName?: true
+  pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -125,6 +253,18 @@ export type Common_guide_packageAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: Common_guide_packageAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: Common_guide_packageSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: Common_guide_packageMinAggregateInputType
@@ -155,6 +295,8 @@ export type common_guide_packageGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: Common_guide_packageCountAggregateInputType | true
+  _avg?: Common_guide_packageAvgAggregateInputType
+  _sum?: Common_guide_packageSumAggregateInputType
   _min?: Common_guide_packageMinAggregateInputType
   _max?: Common_guide_packageMaxAggregateInputType
 }
@@ -164,9 +306,29 @@ export type Common_guide_packageGroupByOutputType = {
   commonGuideId: string
   name: string
   description: string | null
+  pricingMode: string
+  pricingUnit: string
+  price: number
+  allowCustomerPlaceSelection: boolean
+  cancellationPolicy: string | null
+  foodStatus: string
+  foodDetails: string | null
+  transportStatus: string
+  transportDetails: string | null
+  entryFeeStatus: string
+  entryFeeDetails: string | null
+  additionalCostsDetails: string | null
+  tripStartTime: string | null
+  pickupName: string | null
+  pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
   createdAt: Date
   updatedAt: Date
   _count: Common_guide_packageCountAggregateOutputType | null
+  _avg: Common_guide_packageAvgAggregateOutputType | null
+  _sum: Common_guide_packageSumAggregateOutputType | null
   _min: Common_guide_packageMinAggregateOutputType | null
   _max: Common_guide_packageMaxAggregateOutputType | null
 }
@@ -194,10 +356,29 @@ export type common_guide_packageWhereInput = {
   commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
   name?: Prisma.StringFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
+  price?: Prisma.FloatFilter<"common_guide_package"> | number
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
   places?: Prisma.Common_guide_package_placesListRelationFilter
+  bookings?: Prisma.Common_guide_bookingListRelationFilter
 }
 
 export type common_guide_packageOrderByWithRelationInput = {
@@ -205,10 +386,29 @@ export type common_guide_packageOrderByWithRelationInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   commonGuide?: Prisma.common_guideOrderByWithRelationInput
   places?: Prisma.common_guide_package_placesOrderByRelationAggregateInput
+  bookings?: Prisma.common_guide_bookingOrderByRelationAggregateInput
 }
 
 export type common_guide_packageWhereUniqueInput = Prisma.AtLeast<{
@@ -219,10 +419,29 @@ export type common_guide_packageWhereUniqueInput = Prisma.AtLeast<{
   commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
   name?: Prisma.StringFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
+  price?: Prisma.FloatFilter<"common_guide_package"> | number
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
   places?: Prisma.Common_guide_package_placesListRelationFilter
+  bookings?: Prisma.Common_guide_bookingListRelationFilter
 }, "id">
 
 export type common_guide_packageOrderByWithAggregationInput = {
@@ -230,11 +449,31 @@ export type common_guide_packageOrderByWithAggregationInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.common_guide_packageCountOrderByAggregateInput
+  _avg?: Prisma.common_guide_packageAvgOrderByAggregateInput
   _max?: Prisma.common_guide_packageMaxOrderByAggregateInput
   _min?: Prisma.common_guide_packageMinOrderByAggregateInput
+  _sum?: Prisma.common_guide_packageSumOrderByAggregateInput
 }
 
 export type common_guide_packageScalarWhereWithAggregatesInput = {
@@ -245,6 +484,24 @@ export type common_guide_packageScalarWhereWithAggregatesInput = {
   commonGuideId?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   name?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  pricingMode?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  pricingUnit?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  price?: Prisma.FloatWithAggregatesFilter<"common_guide_package"> | number
+  allowCustomerPlaceSelection?: Prisma.BoolWithAggregatesFilter<"common_guide_package"> | boolean
+  cancellationPolicy?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  foodStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  foodDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  transportStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  transportDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  entryFeeStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  entryFeeDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  tripStartTime?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  pickupName?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  pickupLat?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  pickupLng?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"common_guide_package"> | Date | string
 }
@@ -253,10 +510,29 @@ export type common_guide_packageCreateInput = {
   id?: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
   places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageUncheckedCreateInput = {
@@ -264,19 +540,57 @@ export type common_guide_packageUncheckedCreateInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   places?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
   places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageUncheckedUpdateInput = {
@@ -284,9 +598,28 @@ export type common_guide_packageUncheckedUpdateInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageCreateManyInput = {
@@ -294,6 +627,24 @@ export type common_guide_packageCreateManyInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -302,6 +653,24 @@ export type common_guide_packageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -311,6 +680,24 @@ export type common_guide_packageUncheckedUpdateManyInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -330,8 +717,32 @@ export type common_guide_packageCountOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type common_guide_packageAvgOrderByAggregateInput = {
+  price?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
 }
 
 export type common_guide_packageMaxOrderByAggregateInput = {
@@ -339,6 +750,24 @@ export type common_guide_packageMaxOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -348,13 +777,42 @@ export type common_guide_packageMinOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
+  price?: Prisma.SortOrder
+  allowCustomerPlaceSelection?: Prisma.SortOrder
+  cancellationPolicy?: Prisma.SortOrder
+  foodStatus?: Prisma.SortOrder
+  foodDetails?: Prisma.SortOrder
+  transportStatus?: Prisma.SortOrder
+  transportDetails?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeDetails?: Prisma.SortOrder
+  additionalCostsDetails?: Prisma.SortOrder
+  tripStartTime?: Prisma.SortOrder
+  pickupName?: Prisma.SortOrder
+  pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type common_guide_packageSumOrderByAggregateInput = {
+  price?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
 }
 
 export type Common_guide_packageScalarRelationFilter = {
   is?: Prisma.common_guide_packageWhereInput
   isNot?: Prisma.common_guide_packageWhereInput
+}
+
+export type Common_guide_packageNullableScalarRelationFilter = {
+  is?: Prisma.common_guide_packageWhereInput | null
+  isNot?: Prisma.common_guide_packageWhereInput | null
 }
 
 export type common_guide_packageCreateNestedManyWithoutCommonGuideInput = {
@@ -413,22 +871,76 @@ export type common_guide_packageUpdateOneRequiredWithoutPlacesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.common_guide_packageUpdateToOneWithWhereWithoutPlacesInput, Prisma.common_guide_packageUpdateWithoutPlacesInput>, Prisma.common_guide_packageUncheckedUpdateWithoutPlacesInput>
 }
 
+export type common_guide_packageCreateNestedOneWithoutBookingsInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutBookingsInput, Prisma.common_guide_packageUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutBookingsInput
+  connect?: Prisma.common_guide_packageWhereUniqueInput
+}
+
+export type common_guide_packageUpdateOneWithoutBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutBookingsInput, Prisma.common_guide_packageUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutBookingsInput
+  upsert?: Prisma.common_guide_packageUpsertWithoutBookingsInput
+  disconnect?: Prisma.common_guide_packageWhereInput | boolean
+  delete?: Prisma.common_guide_packageWhereInput | boolean
+  connect?: Prisma.common_guide_packageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.common_guide_packageUpdateToOneWithWhereWithoutBookingsInput, Prisma.common_guide_packageUpdateWithoutBookingsInput>, Prisma.common_guide_packageUncheckedUpdateWithoutBookingsInput>
+}
+
 export type common_guide_packageCreateWithoutCommonGuideInput = {
   id?: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageUncheckedCreateWithoutCommonGuideInput = {
   id?: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   places?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageCreateOrConnectWithoutCommonGuideInput = {
@@ -465,6 +977,24 @@ export type common_guide_packageScalarWhereInput = {
   commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
   name?: Prisma.StringFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
+  price?: Prisma.FloatFilter<"common_guide_package"> | number
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
 }
@@ -473,9 +1003,28 @@ export type common_guide_packageCreateWithoutPlacesInput = {
   id?: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageUncheckedCreateWithoutPlacesInput = {
@@ -483,8 +1032,27 @@ export type common_guide_packageUncheckedCreateWithoutPlacesInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type common_guide_packageCreateOrConnectWithoutPlacesInput = {
@@ -507,9 +1075,28 @@ export type common_guide_packageUpdateWithoutPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageUncheckedUpdateWithoutPlacesInput = {
@@ -517,14 +1104,179 @@ export type common_guide_packageUncheckedUpdateWithoutPlacesInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutPackageNestedInput
+}
+
+export type common_guide_packageCreateWithoutBookingsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
+}
+
+export type common_guide_packageUncheckedCreateWithoutBookingsInput = {
+  id?: string
+  commonGuideId: string
+  name: string
+  description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPackageInput
+}
+
+export type common_guide_packageCreateOrConnectWithoutBookingsInput = {
+  where: Prisma.common_guide_packageWhereUniqueInput
+  create: Prisma.XOR<Prisma.common_guide_packageCreateWithoutBookingsInput, Prisma.common_guide_packageUncheckedCreateWithoutBookingsInput>
+}
+
+export type common_guide_packageUpsertWithoutBookingsInput = {
+  update: Prisma.XOR<Prisma.common_guide_packageUpdateWithoutBookingsInput, Prisma.common_guide_packageUncheckedUpdateWithoutBookingsInput>
+  create: Prisma.XOR<Prisma.common_guide_packageCreateWithoutBookingsInput, Prisma.common_guide_packageUncheckedCreateWithoutBookingsInput>
+  where?: Prisma.common_guide_packageWhereInput
+}
+
+export type common_guide_packageUpdateToOneWithWhereWithoutBookingsInput = {
+  where?: Prisma.common_guide_packageWhereInput
+  data: Prisma.XOR<Prisma.common_guide_packageUpdateWithoutBookingsInput, Prisma.common_guide_packageUncheckedUpdateWithoutBookingsInput>
+}
+
+export type common_guide_packageUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
+}
+
+export type common_guide_packageUncheckedUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageCreateManyCommonGuideInput = {
   id?: string
   name: string
   description?: string | null
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -533,24 +1285,80 @@ export type common_guide_packageUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageUncheckedUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type common_guide_packageUncheckedUpdateManyWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -562,10 +1370,12 @@ export type common_guide_packageUncheckedUpdateManyWithoutCommonGuideInput = {
 
 export type Common_guide_packageCountOutputType = {
   places: number
+  bookings: number
 }
 
 export type Common_guide_packageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Common_guide_packageCountOutputTypeCountPlacesArgs
+  bookings?: boolean | Common_guide_packageCountOutputTypeCountBookingsArgs
 }
 
 /**
@@ -585,16 +1395,42 @@ export type Common_guide_packageCountOutputTypeCountPlacesArgs<ExtArgs extends r
   where?: Prisma.common_guide_package_placesWhereInput
 }
 
+/**
+ * Common_guide_packageCountOutputType without action
+ */
+export type Common_guide_packageCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.common_guide_bookingWhereInput
+}
+
 
 export type common_guide_packageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  price?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
   places?: boolean | Prisma.common_guide_package$placesArgs<ExtArgs>
+  bookings?: boolean | Prisma.common_guide_package$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guide_packageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package"]>
 
@@ -603,6 +1439,24 @@ export type common_guide_packageSelectCreateManyAndReturn<ExtArgs extends runtim
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  price?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
@@ -613,6 +1467,24 @@ export type common_guide_packageSelectUpdateManyAndReturn<ExtArgs extends runtim
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  price?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
@@ -623,14 +1495,33 @@ export type common_guide_packageSelectScalar = {
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  pricingMode?: boolean
+  pricingUnit?: boolean
+  price?: boolean
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: boolean
+  foodStatus?: boolean
+  foodDetails?: boolean
+  transportStatus?: boolean
+  transportDetails?: boolean
+  entryFeeStatus?: boolean
+  entryFeeDetails?: boolean
+  additionalCostsDetails?: boolean
+  tripStartTime?: boolean
+  pickupName?: boolean
+  pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type common_guide_packageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commonGuideId" | "name" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_package"]>
+export type common_guide_packageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commonGuideId" | "name" | "description" | "pricingMode" | "pricingUnit" | "price" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "transportStatus" | "transportDetails" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupMapsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_package"]>
 export type common_guide_packageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
   places?: boolean | Prisma.common_guide_package$placesArgs<ExtArgs>
+  bookings?: boolean | Prisma.common_guide_package$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guide_packageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type common_guide_packageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -645,12 +1536,31 @@ export type $common_guide_packagePayload<ExtArgs extends runtime.Types.Extension
   objects: {
     commonGuide: Prisma.$common_guidePayload<ExtArgs>
     places: Prisma.$common_guide_package_placesPayload<ExtArgs>[]
+    bookings: Prisma.$common_guide_bookingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     commonGuideId: string
     name: string
     description: string | null
+    pricingMode: string
+    pricingUnit: string
+    price: number
+    allowCustomerPlaceSelection: boolean
+    cancellationPolicy: string | null
+    foodStatus: string
+    foodDetails: string | null
+    transportStatus: string
+    transportDetails: string | null
+    entryFeeStatus: string
+    entryFeeDetails: string | null
+    additionalCostsDetails: string | null
+    tripStartTime: string | null
+    pickupName: string | null
+    pickupAddress: string | null
+    pickupLat: number | null
+    pickupLng: number | null
+    pickupMapsUrl: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["common_guide_package"]>
@@ -1049,6 +1959,7 @@ export interface Prisma__common_guide_packageClient<T, Null = never, ExtArgs ext
   readonly [Symbol.toStringTag]: "PrismaPromise"
   commonGuide<T extends Prisma.common_guideDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guideDefaultArgs<ExtArgs>>): Prisma.Prisma__common_guideClient<runtime.Types.Result.GetResult<Prisma.$common_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   places<T extends Prisma.common_guide_package$placesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_package$placesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_package_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bookings<T extends Prisma.common_guide_package$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_package$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_bookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1082,6 +1993,24 @@ export interface common_guide_packageFieldRefs {
   readonly commonGuideId: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly name: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly description: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly pricingMode: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly pricingUnit: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly price: Prisma.FieldRef<"common_guide_package", 'Float'>
+  readonly allowCustomerPlaceSelection: Prisma.FieldRef<"common_guide_package", 'Boolean'>
+  readonly cancellationPolicy: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly foodStatus: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly foodDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly transportStatus: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly transportDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly entryFeeStatus: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly entryFeeDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly additionalCostsDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly tripStartTime: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly pickupName: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly pickupAddress: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly pickupLat: Prisma.FieldRef<"common_guide_package", 'Float'>
+  readonly pickupLng: Prisma.FieldRef<"common_guide_package", 'Float'>
+  readonly pickupMapsUrl: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly createdAt: Prisma.FieldRef<"common_guide_package", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"common_guide_package", 'DateTime'>
 }
@@ -1506,6 +2435,30 @@ export type common_guide_package$placesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.Common_guide_package_placesScalarFieldEnum | Prisma.Common_guide_package_placesScalarFieldEnum[]
+}
+
+/**
+ * common_guide_package.bookings
+ */
+export type common_guide_package$bookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the common_guide_booking
+   */
+  select?: Prisma.common_guide_bookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the common_guide_booking
+   */
+  omit?: Prisma.common_guide_bookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.common_guide_bookingInclude<ExtArgs> | null
+  where?: Prisma.common_guide_bookingWhereInput
+  orderBy?: Prisma.common_guide_bookingOrderByWithRelationInput | Prisma.common_guide_bookingOrderByWithRelationInput[]
+  cursor?: Prisma.common_guide_bookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Common_guide_bookingScalarFieldEnum | Prisma.Common_guide_bookingScalarFieldEnum[]
 }
 
 /**

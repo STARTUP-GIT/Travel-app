@@ -44,6 +44,22 @@ export type SpecificGuideBooking = {
   placeId: string;
   bookingDate: string;
   bookingTime?: string | null;
+  tripStartTime?: string | null;
+  numberOfPeople?: number;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  requestedPickupName?: string | null;
+  requestedPickupAddress?: string | null;
+  totalPrice?: number;
+  cancellationPolicy?: string | null;
+  foodStatus?: string | null;
+  foodDetails?: string | null;
+  transportStatus?: string | null;
+  transportDetails?: string | null;
+  entryFeeStatus?: string | null;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  paymentStatus?: string;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
@@ -57,6 +73,24 @@ export type CommonGuideBooking = {
   commonGuideId: string;
   bookingDate: string;
   bookingTime?: string | null;
+  tripStartTime?: string | null;
+  numberOfPeople?: number;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  requestedPickupName?: string | null;
+  requestedPickupAddress?: string | null;
+  pricingMode?: string;
+  pricingUnit?: string;
+  totalPrice?: number;
+  cancellationPolicy?: string | null;
+  foodStatus?: string | null;
+  foodDetails?: string | null;
+  transportStatus?: string | null;
+  transportDetails?: string | null;
+  entryFeeStatus?: string | null;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  paymentStatus?: string;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
@@ -72,13 +106,26 @@ export type CreateSpecificGuideBookingInput = {
   specificGuideId: string;
   bookingDate: string;
   bookingTime?: string;
+  numberOfPeople?: number;
+  pickupName?: string;
+  pickupAddress?: string;
+  totalPrice?: number;
 };
 
 export type CreateCommonGuideBookingInput = {
   commonGuideId: string;
+  packageId?: string;
   placeIds: string[];
   bookingDate: string;
   bookingTime?: string;
+  numberOfPeople?: number;
+  pricingMode?: string;
+  pricingUnit?: string;
+  totalPrice?: number;
+  pickupName?: string;
+  pickupAddress?: string;
+  requestedPickupName?: string;
+  requestedPickupAddress?: string;
 };
 
 export type CreateReservationInput = {

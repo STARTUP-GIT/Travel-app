@@ -25,6 +25,8 @@ type Values = {
   photo: string;
   tagline: string;
   agencyName: string;
+  agencyAddress: string;
+  agencyBanner: string;
   description: string;
   experience: string;
   cost: string;
@@ -64,6 +66,8 @@ function initialValues(profile: ProviderProfile): Values {
     photo: profile.photo ?? "",
     tagline: profile.tagline,
     agencyName: profile.agencyName,
+    agencyAddress: profile.agencyAddress ?? "",
+    agencyBanner: profile.agencyBanner ?? "",
     description: profile.description,
     experience: String(profile.experience ?? 0),
     cost: String(profile.cost ?? 0),
@@ -136,8 +140,10 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
     // backend clears a previously saved agency, so a guide who deletes the text
     // goes back to being shown as an individual.
     if (!isCommonGuide) {
-      const index = changed.findIndex(([key]) => key === "agencyName");
-      if (index >= 0) changed.splice(index, 1);
+      for (const k of ["agencyName", "agencyAddress", "agencyBanner"]) {
+        const index = changed.findIndex(([key]) => key === k);
+        if (index >= 0) changed.splice(index, 1);
+      }
     }
 
     if (changed.length === 0) {
@@ -249,18 +255,50 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
           </Field>
 
           {isCommonGuide ? (
-            <Field
-              label="Agency name (optional)"
-              error={errors.agencyName}
-              hint="Shown to customers as the agency behind your packages. Leave blank to trade in your own name."
-            >
-              <Input
-                value={values.agencyName}
-                onChange={(event) => set("agencyName", event.target.value)}
-                maxLength={120}
-                placeholder="Mysuru Heritage Tours"
-              />
-            </Field>
+            <>
+              <Field
+                label="Agency name (optional)"
+                error={errors.agencyName}
+                hint="Shown to customers as the agency behind your packages. Leave blank to trade in your own name."
+              >
+                <Input
+                  value={values.agencyName}
+                  onChange={(event) => set("agencyName", event.target.value)}
+                  maxLength={120}
+                  placeholder="Mysuru Heritage Tours"
+                />
+              </Field>
+
+              <Field
+                label="Agency address (optional)"
+                error={errors.agencyAddress}
+                hint="Physical address or office location of your agency."
+              >
+                <Input
+                  value={values.agencyAddress}
+                  onChange={(event) => set("agencyAddress", event.target.value)}
+                  placeholder="123 Heritage Way, Mysuru"
+                />
+              </Field>
+
+              <div className="flex flex-col gap-1.5">
+                <Label>Agency banner image (optional)</Label>
+                <PhotoUploadField
+                  value={values.agencyBanner}
+                  fallbackLabel="Agency Banner"
+                  disabled={busy}
+                  onChange={(url) => set("agencyBanner", url)}
+                  upload={async (file) => {
+                    const result = await uploadProfilePhoto(file);
+                    if (!result.ok) throw new Error(result.message);
+                    return result.data;
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Banner image displayed on package details and agency cards.
+                </p>
+              </div>
+            </>
           ) : null}
 
           <Field label="About you" error={errors.description}>
