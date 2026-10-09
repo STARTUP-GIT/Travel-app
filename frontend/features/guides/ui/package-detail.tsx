@@ -1,6 +1,22 @@
 "use client";
 
-import { ArrowLeft, MapPin, Route, Ticket } from "lucide-react";
+import {
+  ArrowLeft,
+  Award,
+  Building2,
+  Calendar,
+  Car,
+  Clock,
+  ExternalLink,
+  Info,
+  Languages,
+  MapPin,
+  Route,
+  ShieldCheck,
+  Star,
+  Ticket,
+  Utensils,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
@@ -15,15 +31,21 @@ import { GuideBookingSheet } from "@/features/guides/ui/guide-profile";
 import type { GuideWithContext, PackageWithContext } from "@/features/guides/types";
 import { formatCurrency } from "@/lib/utils";
 
-/**
- * A tour package, reached from the guides page or from a common guide's profile.
- *
- * Booking reuses the guide booking sheet with the package's places pre-selected
- * and no others on offer: the traveller asked for this tour, so the sheet shows
- * exactly the places it contains. A place can still be deselected there, and the
- * guide confirms the request as usual — the package is a convenience, not a
- * separate paid product, so the guide's own per-place rate is what is charged.
- */
+function formatStatus(status?: string | null): { text: string; variant: "success" | "warning" | "destructive" | "outline" } {
+  switch (status?.toUpperCase()) {
+    case "INCLUDED":
+      return { text: "Included", variant: "success" };
+    case "PAID_EXTRA":
+    case "OPTIONAL":
+      return { text: "Optional Paid Extra", variant: "warning" };
+    case "UNCONFIRMED":
+      return { text: "Unconfirmed", variant: "destructive" };
+    case "EXCLUDED":
+    default:
+      return { text: "Not Included (Payable Separately)", variant: "outline" };
+  }
+}
+
 export function PackageDetail({
   pkg,
   districtSlug,
@@ -39,14 +61,8 @@ export function PackageDetail({
   const person = pkg.guide;
   const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
-  // A package can cover places in more than one district, but only this
-  // district's places are loaded here — the customer guide data is aggregated
-  // from the district's place responses. The real size is carried on the
-  // package, so the difference is stated rather than hidden.
   const hiddenPlaceCount = pkg.placeCount - pkg.places.length;
 
-  // The sheet books a common guide, so it is handed a guide context scoped to
-  // this package's places rather than the guide's whole coverage.
   const scopedGuide: GuideWithContext = {
     type: "common",
     guide: person,
@@ -61,6 +77,12 @@ export function PackageDetail({
   };
 
   const placesForGuide = scopedGuide.type === "common" ? scopedGuide.places : [];
+
+  const pickupMapsTarget = pkg.pickupMapsUrl
+    ? pkg.pickupMapsUrl
+    : pkg.pickupAddress
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pkg.pickupAddress)}`
+    : null;
 
   function priceSummary(place: (typeof pkg.places)[number]): string {
     const pricing = place.pricing ?? [];
@@ -88,10 +110,35 @@ export function PackageDetail({
       : formatCurrency(place.entryfee);
   }
 
+  const isWholeTour = pkg.pricingMode === "WHOLE_TOUR";
+  const displayPrice = isWholeTour ? pkg.price : person.cost;
+
   return (
     <div className="pb-8">
+      {/* Banner if configured */}
+      {person.agencyBanner ? (
+        <div className="relative h-48 w-full overflow-hidden bg-muted sm:h-64 sm:rounded-3xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={person.agencyBanner}
+            alt={person.agencyName ?? "Agency Cover"}
+            className="size-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 text-white sm:left-6 sm:right-6">
+            {person.agencyName ? (
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/20 px-2.5 py-1 text-xs font-semibold backdrop-blur-md">
+                <Building2 className="size-3.5" />
+                {person.agencyName}
+              </span>
+            ) : null}
+            <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{pkg.name}</h1>
+          </div>
+        </div>
+      ) : null}
+
       <ScreenHeader
-        title={pkg.name}
+        title={person.agencyBanner ? "" : pkg.name}
         subtitle={
           person.agencyName
             ? `${pkg.placeCount} stop${pkg.placeCount === 1 ? "" : "s"} · ${person.agencyName} with ${person.full_name}`
@@ -101,29 +148,40 @@ export function PackageDetail({
       />
 
       <div className="app-container space-y-8">
-        <section className="flex flex-col gap-4">
+        {/* Guide & Agency Card */}
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <GuideAvatar
               name={person.full_name}
               image={person.profile_pic}
-              className="size-12 shrink-0 ring-2 ring-border"
+              className="size-14 shrink-0 ring-2 ring-primary/20"
             />
             <div className="min-w-0 flex-1">
-              {/* The agency leads where there is one: on a package page the
-                  traveller is booking the company, with the guide credited below. */}
-              <p className="truncate font-semibold leading-tight">
+              <p className="truncate text-base font-semibold leading-tight">
                 {person.agencyName ?? person.full_name}
               </p>
               <p className="truncate text-sm text-muted-foreground">
                 {person.agencyName
-                  ? `with ${person.full_name}${
-                      person.tagline ? ` · ${person.tagline}` : ""
-                    }`
-                  : (person.tagline ?? "Local guide")}
+                  ? `Tour led by ${person.full_name}${person.tagline ? ` · ${person.tagline}` : ""}`
+                  : (person.tagline ?? "Local expert guide")}
               </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                {typeof person.rating === "number" && person.rating > 0 ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-amber-500">
+                    <Star className="size-3.5 fill-amber-400" />
+                    {person.rating.toFixed(1)}
+                  </span>
+                ) : null}
+                <span className="inline-flex items-center gap-1">
+                  <Award className="size-3.5" /> {person.experience} yrs exp
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Languages className="size-3.5" /> {person.language?.join(", ") ?? "English"}
+                </span>
+              </div>
             </div>
-            <Button asChild variant="outline" className="shrink-0">
-              <Link href={`${districtBase}/guides/${person.id}`}>Guide profile</Link>
+            <Button asChild variant="outline" size="sm" className="shrink-0 rounded-xl">
+              <Link href={`${districtBase}/guides/${person.id}`}>View guide</Link>
             </Button>
           </div>
 
@@ -133,14 +191,24 @@ export function PackageDetail({
             </p>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="success" className="gap-1">
-              <Route className="size-3" />
-              {pkg.placeCount} stop{pkg.placeCount === 1 ? "" : "s"}
+          {/* Pricing & Key Metrics Badge */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <Badge variant="success" className="gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold">
+              <Route className="size-3.5" />
+              {pkg.placeCount} stop{pkg.placeCount === 1 ? "" : "s"} included
             </Badge>
-            <Badge variant="outline">
-              {formatCurrency(person.cost)} per place
+
+            <Badge variant="info" className="gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold">
+              <Ticket className="size-3.5" />
+              {formatCurrency(displayPrice)} {isWholeTour ? "whole tour" : "per place"}
             </Badge>
+
+            {pkg.tripStartTime ? (
+              <Badge variant="outline" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
+                <Clock className="size-3.5 text-primary" />
+                Starts at {pkg.tripStartTime}
+              </Badge>
+            ) : null}
           </div>
 
           {hiddenPlaceCount > 0 ? (
@@ -152,25 +220,129 @@ export function PackageDetail({
             </p>
           ) : null}
 
-          {/* Nothing can be booked from a district the tour does not touch. */}
           {pkg.places.length > 0 ? (
             <Button
               variant="action"
-              className="w-full rounded-2xl"
+              className="mt-2 w-full rounded-2xl py-6 text-base font-semibold shadow-md"
               onClick={() => setBookingOpen(true)}
             >
-              Book this tour
+              Book this tour — {formatCurrency(displayPrice)}
             </Button>
           ) : null}
         </section>
 
+        {/* Pickup Location & Google Maps */}
+        {(pkg.pickupName || pkg.pickupAddress || pickupMapsTarget || pkg.tripStartTime) ? (
+          <section>
+            <SectionHeader
+              title="Pickup & Departure Location"
+              subtitle="Where you will meet your guide to start the tour"
+            />
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  {pkg.pickupName ? (
+                    <p className="font-semibold text-base flex items-center gap-2">
+                      <MapPin className="size-4 text-primary shrink-0" />
+                      {pkg.pickupName}
+                    </p>
+                  ) : null}
+                  {pkg.pickupAddress ? (
+                    <p className="text-sm text-muted-foreground">{pkg.pickupAddress}</p>
+                  ) : null}
+                  {pkg.tripStartTime ? (
+                    <p className="text-xs font-medium text-primary flex items-center gap-1.5 pt-1">
+                      <Clock className="size-3.5" /> Start Time: {pkg.tripStartTime}
+                    </p>
+                  ) : null}
+                </div>
+
+                {pickupMapsTarget ? (
+                  <Button asChild variant="outline" size="sm" className="gap-1.5 rounded-xl shrink-0">
+                    <a href={pickupMapsTarget} target="_blank" rel="noopener noreferrer">
+                      <MapPin className="size-3.5 text-primary" />
+                      Open Pickup Location
+                      <ExternalLink className="size-3" />
+                    </a>
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* Facilities & Disclosures */}
         <section>
           <SectionHeader
-            title="Places in this tour"
+            title="Facilities & Inclusions"
+            subtitle="What is covered in this tour package and what is payable separately"
+          />
+          <div className="grid gap-3 sm:grid-cols-3">
+            {/* Food */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Utensils className="size-4 text-primary shrink-0" />
+                Food & Meals
+              </div>
+              {(() => {
+                const status = formatStatus(pkg.foodStatus);
+                return <Badge variant={status.variant}>{status.text}</Badge>;
+              })()}
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {pkg.foodDetails || "Details will be confirmed by guide upon booking."}
+              </p>
+            </div>
+
+            {/* Transport */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Car className="size-4 text-primary shrink-0" />
+                Transport & Transfer
+              </div>
+              {(() => {
+                const status = formatStatus(pkg.transportStatus);
+                return <Badge variant={status.variant}>{status.text}</Badge>;
+              })()}
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {pkg.transportDetails || "Details will be confirmed by guide upon booking."}
+              </p>
+            </div>
+
+            {/* Entry Fees */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Ticket className="size-4 text-primary shrink-0" />
+                Monuments & Entry Fees
+              </div>
+              {(() => {
+                const status = formatStatus(pkg.entryFeeStatus);
+                return <Badge variant={status.variant}>{status.text}</Badge>;
+              })()}
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {pkg.entryFeeDetails || "Entry tickets per place are listed below."}
+              </p>
+            </div>
+          </div>
+
+          {pkg.additionalCostsDetails ? (
+            <div className="mt-3 rounded-2xl border border-border bg-muted/40 p-3.5 text-xs text-muted-foreground flex items-start gap-2">
+              <Info className="size-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold text-foreground">Additional Cost Notes: </span>
+                {pkg.additionalCostsDetails}
+              </div>
+            </div>
+          ) : null}
+        </section>
+
+        {/* Places included in the tour */}
+        <section>
+          <SectionHeader
+            title="Itinerary & Places Included"
             subtitle={
               hiddenPlaceCount > 0
-                ? "The stops in this district"
-                : "All of them are included in the tour"
+                ? "Stops in this district included in the itinerary"
+                : "All stops included in this tour"
             }
           />
           {pkg.places.length === 0 ? (
@@ -181,13 +353,13 @@ export function PackageDetail({
             />
           ) : (
             <div className="space-y-3">
-              {pkg.places.map((place) => (
+              {pkg.places.map((place, index) => (
                 <div key={place.id} className="overflow-hidden rounded-2xl border border-border bg-card">
                   <Link
                     href={`${districtBase}/places/${place.id}`}
                     className="flex flex-col gap-3 p-3 sm:flex-row"
                   >
-                    <div className="relative h-24 w-full overflow-hidden rounded-xl sm:w-32">
+                    <div className="relative h-28 w-full overflow-hidden rounded-xl sm:w-36">
                       {place.images?.[0] ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -200,15 +372,18 @@ export function PackageDetail({
                           <MapPin className="size-4" />
                         </div>
                       )}
+                      <span className="absolute top-2 left-2 flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-sm">
+                        {index + 1}
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="truncate font-semibold">{place.name}</p>
+                          <p className="truncate font-semibold text-base">{place.name}</p>
                           <p className="text-xs text-muted-foreground">{place.districtName}</p>
                         </div>
                         <Badge variant="outline" className="shrink-0">
-                          {place.category || "Place"}
+                          {place.category || "Stop"}
                         </Badge>
                       </div>
 
@@ -219,7 +394,7 @@ export function PackageDetail({
                       ) : null}
 
                       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
                           <Ticket className="size-3.5" />
                           {priceSummary(place)}
                         </span>
@@ -231,6 +406,25 @@ export function PackageDetail({
             </div>
           )}
         </section>
+
+        {/* Cancellation Policy */}
+        {pkg.cancellationPolicy ? (
+          <section>
+            <SectionHeader
+              title="Cancellation & Booking Terms"
+              subtitle="Terms set by the guide for this package"
+            />
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2 text-sm">
+              <div className="flex items-center gap-2 font-semibold text-foreground">
+                <ShieldCheck className="size-4 text-emerald-500 shrink-0" />
+                Cancellation Policy
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {pkg.cancellationPolicy}
+              </p>
+            </div>
+          </section>
+        ) : null}
 
         <GlassCard className="gap-2 p-4">
           <Link
@@ -244,10 +438,6 @@ export function PackageDetail({
       </div>
 
       <GuideBookingSheet
-        // The sheet seeds its selection from `defaultSelectedPlaceIds` when it
-        // mounts, so keying it on the package is what makes a client-side jump
-        // from one tour to another preselect the new stops instead of keeping
-        // the previous tour's.
         key={pkg.id}
         open={bookingOpen}
         onOpenChange={setBookingOpen}
@@ -256,8 +446,6 @@ export function PackageDetail({
         stateSlug={stateSlug}
         districtId={districtId}
         placesForGuide={placesForGuide}
-        // The package's places are the reason this page exists, so they start
-        // selected rather than leaving an empty sheet.
         defaultSelectedPlaceIds={pkg.places.map((place) => place.id)}
       />
     </div>
