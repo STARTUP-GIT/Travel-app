@@ -290,6 +290,7 @@ export function GuideBookingSheet({
   const [isRequestingPickup, setIsRequestingPickup] = React.useState(false);
   const [requestedPickupName, setRequestedPickupName] = React.useState("");
   const [requestedPickupAddress, setRequestedPickupAddress] = React.useState("");
+  const [requestedPickupMapsUrl, setRequestedPickupMapsUrl] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
@@ -349,6 +350,7 @@ export function GuideBookingSheet({
           numberOfPeople,
           requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
           requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
+          requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
         });
       } else {
         await createSpecificGuideBooking({
@@ -356,8 +358,9 @@ export function GuideBookingSheet({
           bookingDate,
           bookingTime,
           numberOfPeople,
-          pickupName: isRequestingPickup ? requestedPickupName : undefined,
-          pickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
+          requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
+          requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
+          requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
         });
       }
       toast.success("Booking request sent", {
@@ -370,6 +373,7 @@ export function GuideBookingSheet({
       setIsRequestingPickup(false);
       setRequestedPickupName("");
       setRequestedPickupAddress("");
+      setRequestedPickupMapsUrl("");
     } catch (err) {
       toast.error("Couldn't create booking", {
         description: err instanceof Error ? err.message : "Please try again later.",
@@ -547,6 +551,19 @@ export function GuideBookingSheet({
                     onChange={(e) => setRequestedPickupAddress(e.target.value)}
                     className="h-9 text-xs rounded-xl"
                   />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="req-pickup-maps-url" className="text-xs">Google Maps Location Link</Label>
+                  <Input
+                    id="req-pickup-maps-url"
+                    placeholder="Paste Google Maps link for your requested pickup location"
+                    value={requestedPickupMapsUrl}
+                    onChange={(e) => setRequestedPickupMapsUrl(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                  <p className="text-[0.65rem] text-muted-foreground">
+                    Open Google Maps, select the exact location, and paste the Share link here.
+                  </p>
                 </div>
               </div>
             ) : null}

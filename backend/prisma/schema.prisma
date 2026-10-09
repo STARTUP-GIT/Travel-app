@@ -357,6 +357,12 @@ model specific_guide_booking {
   totalPrice      Float    @default(0)
   pickupName      String?
   pickupAddress   String?
+  pickupLat       Float?
+  pickupLng       Float?
+  pickupMapsUrl   String?
+  requestedPickupName String?
+  requestedPickupAddress String?
+  requestedPickupMapsUrl String?
   cancellationPolicy String?
   paymentStatus   String   @default("NOT_VERIFIED")
   rescheduleStatus String  @default("NONE")
@@ -400,9 +406,11 @@ model common_guide_booking {
   pickupAddress           String?
   pickupLat               Float?
   pickupLng               Float?
+  pickupMapsUrl           String?
   pickupRequestStatus     String   @default("DEFAULT")
   requestedPickupName     String?
   requestedPickupAddress  String?
+  requestedPickupMapsUrl  String?
   requestedPickupLat      Float?
   requestedPickupLng      Float?
   status                  bookingStatus @default(PENDING)

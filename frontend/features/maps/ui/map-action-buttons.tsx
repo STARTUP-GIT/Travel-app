@@ -2,9 +2,11 @@
 
 import { ExternalLink, Navigation } from "lucide-react";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
+  parsePoint,
   validPoint,
   buildDirectionsUrl,
   buildOpenUrl,
@@ -12,8 +14,8 @@ import {
 } from "@/features/maps/lib/geo";
 
 /**
- * Gets the user to the destination through the phone's map app(s). Both
- * actions are real deep links derived from the backend coordinates.
+ * Gets the user to the destination through Google Maps / external map app.
+ * Both actions are derived cleanly from saved place coordinates with user origin fallback.
  */
 export function MapActionButtons({
   point,
@@ -22,7 +24,8 @@ export function MapActionButtons({
   point: GeoPoint;
   label?: string;
 }) {
-  const isValid = validPoint(point);
+  const destPoint = parsePoint(point);
+  const isValid = destPoint !== null;
   const [userLocation, setUserLocation] = React.useState<GeoPoint | null>(null);
 
   React.useEffect(() => {
@@ -40,45 +43,62 @@ export function MapActionButtons({
     }
   }, []);
 
-  const handleDirectionsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!isValid) return;
-    if ("geolocation" in navigator && !userLocation) {
+  const handleDirectionsClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!destPoint) {
+      toast.error("Location coordinates are missing for this place.");
+      return;
+    }
+
+    if (userLocation) {
+      window.open(buildDirectionsUrl(destPoint, userLocation, label), "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const origin = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-          window.open(buildDirectionsUrl(point, origin), "_blank", "noopener,noreferrer");
+          setUserLocation(origin);
+          window.open(buildDirectionsUrl(destPoint, origin, label), "_blank", "noopener,noreferrer");
         },
         () => {
-          window.open(buildDirectionsUrl(point), "_blank", "noopener,noreferrer");
+          // Permission denied or timeout: origin=My+Location ensures Google Maps pre-fills origin to My Location
+          window.open(buildDirectionsUrl(destPoint, null, label), "_blank", "noopener,noreferrer");
         },
         { timeout: 3000 }
       );
-      e.preventDefault();
+    } else {
+      window.open(buildDirectionsUrl(destPoint, null, label), "_blank", "noopener,noreferrer");
     }
+  };
+
+  const handleOpenMapsClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!destPoint) {
+      toast.error("Location coordinates are missing for this place.");
+      return;
+    }
+    window.open(buildOpenUrl(destPoint, label), "_blank", "noopener,noreferrer");
   };
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Button asChild variant="action" className="rounded-xl" disabled={!isValid}>
-        <a
-          href={isValid ? buildDirectionsUrl(point, userLocation ?? undefined) : undefined}
-          onClick={handleDirectionsClick}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!isValid}
-        >
-          <Navigation className="size-4" /> Get Directions
-        </a>
+      <Button
+        variant="action"
+        className="rounded-xl"
+        disabled={!isValid}
+        onClick={handleDirectionsClick}
+      >
+        <Navigation className="size-4" /> Get Directions
       </Button>
-      <Button asChild variant="outline" className="rounded-xl" disabled={!isValid}>
-        <a
-          href={isValid ? buildOpenUrl(point, label) : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={!isValid}
-        >
-          <ExternalLink className="size-4" /> Open in Maps
-        </a>
+      <Button
+        variant="outline"
+        className="rounded-xl"
+        disabled={!isValid}
+        onClick={handleOpenMapsClick}
+      >
+        <ExternalLink className="size-4" /> Open in Maps
       </Button>
     </div>
   );

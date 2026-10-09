@@ -102,16 +102,25 @@ export function PackageCard({
               +{pkg.placeCount - pkg.places.length} elsewhere
             </Badge>
           ) : null}
+          {pkg.pickupName ? (
+            <Badge variant="outline" className="gap-1 bg-muted/30">
+              <MapPin className="size-3 text-primary" />
+              Pickup: {pkg.pickupName}
+            </Badge>
+          ) : null}
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/70 pt-3">
           <span className="text-sm">
             <span className="font-semibold text-primary">
-              {formatCurrency(person.cost * pkg.placeCount)}
+              {formatCurrency(pkg.price && pkg.price > 0 ? pkg.price : person.cost)}
             </span>
             <span className="text-muted-foreground">
-              {" "}
-              · {formatCurrency(person.cost)} / place
+              {pkg.pricingMode === "PLACE_BASED"
+                ? " · Place Based"
+                : pkg.pricingUnit === "PER_PERSON"
+                  ? " per person"
+                  : " per tour"}
             </span>
           </span>
           <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">

@@ -47,16 +47,21 @@ export const getCustomerStates = async (_req: Request, res: Response) => {
 export const getCustomerDistricts = async (req: Request, res: Response) => {
   try {
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
+    const includeAll = req.query.all === "true" || req.query.all === "1";
     const districts = await prisma.district.findMany({
       where: {
         ...(stateId ? { stateId } : {}),
-        isServiceAvailable: true,
-        state: {
-          isServiceAvailable: true,
-          country: {
-            isServiceAvailable: true,
-          },
-        },
+        ...(includeAll
+          ? {}
+          : {
+              isServiceAvailable: true,
+              state: {
+                isServiceAvailable: true,
+                country: {
+                  isServiceAvailable: true,
+                },
+              },
+            }),
       },
       include: {
         state: {

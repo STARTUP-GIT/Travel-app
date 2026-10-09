@@ -397,6 +397,10 @@ export const specificGuideBookingSchema = z.object({
   numberOfPeople: z.number().int().positive().max(100).default(1),
   pickupName: z.string().optional(),
   pickupAddress: z.string().optional(),
+  pickupMapsUrl: z.string().optional(),
+  requestedPickupName: z.string().optional(),
+  requestedPickupAddress: z.string().optional(),
+  requestedPickupMapsUrl: z.string().optional(),
 });
 
 export const commonGuideBookingSchema = z.object({
@@ -415,9 +419,11 @@ export const commonGuideBookingSchema = z.object({
   pickupAddress: z.string().optional(),
   pickupLat: z.number().optional(),
   pickupLng: z.number().optional(),
+  pickupMapsUrl: z.string().optional(),
   pickupRequestStatus: z.enum(["DEFAULT", "REQUESTED"]).default("DEFAULT"),
   requestedPickupName: z.string().optional(),
   requestedPickupAddress: z.string().optional(),
+  requestedPickupMapsUrl: z.string().optional(),
   requestedPickupLat: z.number().optional(),
   requestedPickupLng: z.number().optional(),
 });

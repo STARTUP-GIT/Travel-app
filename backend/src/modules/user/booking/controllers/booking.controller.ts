@@ -242,6 +242,10 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
         totalPrice,
         pickupName: data.pickupName ?? null,
         pickupAddress: data.pickupAddress ?? null,
+        pickupMapsUrl: data.pickupMapsUrl ?? null,
+        requestedPickupName: data.requestedPickupName ?? null,
+        requestedPickupAddress: data.requestedPickupAddress ?? null,
+        requestedPickupMapsUrl: data.requestedPickupMapsUrl ?? null,
       },
       include: { specificGuide: true, place: true, user: true },
     });
@@ -436,9 +440,11 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         pickupAddress: data.pickupAddress || pkg?.pickupAddress || null,
         pickupLat: data.pickupLat ?? pkg?.pickupLat ?? null,
         pickupLng: data.pickupLng ?? pkg?.pickupLng ?? null,
+        pickupMapsUrl: data.pickupMapsUrl || pkg?.pickupMapsUrl || null,
         pickupRequestStatus: data.pickupRequestStatus ?? "DEFAULT",
         requestedPickupName: data.requestedPickupName ?? null,
         requestedPickupAddress: data.requestedPickupAddress ?? null,
+        requestedPickupMapsUrl: data.requestedPickupMapsUrl ?? null,
         requestedPickupLat: data.requestedPickupLat ?? null,
         requestedPickupLng: data.requestedPickupLng ?? null,
         selectedPlaces: {

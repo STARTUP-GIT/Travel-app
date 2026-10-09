@@ -29,11 +29,15 @@ export type AggregateSpecific_guide_booking = {
 export type Specific_guide_bookingAvgAggregateOutputType = {
   numberOfPeople: number | null
   totalPrice: number | null
+  pickupLat: number | null
+  pickupLng: number | null
 }
 
 export type Specific_guide_bookingSumAggregateOutputType = {
   numberOfPeople: number | null
   totalPrice: number | null
+  pickupLat: number | null
+  pickupLng: number | null
 }
 
 export type Specific_guide_bookingMinAggregateOutputType = {
@@ -47,6 +51,12 @@ export type Specific_guide_bookingMinAggregateOutputType = {
   totalPrice: number | null
   pickupName: string | null
   pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   cancellationPolicy: string | null
   paymentStatus: string | null
   rescheduleStatus: string | null
@@ -68,6 +78,12 @@ export type Specific_guide_bookingMaxAggregateOutputType = {
   totalPrice: number | null
   pickupName: string | null
   pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   cancellationPolicy: string | null
   paymentStatus: string | null
   rescheduleStatus: string | null
@@ -89,6 +105,12 @@ export type Specific_guide_bookingCountAggregateOutputType = {
   totalPrice: number
   pickupName: number
   pickupAddress: number
+  pickupLat: number
+  pickupLng: number
+  pickupMapsUrl: number
+  requestedPickupName: number
+  requestedPickupAddress: number
+  requestedPickupMapsUrl: number
   cancellationPolicy: number
   paymentStatus: number
   rescheduleStatus: number
@@ -104,11 +126,15 @@ export type Specific_guide_bookingCountAggregateOutputType = {
 export type Specific_guide_bookingAvgAggregateInputType = {
   numberOfPeople?: true
   totalPrice?: true
+  pickupLat?: true
+  pickupLng?: true
 }
 
 export type Specific_guide_bookingSumAggregateInputType = {
   numberOfPeople?: true
   totalPrice?: true
+  pickupLat?: true
+  pickupLng?: true
 }
 
 export type Specific_guide_bookingMinAggregateInputType = {
@@ -122,6 +148,12 @@ export type Specific_guide_bookingMinAggregateInputType = {
   totalPrice?: true
   pickupName?: true
   pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   cancellationPolicy?: true
   paymentStatus?: true
   rescheduleStatus?: true
@@ -143,6 +175,12 @@ export type Specific_guide_bookingMaxAggregateInputType = {
   totalPrice?: true
   pickupName?: true
   pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   cancellationPolicy?: true
   paymentStatus?: true
   rescheduleStatus?: true
@@ -164,6 +202,12 @@ export type Specific_guide_bookingCountAggregateInputType = {
   totalPrice?: true
   pickupName?: true
   pickupAddress?: true
+  pickupLat?: true
+  pickupLng?: true
+  pickupMapsUrl?: true
+  requestedPickupName?: true
+  requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   cancellationPolicy?: true
   paymentStatus?: true
   rescheduleStatus?: true
@@ -272,6 +316,12 @@ export type Specific_guide_bookingGroupByOutputType = {
   totalPrice: number
   pickupName: string | null
   pickupAddress: string | null
+  pickupLat: number | null
+  pickupLng: number | null
+  pickupMapsUrl: string | null
+  requestedPickupName: string | null
+  requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   cancellationPolicy: string | null
   paymentStatus: string
   rescheduleStatus: string
@@ -316,6 +366,12 @@ export type specific_guide_bookingWhereInput = {
   totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
   pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
   rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
@@ -340,6 +396,12 @@ export type specific_guide_bookingOrderByWithRelationInput = {
   totalPrice?: Prisma.SortOrder
   pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   rescheduleStatus?: Prisma.SortOrder
@@ -367,6 +429,12 @@ export type specific_guide_bookingWhereUniqueInput = Prisma.AtLeast<{
   totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
   pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
   rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
@@ -391,6 +459,12 @@ export type specific_guide_bookingOrderByWithAggregationInput = {
   totalPrice?: Prisma.SortOrder
   pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   rescheduleStatus?: Prisma.SortOrder
@@ -420,6 +494,12 @@ export type specific_guide_bookingScalarWhereWithAggregatesInput = {
   totalPrice?: Prisma.FloatWithAggregatesFilter<"specific_guide_booking"> | number
   pickupName?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
   pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableWithAggregatesFilter<"specific_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableWithAggregatesFilter<"specific_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  requestedPickupName?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
   cancellationPolicy?: Prisma.StringNullableWithAggregatesFilter<"specific_guide_booking"> | string | null
   paymentStatus?: Prisma.StringWithAggregatesFilter<"specific_guide_booking"> | string
   rescheduleStatus?: Prisma.StringWithAggregatesFilter<"specific_guide_booking"> | string
@@ -438,6 +518,12 @@ export type specific_guide_bookingCreateInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -462,6 +548,12 @@ export type specific_guide_bookingUncheckedCreateInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -480,6 +572,12 @@ export type specific_guide_bookingUpdateInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -504,6 +602,12 @@ export type specific_guide_bookingUncheckedUpdateInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -525,6 +629,12 @@ export type specific_guide_bookingCreateManyInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -543,6 +653,12 @@ export type specific_guide_bookingUpdateManyMutationInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -564,6 +680,12 @@ export type specific_guide_bookingUncheckedUpdateManyInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -595,6 +717,12 @@ export type specific_guide_bookingCountOrderByAggregateInput = {
   totalPrice?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   cancellationPolicy?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   rescheduleStatus?: Prisma.SortOrder
@@ -608,6 +736,8 @@ export type specific_guide_bookingCountOrderByAggregateInput = {
 export type specific_guide_bookingAvgOrderByAggregateInput = {
   numberOfPeople?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
 }
 
 export type specific_guide_bookingMaxOrderByAggregateInput = {
@@ -621,6 +751,12 @@ export type specific_guide_bookingMaxOrderByAggregateInput = {
   totalPrice?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   cancellationPolicy?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   rescheduleStatus?: Prisma.SortOrder
@@ -642,6 +778,12 @@ export type specific_guide_bookingMinOrderByAggregateInput = {
   totalPrice?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
+  requestedPickupName?: Prisma.SortOrder
+  requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   cancellationPolicy?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   rescheduleStatus?: Prisma.SortOrder
@@ -655,6 +797,8 @@ export type specific_guide_bookingMinOrderByAggregateInput = {
 export type specific_guide_bookingSumOrderByAggregateInput = {
   numberOfPeople?: Prisma.SortOrder
   totalPrice?: Prisma.SortOrder
+  pickupLat?: Prisma.SortOrder
+  pickupLng?: Prisma.SortOrder
 }
 
 export type specific_guide_bookingCreateNestedManyWithoutUserInput = {
@@ -795,6 +939,12 @@ export type specific_guide_bookingCreateWithoutUserInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -817,6 +967,12 @@ export type specific_guide_bookingUncheckedCreateWithoutUserInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -867,6 +1023,12 @@ export type specific_guide_bookingScalarWhereInput = {
   totalPrice?: Prisma.FloatFilter<"specific_guide_booking"> | number
   pickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   pickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"specific_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupName?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupAddress?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   cancellationPolicy?: Prisma.StringNullableFilter<"specific_guide_booking"> | string | null
   paymentStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
   rescheduleStatus?: Prisma.StringFilter<"specific_guide_booking"> | string
@@ -885,6 +1047,12 @@ export type specific_guide_bookingCreateWithoutPlaceInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -907,6 +1075,12 @@ export type specific_guide_bookingUncheckedCreateWithoutPlaceInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -951,6 +1125,12 @@ export type specific_guide_bookingCreateWithoutSpecificGuideInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -973,6 +1153,12 @@ export type specific_guide_bookingUncheckedCreateWithoutSpecificGuideInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -1019,6 +1205,12 @@ export type specific_guide_bookingCreateManyUserInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -1037,6 +1229,12 @@ export type specific_guide_bookingUpdateWithoutUserInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1059,6 +1257,12 @@ export type specific_guide_bookingUncheckedUpdateWithoutUserInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1079,6 +1283,12 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutUserInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1099,6 +1309,12 @@ export type specific_guide_bookingCreateManyPlaceInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -1117,6 +1333,12 @@ export type specific_guide_bookingUpdateWithoutPlaceInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1139,6 +1361,12 @@ export type specific_guide_bookingUncheckedUpdateWithoutPlaceInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1159,6 +1387,12 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutPlaceInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1179,6 +1413,12 @@ export type specific_guide_bookingCreateManySpecificGuideInput = {
   totalPrice?: number
   pickupName?: string | null
   pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  requestedPickupName?: string | null
+  requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   cancellationPolicy?: string | null
   paymentStatus?: string
   rescheduleStatus?: string
@@ -1197,6 +1437,12 @@ export type specific_guide_bookingUpdateWithoutSpecificGuideInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1219,6 +1465,12 @@ export type specific_guide_bookingUncheckedUpdateWithoutSpecificGuideInput = {
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1239,6 +1491,12 @@ export type specific_guide_bookingUncheckedUpdateManyWithoutSpecificGuideInput =
   totalPrice?: Prisma.FloatFieldUpdateOperationsInput | number
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.StringFieldUpdateOperationsInput | string
   rescheduleStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1262,6 +1520,12 @@ export type specific_guide_bookingSelect<ExtArgs extends runtime.Types.Extension
   totalPrice?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   cancellationPolicy?: boolean
   paymentStatus?: boolean
   rescheduleStatus?: boolean
@@ -1286,6 +1550,12 @@ export type specific_guide_bookingSelectCreateManyAndReturn<ExtArgs extends runt
   totalPrice?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   cancellationPolicy?: boolean
   paymentStatus?: boolean
   rescheduleStatus?: boolean
@@ -1310,6 +1580,12 @@ export type specific_guide_bookingSelectUpdateManyAndReturn<ExtArgs extends runt
   totalPrice?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   cancellationPolicy?: boolean
   paymentStatus?: boolean
   rescheduleStatus?: boolean
@@ -1334,6 +1610,12 @@ export type specific_guide_bookingSelectScalar = {
   totalPrice?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
+  pickupLat?: boolean
+  pickupLng?: boolean
+  pickupMapsUrl?: boolean
+  requestedPickupName?: boolean
+  requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   cancellationPolicy?: boolean
   paymentStatus?: boolean
   rescheduleStatus?: boolean
@@ -1344,7 +1626,7 @@ export type specific_guide_bookingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type specific_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "specificGuideId" | "placeId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pickupName" | "pickupAddress" | "cancellationPolicy" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["specific_guide_booking"]>
+export type specific_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "specificGuideId" | "placeId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupMapsUrl" | "requestedPickupName" | "requestedPickupAddress" | "requestedPickupMapsUrl" | "cancellationPolicy" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["specific_guide_booking"]>
 export type specific_guide_bookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
   specificGuide?: boolean | Prisma.specific_guideDefaultArgs<ExtArgs>
@@ -1379,6 +1661,12 @@ export type $specific_guide_bookingPayload<ExtArgs extends runtime.Types.Extensi
     totalPrice: number
     pickupName: string | null
     pickupAddress: string | null
+    pickupLat: number | null
+    pickupLng: number | null
+    pickupMapsUrl: string | null
+    requestedPickupName: string | null
+    requestedPickupAddress: string | null
+    requestedPickupMapsUrl: string | null
     cancellationPolicy: string | null
     paymentStatus: string
     rescheduleStatus: string
@@ -1823,6 +2111,12 @@ export interface specific_guide_bookingFieldRefs {
   readonly totalPrice: Prisma.FieldRef<"specific_guide_booking", 'Float'>
   readonly pickupName: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly pickupAddress: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly pickupLat: Prisma.FieldRef<"specific_guide_booking", 'Float'>
+  readonly pickupLng: Prisma.FieldRef<"specific_guide_booking", 'Float'>
+  readonly pickupMapsUrl: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly requestedPickupName: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly requestedPickupAddress: Prisma.FieldRef<"specific_guide_booking", 'String'>
+  readonly requestedPickupMapsUrl: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly cancellationPolicy: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly paymentStatus: Prisma.FieldRef<"specific_guide_booking", 'String'>
   readonly rescheduleStatus: Prisma.FieldRef<"specific_guide_booking", 'String'>

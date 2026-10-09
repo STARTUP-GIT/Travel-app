@@ -73,9 +73,11 @@ export type Common_guide_bookingMinAggregateOutputType = {
   pickupAddress: string | null
   pickupLat: number | null
   pickupLng: number | null
+  pickupMapsUrl: string | null
   pickupRequestStatus: string | null
   requestedPickupName: string | null
   requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   requestedPickupLat: number | null
   requestedPickupLng: number | null
   status: $Enums.bookingStatus | null
@@ -112,9 +114,11 @@ export type Common_guide_bookingMaxAggregateOutputType = {
   pickupAddress: string | null
   pickupLat: number | null
   pickupLng: number | null
+  pickupMapsUrl: string | null
   pickupRequestStatus: string | null
   requestedPickupName: string | null
   requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   requestedPickupLat: number | null
   requestedPickupLng: number | null
   status: $Enums.bookingStatus | null
@@ -151,9 +155,11 @@ export type Common_guide_bookingCountAggregateOutputType = {
   pickupAddress: number
   pickupLat: number
   pickupLng: number
+  pickupMapsUrl: number
   pickupRequestStatus: number
   requestedPickupName: number
   requestedPickupAddress: number
+  requestedPickupMapsUrl: number
   requestedPickupLat: number
   requestedPickupLng: number
   status: number
@@ -210,9 +216,11 @@ export type Common_guide_bookingMinAggregateInputType = {
   pickupAddress?: true
   pickupLat?: true
   pickupLng?: true
+  pickupMapsUrl?: true
   pickupRequestStatus?: true
   requestedPickupName?: true
   requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   requestedPickupLat?: true
   requestedPickupLng?: true
   status?: true
@@ -249,9 +257,11 @@ export type Common_guide_bookingMaxAggregateInputType = {
   pickupAddress?: true
   pickupLat?: true
   pickupLng?: true
+  pickupMapsUrl?: true
   pickupRequestStatus?: true
   requestedPickupName?: true
   requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   requestedPickupLat?: true
   requestedPickupLng?: true
   status?: true
@@ -288,9 +298,11 @@ export type Common_guide_bookingCountAggregateInputType = {
   pickupAddress?: true
   pickupLat?: true
   pickupLng?: true
+  pickupMapsUrl?: true
   pickupRequestStatus?: true
   requestedPickupName?: true
   requestedPickupAddress?: true
+  requestedPickupMapsUrl?: true
   requestedPickupLat?: true
   requestedPickupLng?: true
   status?: true
@@ -414,9 +426,11 @@ export type Common_guide_bookingGroupByOutputType = {
   pickupAddress: string | null
   pickupLat: number | null
   pickupLng: number | null
+  pickupMapsUrl: string | null
   pickupRequestStatus: string
   requestedPickupName: string | null
   requestedPickupAddress: string | null
+  requestedPickupMapsUrl: string | null
   requestedPickupLat: number | null
   requestedPickupLng: number | null
   status: $Enums.bookingStatus
@@ -476,9 +490,11 @@ export type common_guide_bookingWhereInput = {
   pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
   requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
@@ -519,9 +535,11 @@ export type common_guide_bookingOrderByWithRelationInput = {
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupRequestStatus?: Prisma.SortOrder
   requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -565,9 +583,11 @@ export type common_guide_bookingWhereUniqueInput = Prisma.AtLeast<{
   pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
   requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
@@ -608,9 +628,11 @@ export type common_guide_bookingOrderByWithAggregationInput = {
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupRequestStatus?: Prisma.SortOrder
   requestedPickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupLat?: Prisma.SortOrderInput | Prisma.SortOrder
   requestedPickupLng?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -655,9 +677,11 @@ export type common_guide_bookingScalarWhereWithAggregatesInput = {
   pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
   pickupLat?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
   pickupLng?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
   pickupRequestStatus?: Prisma.StringWithAggregatesFilter<"common_guide_booking"> | string
   requestedPickupName?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
   requestedPickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"common_guide_booking"> | string | null
   requestedPickupLat?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
   requestedPickupLng?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusWithAggregatesFilter<"common_guide_booking"> | $Enums.bookingStatus
@@ -691,9 +715,11 @@ export type common_guide_bookingCreateInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -734,9 +760,11 @@ export type common_guide_bookingUncheckedCreateInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -771,9 +799,11 @@ export type common_guide_bookingUpdateInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -814,9 +844,11 @@ export type common_guide_bookingUncheckedUpdateInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -854,9 +886,11 @@ export type common_guide_bookingCreateManyInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -890,9 +924,11 @@ export type common_guide_bookingUpdateManyMutationInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -929,9 +965,11 @@ export type common_guide_bookingUncheckedUpdateManyInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -978,9 +1016,11 @@ export type common_guide_bookingCountOrderByAggregateInput = {
   pickupAddress?: Prisma.SortOrder
   pickupLat?: Prisma.SortOrder
   pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   pickupRequestStatus?: Prisma.SortOrder
   requestedPickupName?: Prisma.SortOrder
   requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   requestedPickupLat?: Prisma.SortOrder
   requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1026,9 +1066,11 @@ export type common_guide_bookingMaxOrderByAggregateInput = {
   pickupAddress?: Prisma.SortOrder
   pickupLat?: Prisma.SortOrder
   pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   pickupRequestStatus?: Prisma.SortOrder
   requestedPickupName?: Prisma.SortOrder
   requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   requestedPickupLat?: Prisma.SortOrder
   requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1065,9 +1107,11 @@ export type common_guide_bookingMinOrderByAggregateInput = {
   pickupAddress?: Prisma.SortOrder
   pickupLat?: Prisma.SortOrder
   pickupLng?: Prisma.SortOrder
+  pickupMapsUrl?: Prisma.SortOrder
   pickupRequestStatus?: Prisma.SortOrder
   requestedPickupName?: Prisma.SortOrder
   requestedPickupAddress?: Prisma.SortOrder
+  requestedPickupMapsUrl?: Prisma.SortOrder
   requestedPickupLat?: Prisma.SortOrder
   requestedPickupLng?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1255,9 +1299,11 @@ export type common_guide_bookingCreateWithoutUserInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1296,9 +1342,11 @@ export type common_guide_bookingUncheckedCreateWithoutUserInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1365,9 +1413,11 @@ export type common_guide_bookingScalarWhereInput = {
   pickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   pickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   pickupRequestStatus?: Prisma.StringFilter<"common_guide_booking"> | string
   requestedPickupName?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupAddress?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
+  requestedPickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_booking"> | string | null
   requestedPickupLat?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   requestedPickupLng?: Prisma.FloatNullableFilter<"common_guide_booking"> | number | null
   status?: Prisma.EnumbookingStatusFilter<"common_guide_booking"> | $Enums.bookingStatus
@@ -1401,9 +1451,11 @@ export type common_guide_bookingCreateWithoutCommonGuideInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1442,9 +1494,11 @@ export type common_guide_bookingUncheckedCreateWithoutCommonGuideInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1505,9 +1559,11 @@ export type common_guide_bookingCreateWithoutPackageInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1546,9 +1602,11 @@ export type common_guide_bookingUncheckedCreateWithoutPackageInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1609,9 +1667,11 @@ export type common_guide_bookingCreateWithoutSelectedPlacesInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1651,9 +1711,11 @@ export type common_guide_bookingUncheckedCreateWithoutSelectedPlacesInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1703,9 +1765,11 @@ export type common_guide_bookingUpdateWithoutSelectedPlacesInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -1745,9 +1809,11 @@ export type common_guide_bookingUncheckedUpdateWithoutSelectedPlacesInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -1783,9 +1849,11 @@ export type common_guide_bookingCreateManyUserInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1819,9 +1887,11 @@ export type common_guide_bookingUpdateWithoutUserInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -1860,9 +1930,11 @@ export type common_guide_bookingUncheckedUpdateWithoutUserInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -1899,9 +1971,11 @@ export type common_guide_bookingUncheckedUpdateManyWithoutUserInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -1937,9 +2011,11 @@ export type common_guide_bookingCreateManyCommonGuideInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -1973,9 +2049,11 @@ export type common_guide_bookingUpdateWithoutCommonGuideInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2014,9 +2092,11 @@ export type common_guide_bookingUncheckedUpdateWithoutCommonGuideInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2053,9 +2133,11 @@ export type common_guide_bookingUncheckedUpdateManyWithoutCommonGuideInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2091,9 +2173,11 @@ export type common_guide_bookingCreateManyPackageInput = {
   pickupAddress?: string | null
   pickupLat?: number | null
   pickupLng?: number | null
+  pickupMapsUrl?: string | null
   pickupRequestStatus?: string
   requestedPickupName?: string | null
   requestedPickupAddress?: string | null
+  requestedPickupMapsUrl?: string | null
   requestedPickupLat?: number | null
   requestedPickupLng?: number | null
   status?: $Enums.bookingStatus
@@ -2127,9 +2211,11 @@ export type common_guide_bookingUpdateWithoutPackageInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2168,9 +2254,11 @@ export type common_guide_bookingUncheckedUpdateWithoutPackageInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2207,9 +2295,11 @@ export type common_guide_bookingUncheckedUpdateManyWithoutPackageInput = {
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupRequestStatus?: Prisma.StringFieldUpdateOperationsInput | string
   requestedPickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedPickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requestedPickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   requestedPickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
@@ -2277,9 +2367,11 @@ export type common_guide_bookingSelect<ExtArgs extends runtime.Types.Extensions.
   pickupAddress?: boolean
   pickupLat?: boolean
   pickupLng?: boolean
+  pickupMapsUrl?: boolean
   pickupRequestStatus?: boolean
   requestedPickupName?: boolean
   requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   requestedPickupLat?: boolean
   requestedPickupLng?: boolean
   status?: boolean
@@ -2321,9 +2413,11 @@ export type common_guide_bookingSelectCreateManyAndReturn<ExtArgs extends runtim
   pickupAddress?: boolean
   pickupLat?: boolean
   pickupLng?: boolean
+  pickupMapsUrl?: boolean
   pickupRequestStatus?: boolean
   requestedPickupName?: boolean
   requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   requestedPickupLat?: boolean
   requestedPickupLng?: boolean
   status?: boolean
@@ -2363,9 +2457,11 @@ export type common_guide_bookingSelectUpdateManyAndReturn<ExtArgs extends runtim
   pickupAddress?: boolean
   pickupLat?: boolean
   pickupLng?: boolean
+  pickupMapsUrl?: boolean
   pickupRequestStatus?: boolean
   requestedPickupName?: boolean
   requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   requestedPickupLat?: boolean
   requestedPickupLng?: boolean
   status?: boolean
@@ -2405,9 +2501,11 @@ export type common_guide_bookingSelectScalar = {
   pickupAddress?: boolean
   pickupLat?: boolean
   pickupLng?: boolean
+  pickupMapsUrl?: boolean
   pickupRequestStatus?: boolean
   requestedPickupName?: boolean
   requestedPickupAddress?: boolean
+  requestedPickupMapsUrl?: boolean
   requestedPickupLat?: boolean
   requestedPickupLng?: boolean
   status?: boolean
@@ -2415,7 +2513,7 @@ export type common_guide_bookingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type common_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "commonGuideId" | "packageId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pricingMode" | "pricingUnit" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "transportStatus" | "transportDetails" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupRequestStatus" | "requestedPickupName" | "requestedPickupAddress" | "requestedPickupLat" | "requestedPickupLng" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_booking"]>
+export type common_guide_bookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "commonGuideId" | "packageId" | "bookingDate" | "bookingTime" | "numberOfPeople" | "totalPrice" | "pricingMode" | "pricingUnit" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "transportStatus" | "transportDetails" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "paymentStatus" | "rescheduleStatus" | "requestedBookingDate" | "requestedBookingTime" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupMapsUrl" | "pickupRequestStatus" | "requestedPickupName" | "requestedPickupAddress" | "requestedPickupMapsUrl" | "requestedPickupLat" | "requestedPickupLng" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_booking"]>
 export type common_guide_bookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   package?: boolean | Prisma.common_guide_booking$packageArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
@@ -2471,9 +2569,11 @@ export type $common_guide_bookingPayload<ExtArgs extends runtime.Types.Extension
     pickupAddress: string | null
     pickupLat: number | null
     pickupLng: number | null
+    pickupMapsUrl: string | null
     pickupRequestStatus: string
     requestedPickupName: string | null
     requestedPickupAddress: string | null
+    requestedPickupMapsUrl: string | null
     requestedPickupLat: number | null
     requestedPickupLng: number | null
     status: $Enums.bookingStatus
@@ -2934,9 +3034,11 @@ export interface common_guide_bookingFieldRefs {
   readonly pickupAddress: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly pickupLat: Prisma.FieldRef<"common_guide_booking", 'Float'>
   readonly pickupLng: Prisma.FieldRef<"common_guide_booking", 'Float'>
+  readonly pickupMapsUrl: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly pickupRequestStatus: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly requestedPickupName: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly requestedPickupAddress: Prisma.FieldRef<"common_guide_booking", 'String'>
+  readonly requestedPickupMapsUrl: Prisma.FieldRef<"common_guide_booking", 'String'>
   readonly requestedPickupLat: Prisma.FieldRef<"common_guide_booking", 'Float'>
   readonly requestedPickupLng: Prisma.FieldRef<"common_guide_booking", 'Float'>
   readonly status: Prisma.FieldRef<"common_guide_booking", 'bookingStatus'>

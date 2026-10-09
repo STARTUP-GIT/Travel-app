@@ -18,7 +18,7 @@ type DistrictResponse = {
  */
 export async function getDistricts(): Promise<DistrictRef[]> {
   return memoizedGet("locations:districts", async () => {
-    const data = await api.get<DistrictResponse>("/api/districts");
+    const data = await api.get<DistrictResponse>("/api/districts?all=true");
     return data?.districts ?? [];
   });
 }

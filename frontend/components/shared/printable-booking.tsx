@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Printer, X, Compass, MapPin, Calendar, Clock, Users, Building2, Ticket } from "lucide-react";
+import { Printer, X, Compass, MapPin, Calendar, Clock, Users, Building2, Ticket, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/utils";
@@ -28,8 +28,10 @@ export type PrintableBookingData = {
   bookingTime?: string | null;
   pickupName?: string | null;
   pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
   requestedPickupName?: string | null;
   requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
   pricingMode?: string;
   pricingUnit?: string;
   totalPrice: number;
@@ -190,16 +192,41 @@ export function PrintableBookingModal({
             </div>
 
             {/* Pickup Point */}
-            {(booking.pickupName || booking.requestedPickupName) ? (
-              <div className="rounded-xl border p-3 bg-card space-y-1">
-                <p className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
-                  <MapPin className="size-3.5 text-primary" /> Meeting / Pickup Point
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {booking.requestedPickupName
-                    ? `Requested: ${booking.requestedPickupName} (${booking.requestedPickupAddress || ""})`
-                    : `${booking.pickupName || "Agreed Pickup"} ${booking.pickupAddress ? `— ${booking.pickupAddress}` : ""}`}
-                </p>
+            {(booking.pickupName || booking.requestedPickupName || booking.pickupMapsUrl || booking.requestedPickupMapsUrl) ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border p-3.5 bg-card">
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <p className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
+                    <MapPin className="size-3.5 text-primary shrink-0" /> Meeting / Pickup Point
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {booking.requestedPickupName
+                      ? `Requested: ${booking.requestedPickupName} (${booking.requestedPickupAddress || ""})`
+                      : `${booking.pickupName || "Agreed Pickup"} ${booking.pickupAddress ? `— ${booking.pickupAddress}` : ""}`}
+                  </p>
+                </div>
+                {(booking.requestedPickupMapsUrl || booking.pickupMapsUrl) ? (
+                  <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
+                    <a
+                      href={(booking.requestedPickupMapsUrl || booking.pickupMapsUrl)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
+                    </a>
+                  </Button>
+                ) : (booking.requestedPickupName || booking.pickupName || booking.pickupAddress) ? (
+                  <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        ((booking.requestedPickupName || booking.pickupName || "") + " " + (booking.requestedPickupAddress || booking.pickupAddress || "")).trim()
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
+                    </a>
+                  </Button>
+                ) : null}
               </div>
             ) : null}
 

@@ -48,8 +48,10 @@ export type SpecificGuideBooking = {
   numberOfPeople?: number;
   pickupName?: string | null;
   pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
   requestedPickupName?: string | null;
   requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
   totalPrice?: number;
   cancellationPolicy?: string | null;
   foodStatus?: string | null;
@@ -77,8 +79,10 @@ export type CommonGuideBooking = {
   numberOfPeople?: number;
   pickupName?: string | null;
   pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
   requestedPickupName?: string | null;
   requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
   pricingMode?: string;
   pricingUnit?: string;
   totalPrice?: number;
@@ -109,6 +113,10 @@ export type CreateSpecificGuideBookingInput = {
   numberOfPeople?: number;
   pickupName?: string;
   pickupAddress?: string;
+  pickupMapsUrl?: string;
+  requestedPickupName?: string;
+  requestedPickupAddress?: string;
+  requestedPickupMapsUrl?: string;
   totalPrice?: number;
 };
 
@@ -124,8 +132,10 @@ export type CreateCommonGuideBookingInput = {
   totalPrice?: number;
   pickupName?: string;
   pickupAddress?: string;
+  pickupMapsUrl?: string;
   requestedPickupName?: string;
   requestedPickupAddress?: string;
+  requestedPickupMapsUrl?: string;
 };
 
 export type CreateReservationInput = {

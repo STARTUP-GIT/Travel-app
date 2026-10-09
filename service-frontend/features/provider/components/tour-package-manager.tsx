@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, MapPin, Pencil, Plus, Route, Trash2, X } from "lucide-react";
+import { Check, ExternalLink, MapPin, Pencil, Plus, Route, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -59,6 +59,7 @@ type Draft = {
   tripStartTime: string;
   pickupName: string;
   pickupAddress: string;
+  pickupMapsUrl: string;
   placeIds: string[];
   placePrices: Record<string, number>;
   places: Record<string, PackagePlace>;
@@ -84,6 +85,7 @@ function emptyDraft(): Draft {
     tripStartTime: "09:00 AM",
     pickupName: "",
     pickupAddress: "",
+    pickupMapsUrl: "",
     placeIds: [],
     placePrices: {},
     places: {},
@@ -124,6 +126,7 @@ function draftFrom(pkg: TourPackage): Draft {
     tripStartTime: pkg.tripStartTime ?? "09:00 AM",
     pickupName: pkg.pickupName ?? "",
     pickupAddress: pkg.pickupAddress ?? "",
+    pickupMapsUrl: pkg.pickupMapsUrl ?? "",
     placeIds: pkg.places.map((place) => place.id),
     placePrices: Object.fromEntries(pkg.places.map((p) => [p.id, p.price ?? 0])),
     places: Object.fromEntries(pkg.places.map((place) => [place.id, place])),
@@ -189,6 +192,7 @@ export function TourPackageManager({
       tripStartTime: draft.tripStartTime,
       pickupName: draft.pickupName,
       pickupAddress: draft.pickupAddress,
+      pickupMapsUrl: draft.pickupMapsUrl,
       placeIds: draft.placeIds,
       placePrices: draft.placePrices,
     };
@@ -451,6 +455,31 @@ export function TourPackageManager({
             />
           </div>
 
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="pickup-maps-url">Google Maps Location Link</Label>
+            <Input
+              id="pickup-maps-url"
+              value={draft.pickupMapsUrl}
+              placeholder="Paste Google Maps link for the meeting point"
+              onChange={(e) => setDraft({ ...draft, pickupMapsUrl: e.target.value })}
+            />
+            <p className="text-xs text-muted-foreground">
+              Open Google Maps, select the exact pickup location, and paste the Share link here. Customers can open it directly in Google Maps.
+            </p>
+            {draft.pickupMapsUrl.trim() ? (
+              <div className="pt-1">
+                <a
+                  href={draft.pickupMapsUrl.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline"
+                >
+                  <ExternalLink className="size-3.5" /> Preview / Open in Google Maps
+                </a>
+              </div>
+            ) : null}
+          </div>
+
           <div className="flex flex-col gap-3 rounded-xl border p-4 bg-card/50">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Facilities & Cost Disclosures
@@ -658,6 +687,16 @@ export function TourPackageManager({
                     <MapPin className="size-3" />
                     {pkg.pickupName}
                   </Badge>
+                ) : null}
+                {pkg.pickupMapsUrl ? (
+                  <a
+                    href={pkg.pickupMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary font-semibold hover:underline self-center"
+                  >
+                    <ExternalLink className="size-3.5" /> Open in Google Maps
+                  </a>
                 ) : null}
               </div>
 
