@@ -55,22 +55,40 @@ function buildPath(path: string, query?: HttpInit["query"]): string {
   return qs ? `${path}${path.includes("?") ? "&" : "?"}${qs}` : path;
 }
 
+function isHtml(text: string): boolean {
+  if (!text || typeof text !== "string") return false;
+  const trimmed = text.trim();
+  return (
+    trimmed.startsWith("<!DOCTYPE") ||
+    trimmed.startsWith("<html") ||
+    /<[a-z][\s\S]*>/i.test(trimmed)
+  );
+}
+
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    let message = `Request failed with status ${res.status}`;
+    let message = "We couldn't process this request. Please try again.";
     let details: unknown;
     try {
-      const data = await res.json();
-      details = data;
-      if (Array.isArray(data) && data.length) {
-        // no message in arrays
-      } else if (typeof data?.message === "string" && data.message) {
-        message = data.message;
-      } else if (typeof data === "string" && data) {
-        message = data;
+      const text = await res.text();
+      try {
+        const data = JSON.parse(text);
+        details = data;
+        if (Array.isArray(data) && data.length) {
+          // no message in arrays
+        } else if (typeof data?.message === "string" && data.message && !isHtml(data.message)) {
+          message = data.message.trim();
+        } else if (typeof data === "string" && data && !isHtml(data)) {
+          message = data.trim();
+        }
+      } catch {
+        // Non-JSON response (e.g. HTML from server/proxy error)
+        if (text && !isHtml(text) && text.trim().length < 200) {
+          message = text.trim();
+        }
       }
     } catch {
-      // non-JSON error body
+      // Body could not be read
     }
     throw new ApiError(message, res.status, details);
   }

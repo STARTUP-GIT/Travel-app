@@ -73,25 +73,48 @@ export type ActionResult<T = undefined> =
       status?: number;
     };
 
-async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
+function sanitizeErrorMessage(
+  msg: unknown,
+  fallback = "Something went wrong. Please try again."
+): string {
+  if (typeof msg !== "string" || !msg.trim()) return fallback;
+  const trimmed = msg.trim();
+  if (
+    trimmed.startsWith("<!DOCTYPE") ||
+    trimmed.startsWith("<html") ||
+    /<[a-z][\s\S]*>/i.test(trimmed)
+  ) {
+    return fallback;
+  }
+  return trimmed;
+}
+
+async function run<T>(
+  fn: () => Promise<T>,
+  fallbackMessage = "Something went wrong. Please try again."
+): Promise<ActionResult<T>> {
   try {
     return { ok: true, data: await fn() };
   } catch (error) {
     if (error instanceof ProviderApiError) {
       return {
         ok: false,
-        message: error.message,
+        message: sanitizeErrorMessage(error.message, fallbackMessage),
         fields: error.fields,
         status: error.status,
       };
     }
     if (error instanceof ApiError) {
-      return { ok: false, message: error.message, status: error.status };
+      return {
+        ok: false,
+        message: sanitizeErrorMessage(error.message, fallbackMessage),
+        status: error.status,
+      };
     }
     if (error instanceof Error && error.message) {
-      return { ok: false, message: error.message };
+      return { ok: false, message: sanitizeErrorMessage(error.message, fallbackMessage) };
     }
-    return { ok: false, message: "Something went wrong. Please try again." };
+    return { ok: false, message: fallbackMessage };
   }
 }
 
@@ -432,6 +455,11 @@ export async function setRequestStatus(
   id: string,
   status: RequestStatus
 ): Promise<ActionResult> {
+  const fallback =
+    status === "CONFIRMED"
+      ? "We couldn't accept this request. Please try again."
+      : "We couldn't update this request. Please try again.";
+
   return run(async () => {
     const session = await requireProviderSession(`/requests/${id}`);
     await updateProviderRequestStatus(session.token, session.kind, id, status);
@@ -439,7 +467,7 @@ export async function setRequestStatus(
     revalidatePath(`/requests/${id}`);
     revalidatePath("/dashboard");
     return undefined;
-  });
+  }, fallback);
 }
 
 /* -------------------------------------------------------------------------- */

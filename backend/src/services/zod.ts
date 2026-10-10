@@ -440,6 +440,7 @@ export const guideBookingStatusSchema = z.enum([
 export const bookingStatusSchema = z.enum([
   "PENDING",
   "CONFIRMED",
+  "REJECTED",
   "CANCELLED",
   "COMPLETED",
 ]);

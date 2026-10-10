@@ -73,14 +73,19 @@ async function authorized<T>(
 async function readJsonOrThrow<T>(res: Response, fallback: string): Promise<T> {
   if (!res.ok) {
     const body = await readJson<unknown>(res);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        `[provider.server] HTTP ${res.status}:`,
+        typeof body === "string" ? body.slice(0, 300) : body
+      );
+    }
     // A 4xx body is written by a controller for the person who made the request,
-    // so its wording is theirs to read. A 5xx body is whatever the failure wrote
-    // — a database message naming tables and columns, or an HTML error page from
-    // the platform — so the fallback is used instead of passing it on.
+    // so its wording is theirs to read. A 5xx body or raw HTML error page from a
+    // proxy falls back to the safe, friendly fallback message.
     const message =
       res.status >= 500
         ? fallback
-        : errorMessage(body, `${fallback} (HTTP ${res.status})`);
+        : errorMessage(body, fallback);
     throw new ProviderApiError(message, res.status, fieldErrors(body));
   }
 
@@ -1317,13 +1322,15 @@ export async function updateProviderRequestStatus(
   id: string,
   status: RequestStatus
 ): Promise<void> {
-  // All four status controllers run `statusSchema.parse(req.body)`, so the
-  // request body has to be the bare JSON string, e.g. `"CONFIRMED"`. Sending
-  // `{ status }` is answered with "Validation failed" by the backend.
+  const fallback =
+    status === "CONFIRMED"
+      ? "We couldn't accept this request. Please try again."
+      : "We couldn't update this request. Please try again.";
+
   await authorized<unknown>(requestPath(kind, id), token, {
     method: "PATCH",
-    body: JSON.stringify(status),
-    fallback: "Could not update the request",
+    body: { status },
+    fallback,
   });
 }
 

@@ -44,6 +44,16 @@ export async function backendRequest(
   });
 }
 
+export function isHtml(text: string): boolean {
+  if (!text || typeof text !== "string") return false;
+  const trimmed = text.trim();
+  return (
+    trimmed.startsWith("<!DOCTYPE") ||
+    trimmed.startsWith("<html") ||
+    /<[a-z][\s\S]*>/i.test(trimmed)
+  );
+}
+
 /** Reads a JSON body, tolerating the empty/plain-text bodies some handlers use. */
 export async function readJson<T>(res: Response): Promise<T | null> {
   const text = await res.text();
@@ -56,15 +66,24 @@ export async function readJson<T>(res: Response): Promise<T | null> {
 }
 
 export function errorMessage(data: unknown, fallback: string): string {
-  if (typeof data === "string" && data.trim()) return data;
+  if (typeof data === "string") {
+    const trimmed = data.trim();
+    if (trimmed && !isHtml(trimmed)) {
+      return trimmed;
+    }
+    return fallback;
+  }
   if (
     data &&
     typeof data === "object" &&
     "message" in data &&
-    typeof (data as { message?: unknown }).message === "string" &&
-    (data as { message: string }).message.trim()
+    typeof (data as { message?: unknown }).message === "string"
   ) {
-    return (data as { message: string }).message;
+    const msg = (data as { message: string }).message.trim();
+    if (msg && !isHtml(msg)) {
+      return msg;
+    }
+    return fallback;
   }
   return fallback;
 }

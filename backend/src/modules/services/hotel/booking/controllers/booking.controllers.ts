@@ -96,7 +96,11 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const { bookingId } = req.params as { bookingId: string };
 
-    const status = bookingStatusSchema.parse(req.body);
+    const statusValue =
+      typeof req.body === "object" && req.body !== null && "status" in req.body
+        ? (req.body as { status: unknown }).status
+        : req.body;
+    const status = bookingStatusSchema.parse(statusValue);
 
     const booking = await prisma.hotel_booking.findUnique({
       where: { id: bookingId },

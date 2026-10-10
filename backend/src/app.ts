@@ -73,7 +73,7 @@ import customerLocationRoutes from './modules/user/location/routes/location.rout
 
 
 //middlewares
-app.use(express.json());
+app.use(express.json({ strict: false }));
 app.use(cookieParser());
 
 const toOrigin = (url: string): string => {
@@ -208,5 +208,16 @@ app.get('/api/health', (req, res) => {
 
 
 
+
+// Global error-handling middleware ensuring all errors (including body-parser JSON syntax errors)
+// return clean JSON instead of Express default HTML pages.
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err instanceof SyntaxError && "status" in err && (err as { status: unknown }).status === 400 && "body" in err) {
+    return res.status(400).json({ message: "Invalid JSON payload" });
+  }
+  const status = typeof err?.status === "number" ? err.status : 500;
+  const message = typeof err?.message === "string" && err.message ? err.message : "Internal Server Error";
+  return res.status(status).json({ message });
+});
 
 export default app;

@@ -287,7 +287,11 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const { bookingId } = req.params as { bookingId: string };
 
-    const status = guideBookingStatusSchema.parse(req.body);
+    const statusValue =
+      typeof req.body === "object" && req.body !== null && "status" in req.body
+        ? (req.body as { status: unknown }).status
+        : req.body;
+    const status = guideBookingStatusSchema.parse(statusValue);
 
     const booking = await prisma.common_guide_booking.findUnique({
       where: {
