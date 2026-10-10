@@ -27,13 +27,21 @@ export type AggregateCommon_guide_package = {
 }
 
 export type Common_guide_packageAvgAggregateOutputType = {
+  maxGroupSize: number | null
   price: number | null
+  childMaxAge: number | null
+  maxChildren: number | null
+  childPrice: number | null
   pickupLat: number | null
   pickupLng: number | null
 }
 
 export type Common_guide_packageSumAggregateOutputType = {
+  maxGroupSize: number | null
   price: number | null
+  childMaxAge: number | null
+  maxChildren: number | null
+  childPrice: number | null
   pickupLat: number | null
   pickupLng: number | null
 }
@@ -43,6 +51,8 @@ export type Common_guide_packageMinAggregateOutputType = {
   commonGuideId: string | null
   name: string | null
   description: string | null
+  duration: string | null
+  maxGroupSize: number | null
   pricingMode: string | null
   pricingUnit: string | null
   price: number | null
@@ -50,11 +60,22 @@ export type Common_guide_packageMinAggregateOutputType = {
   cancellationPolicy: string | null
   foodStatus: string | null
   foodDetails: string | null
+  mealsService: string | null
+  mealDetails: string | null
   transportStatus: string | null
   transportDetails: string | null
+  transportService: string | null
   entryFeeStatus: string | null
   entryFeeDetails: string | null
   additionalCostsDetails: string | null
+  hasSpecificGuide: boolean | null
+  specificGuideId: string | null
+  childrenAllowed: boolean | null
+  childMaxAge: number | null
+  maxChildren: number | null
+  childrenCountTowardCapacity: boolean | null
+  childPrice: number | null
+  childConditions: string | null
   tripStartTime: string | null
   pickupName: string | null
   pickupAddress: string | null
@@ -70,6 +91,8 @@ export type Common_guide_packageMaxAggregateOutputType = {
   commonGuideId: string | null
   name: string | null
   description: string | null
+  duration: string | null
+  maxGroupSize: number | null
   pricingMode: string | null
   pricingUnit: string | null
   price: number | null
@@ -77,11 +100,22 @@ export type Common_guide_packageMaxAggregateOutputType = {
   cancellationPolicy: string | null
   foodStatus: string | null
   foodDetails: string | null
+  mealsService: string | null
+  mealDetails: string | null
   transportStatus: string | null
   transportDetails: string | null
+  transportService: string | null
   entryFeeStatus: string | null
   entryFeeDetails: string | null
   additionalCostsDetails: string | null
+  hasSpecificGuide: boolean | null
+  specificGuideId: string | null
+  childrenAllowed: boolean | null
+  childMaxAge: number | null
+  maxChildren: number | null
+  childrenCountTowardCapacity: boolean | null
+  childPrice: number | null
+  childConditions: string | null
   tripStartTime: string | null
   pickupName: string | null
   pickupAddress: string | null
@@ -97,6 +131,9 @@ export type Common_guide_packageCountAggregateOutputType = {
   commonGuideId: number
   name: number
   description: number
+  duration: number
+  maxGroupSize: number
+  packageImages: number
   pricingMode: number
   pricingUnit: number
   price: number
@@ -104,11 +141,24 @@ export type Common_guide_packageCountAggregateOutputType = {
   cancellationPolicy: number
   foodStatus: number
   foodDetails: number
+  mealsService: number
+  includedMeals: number
+  mealDetails: number
   transportStatus: number
   transportDetails: number
+  transportService: number
+  transportVehicles: number
   entryFeeStatus: number
   entryFeeDetails: number
   additionalCostsDetails: number
+  hasSpecificGuide: number
+  specificGuideId: number
+  childrenAllowed: number
+  childMaxAge: number
+  maxChildren: number
+  childrenCountTowardCapacity: number
+  childPrice: number
+  childConditions: number
   tripStartTime: number
   pickupName: number
   pickupAddress: number
@@ -122,13 +172,21 @@ export type Common_guide_packageCountAggregateOutputType = {
 
 
 export type Common_guide_packageAvgAggregateInputType = {
+  maxGroupSize?: true
   price?: true
+  childMaxAge?: true
+  maxChildren?: true
+  childPrice?: true
   pickupLat?: true
   pickupLng?: true
 }
 
 export type Common_guide_packageSumAggregateInputType = {
+  maxGroupSize?: true
   price?: true
+  childMaxAge?: true
+  maxChildren?: true
+  childPrice?: true
   pickupLat?: true
   pickupLng?: true
 }
@@ -138,6 +196,8 @@ export type Common_guide_packageMinAggregateInputType = {
   commonGuideId?: true
   name?: true
   description?: true
+  duration?: true
+  maxGroupSize?: true
   pricingMode?: true
   pricingUnit?: true
   price?: true
@@ -145,11 +205,22 @@ export type Common_guide_packageMinAggregateInputType = {
   cancellationPolicy?: true
   foodStatus?: true
   foodDetails?: true
+  mealsService?: true
+  mealDetails?: true
   transportStatus?: true
   transportDetails?: true
+  transportService?: true
   entryFeeStatus?: true
   entryFeeDetails?: true
   additionalCostsDetails?: true
+  hasSpecificGuide?: true
+  specificGuideId?: true
+  childrenAllowed?: true
+  childMaxAge?: true
+  maxChildren?: true
+  childrenCountTowardCapacity?: true
+  childPrice?: true
+  childConditions?: true
   tripStartTime?: true
   pickupName?: true
   pickupAddress?: true
@@ -165,6 +236,8 @@ export type Common_guide_packageMaxAggregateInputType = {
   commonGuideId?: true
   name?: true
   description?: true
+  duration?: true
+  maxGroupSize?: true
   pricingMode?: true
   pricingUnit?: true
   price?: true
@@ -172,11 +245,22 @@ export type Common_guide_packageMaxAggregateInputType = {
   cancellationPolicy?: true
   foodStatus?: true
   foodDetails?: true
+  mealsService?: true
+  mealDetails?: true
   transportStatus?: true
   transportDetails?: true
+  transportService?: true
   entryFeeStatus?: true
   entryFeeDetails?: true
   additionalCostsDetails?: true
+  hasSpecificGuide?: true
+  specificGuideId?: true
+  childrenAllowed?: true
+  childMaxAge?: true
+  maxChildren?: true
+  childrenCountTowardCapacity?: true
+  childPrice?: true
+  childConditions?: true
   tripStartTime?: true
   pickupName?: true
   pickupAddress?: true
@@ -192,6 +276,9 @@ export type Common_guide_packageCountAggregateInputType = {
   commonGuideId?: true
   name?: true
   description?: true
+  duration?: true
+  maxGroupSize?: true
+  packageImages?: true
   pricingMode?: true
   pricingUnit?: true
   price?: true
@@ -199,11 +286,24 @@ export type Common_guide_packageCountAggregateInputType = {
   cancellationPolicy?: true
   foodStatus?: true
   foodDetails?: true
+  mealsService?: true
+  includedMeals?: true
+  mealDetails?: true
   transportStatus?: true
   transportDetails?: true
+  transportService?: true
+  transportVehicles?: true
   entryFeeStatus?: true
   entryFeeDetails?: true
   additionalCostsDetails?: true
+  hasSpecificGuide?: true
+  specificGuideId?: true
+  childrenAllowed?: true
+  childMaxAge?: true
+  maxChildren?: true
+  childrenCountTowardCapacity?: true
+  childPrice?: true
+  childConditions?: true
   tripStartTime?: true
   pickupName?: true
   pickupAddress?: true
@@ -306,6 +406,9 @@ export type Common_guide_packageGroupByOutputType = {
   commonGuideId: string
   name: string
   description: string | null
+  duration: string | null
+  maxGroupSize: number | null
+  packageImages: string[]
   pricingMode: string
   pricingUnit: string
   price: number
@@ -313,11 +416,24 @@ export type Common_guide_packageGroupByOutputType = {
   cancellationPolicy: string | null
   foodStatus: string
   foodDetails: string | null
+  mealsService: string
+  includedMeals: string[]
+  mealDetails: string | null
   transportStatus: string
   transportDetails: string | null
+  transportService: string
+  transportVehicles: runtime.JsonValue | null
   entryFeeStatus: string
   entryFeeDetails: string | null
   additionalCostsDetails: string | null
+  hasSpecificGuide: boolean
+  specificGuideId: string | null
+  childrenAllowed: boolean
+  childMaxAge: number | null
+  maxChildren: number | null
+  childrenCountTowardCapacity: boolean
+  childPrice: number | null
+  childConditions: string | null
   tripStartTime: string | null
   pickupName: string | null
   pickupAddress: string | null
@@ -356,6 +472,9 @@ export type common_guide_packageWhereInput = {
   commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
   name?: Prisma.StringFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  duration?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  maxGroupSize?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  packageImages?: Prisma.StringNullableListFilter<"common_guide_package">
   pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
   pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
   price?: Prisma.FloatFilter<"common_guide_package"> | number
@@ -363,11 +482,24 @@ export type common_guide_packageWhereInput = {
   cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
   foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  mealsService?: Prisma.StringFilter<"common_guide_package"> | string
+  includedMeals?: Prisma.StringNullableListFilter<"common_guide_package">
+  mealDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
   transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportService?: Prisma.StringFilter<"common_guide_package"> | string
+  transportVehicles?: Prisma.JsonNullableFilter<"common_guide_package">
   entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
   entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  hasSpecificGuide?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  specificGuideId?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  childrenAllowed?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childMaxAge?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  maxChildren?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childPrice?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  childConditions?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
@@ -377,6 +509,7 @@ export type common_guide_packageWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
+  specificGuide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
   places?: Prisma.Common_guide_package_placesListRelationFilter
   bookings?: Prisma.Common_guide_bookingListRelationFilter
 }
@@ -386,6 +519,9 @@ export type common_guide_packageOrderByWithRelationInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  duration?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxGroupSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageImages?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
   pricingUnit?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -393,11 +529,24 @@ export type common_guide_packageOrderByWithRelationInput = {
   cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
   foodStatus?: Prisma.SortOrder
   foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  mealsService?: Prisma.SortOrder
+  includedMeals?: Prisma.SortOrder
+  mealDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   transportStatus?: Prisma.SortOrder
   transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportService?: Prisma.SortOrder
+  transportVehicles?: Prisma.SortOrderInput | Prisma.SortOrder
   entryFeeStatus?: Prisma.SortOrder
   entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasSpecificGuide?: Prisma.SortOrder
+  specificGuideId?: Prisma.SortOrderInput | Prisma.SortOrder
+  childrenAllowed?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxChildren?: Prisma.SortOrderInput | Prisma.SortOrder
+  childrenCountTowardCapacity?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  childConditions?: Prisma.SortOrderInput | Prisma.SortOrder
   tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -407,6 +556,7 @@ export type common_guide_packageOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   commonGuide?: Prisma.common_guideOrderByWithRelationInput
+  specificGuide?: Prisma.specific_guideOrderByWithRelationInput
   places?: Prisma.common_guide_package_placesOrderByRelationAggregateInput
   bookings?: Prisma.common_guide_bookingOrderByRelationAggregateInput
 }
@@ -419,6 +569,9 @@ export type common_guide_packageWhereUniqueInput = Prisma.AtLeast<{
   commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
   name?: Prisma.StringFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  duration?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  maxGroupSize?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  packageImages?: Prisma.StringNullableListFilter<"common_guide_package">
   pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
   pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
   price?: Prisma.FloatFilter<"common_guide_package"> | number
@@ -426,11 +579,24 @@ export type common_guide_packageWhereUniqueInput = Prisma.AtLeast<{
   cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
   foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  mealsService?: Prisma.StringFilter<"common_guide_package"> | string
+  includedMeals?: Prisma.StringNullableListFilter<"common_guide_package">
+  mealDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
   transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportService?: Prisma.StringFilter<"common_guide_package"> | string
+  transportVehicles?: Prisma.JsonNullableFilter<"common_guide_package">
   entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
   entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  hasSpecificGuide?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  specificGuideId?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  childrenAllowed?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childMaxAge?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  maxChildren?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childPrice?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  childConditions?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
   pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
@@ -440,6 +606,7 @@ export type common_guide_packageWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
   commonGuide?: Prisma.XOR<Prisma.Common_guideScalarRelationFilter, Prisma.common_guideWhereInput>
+  specificGuide?: Prisma.XOR<Prisma.Specific_guideNullableScalarRelationFilter, Prisma.specific_guideWhereInput> | null
   places?: Prisma.Common_guide_package_placesListRelationFilter
   bookings?: Prisma.Common_guide_bookingListRelationFilter
 }, "id">
@@ -449,6 +616,9 @@ export type common_guide_packageOrderByWithAggregationInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  duration?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxGroupSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageImages?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
   pricingUnit?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -456,11 +626,24 @@ export type common_guide_packageOrderByWithAggregationInput = {
   cancellationPolicy?: Prisma.SortOrderInput | Prisma.SortOrder
   foodStatus?: Prisma.SortOrder
   foodDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  mealsService?: Prisma.SortOrder
+  includedMeals?: Prisma.SortOrder
+  mealDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   transportStatus?: Prisma.SortOrder
   transportDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  transportService?: Prisma.SortOrder
+  transportVehicles?: Prisma.SortOrderInput | Prisma.SortOrder
   entryFeeStatus?: Prisma.SortOrder
   entryFeeDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   additionalCostsDetails?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasSpecificGuide?: Prisma.SortOrder
+  specificGuideId?: Prisma.SortOrderInput | Prisma.SortOrder
+  childrenAllowed?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxChildren?: Prisma.SortOrderInput | Prisma.SortOrder
+  childrenCountTowardCapacity?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  childConditions?: Prisma.SortOrderInput | Prisma.SortOrder
   tripStartTime?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupName?: Prisma.SortOrderInput | Prisma.SortOrder
   pickupAddress?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -484,6 +667,9 @@ export type common_guide_packageScalarWhereWithAggregatesInput = {
   commonGuideId?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   name?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  duration?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  maxGroupSize?: Prisma.IntNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  packageImages?: Prisma.StringNullableListFilter<"common_guide_package">
   pricingMode?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   pricingUnit?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   price?: Prisma.FloatWithAggregatesFilter<"common_guide_package"> | number
@@ -491,11 +677,24 @@ export type common_guide_packageScalarWhereWithAggregatesInput = {
   cancellationPolicy?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   foodStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   foodDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  mealsService?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  includedMeals?: Prisma.StringNullableListFilter<"common_guide_package">
+  mealDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   transportStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   transportDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  transportService?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
+  transportVehicles?: Prisma.JsonNullableWithAggregatesFilter<"common_guide_package">
   entryFeeStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package"> | string
   entryFeeDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   additionalCostsDetails?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  hasSpecificGuide?: Prisma.BoolWithAggregatesFilter<"common_guide_package"> | boolean
+  specificGuideId?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
+  childrenAllowed?: Prisma.BoolWithAggregatesFilter<"common_guide_package"> | boolean
+  childMaxAge?: Prisma.IntNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  maxChildren?: Prisma.IntNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  childrenCountTowardCapacity?: Prisma.BoolWithAggregatesFilter<"common_guide_package"> | boolean
+  childPrice?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package"> | number | null
+  childConditions?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   tripStartTime?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   pickupName?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
   pickupAddress?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package"> | string | null
@@ -510,6 +709,9 @@ export type common_guide_packageCreateInput = {
   id?: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -517,11 +719,23 @@ export type common_guide_packageCreateInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -531,6 +745,7 @@ export type common_guide_packageCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  specificGuide?: Prisma.specific_guideCreateNestedOneWithoutCommonGuidePackagesInput
   places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
@@ -540,6 +755,9 @@ export type common_guide_packageUncheckedCreateInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -547,11 +765,24 @@ export type common_guide_packageUncheckedCreateInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -568,6 +799,9 @@ export type common_guide_packageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -575,11 +809,23 @@ export type common_guide_packageUpdateInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -589,6 +835,7 @@ export type common_guide_packageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  specificGuide?: Prisma.specific_guideUpdateOneWithoutCommonGuidePackagesNestedInput
   places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
@@ -598,6 +845,9 @@ export type common_guide_packageUncheckedUpdateInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -605,11 +855,24 @@ export type common_guide_packageUncheckedUpdateInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -627,6 +890,9 @@ export type common_guide_packageCreateManyInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -634,11 +900,24 @@ export type common_guide_packageCreateManyInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -653,6 +932,9 @@ export type common_guide_packageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -660,11 +942,23 @@ export type common_guide_packageUpdateManyMutationInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -680,6 +974,9 @@ export type common_guide_packageUncheckedUpdateManyInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -687,11 +984,24 @@ export type common_guide_packageUncheckedUpdateManyInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -717,6 +1027,9 @@ export type common_guide_packageCountOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  maxGroupSize?: Prisma.SortOrder
+  packageImages?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
   pricingUnit?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -724,11 +1037,24 @@ export type common_guide_packageCountOrderByAggregateInput = {
   cancellationPolicy?: Prisma.SortOrder
   foodStatus?: Prisma.SortOrder
   foodDetails?: Prisma.SortOrder
+  mealsService?: Prisma.SortOrder
+  includedMeals?: Prisma.SortOrder
+  mealDetails?: Prisma.SortOrder
   transportStatus?: Prisma.SortOrder
   transportDetails?: Prisma.SortOrder
+  transportService?: Prisma.SortOrder
+  transportVehicles?: Prisma.SortOrder
   entryFeeStatus?: Prisma.SortOrder
   entryFeeDetails?: Prisma.SortOrder
   additionalCostsDetails?: Prisma.SortOrder
+  hasSpecificGuide?: Prisma.SortOrder
+  specificGuideId?: Prisma.SortOrder
+  childrenAllowed?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrder
+  maxChildren?: Prisma.SortOrder
+  childrenCountTowardCapacity?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrder
+  childConditions?: Prisma.SortOrder
   tripStartTime?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
@@ -740,7 +1066,11 @@ export type common_guide_packageCountOrderByAggregateInput = {
 }
 
 export type common_guide_packageAvgOrderByAggregateInput = {
+  maxGroupSize?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrder
+  maxChildren?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrder
   pickupLat?: Prisma.SortOrder
   pickupLng?: Prisma.SortOrder
 }
@@ -750,6 +1080,8 @@ export type common_guide_packageMaxOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  maxGroupSize?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
   pricingUnit?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -757,11 +1089,22 @@ export type common_guide_packageMaxOrderByAggregateInput = {
   cancellationPolicy?: Prisma.SortOrder
   foodStatus?: Prisma.SortOrder
   foodDetails?: Prisma.SortOrder
+  mealsService?: Prisma.SortOrder
+  mealDetails?: Prisma.SortOrder
   transportStatus?: Prisma.SortOrder
   transportDetails?: Prisma.SortOrder
+  transportService?: Prisma.SortOrder
   entryFeeStatus?: Prisma.SortOrder
   entryFeeDetails?: Prisma.SortOrder
   additionalCostsDetails?: Prisma.SortOrder
+  hasSpecificGuide?: Prisma.SortOrder
+  specificGuideId?: Prisma.SortOrder
+  childrenAllowed?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrder
+  maxChildren?: Prisma.SortOrder
+  childrenCountTowardCapacity?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrder
+  childConditions?: Prisma.SortOrder
   tripStartTime?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
@@ -777,6 +1120,8 @@ export type common_guide_packageMinOrderByAggregateInput = {
   commonGuideId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  duration?: Prisma.SortOrder
+  maxGroupSize?: Prisma.SortOrder
   pricingMode?: Prisma.SortOrder
   pricingUnit?: Prisma.SortOrder
   price?: Prisma.SortOrder
@@ -784,11 +1129,22 @@ export type common_guide_packageMinOrderByAggregateInput = {
   cancellationPolicy?: Prisma.SortOrder
   foodStatus?: Prisma.SortOrder
   foodDetails?: Prisma.SortOrder
+  mealsService?: Prisma.SortOrder
+  mealDetails?: Prisma.SortOrder
   transportStatus?: Prisma.SortOrder
   transportDetails?: Prisma.SortOrder
+  transportService?: Prisma.SortOrder
   entryFeeStatus?: Prisma.SortOrder
   entryFeeDetails?: Prisma.SortOrder
   additionalCostsDetails?: Prisma.SortOrder
+  hasSpecificGuide?: Prisma.SortOrder
+  specificGuideId?: Prisma.SortOrder
+  childrenAllowed?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrder
+  maxChildren?: Prisma.SortOrder
+  childrenCountTowardCapacity?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrder
+  childConditions?: Prisma.SortOrder
   tripStartTime?: Prisma.SortOrder
   pickupName?: Prisma.SortOrder
   pickupAddress?: Prisma.SortOrder
@@ -800,7 +1156,11 @@ export type common_guide_packageMinOrderByAggregateInput = {
 }
 
 export type common_guide_packageSumOrderByAggregateInput = {
+  maxGroupSize?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  childMaxAge?: Prisma.SortOrder
+  maxChildren?: Prisma.SortOrder
+  childPrice?: Prisma.SortOrder
   pickupLat?: Prisma.SortOrder
   pickupLng?: Prisma.SortOrder
 }
@@ -813,6 +1173,48 @@ export type Common_guide_packageScalarRelationFilter = {
 export type Common_guide_packageNullableScalarRelationFilter = {
   is?: Prisma.common_guide_packageWhereInput | null
   isNot?: Prisma.common_guide_packageWhereInput | null
+}
+
+export type common_guide_packageCreateNestedManyWithoutSpecificGuideInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput> | Prisma.common_guide_packageCreateWithoutSpecificGuideInput[] | Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput[]
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput | Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput[]
+  createMany?: Prisma.common_guide_packageCreateManySpecificGuideInputEnvelope
+  connect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+}
+
+export type common_guide_packageUncheckedCreateNestedManyWithoutSpecificGuideInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput> | Prisma.common_guide_packageCreateWithoutSpecificGuideInput[] | Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput[]
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput | Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput[]
+  createMany?: Prisma.common_guide_packageCreateManySpecificGuideInputEnvelope
+  connect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+}
+
+export type common_guide_packageUpdateManyWithoutSpecificGuideNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput> | Prisma.common_guide_packageCreateWithoutSpecificGuideInput[] | Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput[]
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput | Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput[]
+  upsert?: Prisma.common_guide_packageUpsertWithWhereUniqueWithoutSpecificGuideInput | Prisma.common_guide_packageUpsertWithWhereUniqueWithoutSpecificGuideInput[]
+  createMany?: Prisma.common_guide_packageCreateManySpecificGuideInputEnvelope
+  set?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  disconnect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  delete?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  connect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  update?: Prisma.common_guide_packageUpdateWithWhereUniqueWithoutSpecificGuideInput | Prisma.common_guide_packageUpdateWithWhereUniqueWithoutSpecificGuideInput[]
+  updateMany?: Prisma.common_guide_packageUpdateManyWithWhereWithoutSpecificGuideInput | Prisma.common_guide_packageUpdateManyWithWhereWithoutSpecificGuideInput[]
+  deleteMany?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
+}
+
+export type common_guide_packageUncheckedUpdateManyWithoutSpecificGuideNestedInput = {
+  create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput> | Prisma.common_guide_packageCreateWithoutSpecificGuideInput[] | Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput[]
+  connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput | Prisma.common_guide_packageCreateOrConnectWithoutSpecificGuideInput[]
+  upsert?: Prisma.common_guide_packageUpsertWithWhereUniqueWithoutSpecificGuideInput | Prisma.common_guide_packageUpsertWithWhereUniqueWithoutSpecificGuideInput[]
+  createMany?: Prisma.common_guide_packageCreateManySpecificGuideInputEnvelope
+  set?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  disconnect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  delete?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  connect?: Prisma.common_guide_packageWhereUniqueInput | Prisma.common_guide_packageWhereUniqueInput[]
+  update?: Prisma.common_guide_packageUpdateWithWhereUniqueWithoutSpecificGuideInput | Prisma.common_guide_packageUpdateWithWhereUniqueWithoutSpecificGuideInput[]
+  updateMany?: Prisma.common_guide_packageUpdateManyWithWhereWithoutSpecificGuideInput | Prisma.common_guide_packageUpdateManyWithWhereWithoutSpecificGuideInput[]
+  deleteMany?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
 }
 
 export type common_guide_packageCreateNestedManyWithoutCommonGuideInput = {
@@ -857,6 +1259,32 @@ export type common_guide_packageUncheckedUpdateManyWithoutCommonGuideNestedInput
   deleteMany?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
 }
 
+export type common_guide_packageCreatepackageImagesInput = {
+  set: string[]
+}
+
+export type common_guide_packageCreateincludedMealsInput = {
+  set: string[]
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type common_guide_packageUpdatepackageImagesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type common_guide_packageUpdateincludedMealsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type common_guide_packageCreateNestedOneWithoutPlacesInput = {
   create?: Prisma.XOR<Prisma.common_guide_packageCreateWithoutPlacesInput, Prisma.common_guide_packageUncheckedCreateWithoutPlacesInput>
   connectOrCreate?: Prisma.common_guide_packageCreateOrConnectWithoutPlacesInput
@@ -887,10 +1315,13 @@ export type common_guide_packageUpdateOneWithoutBookingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.common_guide_packageUpdateToOneWithWhereWithoutBookingsInput, Prisma.common_guide_packageUpdateWithoutBookingsInput>, Prisma.common_guide_packageUncheckedUpdateWithoutBookingsInput>
 }
 
-export type common_guide_packageCreateWithoutCommonGuideInput = {
+export type common_guide_packageCreateWithoutSpecificGuideInput = {
   id?: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -898,11 +1329,23 @@ export type common_guide_packageCreateWithoutCommonGuideInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -911,6 +1354,167 @@ export type common_guide_packageCreateWithoutCommonGuideInput = {
   pickupMapsUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
+}
+
+export type common_guide_packageUncheckedCreateWithoutSpecificGuideInput = {
+  id?: string
+  commonGuideId: string
+  name: string
+  description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.common_guide_package_placesUncheckedCreateNestedManyWithoutPackageInput
+  bookings?: Prisma.common_guide_bookingUncheckedCreateNestedManyWithoutPackageInput
+}
+
+export type common_guide_packageCreateOrConnectWithoutSpecificGuideInput = {
+  where: Prisma.common_guide_packageWhereUniqueInput
+  create: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput>
+}
+
+export type common_guide_packageCreateManySpecificGuideInputEnvelope = {
+  data: Prisma.common_guide_packageCreateManySpecificGuideInput | Prisma.common_guide_packageCreateManySpecificGuideInput[]
+  skipDuplicates?: boolean
+}
+
+export type common_guide_packageUpsertWithWhereUniqueWithoutSpecificGuideInput = {
+  where: Prisma.common_guide_packageWhereUniqueInput
+  update: Prisma.XOR<Prisma.common_guide_packageUpdateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedUpdateWithoutSpecificGuideInput>
+  create: Prisma.XOR<Prisma.common_guide_packageCreateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedCreateWithoutSpecificGuideInput>
+}
+
+export type common_guide_packageUpdateWithWhereUniqueWithoutSpecificGuideInput = {
+  where: Prisma.common_guide_packageWhereUniqueInput
+  data: Prisma.XOR<Prisma.common_guide_packageUpdateWithoutSpecificGuideInput, Prisma.common_guide_packageUncheckedUpdateWithoutSpecificGuideInput>
+}
+
+export type common_guide_packageUpdateManyWithWhereWithoutSpecificGuideInput = {
+  where: Prisma.common_guide_packageScalarWhereInput
+  data: Prisma.XOR<Prisma.common_guide_packageUpdateManyMutationInput, Prisma.common_guide_packageUncheckedUpdateManyWithoutSpecificGuideInput>
+}
+
+export type common_guide_packageScalarWhereInput = {
+  AND?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
+  OR?: Prisma.common_guide_packageScalarWhereInput[]
+  NOT?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
+  id?: Prisma.StringFilter<"common_guide_package"> | string
+  commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
+  name?: Prisma.StringFilter<"common_guide_package"> | string
+  description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  duration?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  maxGroupSize?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  packageImages?: Prisma.StringNullableListFilter<"common_guide_package">
+  pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
+  pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
+  price?: Prisma.FloatFilter<"common_guide_package"> | number
+  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  mealsService?: Prisma.StringFilter<"common_guide_package"> | string
+  includedMeals?: Prisma.StringNullableListFilter<"common_guide_package">
+  mealDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  transportService?: Prisma.StringFilter<"common_guide_package"> | string
+  transportVehicles?: Prisma.JsonNullableFilter<"common_guide_package">
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
+  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  hasSpecificGuide?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  specificGuideId?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  childrenAllowed?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childMaxAge?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  maxChildren?: Prisma.IntNullableFilter<"common_guide_package"> | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFilter<"common_guide_package"> | boolean
+  childPrice?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  childConditions?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  pickupLat?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupLng?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
+  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
+}
+
+export type common_guide_packageCreateWithoutCommonGuideInput = {
+  id?: string
+  name: string
+  description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  specificGuide?: Prisma.specific_guideCreateNestedOneWithoutCommonGuidePackagesInput
   places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
@@ -919,6 +1523,9 @@ export type common_guide_packageUncheckedCreateWithoutCommonGuideInput = {
   id?: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -926,11 +1533,24 @@ export type common_guide_packageUncheckedCreateWithoutCommonGuideInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -969,40 +1589,13 @@ export type common_guide_packageUpdateManyWithWhereWithoutCommonGuideInput = {
   data: Prisma.XOR<Prisma.common_guide_packageUpdateManyMutationInput, Prisma.common_guide_packageUncheckedUpdateManyWithoutCommonGuideInput>
 }
 
-export type common_guide_packageScalarWhereInput = {
-  AND?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
-  OR?: Prisma.common_guide_packageScalarWhereInput[]
-  NOT?: Prisma.common_guide_packageScalarWhereInput | Prisma.common_guide_packageScalarWhereInput[]
-  id?: Prisma.StringFilter<"common_guide_package"> | string
-  commonGuideId?: Prisma.StringFilter<"common_guide_package"> | string
-  name?: Prisma.StringFilter<"common_guide_package"> | string
-  description?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  pricingMode?: Prisma.StringFilter<"common_guide_package"> | string
-  pricingUnit?: Prisma.StringFilter<"common_guide_package"> | string
-  price?: Prisma.FloatFilter<"common_guide_package"> | number
-  allowCustomerPlaceSelection?: Prisma.BoolFilter<"common_guide_package"> | boolean
-  cancellationPolicy?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  foodStatus?: Prisma.StringFilter<"common_guide_package"> | string
-  foodDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  transportStatus?: Prisma.StringFilter<"common_guide_package"> | string
-  transportDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  entryFeeStatus?: Prisma.StringFilter<"common_guide_package"> | string
-  entryFeeDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  additionalCostsDetails?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  tripStartTime?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  pickupName?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  pickupAddress?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  pickupLat?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
-  pickupLng?: Prisma.FloatNullableFilter<"common_guide_package"> | number | null
-  pickupMapsUrl?: Prisma.StringNullableFilter<"common_guide_package"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"common_guide_package"> | Date | string
-}
-
 export type common_guide_packageCreateWithoutPlacesInput = {
   id?: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -1010,11 +1603,23 @@ export type common_guide_packageCreateWithoutPlacesInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -1024,6 +1629,7 @@ export type common_guide_packageCreateWithoutPlacesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  specificGuide?: Prisma.specific_guideCreateNestedOneWithoutCommonGuidePackagesInput
   bookings?: Prisma.common_guide_bookingCreateNestedManyWithoutPackageInput
 }
 
@@ -1032,6 +1638,9 @@ export type common_guide_packageUncheckedCreateWithoutPlacesInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -1039,11 +1648,24 @@ export type common_guide_packageUncheckedCreateWithoutPlacesInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -1075,6 +1697,9 @@ export type common_guide_packageUpdateWithoutPlacesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1082,11 +1707,23 @@ export type common_guide_packageUpdateWithoutPlacesInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1096,6 +1733,7 @@ export type common_guide_packageUpdateWithoutPlacesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  specificGuide?: Prisma.specific_guideUpdateOneWithoutCommonGuidePackagesNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
 
@@ -1104,6 +1742,9 @@ export type common_guide_packageUncheckedUpdateWithoutPlacesInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1111,11 +1752,24 @@ export type common_guide_packageUncheckedUpdateWithoutPlacesInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1131,6 +1785,9 @@ export type common_guide_packageCreateWithoutBookingsInput = {
   id?: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -1138,11 +1795,23 @@ export type common_guide_packageCreateWithoutBookingsInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -1152,6 +1821,7 @@ export type common_guide_packageCreateWithoutBookingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commonGuide: Prisma.common_guideCreateNestedOneWithoutPackagesInput
+  specificGuide?: Prisma.specific_guideCreateNestedOneWithoutCommonGuidePackagesInput
   places?: Prisma.common_guide_package_placesCreateNestedManyWithoutPackageInput
 }
 
@@ -1160,6 +1830,9 @@ export type common_guide_packageUncheckedCreateWithoutBookingsInput = {
   commonGuideId: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -1167,11 +1840,24 @@ export type common_guide_packageUncheckedCreateWithoutBookingsInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -1203,6 +1889,9 @@ export type common_guide_packageUpdateWithoutBookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1210,11 +1899,23 @@ export type common_guide_packageUpdateWithoutBookingsInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1224,6 +1925,7 @@ export type common_guide_packageUpdateWithoutBookingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  specificGuide?: Prisma.specific_guideUpdateOneWithoutCommonGuidePackagesNestedInput
   places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
 }
 
@@ -1232,6 +1934,9 @@ export type common_guide_packageUncheckedUpdateWithoutBookingsInput = {
   commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1239,11 +1944,24 @@ export type common_guide_packageUncheckedUpdateWithoutBookingsInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1255,10 +1973,14 @@ export type common_guide_packageUncheckedUpdateWithoutBookingsInput = {
   places?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedInput
 }
 
-export type common_guide_packageCreateManyCommonGuideInput = {
+export type common_guide_packageCreateManySpecificGuideInput = {
   id?: string
+  commonGuideId: string
   name: string
   description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
   pricingMode?: string
   pricingUnit?: string
   price?: number
@@ -1266,11 +1988,195 @@ export type common_guide_packageCreateManyCommonGuideInput = {
   cancellationPolicy?: string | null
   foodStatus?: string
   foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
   transportStatus?: string
   transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: string
   entryFeeDetails?: string | null
   additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
+  tripStartTime?: string | null
+  pickupName?: string | null
+  pickupAddress?: string | null
+  pickupLat?: number | null
+  pickupLng?: number | null
+  pickupMapsUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type common_guide_packageUpdateWithoutSpecificGuideInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commonGuide?: Prisma.common_guideUpdateOneRequiredWithoutPackagesNestedInput
+  places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
+}
+
+export type common_guide_packageUncheckedUpdateWithoutSpecificGuideInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedInput
+  bookings?: Prisma.common_guide_bookingUncheckedUpdateManyWithoutPackageNestedInput
+}
+
+export type common_guide_packageUncheckedUpdateManyWithoutSpecificGuideInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  commonGuideId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
+  pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  allowCustomerPlaceSelection?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type common_guide_packageCreateManyCommonGuideInput = {
+  id?: string
+  name: string
+  description?: string | null
+  duration?: string | null
+  maxGroupSize?: number | null
+  packageImages?: Prisma.common_guide_packageCreatepackageImagesInput | string[]
+  pricingMode?: string
+  pricingUnit?: string
+  price?: number
+  allowCustomerPlaceSelection?: boolean
+  cancellationPolicy?: string | null
+  foodStatus?: string
+  foodDetails?: string | null
+  mealsService?: string
+  includedMeals?: Prisma.common_guide_packageCreateincludedMealsInput | string[]
+  mealDetails?: string | null
+  transportStatus?: string
+  transportDetails?: string | null
+  transportService?: string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  entryFeeStatus?: string
+  entryFeeDetails?: string | null
+  additionalCostsDetails?: string | null
+  hasSpecificGuide?: boolean
+  specificGuideId?: string | null
+  childrenAllowed?: boolean
+  childMaxAge?: number | null
+  maxChildren?: number | null
+  childrenCountTowardCapacity?: boolean
+  childPrice?: number | null
+  childConditions?: string | null
   tripStartTime?: string | null
   pickupName?: string | null
   pickupAddress?: string | null
@@ -1285,6 +2191,9 @@ export type common_guide_packageUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1292,11 +2201,23 @@ export type common_guide_packageUpdateWithoutCommonGuideInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1305,6 +2226,7 @@ export type common_guide_packageUpdateWithoutCommonGuideInput = {
   pickupMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  specificGuide?: Prisma.specific_guideUpdateOneWithoutCommonGuidePackagesNestedInput
   places?: Prisma.common_guide_package_placesUpdateManyWithoutPackageNestedInput
   bookings?: Prisma.common_guide_bookingUpdateManyWithoutPackageNestedInput
 }
@@ -1313,6 +2235,9 @@ export type common_guide_packageUncheckedUpdateWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1320,11 +2245,24 @@ export type common_guide_packageUncheckedUpdateWithoutCommonGuideInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1341,6 +2279,9 @@ export type common_guide_packageUncheckedUpdateManyWithoutCommonGuideInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxGroupSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageImages?: Prisma.common_guide_packageUpdatepackageImagesInput | string[]
   pricingMode?: Prisma.StringFieldUpdateOperationsInput | string
   pricingUnit?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1348,11 +2289,24 @@ export type common_guide_packageUncheckedUpdateManyWithoutCommonGuideInput = {
   cancellationPolicy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   foodStatus?: Prisma.StringFieldUpdateOperationsInput | string
   foodDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mealsService?: Prisma.StringFieldUpdateOperationsInput | string
+  includedMeals?: Prisma.common_guide_packageUpdateincludedMealsInput | string[]
+  mealDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transportStatus?: Prisma.StringFieldUpdateOperationsInput | string
   transportDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transportService?: Prisma.StringFieldUpdateOperationsInput | string
+  transportVehicles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
   entryFeeDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalCostsDetails?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSpecificGuide?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  specificGuideId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  childrenAllowed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childMaxAge?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxChildren?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  childrenCountTowardCapacity?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  childPrice?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  childConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tripStartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pickupAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1408,6 +2362,9 @@ export type common_guide_packageSelect<ExtArgs extends runtime.Types.Extensions.
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  duration?: boolean
+  maxGroupSize?: boolean
+  packageImages?: boolean
   pricingMode?: boolean
   pricingUnit?: boolean
   price?: boolean
@@ -1415,11 +2372,24 @@ export type common_guide_packageSelect<ExtArgs extends runtime.Types.Extensions.
   cancellationPolicy?: boolean
   foodStatus?: boolean
   foodDetails?: boolean
+  mealsService?: boolean
+  includedMeals?: boolean
+  mealDetails?: boolean
   transportStatus?: boolean
   transportDetails?: boolean
+  transportService?: boolean
+  transportVehicles?: boolean
   entryFeeStatus?: boolean
   entryFeeDetails?: boolean
   additionalCostsDetails?: boolean
+  hasSpecificGuide?: boolean
+  specificGuideId?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: boolean
+  maxChildren?: boolean
+  childrenCountTowardCapacity?: boolean
+  childPrice?: boolean
+  childConditions?: boolean
   tripStartTime?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
@@ -1429,6 +2399,7 @@ export type common_guide_packageSelect<ExtArgs extends runtime.Types.Extensions.
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
   places?: boolean | Prisma.common_guide_package$placesArgs<ExtArgs>
   bookings?: boolean | Prisma.common_guide_package$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guide_packageCountOutputTypeDefaultArgs<ExtArgs>
@@ -1439,6 +2410,9 @@ export type common_guide_packageSelectCreateManyAndReturn<ExtArgs extends runtim
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  duration?: boolean
+  maxGroupSize?: boolean
+  packageImages?: boolean
   pricingMode?: boolean
   pricingUnit?: boolean
   price?: boolean
@@ -1446,11 +2420,24 @@ export type common_guide_packageSelectCreateManyAndReturn<ExtArgs extends runtim
   cancellationPolicy?: boolean
   foodStatus?: boolean
   foodDetails?: boolean
+  mealsService?: boolean
+  includedMeals?: boolean
+  mealDetails?: boolean
   transportStatus?: boolean
   transportDetails?: boolean
+  transportService?: boolean
+  transportVehicles?: boolean
   entryFeeStatus?: boolean
   entryFeeDetails?: boolean
   additionalCostsDetails?: boolean
+  hasSpecificGuide?: boolean
+  specificGuideId?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: boolean
+  maxChildren?: boolean
+  childrenCountTowardCapacity?: boolean
+  childPrice?: boolean
+  childConditions?: boolean
   tripStartTime?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
@@ -1460,6 +2447,7 @@ export type common_guide_packageSelectCreateManyAndReturn<ExtArgs extends runtim
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package"]>
 
 export type common_guide_packageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1467,6 +2455,9 @@ export type common_guide_packageSelectUpdateManyAndReturn<ExtArgs extends runtim
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  duration?: boolean
+  maxGroupSize?: boolean
+  packageImages?: boolean
   pricingMode?: boolean
   pricingUnit?: boolean
   price?: boolean
@@ -1474,11 +2465,24 @@ export type common_guide_packageSelectUpdateManyAndReturn<ExtArgs extends runtim
   cancellationPolicy?: boolean
   foodStatus?: boolean
   foodDetails?: boolean
+  mealsService?: boolean
+  includedMeals?: boolean
+  mealDetails?: boolean
   transportStatus?: boolean
   transportDetails?: boolean
+  transportService?: boolean
+  transportVehicles?: boolean
   entryFeeStatus?: boolean
   entryFeeDetails?: boolean
   additionalCostsDetails?: boolean
+  hasSpecificGuide?: boolean
+  specificGuideId?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: boolean
+  maxChildren?: boolean
+  childrenCountTowardCapacity?: boolean
+  childPrice?: boolean
+  childConditions?: boolean
   tripStartTime?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
@@ -1488,6 +2492,7 @@ export type common_guide_packageSelectUpdateManyAndReturn<ExtArgs extends runtim
   createdAt?: boolean
   updatedAt?: boolean
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package"]>
 
 export type common_guide_packageSelectScalar = {
@@ -1495,6 +2500,9 @@ export type common_guide_packageSelectScalar = {
   commonGuideId?: boolean
   name?: boolean
   description?: boolean
+  duration?: boolean
+  maxGroupSize?: boolean
+  packageImages?: boolean
   pricingMode?: boolean
   pricingUnit?: boolean
   price?: boolean
@@ -1502,11 +2510,24 @@ export type common_guide_packageSelectScalar = {
   cancellationPolicy?: boolean
   foodStatus?: boolean
   foodDetails?: boolean
+  mealsService?: boolean
+  includedMeals?: boolean
+  mealDetails?: boolean
   transportStatus?: boolean
   transportDetails?: boolean
+  transportService?: boolean
+  transportVehicles?: boolean
   entryFeeStatus?: boolean
   entryFeeDetails?: boolean
   additionalCostsDetails?: boolean
+  hasSpecificGuide?: boolean
+  specificGuideId?: boolean
+  childrenAllowed?: boolean
+  childMaxAge?: boolean
+  maxChildren?: boolean
+  childrenCountTowardCapacity?: boolean
+  childPrice?: boolean
+  childConditions?: boolean
   tripStartTime?: boolean
   pickupName?: boolean
   pickupAddress?: boolean
@@ -1517,24 +2538,28 @@ export type common_guide_packageSelectScalar = {
   updatedAt?: boolean
 }
 
-export type common_guide_packageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commonGuideId" | "name" | "description" | "pricingMode" | "pricingUnit" | "price" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "transportStatus" | "transportDetails" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupMapsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_package"]>
+export type common_guide_packageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commonGuideId" | "name" | "description" | "duration" | "maxGroupSize" | "packageImages" | "pricingMode" | "pricingUnit" | "price" | "allowCustomerPlaceSelection" | "cancellationPolicy" | "foodStatus" | "foodDetails" | "mealsService" | "includedMeals" | "mealDetails" | "transportStatus" | "transportDetails" | "transportService" | "transportVehicles" | "entryFeeStatus" | "entryFeeDetails" | "additionalCostsDetails" | "hasSpecificGuide" | "specificGuideId" | "childrenAllowed" | "childMaxAge" | "maxChildren" | "childrenCountTowardCapacity" | "childPrice" | "childConditions" | "tripStartTime" | "pickupName" | "pickupAddress" | "pickupLat" | "pickupLng" | "pickupMapsUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["common_guide_package"]>
 export type common_guide_packageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
   places?: boolean | Prisma.common_guide_package$placesArgs<ExtArgs>
   bookings?: boolean | Prisma.common_guide_package$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Common_guide_packageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type common_guide_packageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
 }
 export type common_guide_packageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commonGuide?: boolean | Prisma.common_guideDefaultArgs<ExtArgs>
+  specificGuide?: boolean | Prisma.common_guide_package$specificGuideArgs<ExtArgs>
 }
 
 export type $common_guide_packagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "common_guide_package"
   objects: {
     commonGuide: Prisma.$common_guidePayload<ExtArgs>
+    specificGuide: Prisma.$specific_guidePayload<ExtArgs> | null
     places: Prisma.$common_guide_package_placesPayload<ExtArgs>[]
     bookings: Prisma.$common_guide_bookingPayload<ExtArgs>[]
   }
@@ -1543,6 +2568,9 @@ export type $common_guide_packagePayload<ExtArgs extends runtime.Types.Extension
     commonGuideId: string
     name: string
     description: string | null
+    duration: string | null
+    maxGroupSize: number | null
+    packageImages: string[]
     pricingMode: string
     pricingUnit: string
     price: number
@@ -1550,11 +2578,24 @@ export type $common_guide_packagePayload<ExtArgs extends runtime.Types.Extension
     cancellationPolicy: string | null
     foodStatus: string
     foodDetails: string | null
+    mealsService: string
+    includedMeals: string[]
+    mealDetails: string | null
     transportStatus: string
     transportDetails: string | null
+    transportService: string
+    transportVehicles: runtime.JsonValue | null
     entryFeeStatus: string
     entryFeeDetails: string | null
     additionalCostsDetails: string | null
+    hasSpecificGuide: boolean
+    specificGuideId: string | null
+    childrenAllowed: boolean
+    childMaxAge: number | null
+    maxChildren: number | null
+    childrenCountTowardCapacity: boolean
+    childPrice: number | null
+    childConditions: string | null
     tripStartTime: string | null
     pickupName: string | null
     pickupAddress: string | null
@@ -1958,6 +2999,7 @@ readonly fields: common_guide_packageFieldRefs;
 export interface Prisma__common_guide_packageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   commonGuide<T extends Prisma.common_guideDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guideDefaultArgs<ExtArgs>>): Prisma.Prisma__common_guideClient<runtime.Types.Result.GetResult<Prisma.$common_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  specificGuide<T extends Prisma.common_guide_package$specificGuideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_package$specificGuideArgs<ExtArgs>>): Prisma.Prisma__specific_guideClient<runtime.Types.Result.GetResult<Prisma.$specific_guidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   places<T extends Prisma.common_guide_package$placesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_package$placesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_package_placesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.common_guide_package$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.common_guide_package$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$common_guide_bookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1993,6 +3035,9 @@ export interface common_guide_packageFieldRefs {
   readonly commonGuideId: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly name: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly description: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly duration: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly maxGroupSize: Prisma.FieldRef<"common_guide_package", 'Int'>
+  readonly packageImages: Prisma.FieldRef<"common_guide_package", 'String[]'>
   readonly pricingMode: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly pricingUnit: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly price: Prisma.FieldRef<"common_guide_package", 'Float'>
@@ -2000,11 +3045,24 @@ export interface common_guide_packageFieldRefs {
   readonly cancellationPolicy: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly foodStatus: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly foodDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly mealsService: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly includedMeals: Prisma.FieldRef<"common_guide_package", 'String[]'>
+  readonly mealDetails: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly transportStatus: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly transportDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly transportService: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly transportVehicles: Prisma.FieldRef<"common_guide_package", 'Json'>
   readonly entryFeeStatus: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly entryFeeDetails: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly additionalCostsDetails: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly hasSpecificGuide: Prisma.FieldRef<"common_guide_package", 'Boolean'>
+  readonly specificGuideId: Prisma.FieldRef<"common_guide_package", 'String'>
+  readonly childrenAllowed: Prisma.FieldRef<"common_guide_package", 'Boolean'>
+  readonly childMaxAge: Prisma.FieldRef<"common_guide_package", 'Int'>
+  readonly maxChildren: Prisma.FieldRef<"common_guide_package", 'Int'>
+  readonly childrenCountTowardCapacity: Prisma.FieldRef<"common_guide_package", 'Boolean'>
+  readonly childPrice: Prisma.FieldRef<"common_guide_package", 'Float'>
+  readonly childConditions: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly tripStartTime: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly pickupName: Prisma.FieldRef<"common_guide_package", 'String'>
   readonly pickupAddress: Prisma.FieldRef<"common_guide_package", 'String'>
@@ -2411,6 +3469,25 @@ export type common_guide_packageDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many common_guide_packages to delete.
    */
   limit?: number
+}
+
+/**
+ * common_guide_package.specificGuide
+ */
+export type common_guide_package$specificGuideArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the specific_guide
+   */
+  select?: Prisma.specific_guideSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the specific_guide
+   */
+  omit?: Prisma.specific_guideOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.specific_guideInclude<ExtArgs> | null
+  where?: Prisma.specific_guideWhereInput
 }
 
 /**

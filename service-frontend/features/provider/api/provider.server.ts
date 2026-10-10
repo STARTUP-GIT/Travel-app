@@ -38,9 +38,15 @@ import type {
   ProviderStats,
   RequestStatus,
   RestaurantRecord,
+  MealsServiceOption,
+  PlaceEntryFeeStatus,
+  PlaceVisitArrangement,
+  SpecificGuideSummary,
   TourPackage,
   TourPackageInput,
   TourPackagesResult,
+  TransportServiceOption,
+  TransportVehicleConfig,
 } from "@/features/provider/types";
 import { getDistricts } from "@/features/locations/api/locations.api";
 import { getPlaces } from "@/features/places/api/places.api";
@@ -339,6 +345,7 @@ type RawGuideProfile = {
   rating: number | null;
   description: string | null;
   placeid?: string | null;
+  status?: "PENDING" | "APPROVED" | "REJECTED";
   place?: {
     id: string;
     name: string;
@@ -346,7 +353,7 @@ type RawGuideProfile = {
     images: string[];
     entryfee: number | null;
     status: "PENDING" | "APPROVED" | "REJECTED";
-    district: { id: string; name: string; slug: string } | null;
+    district: { id: string; name: string; slug?: string } | null;
   } | null;
   isReported: boolean;
   experience: number;
@@ -396,6 +403,7 @@ export function normalizeProfile(
   return {
     id: guide.id,
     kind,
+    status: guide.status,
     name: guide.full_name,
     username: guide.username,
     email: guide.email,
@@ -570,6 +578,9 @@ type RawTourPackage = {
   id: string;
   name: string;
   description: string | null;
+  duration?: string | null;
+  maxGroupSize?: number | null;
+  packageImages?: string[] | null;
   pricingMode?: "WHOLE_TOUR" | "PLACE_BASED";
   pricingUnit?: "PER_TOUR" | "PER_PERSON";
   price?: number;
@@ -577,11 +588,25 @@ type RawTourPackage = {
   cancellationPolicy?: string | null;
   foodStatus?: string;
   foodDetails?: string | null;
+  mealsService?: MealsServiceOption;
+  includedMeals?: string[] | null;
+  mealDetails?: string | null;
   transportStatus?: string;
   transportDetails?: string | null;
+  transportService?: TransportServiceOption;
+  transportVehicles?: TransportVehicleConfig[] | null;
   entryFeeStatus?: string;
   entryFeeDetails?: string | null;
   additionalCostsDetails?: string | null;
+  hasSpecificGuide?: boolean;
+  specificGuideId?: string | null;
+  specificGuide?: SpecificGuideSummary | null;
+  childrenAllowed?: boolean;
+  childMaxAge?: number | null;
+  maxChildren?: number | null;
+  childrenCountTowardCapacity?: boolean;
+  childPrice?: number | null;
+  childConditions?: string | null;
   tripStartTime?: string | null;
   pickupName?: string | null;
   pickupAddress?: string | null;
@@ -590,7 +615,14 @@ type RawTourPackage = {
   pickupMapsUrl?: string | null;
   createdAt: string;
   updatedAt: string;
-  places: (RawPackagePlace & { price?: number | null })[];
+  places: (RawPackagePlace & {
+    price?: number | null;
+    itineraryOrder?: number;
+    visitArrangement?: PlaceVisitArrangement;
+    expectedDuration?: string | null;
+    entryFeeStatus?: PlaceEntryFeeStatus;
+    entryFeeAmount?: number | null;
+  })[];
 };
 
 /** The guide-scoped district place list, as the backend selects it. */
@@ -611,6 +643,9 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
     id: raw.id,
     name: raw.name,
     description: raw.description ?? null,
+    duration: raw.duration ?? null,
+    maxGroupSize: raw.maxGroupSize ?? null,
+    packageImages: raw.packageImages ?? [],
     pricingMode: raw.pricingMode ?? "WHOLE_TOUR",
     pricingUnit: raw.pricingUnit ?? "PER_TOUR",
     price: raw.price ?? 0,
@@ -618,11 +653,25 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
     cancellationPolicy: raw.cancellationPolicy ?? null,
     foodStatus: raw.foodStatus ?? "EXCLUDED",
     foodDetails: raw.foodDetails ?? null,
+    mealsService: raw.mealsService ?? "NO_SERVICE",
+    includedMeals: raw.includedMeals ?? [],
+    mealDetails: raw.mealDetails ?? null,
     transportStatus: raw.transportStatus ?? "EXCLUDED",
     transportDetails: raw.transportDetails ?? null,
+    transportService: raw.transportService ?? "NO_SERVICE",
+    transportVehicles: raw.transportVehicles ?? null,
     entryFeeStatus: raw.entryFeeStatus ?? "EXCLUDED",
     entryFeeDetails: raw.entryFeeDetails ?? null,
     additionalCostsDetails: raw.additionalCostsDetails ?? null,
+    hasSpecificGuide: Boolean(raw.hasSpecificGuide),
+    specificGuideId: raw.specificGuideId ?? null,
+    specificGuide: raw.specificGuide ?? null,
+    childrenAllowed: raw.childrenAllowed ?? true,
+    childMaxAge: raw.childMaxAge ?? null,
+    maxChildren: raw.maxChildren ?? null,
+    childrenCountTowardCapacity: raw.childrenCountTowardCapacity ?? true,
+    childPrice: raw.childPrice ?? null,
+    childConditions: raw.childConditions ?? null,
     tripStartTime: raw.tripStartTime ?? null,
     pickupName: raw.pickupName ?? null,
     pickupAddress: raw.pickupAddress ?? null,
@@ -639,6 +688,11 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
       category: place.category ?? "",
       entryfee: place.entryfee ?? null,
       price: place.price ?? null,
+      itineraryOrder: place.itineraryOrder ?? 0,
+      visitArrangement: place.visitArrangement ?? "GUIDED",
+      expectedDuration: place.expectedDuration ?? null,
+      entryFeeStatus: place.entryFeeStatus ?? "EXCLUDED",
+      entryFeeAmount: place.entryFeeAmount ?? null,
       pricing: place.pricing ?? [],
       district: place.district ?? null,
     })),
@@ -651,6 +705,9 @@ export function packagePayload(
   return {
     name: input.name,
     description: input.description.trim() ? input.description.trim() : null,
+    duration: input.duration?.trim() || null,
+    maxGroupSize: input.maxGroupSize !== undefined && input.maxGroupSize !== null ? Number(input.maxGroupSize) : null,
+    packageImages: input.packageImages ?? [],
     pricingMode: input.pricingMode ?? "WHOLE_TOUR",
     pricingUnit: input.pricingUnit ?? "PER_TOUR",
     price: input.price ?? 0,
@@ -658,11 +715,24 @@ export function packagePayload(
     cancellationPolicy: input.cancellationPolicy?.trim() || null,
     foodStatus: input.foodStatus || "EXCLUDED",
     foodDetails: input.foodDetails?.trim() || null,
+    mealsService: input.mealsService ?? "NO_SERVICE",
+    includedMeals: input.includedMeals ?? [],
+    mealDetails: input.mealDetails?.trim() || null,
     transportStatus: input.transportStatus || "EXCLUDED",
     transportDetails: input.transportDetails?.trim() || null,
+    transportService: input.transportService ?? "NO_SERVICE",
+    transportVehicles: input.transportVehicles ?? null,
     entryFeeStatus: input.entryFeeStatus || "EXCLUDED",
     entryFeeDetails: input.entryFeeDetails?.trim() || null,
     additionalCostsDetails: input.additionalCostsDetails?.trim() || null,
+    hasSpecificGuide: Boolean(input.hasSpecificGuide),
+    specificGuideId: input.specificGuideId || null,
+    childrenAllowed: input.childrenAllowed ?? true,
+    childMaxAge: input.childMaxAge !== undefined && input.childMaxAge !== null ? Number(input.childMaxAge) : null,
+    maxChildren: input.maxChildren !== undefined && input.maxChildren !== null ? Number(input.maxChildren) : null,
+    childrenCountTowardCapacity: input.childrenCountTowardCapacity ?? true,
+    childPrice: input.childPrice !== undefined && input.childPrice !== null ? Number(input.childPrice) : null,
+    childConditions: input.childConditions?.trim() || null,
     tripStartTime: input.tripStartTime?.trim() || null,
     pickupName: input.pickupName?.trim() || null,
     pickupAddress: input.pickupAddress?.trim() || null,
@@ -671,6 +741,7 @@ export function packagePayload(
     pickupMapsUrl: input.pickupMapsUrl?.trim() || null,
     placeIds: input.placeIds,
     placePrices: input.placePrices ?? {},
+    placeItinerary: input.placeItinerary ?? [],
   };
 }
 
@@ -1186,6 +1257,13 @@ type RawSpecificGuideBooking = {
   bookingDate: string;
   bookingTime: string | null;
   status: RequestStatus;
+  numberOfPeople?: number;
+  totalPrice?: number;
+  isPackageTour?: boolean;
+  packageName?: string;
+  tourGuideName?: string;
+  agencyName?: string;
+  specificGuideStatus?: string;
   createdAt: string;
   user: RawCustomer;
   place: RawPlace | null;
@@ -1197,6 +1275,14 @@ type RawCommonGuideBooking = {
   bookingDate: string;
   bookingTime: string | null;
   status: RequestStatus;
+  numberOfPeople?: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
+  totalPrice?: number;
+  package?: { id: string; name: string } | null;
+  specificGuide?: { id: string; full_name: string } | null;
+  specificGuideStatus?: string | null;
+  bookingSnapshot?: unknown;
   createdAt: string;
   user: RawCustomer;
   selectedPlaces: { id: string; placeId: string; place: RawPlace | null }[];
@@ -1267,16 +1353,18 @@ export async function getProviderRequests(
       id: row.id,
       kind: "specific_guide_booking" as ProviderRequestKind,
       listingId: row.placeId,
-      listingName: row.place?.name ?? "Guided visit",
+      listingName: row.isPackageTour
+        ? `${row.packageName || "Package Tour"} (${row.agencyName || row.tourGuideName || "Tour Guide"})`
+        : (row.place?.name ?? "Guided visit"),
       listingImage: null,
       customer: customer(row.user),
       status: row.status,
       date: row.bookingDate,
       endDate: null,
       time: row.bookingTime ?? null,
-      guests: null,
+      guests: typeof row.numberOfPeople === "number" ? row.numberOfPeople : 1,
       rooms: null,
-      amount: null,
+      amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
       places: row.place ? [{ id: row.place.id, name: row.place.name }] : [],
       createdAt: row.createdAt,
     }));
@@ -1296,24 +1384,41 @@ export async function getProviderRequests(
         name: (entry.place as RawPlace).name,
       }));
 
+    const guestCount =
+      typeof row.numberOfPeople === "number" && row.numberOfPeople > 0
+        ? row.numberOfPeople
+        : (row.numberOfAdults ?? 1) + (row.numberOfChildren ?? 0);
+
     return {
       id: row.id,
       kind: "common_guide_booking" as ProviderRequestKind,
       listingId: row.commonGuideId,
-      listingName: places.map((place) => place.name).join(", ") || "Guided tour",
+      listingName:
+        row.package?.name ??
+        (places.map((place) => place.name).join(", ") || "Guided tour"),
       listingImage: null,
       customer: customer(row.user),
       status: row.status,
       date: row.bookingDate,
       endDate: null,
       time: row.bookingTime ?? null,
-      guests: null,
+      guests: guestCount,
       rooms: null,
-      amount: null,
+      amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
       places,
       createdAt: row.createdAt,
     };
   });
+}
+
+export async function getAvailableSpecificGuides(
+  token: string
+): Promise<SpecificGuideSummary[]> {
+  return authorized<SpecificGuideSummary[]>(
+    "/services/provider/commonguide/profile/api/specific-guides",
+    token,
+    { fallback: "Could not load available specific guides" }
+  );
 }
 
 export async function updateProviderRequestStatus(

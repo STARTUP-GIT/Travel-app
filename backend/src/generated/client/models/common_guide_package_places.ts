@@ -28,10 +28,14 @@ export type AggregateCommon_guide_package_places = {
 
 export type Common_guide_package_placesAvgAggregateOutputType = {
   price: number | null
+  itineraryOrder: number | null
+  entryFeeAmount: number | null
 }
 
 export type Common_guide_package_placesSumAggregateOutputType = {
   price: number | null
+  itineraryOrder: number | null
+  entryFeeAmount: number | null
 }
 
 export type Common_guide_package_placesMinAggregateOutputType = {
@@ -39,6 +43,11 @@ export type Common_guide_package_placesMinAggregateOutputType = {
   packageId: string | null
   placeId: string | null
   price: number | null
+  itineraryOrder: number | null
+  visitArrangement: string | null
+  expectedDuration: string | null
+  entryFeeStatus: string | null
+  entryFeeAmount: number | null
 }
 
 export type Common_guide_package_placesMaxAggregateOutputType = {
@@ -46,6 +55,11 @@ export type Common_guide_package_placesMaxAggregateOutputType = {
   packageId: string | null
   placeId: string | null
   price: number | null
+  itineraryOrder: number | null
+  visitArrangement: string | null
+  expectedDuration: string | null
+  entryFeeStatus: string | null
+  entryFeeAmount: number | null
 }
 
 export type Common_guide_package_placesCountAggregateOutputType = {
@@ -53,16 +67,25 @@ export type Common_guide_package_placesCountAggregateOutputType = {
   packageId: number
   placeId: number
   price: number
+  itineraryOrder: number
+  visitArrangement: number
+  expectedDuration: number
+  entryFeeStatus: number
+  entryFeeAmount: number
   _all: number
 }
 
 
 export type Common_guide_package_placesAvgAggregateInputType = {
   price?: true
+  itineraryOrder?: true
+  entryFeeAmount?: true
 }
 
 export type Common_guide_package_placesSumAggregateInputType = {
   price?: true
+  itineraryOrder?: true
+  entryFeeAmount?: true
 }
 
 export type Common_guide_package_placesMinAggregateInputType = {
@@ -70,6 +93,11 @@ export type Common_guide_package_placesMinAggregateInputType = {
   packageId?: true
   placeId?: true
   price?: true
+  itineraryOrder?: true
+  visitArrangement?: true
+  expectedDuration?: true
+  entryFeeStatus?: true
+  entryFeeAmount?: true
 }
 
 export type Common_guide_package_placesMaxAggregateInputType = {
@@ -77,6 +105,11 @@ export type Common_guide_package_placesMaxAggregateInputType = {
   packageId?: true
   placeId?: true
   price?: true
+  itineraryOrder?: true
+  visitArrangement?: true
+  expectedDuration?: true
+  entryFeeStatus?: true
+  entryFeeAmount?: true
 }
 
 export type Common_guide_package_placesCountAggregateInputType = {
@@ -84,6 +117,11 @@ export type Common_guide_package_placesCountAggregateInputType = {
   packageId?: true
   placeId?: true
   price?: true
+  itineraryOrder?: true
+  visitArrangement?: true
+  expectedDuration?: true
+  entryFeeStatus?: true
+  entryFeeAmount?: true
   _all?: true
 }
 
@@ -178,6 +216,11 @@ export type Common_guide_package_placesGroupByOutputType = {
   packageId: string
   placeId: string
   price: number | null
+  itineraryOrder: number
+  visitArrangement: string
+  expectedDuration: string | null
+  entryFeeStatus: string
+  entryFeeAmount: number | null
   _count: Common_guide_package_placesCountAggregateOutputType | null
   _avg: Common_guide_package_placesAvgAggregateOutputType | null
   _sum: Common_guide_package_placesSumAggregateOutputType | null
@@ -208,6 +251,11 @@ export type common_guide_package_placesWhereInput = {
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
   price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
+  itineraryOrder?: Prisma.IntFilter<"common_guide_package_places"> | number
+  visitArrangement?: Prisma.StringFilter<"common_guide_package_places"> | string
+  expectedDuration?: Prisma.StringNullableFilter<"common_guide_package_places"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package_places"> | string
+  entryFeeAmount?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
   package?: Prisma.XOR<Prisma.Common_guide_packageScalarRelationFilter, Prisma.common_guide_packageWhereInput>
   place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
 }
@@ -217,6 +265,11 @@ export type common_guide_package_placesOrderByWithRelationInput = {
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  visitArrangement?: Prisma.SortOrder
+  expectedDuration?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   package?: Prisma.common_guide_packageOrderByWithRelationInput
   place?: Prisma.placeOrderByWithRelationInput
 }
@@ -230,6 +283,11 @@ export type common_guide_package_placesWhereUniqueInput = Prisma.AtLeast<{
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
   price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
+  itineraryOrder?: Prisma.IntFilter<"common_guide_package_places"> | number
+  visitArrangement?: Prisma.StringFilter<"common_guide_package_places"> | string
+  expectedDuration?: Prisma.StringNullableFilter<"common_guide_package_places"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package_places"> | string
+  entryFeeAmount?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
   package?: Prisma.XOR<Prisma.Common_guide_packageScalarRelationFilter, Prisma.common_guide_packageWhereInput>
   place?: Prisma.XOR<Prisma.PlaceScalarRelationFilter, Prisma.placeWhereInput>
 }, "id" | "packageId_placeId">
@@ -239,6 +297,11 @@ export type common_guide_package_placesOrderByWithAggregationInput = {
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
   price?: Prisma.SortOrderInput | Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  visitArrangement?: Prisma.SortOrder
+  expectedDuration?: Prisma.SortOrderInput | Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.common_guide_package_placesCountOrderByAggregateInput
   _avg?: Prisma.common_guide_package_placesAvgOrderByAggregateInput
   _max?: Prisma.common_guide_package_placesMaxOrderByAggregateInput
@@ -254,11 +317,21 @@ export type common_guide_package_placesScalarWhereWithAggregatesInput = {
   packageId?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
   price?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package_places"> | number | null
+  itineraryOrder?: Prisma.IntWithAggregatesFilter<"common_guide_package_places"> | number
+  visitArrangement?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
+  expectedDuration?: Prisma.StringNullableWithAggregatesFilter<"common_guide_package_places"> | string | null
+  entryFeeStatus?: Prisma.StringWithAggregatesFilter<"common_guide_package_places"> | string
+  entryFeeAmount?: Prisma.FloatNullableWithAggregatesFilter<"common_guide_package_places"> | number | null
 }
 
 export type common_guide_package_placesCreateInput = {
   id?: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
   package: Prisma.common_guide_packageCreateNestedOneWithoutPlacesInput
   place: Prisma.placeCreateNestedOneWithoutCommonGuidePackagePlacesInput
 }
@@ -268,11 +341,21 @@ export type common_guide_package_placesUncheckedCreateInput = {
   packageId: string
   placeId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   package?: Prisma.common_guide_packageUpdateOneRequiredWithoutPlacesNestedInput
   place?: Prisma.placeUpdateOneRequiredWithoutCommonGuidePackagePlacesNestedInput
 }
@@ -282,6 +365,11 @@ export type common_guide_package_placesUncheckedUpdateInput = {
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesCreateManyInput = {
@@ -289,11 +377,21 @@ export type common_guide_package_placesCreateManyInput = {
   packageId: string
   placeId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyInput = {
@@ -301,6 +399,11 @@ export type common_guide_package_placesUncheckedUpdateManyInput = {
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type Common_guide_package_placesListRelationFilter = {
@@ -323,10 +426,17 @@ export type common_guide_package_placesCountOrderByAggregateInput = {
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  visitArrangement?: Prisma.SortOrder
+  expectedDuration?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesMaxOrderByAggregateInput = {
@@ -334,6 +444,11 @@ export type common_guide_package_placesMaxOrderByAggregateInput = {
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  visitArrangement?: Prisma.SortOrder
+  expectedDuration?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesMinOrderByAggregateInput = {
@@ -341,10 +456,17 @@ export type common_guide_package_placesMinOrderByAggregateInput = {
   packageId?: Prisma.SortOrder
   placeId?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  visitArrangement?: Prisma.SortOrder
+  expectedDuration?: Prisma.SortOrder
+  entryFeeStatus?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  itineraryOrder?: Prisma.SortOrder
+  entryFeeAmount?: Prisma.SortOrder
 }
 
 export type common_guide_package_placesCreateNestedManyWithoutPlaceInput = {
@@ -434,6 +556,11 @@ export type common_guide_package_placesUncheckedUpdateManyWithoutPackageNestedIn
 export type common_guide_package_placesCreateWithoutPlaceInput = {
   id?: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
   package: Prisma.common_guide_packageCreateNestedOneWithoutPlacesInput
 }
 
@@ -441,6 +568,11 @@ export type common_guide_package_placesUncheckedCreateWithoutPlaceInput = {
   id?: string
   packageId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesCreateOrConnectWithoutPlaceInput = {
@@ -477,11 +609,21 @@ export type common_guide_package_placesScalarWhereInput = {
   packageId?: Prisma.StringFilter<"common_guide_package_places"> | string
   placeId?: Prisma.StringFilter<"common_guide_package_places"> | string
   price?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
+  itineraryOrder?: Prisma.IntFilter<"common_guide_package_places"> | number
+  visitArrangement?: Prisma.StringFilter<"common_guide_package_places"> | string
+  expectedDuration?: Prisma.StringNullableFilter<"common_guide_package_places"> | string | null
+  entryFeeStatus?: Prisma.StringFilter<"common_guide_package_places"> | string
+  entryFeeAmount?: Prisma.FloatNullableFilter<"common_guide_package_places"> | number | null
 }
 
 export type common_guide_package_placesCreateWithoutPackageInput = {
   id?: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
   place: Prisma.placeCreateNestedOneWithoutCommonGuidePackagePlacesInput
 }
 
@@ -489,6 +631,11 @@ export type common_guide_package_placesUncheckedCreateWithoutPackageInput = {
   id?: string
   placeId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesCreateOrConnectWithoutPackageInput = {
@@ -521,11 +668,21 @@ export type common_guide_package_placesCreateManyPlaceInput = {
   id?: string
   packageId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesUpdateWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   package?: Prisma.common_guide_packageUpdateOneRequiredWithoutPlacesNestedInput
 }
 
@@ -533,23 +690,43 @@ export type common_guide_package_placesUncheckedUpdateWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyWithoutPlaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   packageId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesCreateManyPackageInput = {
   id?: string
   placeId: string
   price?: number | null
+  itineraryOrder?: number
+  visitArrangement?: string
+  expectedDuration?: string | null
+  entryFeeStatus?: string
+  entryFeeAmount?: number | null
 }
 
 export type common_guide_package_placesUpdateWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   place?: Prisma.placeUpdateOneRequiredWithoutCommonGuidePackagePlacesNestedInput
 }
 
@@ -557,12 +734,22 @@ export type common_guide_package_placesUncheckedUpdateWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type common_guide_package_placesUncheckedUpdateManyWithoutPackageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   placeId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  itineraryOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  visitArrangement?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedDuration?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entryFeeStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  entryFeeAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 
@@ -572,6 +759,11 @@ export type common_guide_package_placesSelect<ExtArgs extends runtime.Types.Exte
   packageId?: boolean
   placeId?: boolean
   price?: boolean
+  itineraryOrder?: boolean
+  visitArrangement?: boolean
+  expectedDuration?: boolean
+  entryFeeStatus?: boolean
+  entryFeeAmount?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -581,6 +773,11 @@ export type common_guide_package_placesSelectCreateManyAndReturn<ExtArgs extends
   packageId?: boolean
   placeId?: boolean
   price?: boolean
+  itineraryOrder?: boolean
+  visitArrangement?: boolean
+  expectedDuration?: boolean
+  entryFeeStatus?: boolean
+  entryFeeAmount?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -590,6 +787,11 @@ export type common_guide_package_placesSelectUpdateManyAndReturn<ExtArgs extends
   packageId?: boolean
   placeId?: boolean
   price?: boolean
+  itineraryOrder?: boolean
+  visitArrangement?: boolean
+  expectedDuration?: boolean
+  entryFeeStatus?: boolean
+  entryFeeAmount?: boolean
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["common_guide_package_places"]>
@@ -599,9 +801,14 @@ export type common_guide_package_placesSelectScalar = {
   packageId?: boolean
   placeId?: boolean
   price?: boolean
+  itineraryOrder?: boolean
+  visitArrangement?: boolean
+  expectedDuration?: boolean
+  entryFeeStatus?: boolean
+  entryFeeAmount?: boolean
 }
 
-export type common_guide_package_placesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "placeId" | "price", ExtArgs["result"]["common_guide_package_places"]>
+export type common_guide_package_placesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "packageId" | "placeId" | "price" | "itineraryOrder" | "visitArrangement" | "expectedDuration" | "entryFeeStatus" | "entryFeeAmount", ExtArgs["result"]["common_guide_package_places"]>
 export type common_guide_package_placesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   package?: boolean | Prisma.common_guide_packageDefaultArgs<ExtArgs>
   place?: boolean | Prisma.placeDefaultArgs<ExtArgs>
@@ -626,6 +833,11 @@ export type $common_guide_package_placesPayload<ExtArgs extends runtime.Types.Ex
     packageId: string
     placeId: string
     price: number | null
+    itineraryOrder: number
+    visitArrangement: string
+    expectedDuration: string | null
+    entryFeeStatus: string
+    entryFeeAmount: number | null
   }, ExtArgs["result"]["common_guide_package_places"]>
   composites: {}
 }
@@ -1055,6 +1267,11 @@ export interface common_guide_package_placesFieldRefs {
   readonly packageId: Prisma.FieldRef<"common_guide_package_places", 'String'>
   readonly placeId: Prisma.FieldRef<"common_guide_package_places", 'String'>
   readonly price: Prisma.FieldRef<"common_guide_package_places", 'Float'>
+  readonly itineraryOrder: Prisma.FieldRef<"common_guide_package_places", 'Int'>
+  readonly visitArrangement: Prisma.FieldRef<"common_guide_package_places", 'String'>
+  readonly expectedDuration: Prisma.FieldRef<"common_guide_package_places", 'String'>
+  readonly entryFeeStatus: Prisma.FieldRef<"common_guide_package_places", 'String'>
+  readonly entryFeeAmount: Prisma.FieldRef<"common_guide_package_places", 'Float'>
 }
     
 

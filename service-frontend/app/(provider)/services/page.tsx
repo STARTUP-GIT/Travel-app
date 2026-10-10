@@ -1,20 +1,45 @@
-import { Compass, Plus, Store } from "lucide-react";
+import { Compass, Plus, Route, Store } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 import { NoticeState, EmptyState, ErrorState } from "@/components/shared/states";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { loadListings } from "@/features/provider/api/provider.actions";
+import { loadListings, loadTourPackages } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
 import { ListingRow } from "@/features/provider/components/listing-row";
+import { TourPackageManager } from "@/features/provider/components/tour-package-manager";
 
 export const metadata: Metadata = { title: "My services" };
 
 export default async function ServicesPage() {
   const session = await requireProviderSession("/services");
   const meta = providerMeta(session.kind);
+
+  if (session.kind === "common_guide") {
+    const packagesResult = await loadTourPackages().catch((error: unknown) => ({
+      packages: [],
+      error:
+        error instanceof Error
+          ? error.message
+          : "Your tour packages could not be loaded. Please try again.",
+    }));
+
+    return (
+      <div className="app-container">
+        <PageHeader
+          icon={<Route className="size-6 text-primary" />}
+          title="Tour Packages"
+          description="Create, configure, and manage all your tour packages, pricing rules, itineraries, meals, transport, and specific guide services."
+        />
+        <TourPackageManager
+          packages={packagesResult.packages}
+          error={packagesResult.error}
+        />
+      </div>
+    );
+  }
 
   const result = await loadListings().catch((error: unknown) => ({
     error:

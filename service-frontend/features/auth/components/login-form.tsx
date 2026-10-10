@@ -106,19 +106,19 @@ export function LoginForm({ initialKind, next, error }: Props) {
 
           <form onSubmit={submit} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email or username</Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="email"
-                  type="email"
-                  autoComplete="email"
+                  type="text"
+                  autoComplete="username"
                   required
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   aria-invalid={Boolean(fields.email)}
                   className="rounded-xl py-6 pl-9"
-                  placeholder="you@example.com"
+                  placeholder="you@example.com or username"
                 />
               </div>
               {fields.email ? (

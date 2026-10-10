@@ -65,10 +65,31 @@ export async function readJson<T>(res: Response): Promise<T | null> {
   }
 }
 
+export function isGenericOrRawError(text: string): boolean {
+  if (!text || typeof text !== "string") return false;
+  const lower = text.toLowerCase().trim();
+  return (
+    lower === "bad request" ||
+    lower === "internal server error" ||
+    lower === "not found" ||
+    lower === "unauthorized" ||
+    lower === "forbidden" ||
+    lower.startsWith("cannot patch") ||
+    lower.startsWith("cannot post") ||
+    lower.startsWith("cannot get") ||
+    lower.includes("prisma") ||
+    lower.includes("syntaxerror") ||
+    lower.includes("sql") ||
+    lower.includes("error:") ||
+    lower.includes("stack trace") ||
+    isHtml(text)
+  );
+}
+
 export function errorMessage(data: unknown, fallback: string): string {
   if (typeof data === "string") {
     const trimmed = data.trim();
-    if (trimmed && !isHtml(trimmed)) {
+    if (trimmed && !isGenericOrRawError(trimmed)) {
       return trimmed;
     }
     return fallback;
@@ -80,7 +101,7 @@ export function errorMessage(data: unknown, fallback: string): string {
     typeof (data as { message?: unknown }).message === "string"
   ) {
     const msg = (data as { message: string }).message.trim();
-    if (msg && !isHtml(msg)) {
+    if (msg && !isGenericOrRawError(msg)) {
       return msg;
     }
     return fallback;

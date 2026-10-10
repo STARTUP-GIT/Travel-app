@@ -29,6 +29,7 @@ const specificGuideSafeSelect = {
   rating: true,
   description: true,
   placeid: true,
+  status: true,
   isReported: true,
   experience: true,
   cost: true,
@@ -56,7 +57,7 @@ const specificGuideSafeSelect = {
       images: true,
       entryfee: true,
       status: true,
-      district: { select: { id: true, name: true, slug: true } },
+      district: { select: { id: true, name: true } },
     },
   },
 } as const;
@@ -237,20 +238,65 @@ export const getBookings = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const bookings = await prisma.specific_guide_booking.findMany({
-      where: {
-        specificGuideId,
-      },
-      include: {
-        user: { select: userSafeSelect },
-        place: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const [directBookings, packageBookings] = await Promise.all([
+      prisma.specific_guide_booking.findMany({
+        where: {
+          specificGuideId,
+        },
+        include: {
+          user: { select: userSafeSelect },
+          place: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      prisma.common_guide_booking.findMany({
+        where: {
+          specificGuideId,
+        },
+        include: {
+          user: { select: userSafeSelect },
+          selectedPlaces: { include: { place: true } },
+          package: true,
+          commonGuide: {
+            select: {
+              full_name: true,
+              agencyName: true,
+              phonenumber: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
 
-    return res.status(200).json(bookings);
+    const formattedPackageBookings = packageBookings.map((pb) => ({
+      id: pb.id,
+      specificGuideId: pb.specificGuideId,
+      placeId: pb.selectedPlaces[0]?.placeId ?? "",
+      place: pb.selectedPlaces[0]?.place ?? null,
+      bookingDate: pb.bookingDate,
+      bookingTime: pb.bookingTime,
+      numberOfPeople: pb.numberOfPeople,
+      numberOfAdults: pb.numberOfAdults,
+      numberOfChildren: pb.numberOfChildren,
+      totalPrice: pb.totalPrice,
+      status: pb.status,
+      specificGuideStatus: pb.specificGuideStatus ?? "PENDING",
+      isPackageTour: true,
+      packageName: pb.package?.name ?? "Tour Package",
+      tourGuideName: pb.commonGuide?.full_name,
+      agencyName: pb.commonGuide?.agencyName,
+      places: pb.selectedPlaces.map((sp) => sp.place),
+      user: pb.user,
+      createdAt: pb.createdAt,
+      updatedAt: pb.updatedAt,
+    }));
+
+    return res.status(200).json([...directBookings, ...formattedPackageBookings]);
   } catch (error) {
     console.error("Get specific guide bookings error:", error);
 
@@ -270,49 +316,103 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const { bookingId } = req.params as { bookingId: string };
 
-    const statusValue =
+    let statusValue =
       typeof req.body === "object" && req.body !== null && "status" in req.body
         ? (req.body as { status: unknown }).status
         : req.body;
+
+    if (typeof statusValue === "string") {
+      const upper = statusValue.trim().toUpperCase();
+      if (upper === "ACCEPTED") {
+        statusValue = "CONFIRMED";
+      }
+    }
+
     const status = guideBookingStatusSchema.parse(statusValue);
+    const finalStatus = status === "ACCEPTED" ? "CONFIRMED" : status;
 
-    const booking = await prisma.specific_guide_booking.findUnique({
+    // Check direct booking
+    const directBooking = await prisma.specific_guide_booking.findUnique({
       where: {
         id: bookingId,
       },
     });
 
-    if (!booking) {
-      return res.status(404).json({
-        message: "Booking not found",
+    if (directBooking) {
+      if (directBooking.specificGuideId !== specificGuideId) {
+        return res.status(403).json({
+          message: "Forbidden",
+        });
+      }
+
+      if (directBooking.status === finalStatus) {
+        return res.status(200).json({
+          message: "Booking status updated successfully",
+          booking: directBooking,
+        });
+      }
+
+      const updatedBooking = await prisma.specific_guide_booking.update({
+        where: {
+          id: bookingId,
+        },
+        data: { status: finalStatus },
+        include: {
+          user: { select: userSafeSelect },
+          place: true,
+        },
+      });
+
+      return res.status(200).json({
+        message: "Booking status updated successfully",
+        booking: updatedBooking,
       });
     }
 
-    if (booking.specificGuideId !== specificGuideId) {
-      return res.status(403).json({
-        message: "Forbidden",
-      });
-    }
-
-    const updatedBooking = await prisma.specific_guide_booking.update({
+    // Check package booking where this specific guide is assigned
+    const packageBooking = await prisma.common_guide_booking.findUnique({
       where: {
         id: bookingId,
       },
-      data: { status },
-      include: {
-        user: { select: userSafeSelect },
-        place: true,
-      },
     });
 
-    return res.status(200).json({
-      message: "Booking status updated successfully",
-      booking: updatedBooking,
+    if (packageBooking) {
+      if (packageBooking.specificGuideId !== specificGuideId) {
+        return res.status(403).json({
+          message: "Forbidden",
+        });
+      }
+
+      const participationStatus =
+        finalStatus === "CONFIRMED"
+          ? "ACCEPTED"
+          : finalStatus === "REJECTED"
+            ? "DECLINED"
+            : finalStatus;
+
+      const updatedPkgBooking = await prisma.common_guide_booking.update({
+        where: { id: bookingId },
+        data: { specificGuideStatus: participationStatus },
+        include: {
+          user: { select: userSafeSelect },
+          selectedPlaces: { include: { place: true } },
+          package: true,
+        },
+      });
+
+      return res.status(200).json({
+        message: "Participation status updated successfully",
+        booking: updatedPkgBooking,
+      });
+    }
+
+    return res.status(404).json({
+      message: "Booking not found",
     });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        message: "Validation failed",
+        message: "Validation failed: " + error.issues.map((i) => i.message).join(", "),
         errors: error.issues.map((issue) => ({
           field: issue.path.join("."),
           message: issue.message,

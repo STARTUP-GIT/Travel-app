@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   Award,
   Building2,
   CalendarDays,
@@ -6,9 +7,11 @@ import {
   Languages,
   MapPin,
   MessageSquare,
+  Route,
   Star,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 import { AppImage } from "@/components/shared/app-image";
@@ -17,48 +20,15 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { Rating } from "@/components/shared/rating";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ProfileForm } from "@/features/provider/components/profile-form";
-import { TourPackageManager } from "@/features/provider/components/tour-package-manager";
-import {
-  loadProfile,
-  loadTourPackages,
-} from "@/features/provider/api/provider.actions";
+import { loadProfile } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
-import type { ProviderKind, ProviderLinkedPlace, TourPackage } from "@/features/provider/types";
+import type { ProviderLinkedPlace } from "@/features/provider/types";
 import { formatCurrency, formatDate, pluralize } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "My profile" };
-
-/**
- * Only a Common Guide owns tour packages — a Specific Guide is tied to one place
- * by definition — so the section is built from the signed-in kind, never from
- * whatever came back from the API.
- */
-type PackagesState =
-  | { status: "ready"; packages: TourPackage[] }
-  | { status: "error"; message: string };
-
-/**
- * A package failure must not take the rest of the profile down, but it must also
- * not be laundered into "you have no packages": the two are reported separately
- * so the manager can show the empty state in one case and an error in the other.
- */
-async function loadPackages(kind: ProviderKind): Promise<PackagesState> {
-  if (kind !== "common_guide") return { status: "ready", packages: [] };
-
-  const result = await loadTourPackages().catch((error: unknown) => ({
-    packages: [] as TourPackage[],
-    error:
-      error instanceof Error
-        ? error.message
-        : "Your tour packages could not be loaded.",
-  }));
-
-  return result.error
-    ? { status: "error", message: result.error }
-    : { status: "ready", packages: result.packages };
-}
 
 export default async function ProfilePage() {
   const session = await requireProviderSession("/profile");
@@ -85,7 +55,6 @@ export default async function ProfilePage() {
     );
   }
 
-  const packages = await loadPackages(session.kind);
 
   return (
     // `app-container` is full width with gutters and no auto margins, so the
@@ -149,10 +118,23 @@ export default async function ProfilePage() {
             rather than an empty label.
           */}
           {session.kind === "common_guide" && profile.agencyName ? (
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <Building2 className="size-4 text-muted-foreground" />
-              {profile.agencyName}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+              <span className="flex items-center gap-1.5">
+                <Building2 className="size-4 text-muted-foreground" />
+                {profile.agencyName}
+              </span>
+              {profile.agencyMapsUrl ? (
+                <a
+                  href={profile.agencyMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-normal"
+                >
+                  <MapPin className="size-3" />
+                  Open in Google Maps
+                </a>
+              ) : null}
+            </div>
           ) : null}
 
           <div className="h-px w-full bg-border" />
@@ -224,11 +206,22 @@ export default async function ProfilePage() {
         ) : null}
 
         {session.kind === "common_guide" ? (
-          <GlassCard className="gap-5 p-5 sm:p-6">
-            <TourPackageManager
-              packages={packages.status === "ready" ? packages.packages : []}
-              error={packages.status === "error" ? packages.message : null}
-            />
+          <GlassCard className="flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 sm:p-6 border-primary/20 bg-primary/5">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-sm font-semibold flex items-center gap-2">
+                <Route className="size-4 text-primary" />
+                Tour Package Management
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Create and manage your tour packages, pricing, itineraries, meals, transport, and availability directly from the Services page.
+              </p>
+            </div>
+            <Button asChild size="sm" className="rounded-full shrink-0">
+              <Link href="/services">
+                Go to Services
+                <ArrowRight className="size-3.5 ml-1.5" />
+              </Link>
+            </Button>
           </GlassCard>
         ) : null}
 

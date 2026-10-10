@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, Compass, Hotel, Printer, RefreshCw, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, Compass, Eye, Hotel, Printer, RefreshCw, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 
 import { AuthGate } from "@/components/shared/auth-gate";
@@ -235,6 +235,18 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
           className="h-8 rounded-xl text-xs gap-1.5"
           onClick={() => setOpenPrint(true)}
         >
+          <Eye className="size-3.5 text-primary" /> View Confirmation
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+          onClick={() => {
+            setOpenPrint(true);
+            setTimeout(() => window.print(), 200);
+          }}
+        >
           <Printer className="size-3.5 text-primary" /> Print Confirmation
         </Button>
         {booking.status === "CONFIRMED" ? (
@@ -340,13 +352,25 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
         status={booking.status}
         href={firstName ? "/explore" : null}
       />
-      <div className="flex justify-end px-1">
+      <div className="flex justify-end gap-2 px-1">
         <Button
           type="button"
           size="sm"
           variant="outline"
           className="h-8 rounded-xl text-xs gap-1.5"
           onClick={() => setOpenPrint(true)}
+        >
+          <Eye className="size-3.5 text-primary" /> View Confirmation
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+          onClick={() => {
+            setOpenPrint(true);
+            setTimeout(() => window.print(), 200);
+          }}
         >
           <Printer className="size-3.5 text-primary" /> Print Confirmation
         </Button>
@@ -367,12 +391,17 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
           guideName: booking.commonGuide?.full_name,
           guidePhone: booking.commonGuide?.phone,
           guideEmail: booking.commonGuide?.email,
+          specificGuideName: booking.specificGuide?.full_name,
+          specificGuidePhone: booking.specificGuide?.phone,
+          specificGuideStatus: booking.specificGuideStatus,
           places: booking.selectedPlaces?.map((p) => ({
             id: p.place?.id || p.id,
             name: p.place?.name || "Place",
             districtName: p.place?.district?.name,
           })) || [],
           numberOfPeople: booking.numberOfPeople || 1,
+          numberOfAdults: booking.numberOfAdults,
+          numberOfChildren: booking.numberOfChildren,
           bookingDate: booking.bookingDate,
           bookingTime: booking.tripStartTime,
           pickupName: booking.pickupName,

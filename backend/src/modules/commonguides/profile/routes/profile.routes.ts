@@ -4,6 +4,7 @@ import { deleteProfile, editProfile, getProfile, getBookings, updateBookingStatu
 import {
   createPackage,
   deletePackage,
+  getAvailableSpecificGuides,
   getPackages,
   updatePackage,
 } from '../controllers/package.controller.js';
@@ -24,6 +25,7 @@ router.get('/api/packages' , commonGuideAuthMiddleware , getPackages);
 router.post('/api/packages' , commonGuideAuthMiddleware , createPackage);
 router.patch('/api/packages/:packageId' , commonGuideAuthMiddleware , updatePackage);
 router.delete('/api/packages/:packageId' , commonGuideAuthMiddleware , deletePackage);
+router.get('/api/specific-guides', commonGuideAuthMiddleware, getAvailableSpecificGuides);
 
 
 export default router

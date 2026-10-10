@@ -34,7 +34,7 @@ export const specific_guide_signupSchema = z.object({
 export const specific_guide_signinSchema = z.object({
   email: z.string().min(1, "Email or username is required"),
   username: z.string().optional(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 export const common_guide_signupSchema = z.object({
   email: z.string().email(),
@@ -52,7 +52,7 @@ export const common_guide_signupSchema = z.object({
 export const common_guide_signinSchema = z.object({
   email: z.string().min(1, "Email or username is required"),
   username: z.string().optional(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const adminSignupSchema = z.object({
@@ -142,6 +142,9 @@ export const commonGuideProfileUpdateSchema = z.object({
 export const commonGuidePackageSchema = z.object({
   name: z.string().trim().min(2).max(80),
   description: z.string().trim().max(1000).nullish(),
+  duration: z.string().trim().max(100).nullish(),
+  maxGroupSize: z.number().int().positive().max(500).nullish().default(10),
+  packageImages: z.array(z.string()).default([]),
   pricingMode: z.enum(["WHOLE_TOUR", "PLACE_BASED"]).default("WHOLE_TOUR"),
   pricingUnit: z.enum(["PER_TOUR", "PER_PERSON"]).default("PER_TOUR"),
   price: z.number().nonnegative().default(0),
@@ -149,11 +152,24 @@ export const commonGuidePackageSchema = z.object({
   cancellationPolicy: z.string().nullable().optional(),
   foodStatus: z.string().default("EXCLUDED"),
   foodDetails: z.string().nullable().optional(),
+  mealsService: z.enum(["INCLUDED", "ON_REQUEST", "NO_SERVICE"]).default("NO_SERVICE"),
+  includedMeals: z.array(z.string()).default([]),
+  mealDetails: z.string().nullable().optional(),
   transportStatus: z.string().default("EXCLUDED"),
   transportDetails: z.string().nullable().optional(),
-  entryFeeStatus: z.string().default("EXCLUDED"),
+  transportService: z.enum(["INCLUDED", "ON_REQUEST", "NO_SERVICE"]).default("NO_SERVICE"),
+  transportVehicles: z.any().optional(),
+  entryFeeStatus: z.enum(["INCLUDED", "EXCLUDED"]).default("EXCLUDED"),
   entryFeeDetails: z.string().nullable().optional(),
   additionalCostsDetails: z.string().nullable().optional(),
+  hasSpecificGuide: z.boolean().default(false),
+  specificGuideId: z.string().nullish(),
+  childrenAllowed: z.boolean().default(true),
+  childMaxAge: z.number().int().min(0).max(18).nullish().default(11),
+  maxChildren: z.number().int().nonnegative().nullish(),
+  childrenCountTowardCapacity: z.boolean().default(true),
+  childPrice: z.number().nonnegative().nullish(),
+  childConditions: z.string().nullable().optional(),
   tripStartTime: z.string().nullable().optional(),
   pickupName: z.string().nullable().optional(),
   pickupAddress: z.string().nullable().optional(),
@@ -167,6 +183,16 @@ export const commonGuidePackageSchema = z.object({
       message: "A place can only be added to a package once",
     }),
   placePrices: z.record(z.string(), z.number().nonnegative()).optional(),
+  placeItinerary: z.array(
+    z.object({
+      placeId: z.string().min(1),
+      itineraryOrder: z.number().int().default(1),
+      visitArrangement: z.enum(["GUIDED", "DROP_OFF"]).default("GUIDED"),
+      expectedDuration: z.string().nullable().optional(),
+      entryFeeStatus: z.enum(["INCLUDED", "EXCLUDED"]).default("EXCLUDED"),
+      entryFeeAmount: z.number().nonnegative().nullable().optional(),
+    })
+  ).optional(),
 });
 
 export const commonGuidePackageUpdateSchema = commonGuidePackageSchema;
@@ -416,6 +442,9 @@ export const commonGuideBookingSchema = z.object({
     }),
   bookingTime: z.string().min(1).optional(),
   numberOfPeople: z.number().int().positive().max(100).default(1),
+  numberOfAdults: z.number().int().positive().max(100).default(1),
+  numberOfChildren: z.number().int().nonnegative().max(100).default(0),
+  selectedAddons: z.record(z.string(), z.any()).optional(),
   tripStartTime: z.string().optional(),
   pickupName: z.string().optional(),
   pickupAddress: z.string().optional(),
@@ -432,6 +461,7 @@ export const commonGuideBookingSchema = z.object({
 
 export const guideBookingStatusSchema = z.enum([
   "CONFIRMED",
+  "ACCEPTED",
   "REJECTED",
   "CANCELLED",
   "COMPLETED",

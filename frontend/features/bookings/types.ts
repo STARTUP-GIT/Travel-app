@@ -86,6 +86,12 @@ export type CommonGuideBooking = {
   bookingTime?: string | null;
   tripStartTime?: string | null;
   numberOfPeople?: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
+  specificGuideId?: string | null;
+  specificGuideStatus?: string | null;
+  bookingSnapshot?: any | null;
+  specificGuide?: SpecificGuide | null;
   pickupName?: string | null;
   pickupAddress?: string | null;
   pickupMapsUrl?: string | null;
@@ -137,6 +143,8 @@ export type CreateCommonGuideBookingInput = {
   bookingTime?: string;
   tripStartTime?: string;
   numberOfPeople?: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
   pricingMode?: string;
   pricingUnit?: string;
   totalPrice?: number;

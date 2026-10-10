@@ -13,8 +13,8 @@ import type { ProviderKind } from "@/features/provider/types";
  */
 export const SERVICE_SESSION_COOKIE = "token";
 
-/** Matches `generateSessionToken` (`expiresIn: "1h"`). */
-const SESSION_MAX_AGE_SECONDS = 60 * 60;
+/** Matches backend `generateSessionToken` (`expiresIn: "30d"`). */
+const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 const ROLE_TO_KIND: Record<string, ProviderKind> = {
   hotel_owner: "hotel",

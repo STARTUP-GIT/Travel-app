@@ -66,6 +66,9 @@ export type TourPackageSummary = {
   description: string | null;
   commonGuideId: string;
   placeCount: number;
+  duration?: string | null;
+  maxGroupSize?: number | null;
+  packageImages?: string[];
   pricingMode?: string;
   pricingUnit?: string;
   price?: number;
@@ -73,11 +76,44 @@ export type TourPackageSummary = {
   cancellationPolicy?: string | null;
   foodStatus?: string | null;
   foodDetails?: string | null;
+  mealsService?: "INCLUDED" | "ON_REQUEST" | "NO_SERVICE" | string | null;
+  includedMeals?: string[];
+  mealDetails?: string | null;
   transportStatus?: string | null;
   transportDetails?: string | null;
+  transportService?: "INCLUDED" | "ON_REQUEST" | "NO_SERVICE" | string | null;
+  transportVehicles?: {
+    type: string;
+    capacity: number;
+    isPrivate: boolean;
+    chargesIncluded?: string;
+    chargesExcluded?: string;
+    conditions?: string;
+  }[] | null;
   entryFeeStatus?: string | null;
   entryFeeDetails?: string | null;
   additionalCostsDetails?: string | null;
+  hasSpecificGuide?: boolean;
+  specificGuideId?: string | null;
+  specificGuide?: {
+    id: string;
+    name: string;
+    username?: string;
+    profilePic?: string | null;
+    experienceYears?: number;
+    pricePerDay?: number;
+    languages: string[];
+    specialties?: string[];
+    rating?: number | null;
+    tagline?: string | null;
+    agencyName?: string | null;
+  } | null;
+  childrenAllowed?: boolean;
+  childMaxAge?: number | null;
+  maxChildren?: number | null;
+  childrenCountTowardCapacity?: boolean;
+  childPrice?: number | null;
+  childConditions?: string | null;
   tripStartTime?: string | null;
   pickupName?: string | null;
   pickupAddress?: string | null;
@@ -96,6 +132,12 @@ export type TourPackagePlace = {
   images?: string[];
   category?: string;
   entryfee?: number | null;
+  price?: number | null;
+  itineraryOrder?: number;
+  visitArrangement?: "GUIDED" | "DROP_OFF" | string;
+  expectedDuration?: string | null;
+  entryFeeStatus?: "INCLUDED" | "EXCLUDED" | string;
+  entryFeeAmount?: number | null;
   pricing?: {
     id: string;
     visitor: "DOMESTIC" | "FOREIGN";

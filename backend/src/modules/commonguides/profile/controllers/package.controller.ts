@@ -38,9 +38,22 @@ const packagePlaceSelect = {
  * public place detail route see the same fields.
  */
 const packageInclude = {
+  specificGuide: {
+    select: {
+      id: true,
+      full_name: true,
+      username: true,
+      profile_pic: true,
+      tagline: true,
+      rating: true,
+      experience: true,
+      cost: true,
+      language: true,
+    },
+  },
   places: {
     include: { place: { select: packagePlaceSelect } },
-    orderBy: { place: { name: "asc" as const } },
+    orderBy: { itineraryOrder: "asc" as const },
   },
 };
 
@@ -68,6 +81,9 @@ const serialize = (pkg: any) => ({
   id: pkg.id,
   name: pkg.name,
   description: pkg.description,
+  duration: pkg.duration ?? null,
+  maxGroupSize: pkg.maxGroupSize ?? 10,
+  packageImages: pkg.packageImages ?? [],
   pricingMode: pkg.pricingMode ?? "WHOLE_TOUR",
   pricingUnit: pkg.pricingUnit ?? "PER_TOUR",
   price: pkg.price ?? 0,
@@ -75,11 +91,37 @@ const serialize = (pkg: any) => ({
   cancellationPolicy: pkg.cancellationPolicy ?? null,
   foodStatus: pkg.foodStatus ?? "EXCLUDED",
   foodDetails: pkg.foodDetails ?? null,
+  mealsService: pkg.mealsService ?? (pkg.foodStatus === "INCLUDED" ? "INCLUDED" : "NO_SERVICE"),
+  includedMeals: pkg.includedMeals ?? [],
+  mealDetails: pkg.mealDetails ?? pkg.foodDetails ?? null,
   transportStatus: pkg.transportStatus ?? "EXCLUDED",
   transportDetails: pkg.transportDetails ?? null,
+  transportService: pkg.transportService ?? (pkg.transportStatus === "INCLUDED" ? "INCLUDED" : "NO_SERVICE"),
+  transportVehicles: pkg.transportVehicles ?? null,
   entryFeeStatus: pkg.entryFeeStatus ?? "EXCLUDED",
   entryFeeDetails: pkg.entryFeeDetails ?? null,
   additionalCostsDetails: pkg.additionalCostsDetails ?? null,
+  hasSpecificGuide: Boolean(pkg.hasSpecificGuide),
+  specificGuideId: pkg.specificGuideId ?? null,
+  specificGuide: pkg.specificGuide
+    ? {
+        id: pkg.specificGuide.id,
+        full_name: pkg.specificGuide.full_name,
+        username: pkg.specificGuide.username,
+        profile_pic: pkg.specificGuide.profile_pic,
+        tagline: pkg.specificGuide.tagline,
+        rating: pkg.specificGuide.rating,
+        experience: pkg.specificGuide.experience,
+        cost: pkg.specificGuide.cost,
+        language: pkg.specificGuide.language,
+      }
+    : null,
+  childrenAllowed: pkg.childrenAllowed ?? true,
+  childMaxAge: pkg.childMaxAge ?? 11,
+  maxChildren: pkg.maxChildren ?? null,
+  childrenCountTowardCapacity: pkg.childrenCountTowardCapacity ?? true,
+  childPrice: pkg.childPrice ?? null,
+  childConditions: pkg.childConditions ?? null,
   tripStartTime: pkg.tripStartTime ?? null,
   pickupName: pkg.pickupName ?? null,
   pickupAddress: pkg.pickupAddress ?? null,
@@ -91,6 +133,11 @@ const serialize = (pkg: any) => ({
   places: (pkg.places ?? []).map((entry: any) => ({
     ...entry.place,
     price: entry.price ?? null,
+    itineraryOrder: entry.itineraryOrder ?? 1,
+    visitArrangement: entry.visitArrangement ?? "GUIDED",
+    expectedDuration: entry.expectedDuration ?? null,
+    entryFeeStatus: entry.entryFeeStatus ?? "EXCLUDED",
+    entryFeeAmount: entry.entryFeeAmount ?? null,
   })),
 });
 
@@ -228,6 +275,17 @@ export const createPackage = async (req: Request, res: Response) => {
     }
 
     const data = commonGuidePackageSchema.parse(req.body);
+
+    if (data.hasSpecificGuide && data.specificGuideId) {
+      const guideExists = await prisma.specific_guide.findUnique({
+        where: { id: data.specificGuideId },
+        select: { id: true },
+      });
+      if (!guideExists) {
+        return res.status(400).json({ message: "Selected Specific Guide not found." });
+      }
+    }
+
     const resolved = await resolveApprovedPlaceIds(data.placeIds, commonGuideId);
 
     if (!resolved.ok) {
@@ -238,6 +296,7 @@ export const createPackage = async (req: Request, res: Response) => {
     }
 
     const places = resolved.places;
+    const itineraryMap = new Map((data.placeItinerary ?? []).map((item) => [item.placeId, item]));
 
     const created = await prisma.$transaction(async (tx) => {
       const pkg = await tx.common_guide_package.create({
@@ -245,6 +304,9 @@ export const createPackage = async (req: Request, res: Response) => {
           commonGuideId,
           name: data.name,
           description: data.description ?? null,
+          duration: data.duration ?? null,
+          maxGroupSize: data.maxGroupSize ?? 10,
+          packageImages: data.packageImages ?? [],
           pricingMode: data.pricingMode ?? "WHOLE_TOUR",
           pricingUnit: data.pricingUnit ?? "PER_TOUR",
           price: data.price ?? 0,
@@ -252,11 +314,24 @@ export const createPackage = async (req: Request, res: Response) => {
           cancellationPolicy: data.cancellationPolicy ?? null,
           foodStatus: data.foodStatus ?? "EXCLUDED",
           foodDetails: data.foodDetails ?? null,
+          mealsService: data.mealsService ?? "NO_SERVICE",
+          includedMeals: data.includedMeals ?? [],
+          mealDetails: data.mealDetails ?? null,
           transportStatus: data.transportStatus ?? "EXCLUDED",
           transportDetails: data.transportDetails ?? null,
+          transportService: data.transportService ?? "NO_SERVICE",
+          transportVehicles: data.transportVehicles ?? null,
           entryFeeStatus: data.entryFeeStatus ?? "EXCLUDED",
           entryFeeDetails: data.entryFeeDetails ?? null,
           additionalCostsDetails: data.additionalCostsDetails ?? null,
+          hasSpecificGuide: Boolean(data.hasSpecificGuide),
+          specificGuideId: data.hasSpecificGuide && data.specificGuideId ? data.specificGuideId : null,
+          childrenAllowed: data.childrenAllowed ?? true,
+          childMaxAge: data.childMaxAge ?? 11,
+          maxChildren: data.maxChildren ?? null,
+          childrenCountTowardCapacity: data.childrenCountTowardCapacity ?? true,
+          childPrice: data.childPrice ?? null,
+          childConditions: data.childConditions ?? null,
           tripStartTime: data.tripStartTime ?? null,
           pickupName: data.pickupName ?? null,
           pickupAddress: data.pickupAddress ?? null,
@@ -267,11 +342,19 @@ export const createPackage = async (req: Request, res: Response) => {
       });
 
       await tx.common_guide_package_places.createMany({
-        data: places.map((place) => ({
-          packageId: pkg.id,
-          placeId: place.id,
-          price: data.placePrices?.[place.id] ?? null,
-        })),
+        data: places.map((place, idx) => {
+          const itin = itineraryMap.get(place.id);
+          return {
+            packageId: pkg.id,
+            placeId: place.id,
+            price: data.placePrices?.[place.id] ?? null,
+            itineraryOrder: itin?.itineraryOrder ?? (idx + 1),
+            visitArrangement: itin?.visitArrangement ?? "GUIDED",
+            expectedDuration: itin?.expectedDuration ?? null,
+            entryFeeStatus: itin?.entryFeeStatus ?? "EXCLUDED",
+            entryFeeAmount: itin?.entryFeeAmount ?? null,
+          };
+        }),
       });
 
       await tx.common_guide_places.createMany({
@@ -289,7 +372,7 @@ export const createPackage = async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        message: "Validation failed",
+        message: "Validation failed: " + error.issues.map((i) => i.message).join(", "),
         errors: error.issues.map((issue) => ({
           field: issue.path.join("."),
           message: issue.message,
@@ -320,9 +403,6 @@ export const updatePackage = async (req: Request, res: Response) => {
     const { packageId } = req.params as { packageId: string };
     const data = commonGuidePackageUpdateSchema.parse(req.body);
 
-    // Scoped by `commonGuideId` in the lookup, so a package belonging to
-    // another guide is simply not found — there is no path from this request to
-    // someone else's package.
     const existing = await prisma.common_guide_package.findFirst({
       where: { id: packageId, commonGuideId },
       select: { id: true },
@@ -330,6 +410,16 @@ export const updatePackage = async (req: Request, res: Response) => {
 
     if (!existing) {
       return res.status(404).json({ message: "Package not found" });
+    }
+
+    if (data.hasSpecificGuide && data.specificGuideId) {
+      const guideExists = await prisma.specific_guide.findUnique({
+        where: { id: data.specificGuideId },
+        select: { id: true },
+      });
+      if (!guideExists) {
+        return res.status(400).json({ message: "Selected Specific Guide not found." });
+      }
     }
 
     const resolved = await resolveApprovedPlaceIds(data.placeIds, commonGuideId);
@@ -342,6 +432,7 @@ export const updatePackage = async (req: Request, res: Response) => {
     }
 
     const places = resolved.places;
+    const itineraryMap = new Map((data.placeItinerary ?? []).map((item) => [item.placeId, item]));
 
     const updated = await prisma.$transaction(async (tx) => {
       await tx.common_guide_package.update({
@@ -349,6 +440,9 @@ export const updatePackage = async (req: Request, res: Response) => {
         data: {
           name: data.name,
           description: data.description ?? null,
+          duration: data.duration ?? null,
+          maxGroupSize: data.maxGroupSize ?? 10,
+          packageImages: data.packageImages ?? [],
           pricingMode: data.pricingMode ?? "WHOLE_TOUR",
           pricingUnit: data.pricingUnit ?? "PER_TOUR",
           price: data.price ?? 0,
@@ -356,11 +450,24 @@ export const updatePackage = async (req: Request, res: Response) => {
           cancellationPolicy: data.cancellationPolicy ?? null,
           foodStatus: data.foodStatus ?? "EXCLUDED",
           foodDetails: data.foodDetails ?? null,
+          mealsService: data.mealsService ?? "NO_SERVICE",
+          includedMeals: data.includedMeals ?? [],
+          mealDetails: data.mealDetails ?? null,
           transportStatus: data.transportStatus ?? "EXCLUDED",
           transportDetails: data.transportDetails ?? null,
+          transportService: data.transportService ?? "NO_SERVICE",
+          transportVehicles: data.transportVehicles ?? null,
           entryFeeStatus: data.entryFeeStatus ?? "EXCLUDED",
           entryFeeDetails: data.entryFeeDetails ?? null,
           additionalCostsDetails: data.additionalCostsDetails ?? null,
+          hasSpecificGuide: Boolean(data.hasSpecificGuide),
+          specificGuideId: data.hasSpecificGuide && data.specificGuideId ? data.specificGuideId : null,
+          childrenAllowed: data.childrenAllowed ?? true,
+          childMaxAge: data.childMaxAge ?? 11,
+          maxChildren: data.maxChildren ?? null,
+          childrenCountTowardCapacity: data.childrenCountTowardCapacity ?? true,
+          childPrice: data.childPrice ?? null,
+          childConditions: data.childConditions ?? null,
           tripStartTime: data.tripStartTime ?? null,
           pickupName: data.pickupName ?? null,
           pickupAddress: data.pickupAddress ?? null,
@@ -375,14 +482,21 @@ export const updatePackage = async (req: Request, res: Response) => {
       });
 
       await tx.common_guide_package_places.createMany({
-        data: places.map((place) => ({
-          packageId,
-          placeId: place.id,
-          price: data.placePrices?.[place.id] ?? null,
-        })),
+        data: places.map((place, idx) => {
+          const itin = itineraryMap.get(place.id);
+          return {
+            packageId,
+            placeId: place.id,
+            price: data.placePrices?.[place.id] ?? null,
+            itineraryOrder: itin?.itineraryOrder ?? (idx + 1),
+            visitArrangement: itin?.visitArrangement ?? "GUIDED",
+            expectedDuration: itin?.expectedDuration ?? null,
+            entryFeeStatus: itin?.entryFeeStatus ?? "EXCLUDED",
+            entryFeeAmount: itin?.entryFeeAmount ?? null,
+          };
+        }),
       });
 
-      // Coverage only grows, see the note on this handler.
       await tx.common_guide_places.createMany({
         data: places.map((place) => ({ placeId: place.id, commonGuideId })),
         skipDuplicates: true,
@@ -398,7 +512,7 @@ export const updatePackage = async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        message: "Validation failed",
+        message: "Validation failed: " + error.issues.map((i) => i.message).join(", "),
         errors: error.issues.map((issue) => ({
           field: issue.path.join("."),
           message: issue.message,
@@ -437,9 +551,6 @@ export const deletePackage = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Package not found" });
     }
 
-    // `common_guide_package_places.packageId` cascades, so the membership rows
-    // go with the package. Coverage in `common_guide_places` is intentionally
-    // left alone.
     await prisma.common_guide_package.delete({ where: { id: packageId } });
 
     return res.status(200).json({ message: "Package deleted successfully" });
@@ -449,5 +560,46 @@ export const deletePackage = async (req: Request, res: Response) => {
     return res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+export const getAvailableSpecificGuides = async (req: Request, res: Response) => {
+  try {
+    const commonGuideId = req.common_guide;
+    if (!commonGuideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const guides = await prisma.specific_guide.findMany({
+      where: {
+        status: "APPROVED",
+      },
+      select: {
+        id: true,
+        full_name: true,
+        username: true,
+        profile_pic: true,
+        tagline: true,
+        rating: true,
+        experience: true,
+        cost: true,
+        language: true,
+        placeid: true,
+        place: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        full_name: "asc",
+      },
+    });
+
+    return res.status(200).json(guides);
+  } catch (error) {
+    console.error("Get available specific guides error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };

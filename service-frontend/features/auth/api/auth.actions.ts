@@ -33,7 +33,7 @@ export type AuthActionResult =
 
 const SIGN_UP_FAILED = "Sign up failed.";
 const NETWORK_ERROR = "Unable to sign in. Please try again.";
-const INVALID_CREDENTIALS = "Invalid email or password.";
+const INVALID_CREDENTIALS = "Invalid email, username, or password.";
 const UNABLE_TO_SIGN_IN = "Unable to sign in. Please try again.";
 const ACCOUNT_EXISTS = "Account exists.";
 const ACCOUNT_CREATED = "Account created. Please sign in.";

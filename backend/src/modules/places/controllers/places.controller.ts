@@ -276,6 +276,9 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       id: true,
                       name: true,
                       description: true,
+                      duration: true,
+                      maxGroupSize: true,
+                      packageImages: true,
                       pricingMode: true,
                       pricingUnit: true,
                       price: true,
@@ -283,11 +286,37 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       cancellationPolicy: true,
                       foodStatus: true,
                       foodDetails: true,
+                      mealsService: true,
+                      includedMeals: true,
+                      mealDetails: true,
                       transportStatus: true,
                       transportDetails: true,
+                      transportService: true,
+                      transportVehicles: true,
                       entryFeeStatus: true,
                       entryFeeDetails: true,
                       additionalCostsDetails: true,
+                      hasSpecificGuide: true,
+                      specificGuideId: true,
+                      specificGuide: {
+                        select: {
+                          id: true,
+                          full_name: true,
+                          username: true,
+                          profile_pic: true,
+                          tagline: true,
+                          rating: true,
+                          experience: true,
+                          cost: true,
+                          language: true,
+                        },
+                      },
+                      childrenAllowed: true,
+                      childMaxAge: true,
+                      maxChildren: true,
+                      childrenCountTowardCapacity: true,
+                      childPrice: true,
+                      childConditions: true,
                       tripStartTime: true,
                       pickupName: true,
                       pickupAddress: true,
@@ -296,15 +325,23 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       pickupMapsUrl: true,
                       createdAt: true,
                       updatedAt: true,
-                      // The real number of places in the package, which a
-                      // package spanning several districts cannot be read off a
-                      // single place response. Without it a customer would be
-                      // shown a price based on only the places of the district
-                      // they happen to be browsing.
+                      places: {
+                        include: {
+                          place: {
+                            select: {
+                              id: true,
+                              name: true,
+                              description: true,
+                              images: true,
+                              category: true,
+                              entryfee: true,
+                              district: { select: { id: true, name: true } },
+                            },
+                          },
+                        },
+                        orderBy: { itineraryOrder: "asc" },
+                      },
                       _count: { select: { places: true } },
-                      // Read only to decide approval below; stripped from the
-                      // response so the client sees the same package shape as
-                      // the service profile API.
                       commonGuide: { select: { id: true, status: true } },
                     },
                   },
@@ -398,13 +435,23 @@ export const getPlaceById = async (req: Request, res: Response) => {
     // flattened to a plain `placeCount`.
     const commonGuidePackages = hasPackages
       ? (relations.commonGuidePackagePlaces ?? [])
-          .filter((entry) => entry.package?.commonGuide?.status === "APPROVED")
+          .filter((entry) => (entry as any).package?.commonGuide?.status === "APPROVED")
           .map((entry) => {
-            const { commonGuide, _count, ...pkg } = entry.package!;
+            const rawPkg = (entry as any).package;
+            const { commonGuide, _count, places: rawPlaces, ...pkg } = rawPkg;
             return {
               ...pkg,
-              commonGuideId: commonGuide!.id,
-              placeCount: _count.places,
+              commonGuideId: commonGuide?.id,
+              placeCount: _count?.places ?? (rawPlaces?.length || 0),
+              places: (rawPlaces ?? []).map((p: any) => ({
+                ...(p.place || {}),
+                price: p.price ?? null,
+                itineraryOrder: p.itineraryOrder ?? 1,
+                visitArrangement: p.visitArrangement ?? "GUIDED",
+                expectedDuration: p.expectedDuration ?? null,
+                entryFeeStatus: p.entryFeeStatus ?? "EXCLUDED",
+                entryFeeAmount: p.entryFeeAmount ?? null,
+              })),
             };
           })
       : [];

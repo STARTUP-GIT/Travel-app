@@ -3,9 +3,11 @@
 import {
   ArrowLeft,
   Award,
+  Baby,
   Building2,
   Calendar,
   Car,
+  Check,
   Clock,
   ExternalLink,
   Info,
@@ -15,6 +17,8 @@ import {
   ShieldCheck,
   Star,
   Ticket,
+  UserCheck,
+  Users,
   Utensils,
 } from "lucide-react";
 import Link from "next/link";
@@ -210,12 +214,38 @@ export function PackageDetail({
                 : "per place"}
             </Badge>
 
+            {pkg.duration ? (
+              <Badge variant="outline" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
+                <Clock className="size-3.5 text-primary" />
+                {pkg.duration}
+              </Badge>
+            ) : null}
+
+            {pkg.maxGroupSize ? (
+              <Badge variant="outline" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
+                <Users className="size-3.5 text-primary" />
+                Max {pkg.maxGroupSize} guests
+              </Badge>
+            ) : null}
+
             {pkg.tripStartTime ? (
               <Badge variant="outline" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
                 <Clock className="size-3.5 text-primary" />
                 Starts at {pkg.tripStartTime}
               </Badge>
             ) : null}
+
+            {pkg.childrenAllowed ? (
+              <Badge variant="outline" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
+                <Baby className="size-3.5 text-primary" />
+                Children up to {pkg.childMaxAge || 12}y
+              </Badge>
+            ) : (
+              <Badge variant="destructive" className="gap-1 rounded-lg px-2.5 py-1 text-xs">
+                <Baby className="size-3.5" />
+                Adults only
+              </Badge>
+            )}
           </div>
 
           {hiddenPlaceCount > 0 ? (
@@ -278,56 +308,127 @@ export function PackageDetail({
           </section>
         ) : null}
 
-        {/* Facilities & Disclosures */}
+        {/* Facilities & Inclusions */}
         <section>
           <SectionHeader
             title="Facilities & Inclusions"
-            subtitle="What is covered in this tour package and what is payable separately"
+            subtitle="Transparent breakdown of meals, transport, and entry fee inclusions"
           />
           <div className="grid gap-3 sm:grid-cols-3">
-            {/* Food */}
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+            {/* Meals - Exactly 3 Service Options */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Utensils className="size-4 text-primary shrink-0" />
                 Food & Meals
               </div>
-              {(() => {
-                const status = formatStatus(pkg.foodStatus);
-                return <Badge variant={status.variant}>{status.text}</Badge>;
-              })()}
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {pkg.foodDetails || "Details will be confirmed by guide upon booking."}
-              </p>
+
+              {pkg.mealsService === "INCLUDED" || (!pkg.mealsService && pkg.foodStatus === "INCLUDED") ? (
+                <div className="space-y-2">
+                  <Badge variant="success">Included in package</Badge>
+                  {pkg.includedMeals && pkg.includedMeals.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {pkg.includedMeals.map((meal) => (
+                        <span key={meal} className="rounded-md bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold text-primary">
+                          {meal}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pkg.mealDetails || pkg.foodDetails || "Meals are provided and covered in the tour price."}
+                  </p>
+                </div>
+              ) : pkg.mealsService === "ON_REQUEST" || (!pkg.mealsService && pkg.foodStatus === "OPTIONAL") ? (
+                <div className="space-y-1.5">
+                  <Badge variant="warning">Can be arranged if requested</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pkg.mealDetails || pkg.foodDetails || "Not automatically included. Can be arranged upon request for an additional charge."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Badge variant="outline">No such service</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Meals are not provided or arranged through this package.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Transport */}
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+            {/* Transport - Exactly 3 Service Options */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Car className="size-4 text-primary shrink-0" />
                 Transport & Transfer
               </div>
-              {(() => {
-                const status = formatStatus(pkg.transportStatus);
-                return <Badge variant={status.variant}>{status.text}</Badge>;
-              })()}
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {pkg.transportDetails || "Details will be confirmed by guide upon booking."}
-              </p>
+
+              {pkg.transportService === "INCLUDED" || (!pkg.transportService && pkg.transportStatus === "INCLUDED") ? (
+                <div className="space-y-2">
+                  <Badge variant="success">Included in package</Badge>
+                  {Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {pkg.transportVehicles.map((v, i) => (
+                        <div key={i} className="rounded-lg bg-muted/40 p-2 text-xs">
+                          <p className="font-semibold text-foreground">
+                            {v.type || (v as any).vehicleType} · {v.capacity} seats ({v.isPrivate !== false ? "Private" : "Shared"})
+                          </p>
+                          {v.chargesIncluded ? (
+                            <p className="text-[0.65rem] text-emerald-600 font-medium">
+                              ✓ {v.chargesIncluded}
+                            </p>
+                          ) : null}
+                          {v.chargesExcluded || (v as any).additionalChargesExcluded ? (
+                            <p className="text-[0.65rem] text-muted-foreground">
+                              ✗ Excluded: {v.chargesExcluded || (v as any).additionalChargesExcluded}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pkg.transportDetails || "Dedicated transportation is provided for this package."}
+                  </p>
+                </div>
+              ) : pkg.transportService === "ON_REQUEST" || (!pkg.transportService && pkg.transportStatus === "OPTIONAL") ? (
+                <div className="space-y-1.5">
+                  <Badge variant="warning">Can be arranged if requested</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pkg.transportDetails || "Not automatically included. Can be arranged upon request for an additional fee."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Badge variant="outline">No such service</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Transport is not provided. Travellers meet at the pickup point or travel independently.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Entry Fees */}
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
+            {/* Entry Fees - Exactly 2 Choices */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-2.5">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Ticket className="size-4 text-primary shrink-0" />
                 Monuments & Entry Fees
               </div>
-              {(() => {
-                const status = formatStatus(pkg.entryFeeStatus);
-                return <Badge variant={status.variant}>{status.text}</Badge>;
-              })()}
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {pkg.entryFeeDetails || "Entry tickets per place are listed below."}
-              </p>
+
+              {pkg.entryFeeStatus === "INCLUDED" ? (
+                <div className="space-y-1.5">
+                  <Badge variant="success">Included in package</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    All admission and monument entry fees are included in the tour price.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <Badge variant="outline">Excluded (Paid separately)</Badge>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {pkg.entryFeeDetails || "Entry fees are payable separately by travellers at each monument."}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -342,14 +443,117 @@ export function PackageDetail({
           ) : null}
         </section>
 
-        {/* Places included in the tour */}
+        {/* Specific Guide Details Section */}
+        {pkg.hasSpecificGuide && pkg.specificGuide ? (
+          <section>
+            <SectionHeader
+              title="Included Specific Guide"
+              subtitle="An expert local guide assigned to accompany you on this package"
+            />
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                {pkg.specificGuide.profilePic ? (
+                  <img
+                    src={pkg.specificGuide.profilePic}
+                    alt={pkg.specificGuide.name}
+                    className="size-14 rounded-full object-cover shrink-0 ring-2 ring-primary/20"
+                  />
+                ) : (
+                  <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary font-bold shrink-0">
+                    {pkg.specificGuide.name.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-base font-bold text-foreground truncate">{pkg.specificGuide.name}</p>
+                    <Badge variant="success" className="text-[0.65rem] gap-1">
+                      <UserCheck className="size-3" /> Included in Tour
+                    </Badge>
+                  </div>
+                  {pkg.specificGuide.tagline ? (
+                    <p className="text-xs text-muted-foreground italic truncate">
+                      &ldquo;{pkg.specificGuide.tagline}&rdquo;
+                    </p>
+                  ) : null}
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 font-semibold text-primary">
+                      <Award className="size-3.5" /> {pkg.specificGuide.experienceYears || 1}+ yrs experience
+                    </span>
+                    {pkg.specificGuide.languages && pkg.specificGuide.languages.length > 0 ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Languages className="size-3.5" /> {pkg.specificGuide.languages.join(", ")}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section>
+            <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 text-xs text-muted-foreground flex items-center gap-2.5">
+              <UserCheck className="size-4 text-muted-foreground shrink-0" />
+              <span>
+                <strong>Tour Guide Service:</strong> This package is led directly by {person.agencyName || person.full_name}. No additional Specific Guide is assigned.
+              </span>
+            </div>
+          </section>
+        )}
+
+        {/* Children & Family Rules Section */}
         <section>
           <SectionHeader
-            title="Itinerary & Places Included"
+            title="Children & Age Policies"
+            subtitle="Booking eligibility and policies for young travellers"
+          />
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-2 text-xs">
+            {pkg.childrenAllowed ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="success" className="gap-1">
+                    <Baby className="size-3.5" /> Children Permitted
+                  </Badge>
+                  <span className="text-muted-foreground">
+                    Child age band: <strong>Up to {pkg.childMaxAge || 12} years</strong>
+                  </span>
+                  {pkg.maxChildren ? (
+                    <span className="text-muted-foreground">
+                      · Max <strong>{pkg.maxChildren} children</strong> per group
+                    </span>
+                  ) : null}
+                </div>
+                {pkg.childPrice && pkg.childPrice > 0 ? (
+                  <p className="text-foreground">
+                    Child Price: <strong>{formatCurrency(pkg.childPrice)}</strong> per child
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground">
+                    Standard child pricing applies.
+                  </p>
+                )}
+                {pkg.childConditions ? (
+                  <p className="text-muted-foreground leading-relaxed">
+                    Note: {pkg.childConditions}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-destructive font-medium">
+                <Baby className="size-4" />
+                <span>Adults-Only Tour: Children are not permitted on this package.</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Places included in the tour with Itinerary Arrangement */}
+        <section>
+          <SectionHeader
+            title="Itinerary & Stops Arrangement"
             subtitle={
               hiddenPlaceCount > 0
                 ? "Stops in this district included in the itinerary"
-                : "All stops included in this tour"
+                : "Complete ordered itinerary with guided visit vs drop-off details"
             }
           />
           {pkg.places.length === 0 ? (
@@ -389,9 +593,20 @@ export function PackageDetail({
                           <p className="truncate font-semibold text-base">{place.name}</p>
                           <p className="text-xs text-muted-foreground">{place.districtName}</p>
                         </div>
-                        <Badge variant="outline" className="shrink-0">
-                          {place.category || "Stop"}
-                        </Badge>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {place.visitArrangement === "DROP_OFF" ? (
+                            <Badge variant="outline" className="text-[0.65rem] border-amber-500/30 text-amber-600 bg-amber-50/50">
+                              Drop-off only (Self-guided)
+                            </Badge>
+                          ) : (
+                            <Badge variant="success" className="text-[0.65rem]">
+                              Guided Visit Included
+                            </Badge>
+                          )}
+                          <Badge variant="outline" className="shrink-0 text-[0.65rem]">
+                            {place.category || "Stop"}
+                          </Badge>
+                        </div>
                       </div>
 
                       {place.description ? (
@@ -401,9 +616,22 @@ export function PackageDetail({
                       ) : null}
 
                       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        {place.expectedDuration ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+                            <Clock className="size-3.5 text-primary" />
+                            Duration: {place.expectedDuration}
+                          </span>
+                        ) : null}
+
                         <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
                           <Ticket className="size-3.5" />
-                          {priceSummary(place)}
+                          {place.entryFeeStatus === "INCLUDED" ? (
+                            <span className="text-emerald-600 font-medium">Entry ticket included in tour</span>
+                          ) : place.entryFeeAmount && place.entryFeeAmount > 0 ? (
+                            <span>Entry fee: {formatCurrency(place.entryFeeAmount)} (paid separately)</span>
+                          ) : (
+                            <span>{priceSummary(place)} (paid separately)</span>
+                          )}
                         </span>
                       </div>
                     </div>

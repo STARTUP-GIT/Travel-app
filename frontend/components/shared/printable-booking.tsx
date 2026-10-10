@@ -24,6 +24,11 @@ export type PrintableBookingData = {
   packageName?: string;
   places: { id: string; name: string; districtName?: string }[];
   numberOfPeople: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
+  specificGuideName?: string | null;
+  specificGuidePhone?: string | null;
+  specificGuideStatus?: string | null;
   bookingDate: string;
   bookingTime?: string | null;
   pickupName?: string | null;
@@ -180,6 +185,12 @@ export function PrintableBookingModal({
                   <Users className="size-3.5 text-primary" />
                   {booking.numberOfPeople} person{booking.numberOfPeople > 1 ? "s" : ""}
                 </p>
+                {(booking.numberOfAdults !== undefined || booking.numberOfChildren !== undefined) && (
+                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+                    {booking.numberOfAdults ?? booking.numberOfPeople} Adult{((booking.numberOfAdults ?? booking.numberOfPeople) > 1) ? "s" : ""}
+                    {booking.numberOfChildren ? ` · ${booking.numberOfChildren} Child${booking.numberOfChildren > 1 ? "ren" : ""}` : ""}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-xl border p-3 bg-muted/20">
@@ -190,6 +201,29 @@ export function PrintableBookingModal({
                 </p>
               </div>
             </div>
+
+            {/* Specific Guide if included */}
+            {booking.specificGuideName ? (
+              <div className="rounded-xl border p-3.5 bg-card flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Compass className="size-4 text-primary shrink-0" />
+                  <div>
+                    <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold block">
+                      Dedicated Specific Guide
+                    </span>
+                    <p className="font-semibold text-xs text-foreground">{booking.specificGuideName}</p>
+                    {booking.specificGuidePhone ? (
+                      <p className="text-[0.65rem] text-muted-foreground">Contact: {booking.specificGuidePhone}</p>
+                    ) : null}
+                  </div>
+                </div>
+                {booking.specificGuideStatus ? (
+                  <span className="text-[0.65rem] rounded-md bg-muted px-2 py-0.5 font-semibold text-foreground shrink-0">
+                    Status: {booking.specificGuideStatus}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
 
             {/* Pickup Point */}
             {(booking.pickupName || booking.requestedPickupName || booking.pickupMapsUrl || booking.requestedPickupMapsUrl) ? (

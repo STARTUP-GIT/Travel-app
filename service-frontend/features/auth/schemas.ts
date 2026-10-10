@@ -107,9 +107,14 @@ export type SignupValues = {
 
 export type SignupPayload = z.output<typeof signupSchema>;
 
+const loginIdentifier = z
+  .string()
+  .trim()
+  .min(1, "Email or username is required");
+
 export const loginSchema = z.object({
   kind: z.enum(PROVIDER_KINDS),
-  email,
+  email: loginIdentifier,
   password: z.string().min(1, "Password is required"),
 });
 

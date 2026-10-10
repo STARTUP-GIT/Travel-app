@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff, Loader2, Save, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, MapPin, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -307,11 +307,24 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
                 error={errors.agencyMapsUrl}
                 hint="Share your agency's office or meeting location so customers can open it directly in Google Maps."
               >
-                <Input
-                  value={values.agencyMapsUrl}
-                  onChange={(event) => set("agencyMapsUrl", event.target.value)}
-                  placeholder="Paste your agency's Google Maps sharing link"
-                />
+                <div className="flex flex-col gap-1.5">
+                  <Input
+                    value={values.agencyMapsUrl}
+                    onChange={(event) => set("agencyMapsUrl", event.target.value)}
+                    placeholder="Paste your agency's Google Maps sharing link"
+                  />
+                  {values.agencyMapsUrl && isValidGoogleMapsUrl(values.agencyMapsUrl) ? (
+                    <a
+                      href={values.agencyMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline w-fit"
+                    >
+                      <MapPin className="size-3" />
+                      Open in Google Maps
+                    </a>
+                  ) : null}
+                </div>
               </Field>
 
               <div className="flex flex-col gap-1.5">

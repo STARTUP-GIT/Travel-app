@@ -99,20 +99,37 @@ export function PackageBookingModal({
   const isWholeTour = (pkg.pricingMode || "WHOLE_TOUR") === "WHOLE_TOUR";
   const isPerPerson = (pkg.pricingUnit || "PER_TOUR") === "PER_PERSON";
 
-  // Calculate price transparently
+  const childrenAllowed = pkg.childrenAllowed !== false;
+  const maxChildren = pkg.maxChildren ?? 10;
+  const maxCapacity = pkg.maxGroupSize ?? 50;
+  const countsTowardCap = pkg.childrenCountTowardCapacity !== false;
+  const currentCapacityCount = countsTowardCap ? (adults + children) : adults;
+
+  // Calculate price transparently according to configured pricing rules
   const calculatedTotal = React.useMemo(() => {
     if (isWholeTour) {
-      const base = pkg.price && pkg.price > 0 ? pkg.price : pkg.guide.cost;
-      return isPerPerson ? base * totalPeople : base;
+      const base = pkg.price && pkg.price > 0 ? pkg.price : (pkg.guide.cost || 0);
+      if (isPerPerson) {
+        const adultRate = base;
+        const childRate = pkg.childPrice !== null && pkg.childPrice !== undefined ? pkg.childPrice : base;
+        return (adultRate * adults) + (childRate * children);
+      }
+      return base;
     } else {
       // Place based pricing
       const placeSum = selectedPlaceIds.reduce((sum, pid) => {
         const pl = pkg.places.find((p) => p.id === pid);
-        return sum + (pkg.guide.cost / Math.max(1, pkg.places.length));
+        return sum + (pl?.price ?? 0);
       }, 0);
-      return isPerPerson ? placeSum * totalPeople : placeSum;
+      if (isPerPerson) {
+        const childRate = pkg.childPrice !== null && pkg.childPrice !== undefined
+          ? (pkg.childPrice * selectedPlaceIds.length)
+          : placeSum;
+        return (placeSum * adults) + (childRate * children);
+      }
+      return placeSum;
     }
-  }, [isWholeTour, isPerPerson, pkg.price, pkg.guide.cost, pkg.places.length, totalPeople, selectedPlaceIds]);
+  }, [isWholeTour, isPerPerson, pkg.price, pkg.guide.cost, pkg.childPrice, adults, children, selectedPlaceIds, pkg.places]);
 
   const canDeselectPlaces = pkg.allowCustomerPlaceSelection !== false;
 
@@ -152,6 +169,21 @@ export function PackageBookingModal({
       return;
     }
 
+    if (!childrenAllowed && children > 0) {
+      toast.error("Children are not permitted on this package");
+      return;
+    }
+
+    if (childrenAllowed && pkg.maxChildren && children > pkg.maxChildren) {
+      toast.error(`Maximum ${pkg.maxChildren} children allowed per booking`);
+      return;
+    }
+
+    if (pkg.maxGroupSize && currentCapacityCount > pkg.maxGroupSize) {
+      toast.error(`Maximum group size of ${pkg.maxGroupSize} exceeded`);
+      return;
+    }
+
     if (selectedPlaceIds.length === 0) {
       toast.error("At least one place must be selected");
       return;
@@ -167,6 +199,8 @@ export function PackageBookingModal({
         bookingTime,
         tripStartTime: bookingTime,
         numberOfPeople: totalPeople,
+        numberOfAdults: adults,
+        numberOfChildren: children,
         pricingMode: pkg.pricingMode || "WHOLE_TOUR",
         pricingUnit: pkg.pricingUnit || "PER_TOUR",
         totalPrice: Math.round(calculatedTotal),
@@ -357,11 +391,11 @@ export function PackageBookingModal({
                 <Users className="size-4 text-primary" />
                 Number of Travellers
               </Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between">
                   <div>
                     <span className="text-sm font-semibold block">Adults</span>
-                    <span className="text-xs text-muted-foreground">Age 12+</span>
+                    <span className="text-xs text-muted-foreground">Age {pkg.childMaxAge ? `${pkg.childMaxAge}+` : "12+"}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -380,6 +414,7 @@ export function PackageBookingModal({
                       variant="outline"
                       size="sm"
                       className="size-8 rounded-full p-0"
+                      disabled={currentCapacityCount >= maxCapacity}
                       onClick={() => setAdults(adults + 1)}
                     >
                       +
@@ -387,35 +422,51 @@ export function PackageBookingModal({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-semibold block">Children</span>
-                    <span className="text-xs text-muted-foreground">Under 12 yrs</span>
+                {childrenAllowed ? (
+                  <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-semibold block">Children</span>
+                      <span className="text-xs text-muted-foreground">
+                        Under {pkg.childMaxAge || 12} yrs {pkg.childPrice && pkg.childPrice > 0 ? `(₹${pkg.childPrice})` : ""}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="size-8 rounded-full p-0"
+                        disabled={children <= 0}
+                        onClick={() => setChildren(Math.max(0, children - 1))}
+                      >
+                        -
+                      </Button>
+                      <span className="w-6 text-center font-bold text-sm">{children}</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="size-8 rounded-full p-0"
+                        disabled={children >= maxChildren || currentCapacityCount >= maxCapacity}
+                        onClick={() => setChildren(children + 1)}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="size-8 rounded-full p-0"
-                      disabled={children <= 0}
-                      onClick={() => setChildren(Math.max(0, children - 1))}
-                    >
-                      -
-                    </Button>
-                    <span className="w-6 text-center font-bold text-sm">{children}</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="size-8 rounded-full p-0"
-                      onClick={() => setChildren(children + 1)}
-                    >
-                      +
-                    </Button>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-3 flex flex-col justify-center">
+                    <span className="text-xs font-semibold text-muted-foreground block">Children: Not Permitted</span>
+                    <span className="text-[0.65rem] text-muted-foreground">Adults-only tour configured by guide.</span>
                   </div>
-                </div>
+                )}
               </div>
+              {pkg.maxGroupSize ? (
+                <p className="text-[0.7rem] text-muted-foreground">
+                  Tour capacity: Max {pkg.maxGroupSize} guests
+                  {pkg.childrenCountTowardCapacity === false ? " (Children don't count toward limit)" : " (Total passengers)"}
+                </p>
+              ) : null}
             </div>
 
             {/* 3. Included Itinerary Places */}

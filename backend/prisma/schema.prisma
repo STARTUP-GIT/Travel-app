@@ -235,6 +235,8 @@ model specific_guide {
   testimonials    testimonials[]
   placeSubmissions place_submission[]
   bookings        specific_guide_booking[]
+  commonGuidePackages common_guide_package[]
+  commonGuideBookings common_guide_booking[]
   
   isReported      Boolean @default(false)
   experience      Int
@@ -306,6 +308,9 @@ model common_guide_package {
   commonGuideId String
   name          String
   description   String?
+  duration      String?
+  maxGroupSize  Int?     @default(10)
+  packageImages String[] @default([])
   pricingMode   String   @default("WHOLE_TOUR")
   pricingUnit   String   @default("PER_TOUR")
   price         Float    @default(0)
@@ -313,11 +318,24 @@ model common_guide_package {
   cancellationPolicy String?
   foodStatus        String   @default("EXCLUDED")
   foodDetails       String?
+  mealsService      String   @default("NO_SERVICE")
+  includedMeals     String[] @default([])
+  mealDetails       String?
   transportStatus   String   @default("EXCLUDED")
   transportDetails  String?
+  transportService  String   @default("NO_SERVICE")
+  transportVehicles Json?
   entryFeeStatus    String   @default("EXCLUDED")
   entryFeeDetails   String?
   additionalCostsDetails String?
+  hasSpecificGuide  Boolean  @default(false)
+  specificGuideId   String?
+  childrenAllowed   Boolean  @default(true)
+  childMaxAge       Int?     @default(11)
+  maxChildren       Int?
+  childrenCountTowardCapacity Boolean @default(true)
+  childPrice        Float?
+  childConditions   String?
   tripStartTime String?
   pickupName    String?
   pickupAddress String?
@@ -327,18 +345,24 @@ model common_guide_package {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  commonGuide common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
-  places      common_guide_package_places[]
-  bookings    common_guide_booking[]
+  commonGuide   common_guide @relation(fields: [commonGuideId], references: [id], onDelete: Cascade)
+  specificGuide specific_guide? @relation(fields: [specificGuideId], references: [id], onDelete: SetNull)
+  places        common_guide_package_places[]
+  bookings      common_guide_booking[]
 
   @@index([commonGuideId])
 }
 
 model common_guide_package_places {
-  id        String @id @default(uuid())
-  packageId String
-  placeId   String
-  price     Float?
+  id              String  @id @default(uuid())
+  packageId       String
+  placeId         String
+  price           Float?
+  itineraryOrder  Int     @default(1)
+  visitArrangement String @default("GUIDED")
+  expectedDuration String?
+  entryFeeStatus  String  @default("EXCLUDED")
+  entryFeeAmount  Float?
 
   package common_guide_package @relation(fields: [packageId], references: [id], onDelete: Cascade)
   place   place @relation(fields: [placeId], references: [id], onDelete: Cascade)
@@ -386,6 +410,8 @@ model common_guide_booking {
   bookingDate             DateTime
   bookingTime             String?
   numberOfPeople          Int      @default(1)
+  numberOfAdults          Int      @default(1)
+  numberOfChildren        Int      @default(0)
   totalPrice              Float    @default(0)
   pricingMode             String   @default("WHOLE_TOUR")
   pricingUnit             String   @default("PER_TOUR")
@@ -414,6 +440,10 @@ model common_guide_booking {
   requestedPickupMapsUrl  String?
   requestedPickupLat      Float?
   requestedPickupLng      Float?
+  specificGuideId         String?
+  specificGuide           specific_guide? @relation(fields: [specificGuideId], references: [id], onDelete: SetNull)
+  specificGuideStatus     String?  @default("PENDING")
+  bookingSnapshot         Json?
   status                  bookingStatus @default(PENDING)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt

@@ -254,6 +254,12 @@ export const signIn = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User does not exist" });
     }
 
+    if (specific_guide_exists.status === "REJECTED") {
+      return res.status(403).json({
+        message: "Your guide account application was not approved. Please contact support.",
+      });
+    }
+
     if (!specific_guide_exists.password) {
       return res.status(401).json({ message: "Invalid password" });
     }
@@ -305,6 +311,12 @@ export const googleSignIn = async (req: Request, res: Response) => {
       return res.status(404).json({
         message:
           "Account does not exist.",
+      });
+    }
+
+    if (specific_guide_exists.status === "REJECTED") {
+      return res.status(403).json({
+        message: "Your guide account application was not approved. Please contact support.",
       });
     }
 

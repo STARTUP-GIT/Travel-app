@@ -27,7 +27,7 @@ export type ProviderLinkedPlace = {
   images: string[];
   entryfee: number | null;
   status: ListingStatus;
-  district: { id: string; name: string; slug: string } | null;
+  district: { id: string; name: string; slug?: string } | null;
 };
 
 /** Mirrors the backend `bookingStatus` enum. */
@@ -72,6 +72,7 @@ export type ProviderRequestKind =
 export type ProviderProfile = {
   id: string;
   kind: ProviderKind;
+  status?: ListingStatus;
   name: string;
   username: string;
   email: string;
@@ -127,9 +128,55 @@ export type ProviderProfileInput = {
 /*  Tour packages (common guide only)                                          */
 /* -------------------------------------------------------------------------- */
 
-/** A place as it appears inside a package. */
 export type PricingMode = "WHOLE_TOUR" | "PLACE_BASED";
 export type PricingUnit = "PER_TOUR" | "PER_PERSON";
+export type MealsServiceOption = "INCLUDED" | "ON_REQUEST" | "NO_SERVICE";
+export type TransportServiceOption = "INCLUDED" | "ON_REQUEST" | "NO_SERVICE";
+export type PlaceVisitArrangement = "GUIDED" | "DROP_OFF";
+export type PlaceEntryFeeStatus = "INCLUDED" | "EXCLUDED";
+
+export type SpecificGuideSummary = {
+  id: string;
+  full_name: string;
+  name?: string;
+  username?: string;
+  profile_pic: string | null;
+  profilePic?: string | null;
+  tagline?: string | null;
+  rating?: number | null;
+  experience?: number;
+  experienceYears?: number;
+  cost?: number;
+  pricePerDay?: number;
+  language?: string[];
+  languages?: string[];
+  placeid?: string | null;
+  place?: { id: string; name: string } | null;
+  agencyName?: string | null;
+};
+
+export type TransportVehicleConfig = {
+  vehicleType: "Car" | "Minibus" | "Bus" | string;
+  type?: string;
+  capacity: number;
+  isShared?: boolean;
+  isPrivate?: boolean;
+  routeScope?: string;
+  chargesIncluded?: string;
+  additionalChargesExcluded?: string;
+  chargesExcluded?: string;
+  conditions?: string;
+  price?: number;
+};
+
+export type PackagePlaceItineraryInput = {
+  placeId: string;
+  itineraryOrder: number;
+  visitArrangement: PlaceVisitArrangement;
+  expectedDuration?: string | null;
+  entryFeeStatus: PlaceEntryFeeStatus;
+  entryFeeAmount?: number | null;
+};
 
 export type PackagePlace = {
   id: string;
@@ -139,6 +186,11 @@ export type PackagePlace = {
   category: string;
   entryfee: number | null;
   price?: number | null;
+  itineraryOrder?: number;
+  visitArrangement?: PlaceVisitArrangement;
+  expectedDuration?: string | null;
+  entryFeeStatus?: PlaceEntryFeeStatus;
+  entryFeeAmount?: number | null;
   pricing?: {
     id: string;
     visitor: PlaceVisitor;
@@ -153,6 +205,9 @@ export type TourPackage = {
   id: string;
   name: string;
   description: string | null;
+  duration: string | null;
+  maxGroupSize: number | null;
+  packageImages: string[];
   pricingMode: PricingMode;
   pricingUnit: PricingUnit;
   price: number;
@@ -160,11 +215,25 @@ export type TourPackage = {
   cancellationPolicy: string | null;
   foodStatus: string;
   foodDetails: string | null;
+  mealsService: MealsServiceOption;
+  includedMeals: string[];
+  mealDetails: string | null;
   transportStatus: string;
   transportDetails: string | null;
-  entryFeeStatus: string;
+  transportService: TransportServiceOption;
+  transportVehicles: TransportVehicleConfig[] | null;
+  entryFeeStatus: PlaceEntryFeeStatus | string;
   entryFeeDetails: string | null;
   additionalCostsDetails: string | null;
+  hasSpecificGuide: boolean;
+  specificGuideId: string | null;
+  specificGuide: SpecificGuideSummary | null;
+  childrenAllowed: boolean;
+  childMaxAge: number | null;
+  maxChildren: number | null;
+  childrenCountTowardCapacity: boolean;
+  childPrice: number | null;
+  childConditions: string | null;
   tripStartTime: string | null;
   pickupName: string | null;
   pickupAddress: string | null;
@@ -179,6 +248,9 @@ export type TourPackage = {
 export type TourPackageInput = {
   name: string;
   description: string;
+  duration?: string;
+  maxGroupSize?: number;
+  packageImages?: string[];
   pricingMode: PricingMode;
   pricingUnit: PricingUnit;
   price: number;
@@ -186,11 +258,24 @@ export type TourPackageInput = {
   cancellationPolicy?: string;
   foodStatus?: string;
   foodDetails?: string;
+  mealsService?: MealsServiceOption;
+  includedMeals?: string[];
+  mealDetails?: string;
   transportStatus?: string;
   transportDetails?: string;
-  entryFeeStatus?: string;
+  transportService?: TransportServiceOption;
+  transportVehicles?: TransportVehicleConfig[];
+  entryFeeStatus?: PlaceEntryFeeStatus | string;
   entryFeeDetails?: string;
   additionalCostsDetails?: string;
+  hasSpecificGuide?: boolean;
+  specificGuideId?: string | null;
+  childrenAllowed?: boolean;
+  childMaxAge?: number | null;
+  maxChildren?: number | null;
+  childrenCountTowardCapacity?: boolean;
+  childPrice?: number | null;
+  childConditions?: string;
   tripStartTime?: string;
   pickupName?: string;
   pickupAddress?: string;
@@ -199,6 +284,7 @@ export type TourPackageInput = {
   pickupMapsUrl?: string;
   placeIds: string[];
   placePrices?: Record<string, number>;
+  placeItinerary?: PackagePlaceItineraryInput[];
 };
 
 /**

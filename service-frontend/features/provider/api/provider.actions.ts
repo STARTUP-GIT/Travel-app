@@ -30,6 +30,7 @@ import {
   getProviderProfile,
   getProviderRequests,
   getTourPackages,
+  getAvailableSpecificGuides,
   resolvePlaceCoordinates,
   submitPlaceAsGuide,
   updateProviderListing,
@@ -48,6 +49,7 @@ import type {
   ProviderListingInput,
   ProviderRequest,
   RequestStatus,
+  SpecificGuideSummary,
   TourPackage,
   TourPackageInput,
   TourPackagesResult,
@@ -79,7 +81,15 @@ function sanitizeErrorMessage(
 ): string {
   if (typeof msg !== "string" || !msg.trim()) return fallback;
   const trimmed = msg.trim();
+  const lower = trimmed.toLowerCase();
   if (
+    lower === "bad request" ||
+    lower === "internal server error" ||
+    lower.startsWith("cannot patch") ||
+    lower.startsWith("cannot post") ||
+    lower.includes("prisma") ||
+    lower.includes("syntaxerror") ||
+    lower.includes("sql") ||
     trimmed.startsWith("<!DOCTYPE") ||
     trimmed.startsWith("<html") ||
     /<[a-z][\s\S]*>/i.test(trimmed)
@@ -340,7 +350,7 @@ export async function removeService(id: string): Promise<ActionResult> {
  * the action boundary.
  */
 export async function requireCommonGuide() {
-  const session = await requireProviderSession("/profile");
+  const session = await requireProviderSession("/services");
   if (session.kind !== "common_guide") {
     throw new Error("Only tour guides manage tour packages.");
   }
@@ -350,6 +360,13 @@ export async function requireCommonGuide() {
 export async function loadTourPackages(): Promise<TourPackagesResult> {
   const session = await requireCommonGuide();
   return getTourPackages(session.token);
+}
+
+export async function loadAvailableSpecificGuides(): Promise<ActionResult<SpecificGuideSummary[]>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    return getAvailableSpecificGuides(session.token);
+  });
 }
 
 /**
@@ -419,6 +436,7 @@ export async function addTourPackage(
   return run(async () => {
     const session = await requireCommonGuide();
     const pkg = await createTourPackage(session.token, input);
+    revalidatePath("/services");
     revalidatePath("/profile");
     return pkg;
   });
@@ -431,6 +449,7 @@ export async function editTourPackage(
   return run(async () => {
     const session = await requireCommonGuide();
     const pkg = await updateTourPackage(session.token, packageId, input);
+    revalidatePath("/services");
     revalidatePath("/profile");
     return pkg;
   });
@@ -442,6 +461,7 @@ export async function removeTourPackage(
   return run(async () => {
     const session = await requireCommonGuide();
     await deleteTourPackage(session.token, packageId);
+    revalidatePath("/services");
     revalidatePath("/profile");
     return undefined;
   });

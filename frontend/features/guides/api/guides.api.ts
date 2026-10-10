@@ -113,8 +113,23 @@ export async function listDistrictGuideDirectory(
         entry = { ...pkg, guide, places: [] };
         packageMap.set(pkg.id, entry);
       }
-      entry.places.push(placeContext);
+
+      const pConfig = (pkg as any).placeDetails?.[place.id];
+      entry.places.push({
+        ...placeContext,
+        itineraryOrder: pConfig?.itineraryOrder ?? entry.places.length,
+        visitArrangement: pConfig?.visitArrangement ?? "GUIDED",
+        expectedDuration: pConfig?.expectedDuration ?? null,
+        entryFeeStatus: pConfig?.entryFeeStatus ?? (placeContext.entryfee && placeContext.entryfee > 0 ? "EXCLUDED" : "INCLUDED"),
+        entryFeeAmount: pConfig?.entryFeeAmount ?? (placeContext.entryfee ?? 0),
+        price: pConfig?.price ?? null,
+      });
     }
+  }
+
+  // Sort places in each package according to their configured itineraryOrder
+  for (const pkg of packageMap.values()) {
+    pkg.places.sort((a, b) => (a.itineraryOrder ?? 0) - (b.itineraryOrder ?? 0));
   }
 
   // A guide's own package list is the same set, flattened for the guide profile

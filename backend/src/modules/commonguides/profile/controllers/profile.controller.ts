@@ -256,6 +256,20 @@ export const getBookings = async (req: Request, res: Response) => {
       include: {
         user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
+        package: true,
+        specificGuide: {
+          select: {
+            id: true,
+            full_name: true,
+            username: true,
+            profile_pic: true,
+            tagline: true,
+            rating: true,
+            experience: true,
+            cost: true,
+            language: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -287,15 +301,30 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const { bookingId } = req.params as { bookingId: string };
 
-    const statusValue =
+    let statusValue =
       typeof req.body === "object" && req.body !== null && "status" in req.body
         ? (req.body as { status: unknown }).status
         : req.body;
+
+    if (typeof statusValue === "string") {
+      const upper = statusValue.trim().toUpperCase();
+      if (upper === "ACCEPTED") {
+        statusValue = "CONFIRMED";
+      }
+    }
+
     const status = guideBookingStatusSchema.parse(statusValue);
+    const finalStatus = status === "ACCEPTED" ? "CONFIRMED" : status;
 
     const booking = await prisma.common_guide_booking.findUnique({
       where: {
         id: bookingId,
+      },
+      include: {
+        user: { select: userSafeSelect },
+        selectedPlaces: { include: { place: true } },
+        package: true,
+        specificGuide: true,
       },
     });
 
@@ -311,14 +340,25 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       });
     }
 
+    // Idempotent acceptance: if already confirmed, succeed cleanly
+    if (booking.status === finalStatus) {
+      return res.status(200).json({
+        message: "Booking status updated successfully",
+        numberOfPlaces: booking.selectedPlaces.length,
+        booking,
+      });
+    }
+
     const updatedBooking = await prisma.common_guide_booking.update({
       where: {
         id: bookingId,
       },
-      data: { status },
+      data: { status: finalStatus },
       include: {
         user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
+        package: true,
+        specificGuide: true,
       },
     });
 
@@ -330,7 +370,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        message: "Validation failed",
+        message: "Validation failed: " + error.issues.map((i) => i.message).join(", "),
         errors: error.issues.map((issue) => ({
           field: issue.path.join("."),
           message: issue.message,

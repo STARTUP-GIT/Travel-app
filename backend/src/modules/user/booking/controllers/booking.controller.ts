@@ -328,7 +328,10 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
     if (data.packageId) {
       pkg = await prisma.common_guide_package.findUnique({
         where: { id: data.packageId },
-        include: { places: true },
+        include: {
+          places: { include: { place: true } },
+          specificGuide: true,
+        },
       });
     }
 
@@ -364,7 +367,48 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       }
     }
 
-    const numberOfPeople = Math.max(1, data.numberOfPeople ?? 1);
+    const numberOfAdults = Math.max(1, data.numberOfAdults ?? 1);
+    const numberOfChildren = Math.max(0, data.numberOfChildren ?? 0);
+    const numberOfPeople = numberOfAdults + numberOfChildren;
+
+    if (pkg) {
+      if (pkg.childrenAllowed === false && numberOfChildren > 0) {
+        return res.status(400).json({
+          message: "Children are not permitted for this tour package.",
+        });
+      }
+
+      if (typeof pkg.maxChildren === "number" && numberOfChildren > pkg.maxChildren) {
+        return res.status(400).json({
+          message: `Maximum ${pkg.maxChildren} children allowed for this tour package.`,
+        });
+      }
+
+      if (typeof pkg.maxGroupSize === "number" && pkg.maxGroupSize > 0) {
+        const countingPassengers = pkg.childrenCountTowardCapacity
+          ? numberOfPeople
+          : numberOfAdults;
+        if (countingPassengers > pkg.maxGroupSize) {
+          return res.status(400).json({
+            message: `Total travellers (${countingPassengers}) exceed the package maximum group size of ${pkg.maxGroupSize}.`,
+          });
+        }
+      }
+
+      if (pkg.transportService === "INCLUDED" && Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0) {
+        const maxCapacity = Math.max(
+          ...pkg.transportVehicles.map((v: any) => (typeof v.capacity === "number" ? v.capacity : 4))
+        );
+        const countingPassengers = pkg.childrenCountTowardCapacity
+          ? numberOfPeople
+          : numberOfAdults;
+        if (countingPassengers > maxCapacity) {
+          return res.status(400).json({
+            message: `Group size (${countingPassengers}) exceeds the maximum vehicle capacity of ${maxCapacity} passengers.`,
+          });
+        }
+      }
+    }
 
     if (pkg && pkg.allowCustomerPlaceSelection === false) {
       const pkgPlaceIds = pkg.places.map((p: any) => p.placeId);
@@ -395,10 +439,15 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
     let pricingMode = pkg?.pricingMode || "WHOLE_TOUR";
     let pricingUnit = pkg?.pricingUnit || "PER_TOUR";
     let calculatedTotalPrice = 0;
+    const basePrice = pkg?.price && pkg.price > 0 ? pkg.price : guide.cost;
+    const childRate = typeof pkg?.childPrice === "number" ? pkg.childPrice : basePrice;
 
     if (pricingMode === "WHOLE_TOUR") {
-      const basePrice = pkg?.price && pkg.price > 0 ? pkg.price : guide.cost;
-      calculatedTotalPrice = pricingUnit === "PER_PERSON" ? basePrice * numberOfPeople : basePrice;
+      if (pricingUnit === "PER_PERSON") {
+        calculatedTotalPrice = (basePrice * numberOfAdults) + (childRate * numberOfChildren);
+      } else {
+        calculatedTotalPrice = basePrice;
+      }
     } else {
       let placeSum = 0;
       if (pkg?.places?.length) {
@@ -413,8 +462,64 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       } else {
         placeSum = guide.cost * uniquePlaceIds.length;
       }
-      calculatedTotalPrice = pricingUnit === "PER_PERSON" ? placeSum * numberOfPeople : placeSum;
+
+      if (pricingUnit === "PER_PERSON") {
+        const placeChildRate = typeof pkg?.childPrice === "number" ? pkg.childPrice : placeSum;
+        calculatedTotalPrice = (placeSum * numberOfAdults) + (placeChildRate * numberOfChildren);
+      } else {
+        calculatedTotalPrice = placeSum;
+      }
     }
+
+    const assignedSpecificGuideId =
+      pkg?.hasSpecificGuide && pkg.specificGuideId ? pkg.specificGuideId : null;
+
+    const bookingSnapshot = {
+      packageId: pkg?.id ?? null,
+      packageName: pkg?.name ?? "Custom Tour",
+      packageDescription: pkg?.description ?? null,
+      duration: pkg?.duration ?? null,
+      maxGroupSize: pkg?.maxGroupSize ?? null,
+      pricingMode,
+      pricingUnit,
+      basePrice,
+      childRate,
+      adultsCount: numberOfAdults,
+      childrenCount: numberOfChildren,
+      totalTravellers: numberOfPeople,
+      cancellationPolicy: pkg?.cancellationPolicy ?? "Free cancellation up to 24h before trip start",
+      tripStartTime: data.tripStartTime || pkg?.tripStartTime || data.bookingTime || null,
+      pickupName: data.pickupName || pkg?.pickupName || null,
+      pickupAddress: data.pickupAddress || pkg?.pickupAddress || null,
+      pickupMapsUrl: data.pickupMapsUrl || pkg?.pickupMapsUrl || null,
+      meals: {
+        service: pkg?.mealsService ?? "NO_SERVICE",
+        included: pkg?.includedMeals ?? [],
+        details: pkg?.mealDetails ?? pkg?.foodDetails ?? null,
+      },
+      transport: {
+        service: pkg?.transportService ?? "NO_SERVICE",
+        vehicles: pkg?.transportVehicles ?? null,
+      },
+      specificGuide: pkg?.specificGuide
+        ? {
+            id: pkg.specificGuide.id,
+            name: pkg.specificGuide.full_name,
+            photo: pkg.specificGuide.profile_pic,
+            tagline: pkg.specificGuide.tagline,
+            languages: pkg.specificGuide.language,
+          }
+        : null,
+      places: (pkg?.places ?? []).map((p: any) => ({
+        id: p.place?.id ?? p.placeId,
+        name: p.place?.name ?? "",
+        visitArrangement: p.visitArrangement ?? "GUIDED",
+        expectedDuration: p.expectedDuration ?? null,
+        entryFeeStatus: p.entryFeeStatus ?? "EXCLUDED",
+        entryFeeAmount: p.entryFeeAmount ?? null,
+      })),
+      calculatedTotalPrice: Math.round(calculatedTotalPrice),
+    };
 
     const booking = await prisma.common_guide_booking.create({
       data: {
@@ -424,6 +529,8 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         bookingDate: data.bookingDate,
         bookingTime: data.bookingTime ?? null,
         numberOfPeople,
+        numberOfAdults,
+        numberOfChildren,
         totalPrice: Math.round(calculatedTotalPrice),
         pricingMode,
         pricingUnit,
@@ -448,12 +555,17 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         requestedPickupMapsUrl: data.requestedPickupMapsUrl ?? null,
         requestedPickupLat: data.requestedPickupLat ?? null,
         requestedPickupLng: data.requestedPickupLng ?? null,
+        specificGuideId: assignedSpecificGuideId,
+        specificGuideStatus: assignedSpecificGuideId ? "PENDING" : null,
+        bookingSnapshot,
         selectedPlaces: {
           create: uniquePlaceIds.map((placeId) => ({ placeId })),
         },
       },
       include: {
         commonGuide: true,
+        specificGuide: true,
+        package: true,
         user: true,
         selectedPlaces: { include: { place: true } },
       },
@@ -493,6 +605,7 @@ export const getUserCommonGuideBookings = async (req: Request, res: Response) =>
       where: { userId },
       include: {
         commonGuide: true,
+        specificGuide: true,
         package: true,
         selectedPlaces: { include: { place: true } },
       },
