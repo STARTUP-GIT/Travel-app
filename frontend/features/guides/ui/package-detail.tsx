@@ -431,6 +431,8 @@ export function PackageDetail({
               </p>
             </div>
           </section>
+        ) : null}
+
         {/* Customer Reviews & Ratings */}
         {person.review && person.review.length > 0 ? (
           <section>
