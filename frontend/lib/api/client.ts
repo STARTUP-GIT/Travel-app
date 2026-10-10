@@ -93,7 +93,10 @@ export async function http<T>(
     try {
       const { getSession } = await import("next-auth/react");
       const session = await getSession();
-      const token = session?.backendToken || (session?.user as any)?.backendToken;
+      const token =
+        session?.backendToken ||
+        (session?.user as any)?.backendToken ||
+        (session?.user?.id && session.user.id.length > 20 ? session.user.id : undefined);
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }

@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { RequestStatusBadge } from "@/components/shared/status-badge";
 import { RequestActions } from "@/features/provider/components/request-row";
+import { PrintBookingButton } from "@/features/provider/components/print-booking-button";
 import { loadRequests } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { formatCurrency, formatDate, formatShortDate, pluralize } from "@/lib/utils";
@@ -82,7 +83,12 @@ export default async function RequestDetailPage({
       <PageHeader
         title={request.customer.name}
         description={request.listingName}
-        actions={<RequestStatusBadge status={request.status} />}
+        actions={
+          <div className="flex items-center gap-2">
+            <RequestStatusBadge status={request.status} />
+            <PrintBookingButton request={request} />
+          </div>
+        }
       />
 
       <GlassCard className="mb-4 flex-row items-center gap-3 p-4">

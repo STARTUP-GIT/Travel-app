@@ -276,6 +276,24 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       id: true,
                       name: true,
                       description: true,
+                      pricingMode: true,
+                      pricingUnit: true,
+                      price: true,
+                      allowCustomerPlaceSelection: true,
+                      cancellationPolicy: true,
+                      foodStatus: true,
+                      foodDetails: true,
+                      transportStatus: true,
+                      transportDetails: true,
+                      entryFeeStatus: true,
+                      entryFeeDetails: true,
+                      additionalCostsDetails: true,
+                      tripStartTime: true,
+                      pickupName: true,
+                      pickupAddress: true,
+                      pickupLat: true,
+                      pickupLng: true,
+                      pickupMapsUrl: true,
                       createdAt: true,
                       updatedAt: true,
                       // The real number of places in the package, which a
@@ -335,6 +353,24 @@ export const getPlaceById = async (req: Request, res: Response) => {
           id: string;
           name: string;
           description: string | null;
+          pricingMode?: string;
+          pricingUnit?: string;
+          price?: number;
+          allowCustomerPlaceSelection?: boolean;
+          cancellationPolicy?: string | null;
+          foodStatus?: string;
+          foodDetails?: string | null;
+          transportStatus?: string;
+          transportDetails?: string | null;
+          entryFeeStatus?: string;
+          entryFeeDetails?: string | null;
+          additionalCostsDetails?: string | null;
+          tripStartTime?: string | null;
+          pickupName?: string | null;
+          pickupAddress?: string | null;
+          pickupLat?: number | null;
+          pickupLng?: number | null;
+          pickupMapsUrl?: string | null;
           createdAt: Date;
           updatedAt: Date;
           _count: { places: number };

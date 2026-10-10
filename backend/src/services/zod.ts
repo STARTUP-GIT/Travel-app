@@ -358,6 +358,7 @@ export const restaurentUpdateSchema = z.object({
 const startOfToday = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  today.setDate(today.getDate() - 1);
   return today;
 };
 

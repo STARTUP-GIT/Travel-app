@@ -30,7 +30,7 @@ export const generateSessionToken = (
   role: SessionRole
 ): string => {
   const token = jwt.sign({ userId, role }, getSessionSecret(), {
-    expiresIn: "1h",
+    expiresIn: "30d",
   });
 
   return token;

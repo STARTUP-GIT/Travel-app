@@ -136,7 +136,7 @@ function draftFrom(pkg: TourPackage): Draft {
 function validate(draft: Draft): string | null {
   if (draft.name.trim().length < 2) return "Give the package a name of at least 2 characters.";
   if (draft.placeIds.length === 0) return "Add at least one place to the package.";
-  if (draft.pricingMode === "WHOLE_TOUR" && draft.price <= 0) {
+  if (draft.pricingMode === "WHOLE_TOUR" && (draft.price === undefined || draft.price === null || draft.price < 0)) {
     return "Please enter a valid whole-tour price.";
   }
   return null;
@@ -742,8 +742,20 @@ function PackagePlacePicker({
   onChange: (placeIds: string[], places: Record<string, PackagePlace>) => void;
 }) {
   const [districtId, setDistrictId] = React.useState("");
+  const [districtSearch, setDistrictSearch] = React.useState("");
 
   const districts = useAsync(() => getDistricts(), []);
+
+  const filteredDistricts = React.useMemo(() => {
+    const list = districts.data ?? [];
+    if (!districtSearch.trim()) return list;
+    const q = districtSearch.toLowerCase().trim();
+    return list.filter(
+      (d) =>
+        d.name.toLowerCase().includes(q) ||
+        (d.state?.name && d.state.name.toLowerCase().includes(q))
+    );
+  }, [districts.data, districtSearch]);
 
   /**
    * The district the returned list belongs to is carried alongside it, because
@@ -865,19 +877,39 @@ function PackagePlacePicker({
         </div>
       ) : null}
 
-      <Select value={districtId} onValueChange={setDistrictId}>
-        <SelectTrigger id="package-district" className="w-full">
-          <SelectValue placeholder="Select a district to add its places" />
-        </SelectTrigger>
-        <SelectContent>
-          {(districts.data ?? []).map((district) => (
-            <SelectItem key={district.id} value={district.id}>
-              {district.name}
-              {district.state?.name ? `, ${district.state.name}` : ""}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex flex-col gap-1.5">
+        <Input
+          type="text"
+          placeholder="Type to filter districts (e.g. Mysuru, Bengaluru, Jaipur)…"
+          value={districtSearch}
+          onChange={(e) => setDistrictSearch(e.target.value)}
+          className="text-xs h-9 rounded-xl"
+        />
+        <Select value={districtId} onValueChange={setDistrictId}>
+          <SelectTrigger id="package-district" className="w-full">
+            <SelectValue
+              placeholder={
+                districtSearch
+                  ? `Matching districts (${filteredDistricts.length})`
+                  : "Select a district to add its places"
+              }
+            />
+          </SelectTrigger>
+          <SelectContent className="max-h-64">
+            {filteredDistricts.slice(0, 150).map((district) => (
+              <SelectItem key={district.id} value={district.id}>
+                {district.name}
+                {district.state?.name ? `, ${district.state.name}` : ""}
+              </SelectItem>
+            ))}
+            {filteredDistricts.length === 0 ? (
+              <div className="p-2 text-xs text-muted-foreground text-center">
+                No districts matching &ldquo;{districtSearch}&rdquo;
+              </div>
+            ) : null}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/*
         `!listed` covers the window right after a district is switched, where the

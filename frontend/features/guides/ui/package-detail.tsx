@@ -27,7 +27,7 @@ import { SectionHeader } from "@/components/shared/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GuideAvatar } from "@/features/guides/ui/guide-card";
-import { GuideBookingSheet } from "@/features/guides/ui/guide-profile";
+import { PackageBookingModal } from "@/features/guides/ui/package-booking-modal";
 import type { GuideWithContext, PackageWithContext } from "@/features/guides/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -200,7 +200,14 @@ export function PackageDetail({
 
             <Badge variant="info" className="gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold">
               <Ticket className="size-3.5" />
-              {formatCurrency(displayPrice)} {isWholeTour ? "whole tour" : "per place"}
+              {formatCurrency(displayPrice)}{" "}
+              {isWholeTour
+                ? pkg.pricingUnit === "PER_PERSON"
+                  ? "per person (whole tour)"
+                  : "whole tour (flat rate)"
+                : pkg.pricingUnit === "PER_PERSON"
+                ? "per place / person"
+                : "per place"}
             </Badge>
 
             {pkg.tripStartTime ? (
@@ -424,6 +431,29 @@ export function PackageDetail({
               </p>
             </div>
           </section>
+        {/* Customer Reviews & Ratings */}
+        {person.review && person.review.length > 0 ? (
+          <section>
+            <SectionHeader
+              title="Customer Reviews & Ratings"
+              subtitle={`Verified feedback from travellers guided by ${person.agencyName || person.full_name}`}
+            />
+            <div className="space-y-3">
+              {person.review.map((rev, index) => (
+                <div key={index} className="rounded-2xl border border-border bg-card p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="size-3.5 fill-amber-400" />
+                      ))}
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium">Verified Traveller</span>
+                  </div>
+                  <p className="text-sm text-foreground/90">{rev}</p>
+                </div>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <GlassCard className="gap-2 p-4">
@@ -437,16 +467,11 @@ export function PackageDetail({
         </GlassCard>
       </div>
 
-      <GuideBookingSheet
-        key={pkg.id}
+      <PackageBookingModal
         open={bookingOpen}
         onOpenChange={setBookingOpen}
-        guide={scopedGuide}
-        districtSlug={districtSlug}
-        stateSlug={stateSlug}
+        pkg={pkg}
         districtId={districtId}
-        placesForGuide={placesForGuide}
-        defaultSelectedPlaceIds={pkg.places.map((place) => place.id)}
       />
     </div>
   );

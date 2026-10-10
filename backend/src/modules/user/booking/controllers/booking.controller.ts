@@ -324,7 +324,17 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       });
     }
 
-    const associatedPlaceIds = guide.places.map((guidePlace) => guidePlace.placeId);
+    let pkg: any = null;
+    if (data.packageId) {
+      pkg = await prisma.common_guide_package.findUnique({
+        where: { id: data.packageId },
+        include: { places: true },
+      });
+    }
+
+    const guidePlaceIds = guide.places.map((guidePlace) => guidePlace.placeId);
+    const packagePlaceIds = pkg?.places ? pkg.places.map((p: any) => p.placeId) : [];
+    const associatedPlaceIds = [...new Set([...guidePlaceIds, ...packagePlaceIds])];
 
     const invalidPlaceIds = uniquePlaceIds.filter(
       (placeId) => !associatedPlaceIds.includes(placeId)
@@ -337,13 +347,12 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       });
     }
 
-    const districtIds = [
-      ...new Set(
-        guide.places
-          .filter((guidePlace) => uniquePlaceIds.includes(guidePlace.placeId))
-          .map((guidePlace) => guidePlace.place.districtId)
-      ),
-    ];
+    const selectedPlacesFromDb = await prisma.place.findMany({
+      where: { id: { in: uniquePlaceIds } },
+      select: { id: true, districtId: true },
+    });
+
+    const districtIds = [...new Set(selectedPlacesFromDb.map((p) => p.districtId))];
 
     for (const districtId of districtIds) {
       const district = await findDistrictWithHierarchy(districtId);
@@ -357,17 +366,9 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
 
     const numberOfPeople = Math.max(1, data.numberOfPeople ?? 1);
 
-    let pkg: any = null;
-    if (data.packageId) {
-      pkg = await prisma.common_guide_package.findUnique({
-        where: { id: data.packageId },
-        include: { places: true },
-      });
-    }
-
     if (pkg && pkg.allowCustomerPlaceSelection === false) {
-      const packagePlaceIds = pkg.places.map((p: any) => p.placeId);
-      const hasAllPlaces = packagePlaceIds.every((pid: string) => uniquePlaceIds.includes(pid));
+      const pkgPlaceIds = pkg.places.map((p: any) => p.placeId);
+      const hasAllPlaces = pkgPlaceIds.every((pid: string) => uniquePlaceIds.includes(pid));
       if (!hasAllPlaces) {
         return res.status(400).json({
           message: "This tour package requires booking the complete tour. You cannot deselect places.",
@@ -492,6 +493,7 @@ export const getUserCommonGuideBookings = async (req: Request, res: Response) =>
       where: { userId },
       include: {
         commonGuide: true,
+        package: true,
         selectedPlaces: { include: { place: true } },
       },
       orderBy: { createdAt: "desc" },

@@ -73,6 +73,15 @@ export type CommonGuideBooking = {
   id: string;
   userId: string;
   commonGuideId: string;
+  packageId?: string | null;
+  package?: {
+    id: string;
+    name: string;
+    description?: string | null;
+    price?: number;
+    pricingMode?: string;
+    pricingUnit?: string;
+  } | null;
   bookingDate: string;
   bookingTime?: string | null;
   tripStartTime?: string | null;
@@ -126,6 +135,7 @@ export type CreateCommonGuideBookingInput = {
   placeIds: string[];
   bookingDate: string;
   bookingTime?: string;
+  tripStartTime?: string;
   numberOfPeople?: number;
   pricingMode?: string;
   pricingUnit?: string;

@@ -5,15 +5,14 @@ import { getSessionSecret } from "../services/sessiontoken.js";
 import jwt from "jsonwebtoken";
 
 const extractToken = (req: Request): string | undefined => {
-  // Cookie first (server-to-server calls and the original same-origin flow),
-  // then Authorization: Bearer for direct cross-origin browser calls from the
-  // admin frontend (it never receives the backend's httpOnly cookie because
-  // NextAuth authenticates the login server-side).
-  const cookieToken = req.cookies?.token;
-  if (cookieToken) return cookieToken;
-
+  // Authorization: Bearer takes precedence for explicit cross-origin authenticated
+  // calls from the customer frontend, admin panel and mobile apps.
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7).trim();
+
+  // Cookie fallback for same-origin browser sessions and server calls
+  const cookieToken = req.cookies?.token;
+  if (cookieToken) return cookieToken;
 
   return undefined;
 };
