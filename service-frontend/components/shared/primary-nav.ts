@@ -50,35 +50,6 @@ export const PRIMARY_NAV: PrimaryNavItem[] = [
   },
 ];
 
-export function getPrimaryNav(pathname: string): PrimaryNavItem[] {
-  if (pathname.startsWith("/stays")) {
-    return [
-      {
-        href: "/stays/dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        match: (p) => p === "/stays/dashboard" || p === "/stays",
-      },
-      {
-        href: "/stays/services",
-        label: "My Stays",
-        icon: Store,
-        match: (p) => p.startsWith("/stays/services"),
-      },
-      {
-        href: "/stays/requests",
-        label: "Bookings",
-        icon: Inbox,
-        match: (p) => p.startsWith("/stays/requests"),
-      },
-      {
-        href: "/profile",
-        label: "Profile",
-        icon: User,
-        match: (p) => p.startsWith("/profile") || p.startsWith("/settings"),
-      },
-    ];
-  }
-
+export function getPrimaryNav(_pathname?: string): PrimaryNavItem[] {
   return PRIMARY_NAV;
 }

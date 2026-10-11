@@ -261,7 +261,7 @@ export const updateHotel = async (req: Request, res: Response) => {
 
     const existingHotel = await prisma.hotel.findUnique({
       where: { id: hotelId },
-      select: { hotelOwnerId: true },
+      select: { hotelOwnerId: true, property_type: true },
     });
 
     if (!existingHotel) {
@@ -455,7 +455,7 @@ export const updateHotel = async (req: Request, res: Response) => {
         ...(data.check_out_time !== undefined ? { check_out_time: data.check_out_time } : {}),
         ...(data.check_out_start_time !== undefined ? { check_out_start_time: data.check_out_start_time } : {}),
         ...(data.check_out_end_time !== undefined ? { check_out_end_time: data.check_out_end_time } : {}),
-        ...(data.property_type !== undefined ? { property_type: data.property_type } : {}),
+        ...(existingHotel.property_type ? { property_type: existingHotel.property_type } : (data.property_type !== undefined ? { property_type: data.property_type } : {})),
         ...(data.stay_category !== undefined ? { stay_category: data.stay_category } : {}),
         ...(data.accommodation_rules !== undefined ? { accommodation_rules: data.accommodation_rules } : {}),
         ...(data.cancellation_policy !== undefined ? { cancellation_policy: data.cancellation_policy } : {}),
@@ -539,8 +539,17 @@ export const getMyHotels = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const { property_type } = req.query;
+    const whereClause: Prisma.hotelWhereInput = { hotelOwnerId: ownerId };
+
+    if (property_type === "STAY") {
+      whereClause.property_type = "STAY";
+    } else if (property_type === "HOTEL") {
+      whereClause.property_type = "HOTEL";
+    }
+
     const hotels = await prisma.hotel.findMany({
-      where: { hotelOwnerId: ownerId },
+      where: whereClause,
       include: districtHierarchyInclude,
       orderBy: { createdAt: "desc" },
     });

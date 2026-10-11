@@ -8,6 +8,40 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(process.cwd()),
   },
+  async redirects() {
+    return [
+      {
+        source: "/stays/dashboard",
+        destination: "/dashboard",
+        permanent: false,
+      },
+      {
+        source: "/stays/services/new",
+        destination: "/services/new?type=stay",
+        permanent: false,
+      },
+      {
+        source: "/stays/services/:serviceId",
+        destination: "/services/:serviceId",
+        permanent: false,
+      },
+      {
+        source: "/stays/services",
+        destination: "/services",
+        permanent: false,
+      },
+      {
+        source: "/stays/requests",
+        destination: "/requests",
+        permanent: false,
+      },
+      {
+        source: "/stays/:path*",
+        destination: "/dashboard",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

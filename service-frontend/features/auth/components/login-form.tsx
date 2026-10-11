@@ -1,6 +1,6 @@
 "use client";
 
-import { BedSingle, Eye, EyeOff, Loader2, LogIn, Mail } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn, Mail } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { toast } from "sonner";
@@ -12,24 +12,19 @@ import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ProviderKindPicker,
-  type AccommodationPortal,
-} from "@/features/auth/components/provider-kind-picker";
+import { ProviderKindPicker } from "@/features/auth/components/provider-kind-picker";
 import { signInWithEmail } from "@/features/auth/api/auth.actions";
 import { providerMeta } from "@/features/provider/config";
 import type { ProviderKind } from "@/features/provider/types";
 
 type Props = {
   initialKind: ProviderKind | null;
-  initialPortal?: AccommodationPortal;
   next: string;
   error: string | null;
 };
 
-export function LoginForm({ initialKind, initialPortal = "hotel", next, error }: Props) {
+export function LoginForm({ initialKind, next, error }: Props) {
   const [kind, setKind] = React.useState<ProviderKind | null>(initialKind);
-  const [portal, setPortal] = React.useState<AccommodationPortal>(initialPortal);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -47,19 +42,12 @@ export function LoginForm({ initialKind, initialPortal = "hotel", next, error }:
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    // Guards the second submit of an in-flight request, which would otherwise
-    // sign in twice and race the redirect.
     if (pending || !kind) return;
 
     setPending(true);
     setFields({});
 
-    const destination =
-      kind === "hotel" && portal === "stays" && next === "/dashboard"
-        ? "/stays/dashboard"
-        : next;
-
-    const result = await signInWithEmail({ kind, email, password }, destination);
+    const result = await signInWithEmail({ kind, email, password }, next);
     setPending(false);
 
     if (!result.ok) {
@@ -95,18 +83,7 @@ export function LoginForm({ initialKind, initialPortal = "hotel", next, error }:
               setKind(next);
               setFields({});
             }}
-            accommodationPortal={portal}
-            onAccommodationPortalChange={setPortal}
           />
-
-          {kind === "hotel" && portal === "stays" ? (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300">
-              <BedSingle className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-              <span>
-                Signing in to <strong>Stays & Hostels Portal</strong> (backpacker hostels, dorm beds, and homestays).
-              </span>
-            </div>
-          ) : null}
 
           {guide ? (
             <p className="flex items-start gap-2 rounded-xl border border-border bg-card/60 p-3 text-xs text-muted-foreground">
@@ -207,33 +184,15 @@ export function LoginForm({ initialKind, initialPortal = "hotel", next, error }:
           </form>
         </GlassCard>
 
-        {(() => {
-          let signupHref = "/signup";
-          let signupLabel = "Create a provider account";
-          if (kind === "hotel") {
-            if (portal === "stays") {
-              signupHref = "/signup?kind=hotel&portal=stays";
-              signupLabel = "Create a stays & hostels account";
-            } else {
-              signupHref = "/signup?kind=hotel";
-              signupLabel = "Create a hotel account";
-            }
-          } else if (kind) {
-            signupHref = `/signup?kind=${kind}`;
-          }
-
-          return (
-            <p className="mt-5 text-center text-sm text-muted-foreground">
-              New here?{" "}
-              <Link
-                href={signupHref}
-                className="font-semibold text-primary hover:underline"
-              >
-                {signupLabel}
-              </Link>
-            </p>
-          );
-        })()}
+        <p className="mt-5 text-center text-sm text-muted-foreground">
+          New here?{" "}
+          <Link
+            href={kind ? `/signup?kind=${kind}` : "/signup"}
+            className="font-semibold text-primary hover:underline"
+          >
+            Create a provider account
+          </Link>
+        </p>
       </div>
     </div>
   );

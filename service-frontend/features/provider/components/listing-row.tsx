@@ -25,6 +25,8 @@ export function ListingRow({ listing }: { listing: ProviderListing }) {
   const [busy, setBusy] = React.useState(false);
   const hotel = hotelOf(listing);
   const restaurant = restaurantOf(listing);
+  const isStay = hotel ? hotel.property_type === "STAY" || Boolean(hotel.stay_category) : false;
+  const stayCategory = hotel?.stay_category ? hotel.stay_category.replace(/_/g, " ").toLowerCase() : "stay";
 
   async function toggleBooking(enabled: boolean) {
     const input = listingToInput(listing);
@@ -72,6 +74,11 @@ export function ListingRow({ listing }: { listing: ProviderListing }) {
           >
             {listing.name}
           </Link>
+          {hotel ? (
+            <Badge variant="outline" className="text-[0.65rem] capitalize">
+              {isStay ? (hotel.stay_category ? stayCategory : "Stay") : "Hotel"}
+            </Badge>
+          ) : null}
           {listing.status ? (
             <ListingStatusBadge status={listing.status} />
           ) : null}
@@ -89,7 +96,7 @@ export function ListingRow({ listing }: { listing: ProviderListing }) {
 
         <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           {hotel ? (
-            <span>{formatCurrency(hotel.cost_per_night)} per night</span>
+            <span>{formatCurrency(hotel.cost_per_night)} {isStay ? "per bed / night" : "per night"}</span>
           ) : null}
           {restaurant ? (
             <>

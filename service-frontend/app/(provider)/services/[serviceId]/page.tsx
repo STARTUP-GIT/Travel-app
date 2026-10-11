@@ -12,12 +12,13 @@ import { ListingStatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { VenueForm } from "@/features/provider/components/venue-form";
 import { HotelForm } from "@/features/provider/components/hotel-form";
+import { StayForm } from "@/features/provider/components/stay-form";
 import { RestaurantForm } from "@/features/provider/components/restaurant-form";
 import { getDistricts, getStates } from "@/features/locations/api/locations.api";
 import { loadListings } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import type { ProviderListing } from "@/features/provider/types";
-import { hotelOf, restaurantOf } from "@/features/provider/utils";
+import { hotelOf, isStayListing, restaurantOf } from "@/features/provider/utils";
 import { formatDate, formatCurrency, pluralize } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Edit listing" };
@@ -75,12 +76,18 @@ export default async function ServiceDetailPage({
   ]);
 
   if (hotel) {
+    const isStay = isStayListing(listing);
+
     return (
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <BackLink href="/services" />
         <PageHeader
           title={`Edit ${listing.name}`}
-          description="Changes are visible to travellers as soon as you save."
+          description={
+            isStay
+              ? "Manage stay rules, dormitory beds, amenities and community details."
+              : "Changes are visible to travellers as soon as you save."
+          }
         />
 
         {result.partial ? (
@@ -105,6 +112,9 @@ export default async function ServiceDetailPage({
                 {listing.status ? (
                   <ListingStatusBadge status={listing.status} />
                 ) : null}
+                <Badge variant={isStay ? "secondary" : "outline"} className="text-[10px]">
+                  {isStay ? "Stay / Hostel" : "Hotel"}
+                </Badge>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Listed {formatDate(listing.createdAt)}
@@ -120,7 +130,7 @@ export default async function ServiceDetailPage({
               {listing.subtitle || "—"}
             </Fact>
             <Fact icon={CalendarDays} label="Starting from">
-              {formatCurrency(hotel.cost_per_night)} / night
+              {formatCurrency(hotel.cost_per_night)} {isStay ? "/ bed" : "/ night"}
             </Fact>
             <Fact icon={Star} label="Reviews">
               {pluralize(listing.reviews.length, "review")}
@@ -128,13 +138,23 @@ export default async function ServiceDetailPage({
           </dl>
         </GlassCard>
 
-        <HotelForm
-          initialHotel={hotel}
-          listingId={listing.id}
-          submitLabel="Save changes"
-          initialStates={states}
-          initialDistricts={districts}
-        />
+        {isStay ? (
+          <StayForm
+            initialStay={hotel}
+            listingId={listing.id}
+            submitLabel="Save changes"
+            initialStates={states}
+            initialDistricts={districts}
+          />
+        ) : (
+          <HotelForm
+            initialHotel={hotel}
+            listingId={listing.id}
+            submitLabel="Save changes"
+            initialStates={states}
+            initialDistricts={districts}
+          />
+        )}
       </div>
     );
   }

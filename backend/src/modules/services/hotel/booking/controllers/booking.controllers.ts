@@ -20,8 +20,17 @@ export const getOwnerBookings = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    const { property_type } = req.query;
+    const hotelWhere: any = { hotelOwnerId: ownerId };
+
+    if (property_type === "STAY") {
+      hotelWhere.property_type = "STAY";
+    } else if (property_type === "HOTEL") {
+      hotelWhere.property_type = "HOTEL";
+    }
+
     const hotels = await prisma.hotel.findMany({
-      where: { hotelOwnerId: ownerId },
+      where: hotelWhere,
       select: { id: true },
     });
 

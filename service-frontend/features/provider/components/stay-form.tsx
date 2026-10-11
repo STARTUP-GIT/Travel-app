@@ -390,7 +390,7 @@ export function StayForm({
           return;
         }
         toast.success("Stay property updated successfully!");
-        router.push("/stays/services");
+        router.push("/services");
         router.refresh();
       } else {
         const res = await addService(payload);
@@ -400,7 +400,7 @@ export function StayForm({
           return;
         }
         toast.success("Stay property submitted for approval!");
-        router.push("/stays/services");
+        router.push("/services");
         router.refresh();
       }
     } catch {

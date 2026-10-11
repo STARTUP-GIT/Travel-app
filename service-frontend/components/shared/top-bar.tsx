@@ -34,7 +34,6 @@ export type TopBarIdentity = {
 
 export function TopBar({ identity }: { identity: TopBarIdentity }) {
   const pathname = usePathname();
-  const isStays = pathname.startsWith("/stays");
   const navItems = getPrimaryNav(pathname);
   const { appName } = useBranding();
   const meta = providerMeta(identity.kind);
@@ -44,7 +43,7 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="flex h-14 w-full items-center justify-between gap-3 px-4 lg:h-16 lg:px-8">
         <Link
-          href={isStays ? "/stays/dashboard" : "/dashboard"}
+          href="/dashboard"
           aria-label={`${appName} dashboard`}
           className="shrink-0"
         >
@@ -52,50 +51,9 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
         </Link>
 
         <div className="flex items-center gap-1.5 lg:gap-2">
-          {identity.kind === "hotel" ? (
-            <div
-              role="group"
-              aria-label="Accommodation portal switcher"
-              className="flex items-center rounded-xl border border-border/70 bg-muted/50 p-0.5 text-xs font-semibold backdrop-blur-sm"
-            >
-              <Link
-                href="/dashboard"
-                className={cn(
-                  "rounded-lg px-2.5 py-1 transition-all text-xs",
-                  !isStays
-                    ? "bg-primary text-primary-foreground font-bold shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Hotels
-              </Link>
-              <Link
-                href="/stays/dashboard"
-                className={cn(
-                  "rounded-lg px-2.5 py-1 transition-all text-xs flex items-center gap-1",
-                  isStays
-                    ? "bg-emerald-600 text-white font-bold shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <span>Stays</span>
-                <span
-                  className={cn(
-                    "rounded-full px-1 text-[0.6rem] font-bold uppercase",
-                    isStays
-                      ? "bg-white/20 text-white"
-                      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                  )}
-                >
-                  Hostels
-                </span>
-              </Link>
-            </div>
-          ) : (
-            <Badge variant="info" className="hidden sm:inline-flex">
-              {meta.label} portal
-            </Badge>
-          )}
+          <Badge variant="info" className="hidden sm:inline-flex">
+            {meta.label} portal
+          </Badge>
 
           {identity.pendingRequests > 0 ? (
             <Badge

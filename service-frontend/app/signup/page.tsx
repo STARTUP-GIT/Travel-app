@@ -8,14 +8,12 @@ import { isProviderKind } from "@/features/provider/types";
 export const metadata: Metadata = { title: "Create a provider account" };
 
 const ERRORS: Record<string, string> = {
-  // Auth.js collapses both a genuine misconfiguration and a sign-in it simply
-  // refused into `Configuration`, so this cannot claim to be either one.
   Configuration: "Something went wrong.",
   AccessDenied: "Sign up failed.",
   default: "Sign up failed.",
 };
 
-type SearchParams = Promise<{ kind?: string; portal?: string; error?: string }>;
+type SearchParams = Promise<{ kind?: string; error?: string }>;
 
 export default async function SignupPage({
   searchParams,
@@ -23,16 +21,14 @@ export default async function SignupPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const isStays = params.portal === "stays";
 
   if (await getProviderSession()) {
-    redirect(isStays ? "/stays/dashboard" : "/dashboard");
+    redirect("/dashboard");
   }
 
   return (
     <SignupForm
       initialKind={isProviderKind(params.kind) ? params.kind : null}
-      initialPortal={isStays ? "stays" : "hotel"}
       error={params.error ? (ERRORS[params.error] ?? ERRORS.default) : null}
     />
   );

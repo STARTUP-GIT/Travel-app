@@ -11,10 +11,7 @@ import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ProviderKindPicker,
-  type AccommodationPortal,
-} from "@/features/auth/components/provider-kind-picker";
+import { ProviderKindPicker } from "@/features/auth/components/provider-kind-picker";
 import {
   LanguageInput,
   PlacePicker,
@@ -30,7 +27,6 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   initialKind: ProviderKind | null;
-  initialPortal?: AccommodationPortal;
   error: string | null;
 };
 
@@ -58,15 +54,12 @@ const EMPTY: Form = {
   languages: [],
 };
 
-export function SignupForm({ initialKind, initialPortal = "hotel", error }: Props) {
+export function SignupForm({ initialKind, error }: Props) {
   const [kind, setKind] = React.useState<ProviderKind | null>(initialKind);
-  const [portal, setPortal] = React.useState<AccommodationPortal>(initialPortal);
   const [form, setForm] = React.useState<Form>(EMPTY);
   const [pending, setPending] = React.useState<"email" | "google" | null>(null);
   const [fields, setFields] = React.useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = React.useState(false);
-  // The chosen photo, held as a file until the account exists. No URL is ever
-  // typed or kept in form state.
   const [photoFile, setPhotoFile] = React.useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
   const announced = React.useRef(false);
@@ -77,8 +70,6 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
     };
   }, [photoPreview]);
 
-  // A failure that arrived through the URL is reported the same way as one the
-  // action returns, so every auth message is seen in the same place.
   React.useEffect(() => {
     if (!error || announced.current) return;
     announced.current = true;
@@ -108,17 +99,10 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    // Guards the second submit of an in-flight request, which would otherwise
-    // try to create the same account twice.
     if (pending || !kind) return;
 
     setPending("email");
     setFields({});
-
-    const destination =
-      kind === "hotel" && portal === "stays"
-        ? "/stays/services/new"
-        : "/dashboard";
 
     const result = await registerWithEmail(
       {
@@ -133,7 +117,7 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
         cost: form.cost,
         languages: form.languages,
       },
-      destination,
+      "/dashboard",
       photoFile
     );
 
@@ -178,46 +162,23 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
     const field = (
       <Input
         id={id}
-        type={
-          id === "password" && showPassword
-            ? "text"
-            : (options.type ?? "text")
-        }
+        type={options.type ?? "text"}
+        placeholder={options.placeholder}
         autoComplete={options.autoComplete}
         required={options.required}
-        placeholder={options.placeholder}
         value={form[id] as string}
-        onChange={(event) => set(id, event.target.value)}
+        onChange={(event) =>
+          set(id, event.target.value as Form[typeof id])
+        }
         aria-invalid={Boolean(fields[id])}
-        className={cn("rounded-xl py-6", id === "password" && "pr-11")}
+        className="rounded-xl py-6"
       />
     );
 
     return (
       <div className="space-y-1.5">
         <Label htmlFor={id}>{label}</Label>
-        {id === "password" ? (
-          <div className="relative">
-            {field}
-            <button
-              type="button"
-              onClick={() => setShowPassword((shown) => !shown)}
-              disabled={pending !== null}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              aria-pressed={showPassword}
-              title={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
-            >
-              {showPassword ? (
-                <EyeOff className="size-4" />
-              ) : (
-                <Eye className="size-4" />
-              )}
-            </button>
-          </div>
-        ) : (
-          field
-        )}
+        {field}
         {fields[id] ? (
           <p className="text-xs text-destructive">{fields[id]}</p>
         ) : null}
@@ -229,7 +190,7 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
     <div className="relative flex min-h-dvh flex-col items-center justify-center px-4 py-10">
       <BackgroundFX />
 
-      <div className="animate-fade-in-up w-full max-w-xl">
+      <div className="animate-fade-in-up w-full max-w-md">
         <Link href="/" className="mb-6 flex justify-center">
           <Logo className="scale-110" />
         </Link>
@@ -240,13 +201,9 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
               Create a provider account
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {kind === "hotel"
-                ? portal === "stays"
-                  ? "Register as a stays & hostels host to list dorms, homestays, and community stays."
-                  : "Register as a hotel owner to start managing your hotel."
-                : meta
-                  ? `Register as a ${meta.label.toLowerCase()} to start managing your services.`
-                  : "Choose the kind of account you are registering."}
+              {meta
+                ? `Register as a ${meta.label.toLowerCase()} provider to start managing your services.`
+                : "Choose the kind of account you are registering."}
             </p>
           </div>
 
@@ -256,8 +213,6 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
               setKind(next);
               setFields({});
             }}
-            accommodationPortal={portal}
-            onAccommodationPortalChange={setPortal}
           />
 
           {kind ? (
@@ -280,49 +235,76 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
               })}
               {textField("phonenumber", "Phone number", {
                 type: "tel",
-                placeholder: "10 to 15 digits",
+                placeholder: "+91 98765 43210",
                 autoComplete: "tel",
                 required: true,
               })}
-              {textField("password", "Password", {
-                type: "password",
-                placeholder: "At least 6 characters",
-                autoComplete: "new-password",
-                required: true,
-              })}
 
-              <PhotoUploadField
-                value={photoPreview}
-                fallbackLabel={form.fullname || "P"}
-                disabled={pending !== null}
-                hint={
-                  photoFile
-                    ? "Your photo uploads to Cloudinary when the account is created."
-                    : "Optional — you can add one later from your profile."
-                }
-                onPick={(file) => {
-                  setPhotoFile(file ?? null);
-                  setPhotoPreview((current) => {
-                    if (current) URL.revokeObjectURL(current);
-                    return file ? URL.createObjectURL(file) : null;
-                  });
-                }}
-              />
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="At least 6 characters"
+                    autoComplete="new-password"
+                    required
+                    value={form.password}
+                    onChange={(event) => set("password", event.target.value)}
+                    aria-invalid={Boolean(fields.password)}
+                    className="rounded-xl py-6 pr-11"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((shown) => !shown)}
+                    disabled={pending !== null}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    title={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
+                  </button>
+                </div>
+                {fields.password ? (
+                  <p className="text-xs text-destructive">{fields.password}</p>
+                ) : null}
+              </div>
 
               {isGuide ? (
                 <>
-                  <PlacePicker
-                    value={form.placeIds}
-                    onChange={(next) => set("placeIds", next)}
-                    multiple={kind === "common_guide"}
-                    error={fields.placeIds}
+                  <PhotoUploadField
+                    value={photoPreview}
+                    fallbackLabel={form.fullname || "Guide"}
+                    disabled={pending !== null}
+                    onPick={(file: File) => {
+                      if (photoPreview) URL.revokeObjectURL(photoPreview);
+                      setPhotoFile(file);
+                      setPhotoPreview(file ? URL.createObjectURL(file) : null);
+                    }}
+                    hint="A clear photo helps travellers recognize you."
                   />
+
+                  <PlacePicker
+                    multiple={kind === "common_guide"}
+                    value={form.placeIds}
+                    error={fields.placeid}
+                    onChange={(placeIds) => set("placeIds", placeIds)}
+                  />
+
                   <LanguageInput
                     value={form.languages}
-                    onChange={(next) => set("languages", next)}
-                    error={fields.languages}
+                    error={fields.language}
+                    onChange={(languages) => set("languages", languages)}
                   />
-                  <div className="grid gap-3 sm:grid-cols-2">
+
+                  <div className="grid grid-cols-2 gap-3">
                     {textField("experience", "Years of experience", {
                       type: "number",
                       placeholder: "3",
@@ -356,7 +338,7 @@ export function SignupForm({ initialKind, initialPortal = "hotel", error }: Prop
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Already registered?{" "}
           <Link
-            href={`/login?reauth=1${kind ? `&kind=${kind}` : ""}${kind === "hotel" && portal === "stays" ? "&portal=stays" : ""}`}
+            href={`/login?reauth=1${kind ? `&kind=${kind}` : ""}`}
             className="cursor-pointer font-semibold text-primary hover:underline"
           >
             Sign in

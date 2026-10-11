@@ -21,6 +21,12 @@ export function restaurantOf(listing: ProviderListing): RestaurantRecord | null 
     : null;
 }
 
+export function isStayListing(listing: ProviderListing): boolean {
+  const hotel = hotelOf(listing);
+  if (!hotel) return false;
+  return hotel.property_type === "STAY" || Boolean(hotel.stay_category);
+}
+
 /**
  * Every venue update is a full replacement, because the backend update schemas
  * validate the whole record. Rebuilding the input from the stored record is
@@ -33,6 +39,13 @@ export function listingToInput(listing: ProviderListing): ProviderListingInput |
   if (hotel) {
     return {
       name: hotel.name,
+      property_type: hotel.property_type ?? (hotel.stay_category ? "STAY" : "HOTEL"),
+      stay_category: hotel.stay_category ?? null,
+      accommodation_rules: hotel.accommodation_rules ?? null,
+      cancellation_policy: hotel.cancellation_policy ?? null,
+      activities: hotel.activities ?? [],
+      facilities: hotel.facilities ?? [],
+      roomTypes: hotel.room_types ?? [],
       address: hotel.address,
       profileLogo: hotel.profile_logo,
       districtId: hotel.districtId,

@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 
 import { BackLink } from "@/components/shared/screen-header";
 import { PageHeader } from "@/components/shared/page-header";
-import { HotelForm } from "@/features/provider/components/hotel-form";
+import { PropertyCreationFlow } from "@/features/provider/components/property-creation-flow";
 import { RestaurantForm } from "@/features/provider/components/restaurant-form";
 import { getStates } from "@/features/locations/api/locations.api";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 
-export const metadata: Metadata = { title: "Add a listing" };
+export const metadata: Metadata = { title: "Create Property" };
 
 export default async function NewServicePage() {
   const session = await requireProviderSession("/services/new");
@@ -25,14 +25,11 @@ export default async function NewServicePage() {
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <BackLink href="/services" />
         <PageHeader
-          title="Add a hotel"
-          description="Everything here is shown to travellers once the platform approves the listing."
+          title="Create Property"
+          description="Select your accommodation type and configure your property details for review."
         />
         <div className="mt-6">
-          <HotelForm
-            submitLabel="Submit for review"
-            initialStates={states}
-          />
+          <PropertyCreationFlow initialStates={states} />
         </div>
       </div>
     );

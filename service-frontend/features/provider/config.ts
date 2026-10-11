@@ -45,8 +45,8 @@ export type ProviderKindMeta = {
 export const PROVIDER_KIND_META: Record<ProviderKind, ProviderKindMeta> = {
   hotel: {
     kind: "hotel",
-    label: "Hotel",
-    blurb: "List your property, manage rates and handle stay requests.",
+    label: "Hotels & Stays",
+    blurb: "List and manage your hotels, backpacker hostels, homestays, rates and bookings.",
     serviceKind: "hotel",
     managesVenues: true,
     supportsGoogle: false,

@@ -1,4 +1,4 @@
-import { BedSingle, CalendarClock, CheckCircle2, Inbox, IndianRupee, Store, XCircle } from "lucide-react";
+import { CalendarClock, CheckCircle2, Inbox, IndianRupee, Store, XCircle } from "lucide-react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
       tone: "success",
     },
     {
-      label: meta.managesVenues ? "Your listings" : "Listing",
+      label: meta.managesVenues ? (session.kind === "hotel" ? "Properties" : "Your listings") : "Listing",
       value: String(stats.listingCount),
       icon: Store,
       tone: "muted",
@@ -173,27 +173,6 @@ export default async function DashboardPage() {
             : "Everything is answered. Here is the latest activity."
         }
       />
-
-      {session.kind === "hotel" ? (
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-          <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold">
-              <BedSingle className="size-5" />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-emerald-950 dark:text-emerald-200">
-                Backpacker Hostels & Stays Portal
-              </p>
-              <p className="text-xs text-emerald-800 dark:text-emerald-400">
-                Manage hostel dorms, homestays, bed inventory, and community activities.
-              </p>
-            </div>
-          </div>
-          <Button asChild size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shrink-0">
-            <Link href="/stays/dashboard">Open Stays Portal</Link>
-          </Button>
-        </div>
-      ) : null}
 
       {listingsPartial ? (
         <div
@@ -291,7 +270,9 @@ export default async function DashboardPage() {
             action={
               meta.managesVenues ? (
                 <Button asChild>
-                  <Link href="/services/new">Add your first listing</Link>
+                  <Link href="/services/new">
+                    {session.kind === "hotel" ? "Create Property" : "Add your first listing"}
+                  </Link>
                 </Button>
               ) : (
                 <Button asChild variant="outline">
