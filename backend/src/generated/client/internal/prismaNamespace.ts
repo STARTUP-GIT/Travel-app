@@ -2895,6 +2895,21 @@ export const PlaceScalarFieldEnum = {
   images: 'images',
   entryfee: 'entryfee',
   category: 'category',
+  categories: 'categories',
+  entryFeeType: 'entryFeeType',
+  childEntryFee: 'childEntryFee',
+  childMaxAge: 'childMaxAge',
+  entryFeeConditions: 'entryFeeConditions',
+  hasForeignPricing: 'hasForeignPricing',
+  foreignEntryFeeType: 'foreignEntryFeeType',
+  foreignAdultFee: 'foreignAdultFee',
+  foreignChildFee: 'foreignChildFee',
+  foreignChildMaxAge: 'foreignChildMaxAge',
+  foreignEntryFeeConditions: 'foreignEntryFeeConditions',
+  addressLine: 'addressLine',
+  locality: 'locality',
+  pincode: 'pincode',
+  mapsUrl: 'mapsUrl',
   status: 'status',
   latitude: 'latitude',
   longitude: 'longitude',
@@ -2925,6 +2940,21 @@ export const Place_submissionScalarFieldEnum = {
   images: 'images',
   entryfee: 'entryfee',
   category: 'category',
+  categories: 'categories',
+  entryFeeType: 'entryFeeType',
+  childEntryFee: 'childEntryFee',
+  childMaxAge: 'childMaxAge',
+  entryFeeConditions: 'entryFeeConditions',
+  hasForeignPricing: 'hasForeignPricing',
+  foreignEntryFeeType: 'foreignEntryFeeType',
+  foreignAdultFee: 'foreignAdultFee',
+  foreignChildFee: 'foreignChildFee',
+  foreignChildMaxAge: 'foreignChildMaxAge',
+  foreignEntryFeeConditions: 'foreignEntryFeeConditions',
+  addressLine: 'addressLine',
+  locality: 'locality',
+  pincode: 'pincode',
+  mapsUrl: 'mapsUrl',
   latitude: 'latitude',
   longitude: 'longitude',
   pricing: 'pricing',
@@ -3503,6 +3533,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'placeSubmissionStatus'
  */
 export type EnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeSubmissionStatus'>
@@ -3541,20 +3585,6 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 

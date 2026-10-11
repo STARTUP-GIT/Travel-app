@@ -1,6 +1,13 @@
 "use client";
 
-import { ImagePlus, Loader2, MapPin, Plus, Trash2 } from "lucide-react";
+import {
+  Globe2,
+  ImagePlus,
+  Loader2,
+  MapPin,
+  Ticket,
+  Trash2,
+} from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -23,129 +30,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   editGuidePlace,
   resolveGuidePlaceLocation,
   uploadPlacePhoto,
+  loadEnabledStates,
+  loadEnabledDistrictsByState,
 } from "@/features/provider/api/provider.actions";
+import { CategoryMultiSelect } from "@/features/places/components/category-select";
 import type {
+  DistrictRef,
   ManageablePlace,
   PlacePricingBand,
-  PlaceVisitor,
 } from "@/features/provider/types";
-import { formatCurrency, cn } from "@/lib/utils";
+import type { StateRef } from "@/features/locations/api/locations.api";
+import { cn } from "@/lib/utils";
 
 const NAME_LIMIT = 120;
 const DESCRIPTION_LIMIT = 2000;
-const CATEGORY_LIMIT = 60;
 const MAX_PHOTOS = 6;
-
-const CATEGORY_OPTIONS = [
-  "Heritage",
-  "Historical Site",
-  "Nature",
-  "Wildlife",
-  "Beach",
-  "Temple",
-  "Adventure",
-  "Waterfall",
-  "Museum",
-  "Art & Culture",
-  "Pilgrimage",
-  "Garden",
-  "Hill Station",
-  "Dam",
-  "Lake",
-  "Park",
-] as const;
-
-const AGE_GROUP_SUGGESTIONS = [
-  "Adult",
-  "Child",
-  "Infant",
-  "Senior Citizen",
-  "Student",
-] as const;
-
-const VISITOR_LABEL: Record<PlaceVisitor, string> = {
-  DOMESTIC: "Domestic",
-  FOREIGN: "Foreign",
-};
 
 type Photo = { file: File | null; url: string };
 type ResolvedCoordinates = { latitude: number; longitude: number };
 
-type FormState = {
+type EntryFeeType = "FREE" | "PAID" | "UNKNOWN";
+
+export type EditPlaceFormState = {
+  // Location
+  stateId: string;
+  districtId: string;
+
+  // Basic Info
   name: string;
   description: string;
-  category: string;
-  entryfee: string;
+  categories: string[];
+
+  // Indian Visitor Entry Fees
+  entryFeeType: EntryFeeType;
+  adultFee: string;
+  childFee: string;
+  childMaxAge: number;
+  entryFeeConditions: string;
+
+  // Foreign Visitor Entry Fees
+  hasForeignPricing: boolean;
+  foreignEntryFeeType: EntryFeeType;
+  foreignAdultFee: string;
+  foreignChildFee: string;
+  foreignChildMaxAge: number;
+  foreignEntryFeeConditions: string;
+
+  // Address
+  addressLine: string;
+  locality: string;
+  pincode: string;
+
+  // Google Maps
   mapsUrl: string;
+
+  // Media
   photos: Photo[];
-  pricing: PlacePricingBand[];
 };
-
-type Errors = {
-  name?: string;
-  description?: string;
-  category?: string;
-  entryfee?: string;
-  pricing?: string;
-  mapsUrl?: string;
-};
-
-const INVALID_MAPS_LINK =
-  "Could not read coordinates from this link. Open the place on Google Maps and share its link here.";
-
-function validate(state: FormState, requireFeeNumber: boolean): Errors {
-  const errors: Errors = {};
-
-  if (!state.name.trim()) {
-    errors.name = "Enter a place name.";
-  } else if (state.name.trim().length > NAME_LIMIT) {
-    errors.name = `Name must be ${NAME_LIMIT} characters or fewer.`;
-  }
-
-  if (!state.description.trim()) {
-    errors.description = "Tell travellers what is here.";
-  } else if (state.description.trim().length > DESCRIPTION_LIMIT) {
-    errors.description = `Description must be ${DESCRIPTION_LIMIT} characters or fewer.`;
-  }
-
-  if (!state.category.trim()) {
-    errors.category = "Pick or enter a category.";
-  } else if (state.category.trim().length > CATEGORY_LIMIT) {
-    errors.category = `Category must be ${CATEGORY_LIMIT} characters or fewer.`;
-  }
-
-  if (requireFeeNumber && state.entryfee.trim() !== "") {
-    const fee = Number(state.entryfee);
-    if (!Number.isFinite(fee) || fee < 0) {
-      errors.entryfee = "Enter a valid positive price, or leave empty for free.";
-    }
-  }
-
-  const seen = new Set<string>();
-  state.pricing.forEach((band) => {
-    if (!band.ageGroup.trim()) {
-      errors.pricing = "Every price row needs an age group label.";
-      return;
-    }
-    if (!Number.isFinite(band.amount) || band.amount < 0) {
-      errors.pricing = "Every price row needs a valid positive amount.";
-      return;
-    }
-    const key = `${band.visitor}:${band.ageGroup.trim().toLowerCase()}`;
-    if (seen.has(key)) {
-      errors.pricing = `“${band.ageGroup.trim()}” is listed twice for ${VISITOR_LABEL[band.visitor].toLowerCase()} visitors.`;
-      return;
-    }
-    seen.add(key);
-  });
-
-  return errors;
-}
 
 export function EditPlaceDialog({
   place,
@@ -158,67 +105,188 @@ export function EditPlaceDialog({
   onOpenChange: (open: boolean) => void;
   onUpdated: (place: ManageablePlace) => void;
 }) {
-  const [state, setState] = React.useState<FormState>({
+  const [form, setForm] = React.useState<EditPlaceFormState>({
+    stateId: "",
+    districtId: "",
     name: "",
     description: "",
-    category: "",
-    entryfee: "",
+    categories: [],
+    entryFeeType: "UNKNOWN",
+    adultFee: "",
+    childFee: "",
+    childMaxAge: 12,
+    entryFeeConditions: "",
+    hasForeignPricing: false,
+    foreignEntryFeeType: "UNKNOWN",
+    foreignAdultFee: "",
+    foreignChildFee: "",
+    foreignChildMaxAge: 12,
+    foreignEntryFeeConditions: "",
+    addressLine: "",
+    locality: "",
+    pincode: "",
     mapsUrl: "",
     photos: [],
-    pricing: [],
   });
-  const [customCategory, setCustomCategory] = React.useState(false);
-  const [errors, setErrors] = React.useState<Errors>({});
+
+  // States & Districts
+  const [states, setStates] = React.useState<StateRef[]>([]);
+  const [loadingStates, setLoadingStates] = React.useState(false);
+  const [districts, setDistricts] = React.useState<DistrictRef[]>([]);
+  const [loadingDistricts, setLoadingDistricts] = React.useState(false);
+
+  // Status & errors
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
 
+  // Coordinates
   const [resolved, setResolved] = React.useState<
     ({ url: string } & ResolvedCoordinates) | null
   >(null);
   const [resolvingLocation, setResolvingLocation] = React.useState(false);
   const [locationResolutionFailed, setLocationResolutionFailed] = React.useState(false);
 
+  // Load states on open
+  React.useEffect(() => {
+    if (!open) return;
+    let active = true;
+    setLoadingStates(true);
+    void loadEnabledStates().then((res) => {
+      if (!active) return;
+      setLoadingStates(false);
+      if (res.ok && res.data) {
+        setStates(res.data);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [open]);
+
+  // Prepopulate form when `place` and `open` change
   React.useEffect(() => {
     if (place && open) {
-      const isCustom = !CATEGORY_OPTIONS.includes(
-        place.category as (typeof CATEGORY_OPTIONS)[number]
-      );
-      setState({
+      // Determine initial categories
+      const initialCategories =
+        Array.isArray(place.categories) && place.categories.length > 0
+          ? place.categories
+          : place.category
+          ? [place.category]
+          : [];
+
+      // Determine initial domestic fee type
+      let domesticFeeType: EntryFeeType = "UNKNOWN";
+      if (place.entryFeeType) {
+        domesticFeeType = place.entryFeeType as EntryFeeType;
+      } else if (typeof place.entryfee === "number") {
+        domesticFeeType = place.entryfee > 0 ? "PAID" : "FREE";
+      }
+
+      // Determine initial foreign fee type
+      let foreignFeeType: EntryFeeType = "UNKNOWN";
+      if (place.foreignEntryFeeType) {
+        foreignFeeType = place.foreignEntryFeeType as EntryFeeType;
+      } else if (typeof place.foreignAdultFee === "number") {
+        foreignFeeType = place.foreignAdultFee > 0 ? "PAID" : "FREE";
+      }
+
+      const initialPhotos: Photo[] = (place.images || []).map((url) => ({
+        file: null,
+        url,
+      }));
+
+      const stateId = place.stateId ?? place.district?.stateId ?? "";
+      const districtId = place.districtId ?? place.district?.id ?? "";
+
+      setForm({
+        stateId,
+        districtId,
         name: place.name || "",
         description: place.description || "",
-        category: place.category || "",
-        entryfee:
+        categories: initialCategories,
+        entryFeeType: domesticFeeType,
+        adultFee:
           typeof place.entryfee === "number" && place.entryfee > 0
             ? String(place.entryfee)
             : "",
-        mapsUrl: "",
-        photos: (place.images || []).map((url) => ({ file: null, url })),
-        pricing: place.pricing || [],
+        childFee:
+          typeof place.childEntryFee === "number" && place.childEntryFee >= 0
+            ? String(place.childEntryFee)
+            : "",
+        childMaxAge: place.childMaxAge ?? 12,
+        entryFeeConditions: place.entryFeeConditions || "",
+        hasForeignPricing: Boolean(place.hasForeignPricing),
+        foreignEntryFeeType: foreignFeeType,
+        foreignAdultFee:
+          typeof place.foreignAdultFee === "number" && place.foreignAdultFee > 0
+            ? String(place.foreignAdultFee)
+            : "",
+        foreignChildFee:
+          typeof place.foreignChildFee === "number" && place.foreignChildFee >= 0
+            ? String(place.foreignChildFee)
+            : "",
+        foreignChildMaxAge: place.foreignChildMaxAge ?? 12,
+        foreignEntryFeeConditions: place.foreignEntryFeeConditions || "",
+        addressLine: place.addressLine || "",
+        locality: place.locality || "",
+        pincode: place.pincode || "",
+        mapsUrl: place.mapsUrl || "",
+        photos: initialPhotos,
       });
-      setCustomCategory(isCustom);
+
       setErrors({});
       setFormError(null);
-      setResolved(
-        typeof place.latitude === "number" && typeof place.longitude === "number"
-          ? { url: "", latitude: place.latitude, longitude: place.longitude }
-          : null
-      );
+
+      // Set existing coordinates if present
+      if (
+        typeof place.latitude === "number" &&
+        typeof place.longitude === "number" &&
+        (place.latitude !== 0 || place.longitude !== 0)
+      ) {
+        setResolved({
+          url: place.mapsUrl || "",
+          latitude: place.latitude,
+          longitude: place.longitude,
+        });
+      } else {
+        setResolved(null);
+      }
     }
   }, [place, open]);
 
-  const hasBands = state.pricing.length > 0;
-  const coordinates =
-    state.mapsUrl.trim() && resolved?.url === state.mapsUrl.trim()
-      ? resolved
-      : resolved?.url === ""
-      ? resolved
-      : null;
-
+  // Load districts whenever stateId changes
   React.useEffect(() => {
-    const raw = state.mapsUrl.trim();
+    if (!form.stateId) {
+      setDistricts([]);
+      return;
+    }
+    let active = true;
+    setLoadingDistricts(true);
+    void loadEnabledDistrictsByState(form.stateId).then((res) => {
+      if (!active) return;
+      setLoadingDistricts(false);
+      if (res.ok && res.data) {
+        setDistricts(res.data);
+      } else {
+        setDistricts([]);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [form.stateId]);
+
+  // Google Maps link resolution
+  React.useEffect(() => {
+    const raw = form.mapsUrl.trim();
     if (!raw) {
       setLocationResolutionFailed(false);
+      return;
+    }
+    // If mapsUrl matches currently resolved URL, don't re-resolve
+    if (resolved && resolved.url === raw) {
       return;
     }
 
@@ -232,35 +300,43 @@ export function EditPlaceDialog({
         if (result.ok && result.data) {
           setResolved({ url: raw, ...result.data });
         } else {
-          setResolved(null);
           setLocationResolutionFailed(true);
         }
       } catch {
-        if (!cancelled) {
-          setResolved(null);
-          setLocationResolutionFailed(true);
-        }
+        if (!cancelled) setLocationResolutionFailed(true);
       } finally {
         if (!cancelled) setResolvingLocation(false);
       }
-    }, 400);
+    }, 500);
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [state.mapsUrl]);
+  }, [form.mapsUrl, resolved]);
 
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setState((prev) => ({ ...prev, [key]: value }));
-    if (errors[key as keyof Errors]) {
-      setErrors((prev) => ({ ...prev, [key]: undefined }));
-    }
+  function updateField<K extends keyof EditPlaceFormState>(
+    key: K,
+    value: EditPlaceFormState[K]
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key as string];
+      return next;
+    });
+    setFormError(null);
+  }
+
+  function handleStateChange(newStateId: string) {
+    updateField("stateId", newStateId);
+    // Clear district when state changes as per Rule 1
+    updateField("districtId", "");
   }
 
   function addPhotos(files: FileList | null) {
-    if (!files) return;
-    const remaining = MAX_PHOTOS - state.photos.length;
+    if (!files || files.length === 0) return;
+    const remaining = MAX_PHOTOS - form.photos.length;
     if (remaining <= 0) {
       toast.error(`A place can have at most ${MAX_PHOTOS} photos.`);
       return;
@@ -270,59 +346,109 @@ export function EditPlaceDialog({
       .slice(0, remaining)
       .map((file) => ({ file, url: URL.createObjectURL(file) }));
 
-    setState((prev) => ({ ...prev, photos: [...prev.photos, ...next] }));
+    updateField("photos", [...form.photos, ...next]);
   }
 
   function removePhoto(index: number) {
-    setState((prev) => {
-      const removed = prev.photos[index];
-      if (removed?.file && removed.url.startsWith("blob:")) {
-        URL.revokeObjectURL(removed.url);
+    const photo = form.photos[index];
+    if (photo?.file && photo.url.startsWith("blob:")) {
+      URL.revokeObjectURL(photo.url);
+    }
+    updateField(
+      "photos",
+      form.photos.filter((_, at) => at !== index)
+    );
+  }
+
+  function validateForm(): Record<string, string> {
+    const found: Record<string, string> = {};
+
+    if (!form.stateId) {
+      found.stateId = "Please select a state.";
+    }
+
+    if (!form.districtId) {
+      found.districtId = "Please select a district belonging to this state.";
+    }
+
+    if (form.name.trim().length < 2) {
+      found.name = "Enter a place name (at least 2 characters).";
+    } else if (form.name.trim().length > NAME_LIMIT) {
+      found.name = `Keep name under ${NAME_LIMIT} characters.`;
+    }
+
+    if (form.description.trim().length < 10) {
+      found.description = "Tell travellers what is here (at least 10 characters).";
+    } else if (form.description.trim().length > DESCRIPTION_LIMIT) {
+      found.description = `Keep description under ${DESCRIPTION_LIMIT} characters.`;
+    }
+
+    if (form.categories.length === 0) {
+      found.categories = "Select or enter at least one category.";
+    }
+
+    if (form.entryFeeType === "PAID") {
+      if (form.adultFee.trim() === "") {
+        found.adultFee = "Enter the adult entry fee amount (₹).";
+      } else {
+        const val = Number(form.adultFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.adultFee = "Adult fee must be a valid non-negative number.";
+        }
       }
-      return {
-        ...prev,
-        photos: prev.photos.filter((_, at) => at !== index),
-      };
-    });
+
+      if (form.childFee.trim() !== "") {
+        const val = Number(form.childFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.childFee = "Child fee must be a valid non-negative number.";
+        }
+      }
+    }
+
+    if (form.hasForeignPricing && form.foreignEntryFeeType === "PAID") {
+      if (form.foreignAdultFee.trim() === "") {
+        found.foreignAdultFee = "Enter the foreign adult fee amount (₹).";
+      } else {
+        const val = Number(form.foreignAdultFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.foreignAdultFee = "Foreign adult fee must be a valid non-negative number.";
+        }
+      }
+
+      if (form.foreignChildFee.trim() !== "") {
+        const val = Number(form.foreignChildFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.foreignChildFee = "Foreign child fee must be a valid non-negative number.";
+        }
+      }
+    }
+
+    if (form.mapsUrl.trim() && locationResolutionFailed) {
+      found.mapsUrl = "Could not resolve coordinates from this link.";
+    }
+
+    if (form.pincode.trim() && !/^\d{6}$/.test(form.pincode.trim())) {
+      found.pincode = "Enter a valid 6-digit PIN code or leave blank.";
+    }
+
+    return found;
   }
 
-  function addBand(visitor: PlaceVisitor) {
-    setState((prev) => ({
-      ...prev,
-      pricing: [...prev.pricing, { visitor, ageGroup: "", amount: 0 }],
-    }));
-  }
-
-  function updateBand(index: number, patch: Partial<PlacePricingBand>) {
-    setState((prev) => ({
-      ...prev,
-      pricing: prev.pricing.map((band, at) =>
-        at === index ? { ...band, ...patch } : band
-      ),
-    }));
-  }
-
-  function removeBand(index: number) {
-    setState((prev) => ({
-      ...prev,
-      pricing: prev.pricing.filter((_, at) => at !== index),
-    }));
-  }
-
-  async function save() {
+  async function handleSave() {
     if (!place) return;
-    const found = validate(state, !hasBands);
-    if (Object.keys(found).length > 0) {
-      setErrors(found);
+    const errs = validateForm();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       toast.error("Please fix the highlighted fields");
       return;
     }
 
     setSaving(true);
     setFormError(null);
+
     try {
       const images: string[] = [];
-      for (const photo of state.photos) {
+      for (const photo of form.photos) {
         if (photo.file) {
           setUploading(true);
           const uploaded = await uploadPlacePhoto(photo.file);
@@ -330,6 +456,7 @@ export function EditPlaceDialog({
           if (!uploaded.ok) {
             setFormError(uploaded.message);
             toast.error(uploaded.message);
+            setSaving(false);
             return;
           }
           images.push(uploaded.data);
@@ -340,21 +467,76 @@ export function EditPlaceDialog({
         }
       }
 
-      const result = await editGuidePlace(place.id, {
-        name: state.name.trim(),
-        description: state.description.trim(),
+      let entryfee: number | null = null;
+      let childEntryFee: number | null = null;
+      if (form.entryFeeType === "PAID") {
+        entryfee = form.adultFee.trim() !== "" ? Number(form.adultFee) : 0;
+        childEntryFee = form.childFee.trim() !== "" ? Number(form.childFee) : 0;
+      } else if (form.entryFeeType === "FREE") {
+        entryfee = 0;
+        childEntryFee = 0;
+      }
+
+      let foreignAdultFee: number | null = null;
+      let foreignChildFee: number | null = null;
+      if (form.hasForeignPricing) {
+        if (form.foreignEntryFeeType === "PAID") {
+          foreignAdultFee = form.foreignAdultFee.trim() !== "" ? Number(form.foreignAdultFee) : null;
+          foreignChildFee = form.foreignChildFee.trim() !== "" ? Number(form.foreignChildFee) : null;
+        } else if (form.foreignEntryFeeType === "FREE") {
+          foreignAdultFee = 0;
+          foreignChildFee = 0;
+        }
+      }
+
+      // Preserve existing coords if no new link
+      const coords = resolved?.latitude ? resolved : null;
+      const latitude = coords ? coords.latitude : place.latitude ?? 0;
+      const longitude = coords ? coords.longitude : place.longitude ?? 0;
+
+      const pricingBands: PlacePricingBand[] = [];
+      if (form.entryFeeType === "PAID" && entryfee !== null) {
+        pricingBands.push({ visitor: "DOMESTIC", ageGroup: "Adult", amount: entryfee });
+        if (childEntryFee !== null) {
+          pricingBands.push({ visitor: "DOMESTIC", ageGroup: "Child", amount: childEntryFee });
+        }
+      }
+      if (form.hasForeignPricing && form.foreignEntryFeeType === "PAID" && foreignAdultFee !== null) {
+        pricingBands.push({ visitor: "FOREIGN", ageGroup: "Adult", amount: foreignAdultFee });
+        if (foreignChildFee !== null) {
+          pricingBands.push({ visitor: "FOREIGN", ageGroup: "Child", amount: foreignChildFee });
+        }
+      }
+
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        districtId: form.districtId,
+        stateId: form.stateId,
         images,
-        entryfee: hasBands
-          ? null
-          : state.entryfee.trim() === ""
-          ? null
-          : Number(state.entryfee),
-        category: state.category.trim(),
-        ...(coordinates
-          ? { latitude: coordinates.latitude, longitude: coordinates.longitude }
-          : {}),
-        pricing: hasBands ? state.pricing : [],
-      });
+        category: form.categories[0] || "Attraction",
+        categories: form.categories,
+        entryfee,
+        entryFeeType: form.entryFeeType,
+        childEntryFee,
+        childMaxAge: form.childMaxAge,
+        entryFeeConditions: form.entryFeeConditions.trim() || null,
+        hasForeignPricing: form.hasForeignPricing,
+        foreignEntryFeeType: form.hasForeignPricing ? form.foreignEntryFeeType : null,
+        foreignAdultFee,
+        foreignChildFee,
+        foreignChildMaxAge: form.foreignChildMaxAge,
+        foreignEntryFeeConditions: form.foreignEntryFeeConditions.trim() || null,
+        addressLine: form.addressLine.trim() || null,
+        locality: form.locality.trim() || null,
+        pincode: form.pincode.trim() || null,
+        mapsUrl: form.mapsUrl.trim() || null,
+        latitude,
+        longitude,
+        pricing: pricingBands,
+      };
+
+      const result = await editGuidePlace(place.id, payload);
 
       if (!result.ok) {
         setFormError(result.message);
@@ -362,226 +544,558 @@ export function EditPlaceDialog({
         return;
       }
 
+      toast.success("Place updated successfully");
       onUpdated(result.data);
       onOpenChange(false);
-      toast.success("Place updated successfully");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred while saving.";
+      setFormError(msg);
+      toast.error(msg);
     } finally {
       setUploading(false);
       setSaving(false);
     }
   }
 
+  const selectedStateName = states.find((s) => s.id === form.stateId)?.name;
+  const selectedDistrictName = districts.find((d) => d.id === form.districtId)?.name;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit place</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Edit place</DialogTitle>
           <DialogDescription>
             Update details for {place?.name || "this place"}.
-            {place?.district?.name ? ` Located in ${place.district.name}.` : ""}
+            {selectedDistrictName ? ` Located in ${selectedDistrictName}.` : ""}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-place-name">Place name</Label>
-            <Input
-              id="edit-place-name"
-              value={state.name}
-              maxLength={NAME_LIMIT}
-              onChange={(e) => set("name", e.target.value)}
-              placeholder="Place name"
-            />
-            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-place-description">Description</Label>
-            <Textarea
-              id="edit-place-description"
-              value={state.description}
-              maxLength={DESCRIPTION_LIMIT}
-              rows={4}
-              onChange={(e) => set("description", e.target.value)}
-              placeholder="What makes this place worth visiting"
-            />
-            {errors.description && (
-              <p className="text-xs text-destructive">{errors.description}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-place-category">Category</Label>
-            {!customCategory ? (
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={state.category}
-                  onValueChange={(val) => set("category", val)}
-                >
-                  <SelectTrigger id="edit-place-category">
-                    <SelectValue placeholder="Pick a category" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {CATEGORY_OPTIONS.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-fit"
-                  onClick={() => {
-                    set("category", "");
-                    setCustomCategory(true);
-                  }}
-                >
-                  Use custom category
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Input
-                  value={state.category}
-                  maxLength={CATEGORY_LIMIT}
-                  onChange={(e) => set("category", e.target.value)}
-                  placeholder="Custom category"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-fit"
-                  onClick={() => {
-                    set("category", "");
-                    setCustomCategory(false);
-                  }}
-                >
-                  Choose existing category
-                </Button>
-              </div>
-            )}
-            {errors.category && (
-              <p className="text-xs text-destructive">{errors.category}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2 rounded-2xl border border-border p-3">
-            <div className="flex items-center justify-between gap-2">
-              <Label>Entry pricing</Label>
-              <Badge variant="outline">
-                {hasBands ? "Per band" : "One price"}
-              </Badge>
+        <div className="flex flex-col gap-6 py-2">
+          {/* 1. STATE & DISTRICT SELECTION */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/50 p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Location & Jurisdiction</h3>
             </div>
 
-            {!hasBands ? (
-              <div className="flex flex-col gap-1.5">
-                <Input
-                  value={state.entryfee}
-                  inputMode="decimal"
-                  onChange={(e) => set("entryfee", e.target.value)}
-                  placeholder="Leave empty if entry is free"
-                />
-                {errors.entryfee && (
-                  <p className="text-xs text-destructive">{errors.entryfee}</p>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {state.pricing.map((band, idx) => (
-                  <div key={`${band.visitor}-${idx}`} className="flex items-center gap-2">
-                    <Select
-                      value={band.visitor}
-                      onValueChange={(val) =>
-                        updateBand(idx, { visitor: val as PlaceVisitor })
-                      }
-                    >
-                      <SelectTrigger className="w-32 shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DOMESTIC">Domestic</SelectItem>
-                        <SelectItem value="FOREIGN">Foreign</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      value={band.ageGroup}
-                      list="edit-place-age-groups"
-                      onChange={(e) =>
-                        updateBand(idx, { ageGroup: e.target.value })
-                      }
-                      placeholder="Age group"
-                      className="flex-1"
-                    />
-                    <Input
-                      value={Number.isFinite(band.amount) ? String(band.amount) : ""}
-                      inputMode="decimal"
-                      onChange={(e) =>
-                        updateBand(idx, { amount: Number(e.target.value) })
-                      }
-                      placeholder="0"
-                      className="w-28 shrink-0"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => removeBand(idx)}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="edit-place-state">
+                State <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.stateId}
+                onValueChange={handleStateChange}
+                disabled={loadingStates}
+              >
+                <SelectTrigger id="edit-place-state" className="text-sm">
+                  <SelectValue
+                    placeholder={
+                      loadingStates ? "Loading available states…" : "Select a state"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {states.map((state) => (
+                    <SelectItem key={state.id} value={state.id}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.stateId && (
+                <p className="text-xs text-destructive">{errors.stateId}</p>
+              )}
+            </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addBand("DOMESTIC")}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="edit-place-district">
+                District <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.districtId}
+                onValueChange={(val) => updateField("districtId", val)}
+                disabled={!form.stateId || loadingDistricts}
+              >
+                <SelectTrigger id="edit-place-district" className="text-sm">
+                  <SelectValue
+                    placeholder={
+                      !form.stateId
+                        ? "Select a state first"
+                        : loadingDistricts
+                        ? "Loading districts…"
+                        : districts.length === 0
+                        ? "No enabled districts in this state"
+                        : "Select a district"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {districts.map((district) => (
+                    <SelectItem key={district.id} value={district.id}>
+                      {district.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.districtId && (
+                <p className="text-xs text-destructive">{errors.districtId}</p>
+              )}
+            </div>
+          </section>
+
+          {/* 2. BASIC DETAILS */}
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="edit-place-name">
+                Place name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-place-name"
+                value={form.name}
+                maxLength={NAME_LIMIT}
+                onChange={(e) => updateField("name", e.target.value)}
+                placeholder="Place name"
+                className="text-sm"
+              />
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="edit-place-description">
+                Description <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="edit-place-description"
+                value={form.description}
+                maxLength={DESCRIPTION_LIMIT}
+                rows={4}
+                onChange={(e) => updateField("description", e.target.value)}
+                placeholder="What makes this place worth visiting"
+                className="text-sm leading-relaxed"
+              />
+              {errors.description && (
+                <p className="text-xs text-destructive">{errors.description}</p>
+              )}
+            </div>
+
+            {/* Multiple Categories */}
+            <CategoryMultiSelect
+              selected={form.categories}
+              onChange={(cats) => updateField("categories", cats)}
+              error={errors.categories}
+            />
+          </section>
+
+          {/* 3. INDIAN VISITOR ENTRY FEES */}
+          <section className="flex flex-col gap-3.5 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Ticket className="size-4 text-primary" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Indian Visitor Entry Fees
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Ticket prices for domestic / Indian citizens
+                  </p>
+                </div>
+              </div>
+
+              <div className="w-36">
+                <Select
+                  value={form.entryFeeType}
+                  onValueChange={(val) => updateField("entryFeeType", val as EntryFeeType)}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PAID">Paid entry</SelectItem>
+                    <SelectItem value="FREE">Free entry</SelectItem>
+                    <SelectItem value="UNKNOWN">Not provided</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {form.entryFeeType === "PAID" && (
+              <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border/80 bg-background/50 p-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="edit-adult-fee" className="text-xs">
+                      Adult entry fee (₹) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="edit-adult-fee"
+                      type="number"
+                      min={0}
+                      step="any"
+                      value={form.adultFee}
+                      onChange={(e) => updateField("adultFee", e.target.value)}
+                      placeholder="e.g. 50"
+                      className="text-sm"
+                    />
+                    {errors.adultFee && (
+                      <p className="text-xs text-destructive">{errors.adultFee}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="edit-child-fee" className="text-xs">
+                      Child entry fee (₹)
+                    </Label>
+                    <Input
+                      id="edit-child-fee"
+                      type="number"
+                      min={0}
+                      step="any"
+                      value={form.childFee}
+                      onChange={(e) => updateField("childFee", e.target.value)}
+                      placeholder="e.g. 25 (or 0 if free)"
+                      className="text-sm"
+                    />
+                    {errors.childFee && (
+                      <p className="text-xs text-destructive">{errors.childFee}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="edit-child-max-age" className="text-xs">
+                      Maximum child age for child ticket
+                    </Label>
+                    <span className="text-xs font-semibold text-primary">
+                      Up to {form.childMaxAge} years
+                    </span>
+                  </div>
+                  <Select
+                    value={String(form.childMaxAge)}
+                    onValueChange={(val) => updateField("childMaxAge", Number(val))}
                   >
-                    <Plus className="size-3.5" />
-                    Domestic price
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addBand("FOREIGN")}
-                  >
-                    <Plus className="size-3.5" />
-                    Foreign price
-                  </Button>
+                    <SelectTrigger id="edit-child-max-age" className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 13 }, (_, i) => (
+                        <SelectItem key={i} value={String(i)}>
+                          {i === 0 ? "Under 1 year (infants only)" : `${i} years and below`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[0.72rem] text-muted-foreground">
+                    Children aged {form.childMaxAge} and under pay the child fee. Visitors older than {form.childMaxAge} pay the adult entry fee.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="edit-fee-notes" className="text-xs">
+                    Fee conditions or notes (optional)
+                  </Label>
+                  <Input
+                    id="edit-fee-notes"
+                    value={form.entryFeeConditions}
+                    onChange={(e) => updateField("entryFeeConditions", e.target.value)}
+                    placeholder="e.g. Camera fee extra, govt ID required"
+                    className="text-xs"
+                  />
                 </div>
               </div>
             )}
-            {errors.pricing && (
-              <p className="text-xs text-destructive">{errors.pricing}</p>
+
+            {form.entryFeeType === "FREE" && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                Entry is marked completely free for all Indian visitors.
+              </p>
             )}
 
-            <datalist id="edit-place-age-groups">
-              {AGE_GROUP_SUGGESTIONS.map((g) => (
-                <option key={g} value={g} />
-              ))}
-            </datalist>
-          </div>
+            {form.entryFeeType === "UNKNOWN" && (
+              <p className="text-xs text-muted-foreground">
+                Entry fee is not configured or unknown.
+              </p>
+            )}
+          </section>
 
-          <div className="flex flex-col gap-2">
-            <Label>Photos</Label>
+          {/* 4. FOREIGN VISITOR ENTRY FEES */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe2 className="size-4 text-primary" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Foreign Visitor Entry Fees
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Separate ticketing rules for international tourists
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="edit-toggle-foreign-pricing"
+                  checked={form.hasForeignPricing}
+                  onCheckedChange={(checked) => updateField("hasForeignPricing", checked)}
+                />
+                <Label htmlFor="edit-toggle-foreign-pricing" className="cursor-pointer text-xs font-medium">
+                  {form.hasForeignPricing ? "Enabled" : "Disabled"}
+                </Label>
+              </div>
+            </div>
+
+            {!form.hasForeignPricing ? (
+              <p className="text-xs text-muted-foreground">
+                Separate foreign visitor pricing is not configured. Existing values are preserved if you re-enable.
+              </p>
+            ) : (
+              <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border/80 bg-background/50 p-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-medium">Pricing status for foreign visitors</Label>
+                  <div className="w-36">
+                    <Select
+                      value={form.foreignEntryFeeType}
+                      onValueChange={(val) =>
+                        updateField("foreignEntryFeeType", val as EntryFeeType)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PAID">Paid entry</SelectItem>
+                        <SelectItem value="FREE">Free entry</SelectItem>
+                        <SelectItem value="UNKNOWN">Not provided</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {form.foreignEntryFeeType === "PAID" && (
+                  <>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="edit-foreign-adult-fee" className="text-xs">
+                          Foreign adult fee (₹) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="edit-foreign-adult-fee"
+                          type="number"
+                          min={0}
+                          step="any"
+                          value={form.foreignAdultFee}
+                          onChange={(e) => updateField("foreignAdultFee", e.target.value)}
+                          placeholder="e.g. 500"
+                          className="text-sm"
+                        />
+                        {errors.foreignAdultFee && (
+                          <p className="text-xs text-destructive">{errors.foreignAdultFee}</p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="edit-foreign-child-fee" className="text-xs">
+                          Foreign child fee (₹)
+                        </Label>
+                        <Input
+                          id="edit-child-fee-foreign"
+                          type="number"
+                          min={0}
+                          step="any"
+                          value={form.foreignChildFee}
+                          onChange={(e) => updateField("foreignChildFee", e.target.value)}
+                          placeholder="e.g. 250 (or 0 if free)"
+                          className="text-sm"
+                        />
+                        {errors.foreignChildFee && (
+                          <p className="text-xs text-destructive">{errors.foreignChildFee}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="edit-foreign-child-max-age" className="text-xs">
+                          Maximum child age for foreign child ticket
+                        </Label>
+                        <span className="text-xs font-semibold text-primary">
+                          Up to {form.foreignChildMaxAge} years
+                        </span>
+                      </div>
+                      <Select
+                        value={String(form.foreignChildMaxAge)}
+                        onValueChange={(val) =>
+                          updateField("foreignChildMaxAge", Number(val))
+                        }
+                      >
+                        <SelectTrigger id="edit-foreign-child-max-age" className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 13 }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              {i === 0 ? "Under 1 year (infants only)" : `${i} years and below`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[0.72rem] text-muted-foreground">
+                        Foreign children aged {form.foreignChildMaxAge} and under pay the child fee. Visitors older than {form.foreignChildMaxAge} pay the foreign adult fee.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="edit-foreign-fee-notes" className="text-xs">
+                        Foreign fee conditions or notes (optional)
+                      </Label>
+                      <Input
+                        id="edit-foreign-fee-notes"
+                        value={form.foreignEntryFeeConditions}
+                        onChange={(e) => updateField("foreignEntryFeeConditions", e.target.value)}
+                        placeholder="e.g. Passport required at entrance"
+                        className="text-xs"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {form.foreignEntryFeeType === "FREE" && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    Entry is explicitly marked free for foreign visitors.
+                  </p>
+                )}
+
+                {form.foreignEntryFeeType === "UNKNOWN" && (
+                  <p className="text-xs text-muted-foreground">
+                    Foreign entry fee is not configured or unknown.
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* 5. PLACE ADDRESS & GOOGLE MAPS LOCATION */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-primary" />
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Place Address & Location</h3>
+                <p className="text-xs text-muted-foreground">
+                  Manual physical address and Google Maps sharing link
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-xs">
+              <span className="text-muted-foreground">Region:</span>
+              <Badge variant="outline" className="font-medium">
+                {selectedDistrictName || "No district selected"}
+              </Badge>
+              <span className="text-muted-foreground">·</span>
+              <Badge variant="outline" className="font-medium">
+                {selectedStateName || "No state selected"}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="edit-place-address-line" className="text-xs">
+                  Address line or landmark (optional)
+                </Label>
+                <Input
+                  id="edit-place-address-line"
+                  value={form.addressLine}
+                  onChange={(e) => updateField("addressLine", e.target.value)}
+                  placeholder="e.g. Sayyaji Rao Rd, Agrahara"
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-place-locality" className="text-xs">
+                  Locality or town (optional)
+                </Label>
+                <Input
+                  id="edit-place-locality"
+                  value={form.locality}
+                  onChange={(e) => updateField("locality", e.target.value)}
+                  placeholder="e.g. Chamrajpura"
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="edit-place-pincode" className="text-xs">
+                  PIN code (optional)
+                </Label>
+                <Input
+                  id="edit-place-pincode"
+                  value={form.pincode}
+                  maxLength={6}
+                  onChange={(e) => updateField("pincode", e.target.value)}
+                  placeholder="e.g. 570001"
+                  className="text-sm"
+                />
+                {errors.pincode && (
+                  <p className="text-xs text-destructive">{errors.pincode}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-1 flex flex-col gap-1.5">
+              <Label htmlFor="edit-place-maps-link" className="flex items-center gap-1.5 text-xs">
+                <span>Update Google Maps link (optional)</span>
+              </Label>
+              <Input
+                id="edit-place-maps-link"
+                type="url"
+                value={form.mapsUrl}
+                onChange={(e) => updateField("mapsUrl", e.target.value)}
+                placeholder="Paste new Google Maps link to update coordinates"
+                className="text-sm"
+              />
+              {resolvingLocation ? (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin text-primary" />
+                  Resolving link coordinates…
+                </p>
+              ) : resolved ? (
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  ✓ Coordinates: {resolved.latitude.toFixed(5)}, {resolved.longitude.toFixed(5)}
+                </p>
+              ) : locationResolutionFailed ? (
+                <p className="text-xs text-destructive">
+                  Could not read coordinates from this link.
+                </p>
+              ) : null}
+              {errors.mapsUrl && (
+                <p className="text-xs text-destructive">{errors.mapsUrl}</p>
+              )}
+            </div>
+          </section>
+
+          {/* 6. PHOTOS */}
+          <section className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-semibold">
+                Photos <span className="text-xs font-normal text-muted-foreground">({form.photos.length}/{MAX_PHOTOS})</span>
+              </Label>
+            </div>
+
             <label
               className={cn(
-                "flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-4 text-sm text-muted-foreground transition-colors hover:bg-accent"
+                "flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                form.photos.length >= MAX_PHOTOS && "pointer-events-none opacity-50"
               )}
             >
-              <ImagePlus className="size-4" />
-              {state.photos.length === 0
-                ? "Add photos"
-                : `${state.photos.length} of ${MAX_PHOTOS} added`}
+              <ImagePlus className="size-5 text-primary" />
+              <span>{form.photos.length === 0 ? "Add photos" : "Add more photos"}</span>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 multiple
+                disabled={form.photos.length >= MAX_PHOTOS}
                 className="sr-only"
                 onChange={(e) => {
                   addPhotos(e.target.files);
@@ -589,60 +1103,35 @@ export function EditPlaceDialog({
                 }}
               />
             </label>
-            {state.photos.length > 0 && (
-              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {state.photos.map((photo, idx) => (
-                  <li
+
+            {form.photos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                {form.photos.map((photo, idx) => (
+                  <div
                     key={`${photo.url}-${idx}`}
-                    className="relative aspect-square overflow-hidden rounded-xl border border-border"
+                    className="group relative aspect-video overflow-hidden rounded-xl border border-border bg-muted"
                   >
-                    {photo.url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo.url} alt="" className="size-full object-cover" />
-                    ) : null}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.url} alt="" className="size-full object-cover" />
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
+                      variant="destructive"
                       onClick={() => removePhoto(idx)}
-                      className="absolute right-1 top-1 size-6 p-0"
+                      className="absolute right-1 top-1 size-6 p-0 opacity-80 transition-opacity hover:opacity-100"
+                      aria-label="Remove photo"
                     >
                       <Trash2 className="size-3" />
                     </Button>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-place-maps-url" className="flex items-center gap-1.5">
-              <MapPin className="size-3.5" />
-              Update Google Maps link (optional)
-            </Label>
-            <Input
-              id="edit-place-maps-url"
-              type="url"
-              value={state.mapsUrl}
-              onChange={(e) => set("mapsUrl", e.target.value)}
-              placeholder="Paste a new link to update coordinates"
-            />
-            {resolvingLocation ? (
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="size-3.5 animate-spin" />
-                Resolving link…
-              </p>
-            ) : coordinates ? (
-              <p className="text-xs text-emerald-600">
-                Coordinates: {coordinates.latitude.toFixed(5)}, {coordinates.longitude.toFixed(5)}
-              </p>
-            ) : locationResolutionFailed ? (
-              <p className="text-xs text-destructive">{INVALID_MAPS_LINK}</p>
-            ) : null}
-          </div>
-
+          {/* Error Banner */}
           {formError && (
-            <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
               {formError}
             </p>
           )}
@@ -660,12 +1149,13 @@ export function EditPlaceDialog({
           <Button
             type="button"
             disabled={saving || uploading}
-            onClick={save}
+            onClick={handleSave}
+            className="gap-2"
           >
             {saving || uploading ? (
               <>
-                <Loader2 className="mr-1.5 size-4 animate-spin" />
-                Saving…
+                <Loader2 className="size-4 animate-spin" />
+                {uploading ? "Uploading photos…" : "Saving changes…"}
               </>
             ) : (
               "Save changes"

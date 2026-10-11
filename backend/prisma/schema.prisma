@@ -146,10 +146,25 @@ model place {
   commonGuideBookingPlaces common_guide_booking_places[]
   entryfee        Float?
   category        String
+  categories      String[] @default([])
+  entryFeeType    String?  @default("FREE")
+  childEntryFee   Float?
+  childMaxAge     Int?     @default(12)
+  entryFeeConditions String?
+  hasForeignPricing Boolean @default(false)
+  foreignEntryFeeType String?
+  foreignAdultFee   Float?
+  foreignChildFee   Float?
+  foreignChildMaxAge Int?   @default(12)
+  foreignEntryFeeConditions String?
+  addressLine     String?
+  locality        String?
+  pincode         String?
+  mapsUrl         String?
   status          placeSubmissionStatus @default(PENDING)
   pricing         place_pricing[]
-  latitude        Float
-  longitude       Float
+  latitude        Float    @default(0)
+  longitude       Float    @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   district        district @relation(fields: [districtId], references: [id])
@@ -193,8 +208,23 @@ model place_submission {
   images          String[]
   entryfee        Float?
   category        String
-  latitude        Float
-  longitude       Float
+  categories      String[] @default([])
+  entryFeeType    String?  @default("FREE")
+  childEntryFee   Float?
+  childMaxAge     Int?     @default(12)
+  entryFeeConditions String?
+  hasForeignPricing Boolean @default(false)
+  foreignEntryFeeType String?
+  foreignAdultFee   Float?
+  foreignChildFee   Float?
+  foreignChildMaxAge Int?   @default(12)
+  foreignEntryFeeConditions String?
+  addressLine     String?
+  locality        String?
+  pincode         String?
+  mapsUrl         String?
+  latitude        Float    @default(0)
+  longitude       Float    @default(0)
   // Pending ticket bands, stored the same way this row already stores the
   // pending name, description and fee: as the snapshot awaiting review. It is
   // NOT a second source of truth — the live bands are always `place_pricing`,

@@ -176,9 +176,19 @@ export function PlaceView({
         <div className="px-4 pt-4 sm:absolute sm:inset-x-0 sm:bottom-0 sm:px-5 sm:pb-4 sm:pt-0">
           <div className="flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-primary sm:bg-white/20 sm:text-white sm:backdrop-blur-md">
-                {place.category || "Place"}
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {((place.categories && place.categories.length > 0)
+                  ? place.categories
+                  : [place.category || "Place"]
+                ).map((cat) => (
+                  <span
+                    key={cat}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-primary sm:bg-white/20 sm:text-white sm:backdrop-blur-md"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
               <h1 className="mt-1.5 text-2xl font-bold tracking-tight sm:text-white sm:drop-shadow-sm">
                 {place.name}
               </h1>
@@ -330,6 +340,93 @@ export function PlaceView({
                 </section>
               ) : null}
 
+              {!hasPricingBands && (place.entryfee !== null || place.entryFeeType === "FREE" || place.hasForeignPricing) ? (
+                <section aria-labelledby="pricing-details-label">
+                  <SectionHeader
+                    title="Entry pricing details"
+                    subtitle="Indian and international visitor ticketing"
+                  />
+                  <div className="card-surface space-y-3 rounded-2xl p-4">
+                    {/* Indian Visitors */}
+                    <div>
+                      <h4 className="flex items-center gap-1.5 text-sm font-semibold">
+                        <Ticket className="size-4 text-primary" />
+                        Indian Visitors
+                      </h4>
+                      {place.entryFeeType === "FREE" || place.entryfee === 0 ? (
+                        <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                          Free entry for Indian citizens.
+                        </p>
+                      ) : place.entryfee !== null && place.entryfee !== undefined ? (
+                        <div className="mt-1.5 space-y-1 text-xs">
+                          <p>
+                            <span className="text-muted-foreground">Adult Entry: </span>
+                            <span className="font-semibold">{formatCurrency(place.entryfee)}</span>
+                          </p>
+                          {typeof place.childEntryFee === "number" && (
+                            <p>
+                              <span className="text-muted-foreground">
+                                Child Entry (up to {place.childMaxAge ?? 12} yrs):{" "}
+                              </span>
+                              <span className="font-semibold">
+                                {formatCurrency(place.childEntryFee)}
+                              </span>
+                            </p>
+                          )}
+                          {place.entryFeeConditions && (
+                            <p className="mt-1 text-[0.75rem] italic text-muted-foreground">
+                              {place.entryFeeConditions}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Entry fee details not provided.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Foreign Visitors */}
+                    {place.hasForeignPricing ? (
+                      <div className="border-t border-border/70 pt-2.5">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Foreign Visitors
+                        </h4>
+                        {place.foreignEntryFeeType === "FREE" ? (
+                          <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                            Free entry for foreign visitors.
+                          </p>
+                        ) : typeof place.foreignAdultFee === "number" ? (
+                          <div className="mt-1.5 space-y-1 text-xs">
+                            <p>
+                              <span className="text-muted-foreground">Foreign Adult Entry: </span>
+                              <span className="font-semibold">
+                                {formatCurrency(place.foreignAdultFee)}
+                              </span>
+                            </p>
+                            {typeof place.foreignChildFee === "number" && (
+                              <p>
+                                <span className="text-muted-foreground">
+                                  Foreign Child Entry (up to {place.foreignChildMaxAge ?? 12} yrs):{" "}
+                                </span>
+                                <span className="font-semibold">
+                                  {formatCurrency(place.foreignChildFee)}
+                                </span>
+                              </p>
+                            )}
+                            {place.foreignEntryFeeConditions && (
+                              <p className="mt-1 text-[0.75rem] italic text-muted-foreground">
+                                {place.foreignEntryFeeConditions}
+                              </p>
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </section>
+              ) : null}
+
               {/* Services at place */}
               <section aria-labelledby="services-label">
                 <SectionHeader
@@ -434,7 +531,14 @@ export function PlaceView({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">{place.name}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {place.district?.name ?? "Karnataka"}
+                    {[
+                      place.addressLine,
+                      place.locality,
+                      place.district?.name,
+                      place.pincode ? `PIN: ${place.pincode}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(", ") || (place.district?.name ?? "Karnataka")}
                     {address ? ` · ${address}` : ""}
                   </p>
                 </div>
@@ -514,7 +618,9 @@ function headlinePrice(place: Place): string {
   if (bands.length > 0) {
     return `From ${formatCurrency(Math.min(...bands.map((band) => band.amount)))}`;
   }
-  return place.entryfee === null ? "Free" : formatCurrency(place.entryfee);
+  if (place.entryFeeType === "FREE" || place.entryfee === 0) return "Free";
+  if (place.entryFeeType === "UNKNOWN" || place.entryfee === null) return "Unlisted";
+  return formatCurrency(place.entryfee);
 }
 
 function placeLatLng(place: Place): string | null {

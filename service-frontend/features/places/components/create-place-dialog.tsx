@@ -1,6 +1,16 @@
 "use client";
 
-import { ImagePlus, Loader2, MapPin, Plus, Trash2 } from "lucide-react";
+import {
+  Globe2,
+  ImagePlus,
+  Info,
+  Loader2,
+  MapPin,
+  Sparkles,
+  Ticket,
+  Trash2,
+  X,
+} from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -23,191 +33,117 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { submitGuidePlace, resolveGuidePlaceLocation, uploadPlacePhoto } from "@/features/provider/api/provider.actions";
+import {
+  submitGuidePlace,
+  resolveGuidePlaceLocation,
+  uploadPlacePhoto,
+  loadEnabledStates,
+  loadEnabledDistrictsByState,
+} from "@/features/provider/api/provider.actions";
+import { CategoryMultiSelect } from "@/features/places/components/category-select";
 import type {
+  DistrictRef,
   ManageablePlace,
   PlacePricingBand,
-  PlaceVisitor,
 } from "@/features/provider/types";
-import { formatCurrency } from "@/lib/utils";
+import type { StateRef } from "@/features/locations/api/locations.api";
 import { cn } from "@/lib/utils";
 
 const NAME_LIMIT = 120;
 const DESCRIPTION_LIMIT = 2000;
-const CATEGORY_LIMIT = 60;
 const MAX_PHOTOS = 6;
 
-/**
- * The categories a place can be filed under.
- *
- * `place.category` is a single text column across every place, so the same
- * string is stored and shown by the admin panel, this form and the customer
- * place page alike — the value is the shared contract, not a picklist.
- *
- * These are the categories the existing places already use, offered as choices
- * so a guide does not invent a near-duplicate ("heritage site" next to
- * "heritage"). The field stays editable for anything genuinely new: a tourist
- * attraction can be something this list has never seen, and blocking that would
- * lose the place rather than normalise it.
- */
-const CATEGORY_OPTIONS = [
-  "Heritage",
-  "Historical Site",
-  "Nature",
-  "Wildlife",
-  "Beach",
-  "Temple",
-  "Adventure",
-  "Waterfall",
-  "Museum",
-  "Art & Culture",
-  "Pilgrimage",
-  "Garden",
-  "Hill Station",
-  "Dam",
-  "Lake",
-  "Park",
-] as const;
-
-/** Offered as starting bands; the labels are editable, so this is not a fixed set. */
-const AGE_GROUP_SUGGESTIONS = [
-  "Adult",
-  "Child",
-  "Infant",
-  "Senior Citizen",
-  "Student",
-] as const;
-
-const VISITOR_LABEL: Record<PlaceVisitor, string> = {
-  DOMESTIC: "Domestic",
-  FOREIGN: "Foreign",
-};
-
 type Photo = { file: File | null; url: string };
-
-/** The coordinates a place is stored with, as the link resolver returns them. */
 type ResolvedCoordinates = { latitude: number; longitude: number };
 
-type FormState = {
+type EntryFeeType = "FREE" | "PAID" | "UNKNOWN";
+
+export type CreatePlaceFormState = {
+  // Location
+  stateId: string;
+  districtId: string;
+
+  // Basic Info
   name: string;
   description: string;
-  category: string;
-  /** Left as text so a half-typed number is not rewritten to "NaN" mid-keystroke. */
-  entryfee: string;
-  /**
-   * The guide pastes a Google Maps link here; the coordinates are derived from it
-   * and are never typed. They live outside `FormState` because they are resolved
-   * output, not something the guide edits — see `resolved`.
-   */
+  categories: string[];
+
+  // Indian Visitor Entry Fees
+  entryFeeType: EntryFeeType;
+  adultFee: string;
+  childFee: string;
+  childMaxAge: number;
+  entryFeeConditions: string;
+
+  // Foreign Visitor Entry Fees
+  hasForeignPricing: boolean;
+  foreignEntryFeeType: EntryFeeType;
+  foreignAdultFee: string;
+  foreignChildFee: string;
+  foreignChildMaxAge: number;
+  foreignEntryFeeConditions: string;
+
+  // Address
+  addressLine: string;
+  locality: string;
+  pincode: string;
+
+  // Google Maps
   mapsUrl: string;
+
+  // Media
   photos: Photo[];
-  pricing: PlacePricingBand[];
 };
 
-/** Falls back to the flat fee for a place that has no bands. */
-function priceLabel(bands: PlacePricingBand[], flat: number | null): string {
-  if (bands.length > 0) {
-    const cheapest = Math.min(...bands.map((band) => band.amount));
-    const dearest = Math.max(...bands.map((band) => band.amount));
-    return cheapest === dearest
-      ? `${formatCurrency(cheapest)} entry`
-      : `From ${formatCurrency(cheapest)} entry`;
-  }
-  return flat === null ? "Free entry" : `${formatCurrency(flat)} entry`;
-}
-
-function initialState(): FormState {
+function initialFormState(initialDistrictId = "", initialStateId = ""): CreatePlaceFormState {
   return {
+    stateId: initialStateId,
+    districtId: initialDistrictId,
     name: "",
     description: "",
-    category: "",
-    entryfee: "",
+    categories: [],
+    entryFeeType: "UNKNOWN",
+    adultFee: "",
+    childFee: "",
+    childMaxAge: 12,
+    entryFeeConditions: "",
+    hasForeignPricing: false,
+    foreignEntryFeeType: "UNKNOWN",
+    foreignAdultFee: "",
+    foreignChildFee: "",
+    foreignChildMaxAge: 12,
+    foreignEntryFeeConditions: "",
+    addressLine: "",
+    locality: "",
+    pincode: "",
     mapsUrl: "",
     photos: [],
-    pricing: [],
   };
 }
 
-type Errors = Partial<Record<keyof FormState, string>>;
+type FormErrors = {
+  stateId?: string;
+  districtId?: string;
+  name?: string;
+  description?: string;
+  categories?: string[];
+  adultFee?: string;
+  childFee?: string;
+  foreignAdultFee?: string;
+  foreignChildFee?: string;
+  pincode?: string;
+  mapsUrl?: string;
+};
 
-const INVALID_MAPS_LINK = "Please enter a valid Google Maps location link.";
-
-/**
- * Validates the form exactly once, at the point of saving, and reports every
- * problem together. Checking each keystroke would flag a half-typed price, which
- * reads as the form refusing input.
- *
- * The location is not checked here: it has no field of its own any more, so it is
- * gated at the point of saving, where a missing or unresolved link is reported
- * with the rest of the problems.
- */
-function validate(state: FormState, hasFlatFee: boolean): Errors {
-  const errors: Errors = {};
-
-  if (state.name.trim().length < 2) {
-    errors.name = "Give the place a name of at least 2 characters.";
-  }
-  if (state.description.trim().length < 10) {
-    errors.description = "Describe the place in at least 10 characters.";
-  }
-  if (state.category.trim().length === 0) {
-    errors.category = "Choose or type a category.";
-  } else if (state.category.trim().length > CATEGORY_LIMIT) {
-    errors.category = `Keep the category under ${CATEGORY_LIMIT} characters.`;
-  }
-
-  // The flat fee is only a question when there are no bands, because bands are
-  // then the only prices a customer is shown.
-  if (hasFlatFee && state.entryfee.trim() !== "") {
-    const fee = Number(state.entryfee);
-    if (!Number.isFinite(fee) || fee < 0) {
-      errors.entryfee = "Enter a price of zero or more, or leave it empty if entry is free.";
-    }
-  }
-
-  const seen = new Set<string>();
-  state.pricing.forEach((band, index) => {
-    const key = `${band.visitor}:${band.ageGroup.trim().toLowerCase()}`;
-    if (band.ageGroup.trim().length === 0) {
-      errors.pricing = "Every price row needs an age group.";
-      return;
-    }
-    if (!Number.isFinite(band.amount) || band.amount < 0) {
-      errors.pricing = "Every price must be zero or more.";
-      return;
-    }
-    if (seen.has(key)) {
-      errors.pricing = `“${band.ageGroup.trim()}” is listed twice for ${VISITOR_LABEL[band.visitor].toLowerCase()} visitors.`;
-      return;
-    }
-    seen.add(key);
-    void index;
-  });
-
-  return errors;
-}
-
-/**
- * Create a place from inside the tour-package form.
- *
- * A full place form rather than a name-and-district shortcut: a place created
- * here is a real place that travellers can open, so it needs the same description,
- * category, photos, location and pricing the admin panel collects. The backend is
- * the existing `places/submit` route, so the normal approval rules apply
- * unchanged.
- *
- * The created place is handed straight back so the caller can select it — the
- * point of creating it from here is to use it in the package being edited, which
- * works even when the place is still awaiting review because the guide may use
- * their own place immediately.
- */
 export function CreatePlaceDialog({
   open,
   onOpenChange,
-  districtId,
-  districtName,
-  districts,
+  districtId: propDistrictId,
+  districtName: propDistrictName,
+  stateId: propStateId,
+  districts: initialDistrictsList,
   onCreated,
 }: {
   open: boolean;
@@ -215,34 +151,35 @@ export function CreatePlaceDialog({
   /** Optional pre-selected district (e.g. from a package form). */
   districtId?: string;
   districtName?: string;
-  /** List of districts when the guide can choose which district to add the place to. */
+  stateId?: string;
+  /** List of districts when caller already has a list. */
   districts?: { id: string; name: string }[];
   onCreated: (place: ManageablePlace) => void;
 }) {
-  const [selectedDistrictId, setSelectedDistrictId] = React.useState<string>(
-    districtId || (districts?.[0]?.id ?? "")
+  const [form, setForm] = React.useState<CreatePlaceFormState>(() =>
+    initialFormState(propDistrictId ?? "", propStateId ?? "")
   );
 
-  React.useEffect(() => {
-    if (districtId) {
-      setSelectedDistrictId(districtId);
-    } else if (districts?.length && !selectedDistrictId) {
-      setSelectedDistrictId(districts[0].id);
-    }
-  }, [districtId, districts, selectedDistrictId]);
+  // States & Districts loading
+  const [states, setStates] = React.useState<StateRef[]>([]);
+  const [loadingStates, setLoadingStates] = React.useState(false);
+  const [districts, setDistricts] = React.useState<DistrictRef[]>([]);
+  const [loadingDistricts, setLoadingDistricts] = React.useState(false);
 
-  const currentDistrictName =
-    districtName ||
-    districts?.find((d) => d.id === selectedDistrictId)?.name ||
-    "selected district";
-
-  const [state, setState] = React.useState<FormState>(initialState);
-  const [customCategory, setCustomCategory] = React.useState(false);
-  const [errors, setErrors] = React.useState<Errors>({});
+  // Validation & status
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [formError, setFormError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
 
+  // Maps Link Resolution
+  const [resolved, setResolved] = React.useState<
+    ({ url: string } & ResolvedCoordinates) | null
+  >(null);
+  const [resolvingLocation, setResolvingLocation] = React.useState(false);
+  const [locationResolutionFailed, setLocationResolutionFailed] = React.useState(false);
+
+  // Revoke blob URLs on teardown
   const revokePhotoUrls = React.useCallback((photos: Photo[]) => {
     photos.forEach((photo) => {
       if (photo.file && photo.url.startsWith("blob:")) {
@@ -250,39 +187,70 @@ export function CreatePlaceDialog({
       }
     });
   }, []);
-  /**
-   * The link's coordinates, kept with the exact link they came from. Any edit to
-   * the link drops them, so a place can never be saved with coordinates belonging
-   * to a link the guide has since replaced.
-   */
-  const [resolved, setResolved] = React.useState<
-    ({ url: string } & ResolvedCoordinates) | null
-  >(null);
-  const [resolvingLocation, setResolvingLocation] = React.useState(false);
-  const [locationResolutionFailed, setLocationResolutionFailed] = React.useState(false);
 
-  const hasBands = state.pricing.length > 0;
-  /** Only the coordinates matching the link currently in the field may be used. */
-  const coordinates = resolved?.url === state.mapsUrl.trim() ? resolved : null;
-
-  // A draft that survives closing the dialog: reopening the form should not
-  // silently discard a half-written description and photos.
   const reset = React.useCallback(() => {
-    revokePhotoUrls(state.photos);
-    setState(initialState());
-    setCustomCategory(false);
+    revokePhotoUrls(form.photos);
+    setForm(initialFormState());
     setErrors({});
     setFormError(null);
     setResolved(null);
     setLocationResolutionFailed(false);
-  }, [revokePhotoUrls, state.photos]);
+  }, [form.photos, revokePhotoUrls]);
 
-  // Resolves the pasted link through the same backend the admin place form uses,
-  // debounced so a link that is still being pasted is not fetched once per
-  // character, and discarding a stale answer so a slow reply cannot overwrite a
-  // newer link's coordinates.
+  // Load enabled states when dialog opens
   React.useEffect(() => {
-    const url = state.mapsUrl.trim();
+    if (!open) return;
+    let active = true;
+    setLoadingStates(true);
+    void loadEnabledStates().then((res) => {
+      if (!active) return;
+      setLoadingStates(false);
+      if (res.ok && res.data) {
+        setStates(res.data);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [open]);
+
+  // If propDistrictId or propStateId provided, initialize
+  React.useEffect(() => {
+    if (open) {
+      if (propStateId) {
+        setForm((prev) => ({ ...prev, stateId: propStateId }));
+      }
+      if (propDistrictId) {
+        setForm((prev) => ({ ...prev, districtId: propDistrictId }));
+      }
+    }
+  }, [open, propDistrictId, propStateId]);
+
+  // Load districts whenever stateId changes
+  React.useEffect(() => {
+    if (!form.stateId) {
+      setDistricts([]);
+      return;
+    }
+    let active = true;
+    setLoadingDistricts(true);
+    void loadEnabledDistrictsByState(form.stateId).then((res) => {
+      if (!active) return;
+      setLoadingDistricts(false);
+      if (res.ok && res.data) {
+        setDistricts(res.data);
+      } else {
+        setDistricts([]);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [form.stateId]);
+
+  // Handle Google Maps link resolution debounced
+  React.useEffect(() => {
+    const url = form.mapsUrl.trim();
     setResolved(null);
     setLocationResolutionFailed(false);
     setResolvingLocation(false);
@@ -294,15 +262,11 @@ export function CreatePlaceDialog({
       void resolveGuidePlaceLocation(url).then((result) => {
         if (!active) return;
         setResolvingLocation(false);
-        if (!result.ok) {
+        if (result.ok && result.data) {
+          setResolved({ url, ...result.data });
+        } else {
           setLocationResolutionFailed(true);
-          return;
         }
-        if (!result.data) {
-          setLocationResolutionFailed(true);
-          return;
-        }
-        setResolved({ url, ...result.data });
       });
     }, 500);
 
@@ -310,91 +274,146 @@ export function CreatePlaceDialog({
       active = false;
       window.clearTimeout(timeout);
     };
-  }, [state.mapsUrl]);
+  }, [form.mapsUrl]);
 
-  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setState((previous) => ({ ...previous, [key]: value }));
-    setErrors((previous) => ({ ...previous, [key]: undefined, pricing: undefined }));
+  function updateField<K extends keyof CreatePlaceFormState>(
+    key: K,
+    value: CreatePlaceFormState[K]
+  ) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key as string];
+      return next;
+    });
     setFormError(null);
+  }
+
+  function handleStateChange(newStateId: string) {
+    updateField("stateId", newStateId);
+    // Clear district when state changes as per Rule 1
+    updateField("districtId", "");
   }
 
   function addPhotos(files: FileList | null) {
     if (!files || files.length === 0) return;
-    setState((previous) => {
-      const room = MAX_PHOTOS - previous.photos.length;
-      const next = Array.from(files)
-        .slice(0, Math.max(room, 0))
-        .map((file) => ({ file, url: URL.createObjectURL(file) }));
-      return { ...previous, photos: [...previous.photos, ...next] };
-    });
+    const remaining = MAX_PHOTOS - form.photos.length;
+    if (remaining <= 0) {
+      toast.error(`A place can have at most ${MAX_PHOTOS} photos.`);
+      return;
+    }
+
+    const next: Photo[] = Array.from(files)
+      .slice(0, remaining)
+      .map((file) => ({ file, url: URL.createObjectURL(file) }));
+
+    updateField("photos", [...form.photos, ...next]);
   }
 
   function removePhoto(index: number) {
-    setState((previous) => {
-      const [removed] = previous.photos.filter((_, at) => at === index);
-      if (removed?.file && removed.url.startsWith("blob:")) {
-        URL.revokeObjectURL(removed.url);
-      }
-      return {
-        ...previous,
-        photos: previous.photos.filter((_, at) => at !== index),
-      };
-    });
-  }
-
-  function addBand(visitor: PlaceVisitor = "DOMESTIC") {
-    setState((previous) => ({
-      ...previous,
-      // Seeded from the first domestic suggestion so the row is immediately
-      // usable; the label itself stays editable.
-      pricing: [
-        ...previous.pricing,
-        { visitor, ageGroup: AGE_GROUP_SUGGESTIONS[0], amount: 0 },
-      ],
-    }));
-  }
-
-  function updateBand(index: number, patch: Partial<PlacePricingBand>) {
-    setState((previous) => ({
-      ...previous,
-      pricing: previous.pricing.map((band, at) =>
-        at === index ? { ...band, ...patch } : band
-      ),
-    }));
-    setErrors((previous) => ({ ...previous, pricing: undefined }));
-  }
-
-  function removeBand(index: number) {
-    setState((previous) => ({
-      ...previous,
-      pricing: previous.pricing.filter((_, at) => at !== index),
-    }));
-  }
-
-  async function save() {
-    const found = validate(state, !hasBands);
-    // The coordinates have no field of their own, so the location is gated here
-    // rather than in `validate`: a link that did not resolve is reported with the
-    // rest of the problems, and saving stops before anything is written.
-    const location = coordinates;
-    if (!location) {
-      setErrors({ ...found, mapsUrl: INVALID_MAPS_LINK });
-      toast.error("Please fix the highlighted fields");
-      return;
+    const photo = form.photos[index];
+    if (photo?.file && photo.url.startsWith("blob:")) {
+      URL.revokeObjectURL(photo.url);
     }
-    if (Object.keys(found).length > 0) {
-      setErrors(found);
+    updateField(
+      "photos",
+      form.photos.filter((_, at) => at !== index)
+    );
+  }
+
+  function validateForm(): Record<string, string> {
+    const found: Record<string, string> = {};
+
+    if (!form.stateId) {
+      found.stateId = "Please select a state.";
+    }
+
+    if (!form.districtId) {
+      found.districtId = "Please select a district belonging to this state.";
+    }
+
+    if (form.name.trim().length < 2) {
+      found.name = "Give the place a name of at least 2 characters.";
+    } else if (form.name.trim().length > NAME_LIMIT) {
+      found.name = `Keep name under ${NAME_LIMIT} characters.`;
+    }
+
+    if (form.description.trim().length < 10) {
+      found.description = "Describe what makes this place worth visiting (at least 10 characters).";
+    } else if (form.description.trim().length > DESCRIPTION_LIMIT) {
+      found.description = `Keep description under ${DESCRIPTION_LIMIT} characters.`;
+    }
+
+    if (form.categories.length === 0) {
+      found.categories = "Select or enter at least one category.";
+    }
+
+    // Indian Visitor Fee validation
+    if (form.entryFeeType === "PAID") {
+      if (form.adultFee.trim() === "") {
+        found.adultFee = "Enter the adult entry fee amount (₹).";
+      } else {
+        const val = Number(form.adultFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.adultFee = "Adult fee must be a valid non-negative number.";
+        }
+      }
+
+      if (form.childFee.trim() !== "") {
+        const val = Number(form.childFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.childFee = "Child fee must be a valid non-negative number.";
+        }
+      }
+    }
+
+    // Foreign Visitor Fee validation if enabled
+    if (form.hasForeignPricing && form.foreignEntryFeeType === "PAID") {
+      if (form.foreignAdultFee.trim() === "") {
+        found.foreignAdultFee = "Enter the foreign adult entry fee amount (₹).";
+      } else {
+        const val = Number(form.foreignAdultFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.foreignAdultFee = "Foreign adult fee must be a valid non-negative number.";
+        }
+      }
+
+      if (form.foreignChildFee.trim() !== "") {
+        const val = Number(form.foreignChildFee);
+        if (!Number.isFinite(val) || val < 0) {
+          found.foreignChildFee = "Foreign child fee must be a valid non-negative number.";
+        }
+      }
+    }
+
+    // Maps link check: only invalid if user provided a URL and it could not be resolved
+    if (form.mapsUrl.trim() && locationResolutionFailed) {
+      found.mapsUrl = "Could not resolve coordinates from this link. Please check the URL.";
+    }
+
+    // PIN code check
+    if (form.pincode.trim() && !/^\d{6}$/.test(form.pincode.trim())) {
+      found.pincode = "Enter a valid 6-digit PIN code or leave blank.";
+    }
+
+    return found;
+  }
+
+  async function handleSave() {
+    const errs = validateForm();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
       toast.error("Please fix the highlighted fields");
       return;
     }
 
     setSaving(true);
     setFormError(null);
+
     try {
-      // Photos go up first: the place row needs its image URLs, and an upload
-      // failure is worth reporting before anything is written.
+      // 1. Upload photos first
       const images: string[] = [];
-      for (const photo of state.photos) {
+      for (const photo of form.photos) {
         if (photo.file) {
           setUploading(true);
           const uploaded = await uploadPlacePhoto(photo.file);
@@ -402,6 +421,7 @@ export function CreatePlaceDialog({
           if (!uploaded.ok) {
             setFormError(uploaded.message);
             toast.error(uploaded.message);
+            setSaving(false);
             return;
           }
           images.push(uploaded.data);
@@ -412,32 +432,79 @@ export function CreatePlaceDialog({
         }
       }
 
-      if (!selectedDistrictId) {
-        setFormError("Please select a district for this place");
-        toast.error("Please select a district for this place");
-        return;
+      // 2. Parse domestic fee numbers
+      let entryfee: number | null = null;
+      let childEntryFee: number | null = null;
+      if (form.entryFeeType === "PAID") {
+        entryfee = form.adultFee.trim() !== "" ? Number(form.adultFee) : 0;
+        childEntryFee = form.childFee.trim() !== "" ? Number(form.childFee) : 0;
+      } else if (form.entryFeeType === "FREE") {
+        entryfee = 0;
+        childEntryFee = 0;
       }
 
-      const result = await submitGuidePlace({
-        name: state.name.trim(),
-        description: state.description.trim(),
-        districtId: selectedDistrictId,
+      // 3. Parse foreign fee numbers
+      let foreignAdultFee: number | null = null;
+      let foreignChildFee: number | null = null;
+      if (form.hasForeignPricing) {
+        if (form.foreignEntryFeeType === "PAID") {
+          foreignAdultFee = form.foreignAdultFee.trim() !== "" ? Number(form.foreignAdultFee) : null;
+          foreignChildFee = form.foreignChildFee.trim() !== "" ? Number(form.foreignChildFee) : null;
+        } else if (form.foreignEntryFeeType === "FREE") {
+          foreignAdultFee = 0;
+          foreignChildFee = 0;
+        }
+      }
+
+      // 4. Coordinates derived from resolved link, or 0,0 for manual address
+      const coords = resolved?.url === form.mapsUrl.trim() ? resolved : null;
+      const latitude = coords?.latitude ?? 0;
+      const longitude = coords?.longitude ?? 0;
+
+      // 5. Build pricing bands for backward compatibility
+      const pricingBands: PlacePricingBand[] = [];
+      if (form.entryFeeType === "PAID" && entryfee !== null) {
+        pricingBands.push({ visitor: "DOMESTIC", ageGroup: "Adult", amount: entryfee });
+        if (childEntryFee !== null) {
+          pricingBands.push({ visitor: "DOMESTIC", ageGroup: "Child", amount: childEntryFee });
+        }
+      }
+      if (form.hasForeignPricing && form.foreignEntryFeeType === "PAID" && foreignAdultFee !== null) {
+        pricingBands.push({ visitor: "FOREIGN", ageGroup: "Adult", amount: foreignAdultFee });
+        if (foreignChildFee !== null) {
+          pricingBands.push({ visitor: "FOREIGN", ageGroup: "Child", amount: foreignChildFee });
+        }
+      }
+
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        districtId: form.districtId,
+        stateId: form.stateId,
         images,
-        entryfee: hasBands
-          ? null
-          : state.entryfee.trim() === ""
-            ? null
-            : Number(state.entryfee),
-        category: state.category.trim(),
-        // Resolved from the pasted link by the same resolver the admin form uses;
-        // the create payload is unchanged, so the place row still stores the two
-        // numbers it always did.
-        latitude: location.latitude,
-        longitude: location.longitude,
-        // With no bands the field is left off entirely, so the place is stored as
-        // a normal single-price place.
-        ...(hasBands ? { pricing: state.pricing } : {}),
-      });
+        category: form.categories[0] || "Attraction",
+        categories: form.categories,
+        entryfee,
+        entryFeeType: form.entryFeeType,
+        childEntryFee,
+        childMaxAge: form.childMaxAge,
+        entryFeeConditions: form.entryFeeConditions.trim() || null,
+        hasForeignPricing: form.hasForeignPricing,
+        foreignEntryFeeType: form.hasForeignPricing ? form.foreignEntryFeeType : null,
+        foreignAdultFee,
+        foreignChildFee,
+        foreignChildMaxAge: form.foreignChildMaxAge,
+        foreignEntryFeeConditions: form.foreignEntryFeeConditions.trim() || null,
+        addressLine: form.addressLine.trim() || null,
+        locality: form.locality.trim() || null,
+        pincode: form.pincode.trim() || null,
+        mapsUrl: form.mapsUrl.trim() || null,
+        latitude,
+        longitude,
+        ...(pricingBands.length > 0 ? { pricing: pricingBands } : {}),
+      };
+
+      const result = await submitGuidePlace(payload);
 
       if (!result.ok) {
         setFormError(result.message);
@@ -445,409 +512,645 @@ export function CreatePlaceDialog({
         return;
       }
 
-      const created = result.data;
-      onCreated(created);
+      toast.success("Place created successfully!");
+      onCreated(result.data);
       reset();
       onOpenChange(false);
-      toast.success(
-        created.status === "APPROVED"
-          ? "Place created successfully"
-          : "Place saved — awaiting review"
-      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred while saving.";
+      setFormError(msg);
+      toast.error(msg);
     } finally {
       setUploading(false);
       setSaving(false);
     }
   }
 
+  const selectedStateName = states.find((s) => s.id === form.stateId)?.name;
+  const selectedDistrictName = districts.find((d) => d.id === form.districtId)?.name;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) reset();
+        onOpenChange(nextOpen);
+      }}
+    >
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add a new place</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Add a new place</DialogTitle>
           <DialogDescription>
-            This creates a reusable place record in {currentDistrictName}. It is saved
-            independently and can be selected across your tour packages.
+            Creates an independent, reusable place record. Once saved, it can be
+            selected across any of your tour packages.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          {districts && districts.length > 0 && !districtId ? (
+        <div className="flex flex-col gap-6 py-2">
+          {/* 1. STATE & DISTRICT SELECTION */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/50 p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Location & Jurisdiction</h3>
+            </div>
+
+            {/* State Field */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="place-district">District</Label>
+              <Label htmlFor="create-place-state">
+                State <span className="text-destructive">*</span>
+              </Label>
               <Select
-                value={selectedDistrictId}
-                onValueChange={setSelectedDistrictId}
+                value={form.stateId}
+                onValueChange={handleStateChange}
+                disabled={loadingStates}
               >
-                <SelectTrigger id="place-district">
-                  <SelectValue placeholder="Select district" />
+                <SelectTrigger id="create-place-state" className="text-sm">
+                  <SelectValue
+                    placeholder={
+                      loadingStates ? "Loading available states…" : "Select a state"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  {districts.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.name}
+                  {states.map((state) => (
+                    <SelectItem key={state.id} value={state.id}>
+                      {state.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-          ) : null}
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="place-name">Place name</Label>
-            <Input
-              id="place-name"
-              value={state.name}
-              maxLength={NAME_LIMIT}
-              onChange={(event) => set("name", event.target.value)}
-              placeholder="Mysore Palace"
-            />
-            {errors.name ? (
-              <p className="text-xs text-destructive">{errors.name}</p>
-            ) : null}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="place-description">Description</Label>
-            <Textarea
-              id="place-description"
-              value={state.description}
-              maxLength={DESCRIPTION_LIMIT}
-              rows={4}
-              onChange={(event) => set("description", event.target.value)}
-              placeholder="What is here, what makes it worth visiting, and how long a visit takes."
-            />
-            {errors.description ? (
-              <p className="text-xs text-destructive">{errors.description}</p>
-            ) : null}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="place-category">Category</Label>
-            {!customCategory ? (
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={CATEGORY_OPTIONS.includes(state.category as never) ? state.category : undefined}
-                  onValueChange={(value) => {
-                    set("category", value);
-                    setCustomCategory(false);
-                  }}
-                >
-                  <SelectTrigger id="place-category">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="__custom">Type my own category</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-fit"
-                  onClick={() => {
-                    set("category", "");
-                    setCustomCategory(true);
-                  }}
-                >
-                  Use custom category
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Input
-                  value={state.category}
-                  maxLength={CATEGORY_LIMIT}
-                  onChange={(event) => set("category", event.target.value)}
-                  placeholder="Type your own category"
-                  aria-label="Custom category"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-fit"
-                  onClick={() => {
-                    set("category", "");
-                    setCustomCategory(false);
-                  }}
-                >
-                  Choose an existing category
-                </Button>
-              </div>
-            )}
-            {errors.category ? (
-              <p className="text-xs text-destructive">{errors.category}</p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Pick one category only. Existing categories keep places easy to
-                find, and a custom category is used when no standard one fits.
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2 rounded-2xl border border-border p-3">
-            <div className="flex items-center justify-between gap-2">
-              <Label>Entry pricing</Label>
-              {hasBands ? (
-                <Badge variant="outline">Per band</Badge>
-              ) : (
-                <Badge variant="outline">One price</Badge>
+              {errors.stateId && (
+                <p className="text-xs text-destructive">{errors.stateId}</p>
               )}
             </div>
 
-            {!hasBands ? (
-              <div className="flex flex-col gap-1.5">
-                <Input
-                  value={state.entryfee}
-                  inputMode="decimal"
-                  onChange={(event) => set("entryfee", event.target.value)}
-                  placeholder="Leave empty if entry is free"
-                  aria-label="Entry price"
-                />
-                {errors.entryfee ? (
-                  <p className="text-xs text-destructive">{errors.entryfee}</p>
-                ) : (
+            {/* District Field */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="create-place-district">
+                District <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.districtId}
+                onValueChange={(val) => updateField("districtId", val)}
+                disabled={!form.stateId || loadingDistricts}
+              >
+                <SelectTrigger id="create-place-district" className="text-sm">
+                  <SelectValue
+                    placeholder={
+                      !form.stateId
+                        ? "Select a state first"
+                        : loadingDistricts
+                        ? "Loading districts…"
+                        : districts.length === 0
+                        ? "No enabled districts in this state"
+                        : "Select a district"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {districts.map((district) => (
+                    <SelectItem key={district.id} value={district.id}>
+                      {district.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.districtId && (
+                <p className="text-xs text-destructive">{errors.districtId}</p>
+              )}
+              {form.stateId && !loadingDistricts && districts.length === 0 && (
+                <p className="text-xs text-amber-600">
+                  There are no active districts available in {selectedStateName}. Please pick another state.
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* 2. BASIC DETAILS */}
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="create-place-name">
+                Place name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="create-place-name"
+                value={form.name}
+                maxLength={NAME_LIMIT}
+                onChange={(e) => updateField("name", e.target.value)}
+                placeholder="e.g. Mysore Palace, Jog Falls, Amber Fort"
+                className="text-sm"
+              />
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="create-place-description">
+                Description <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="create-place-description"
+                value={form.description}
+                maxLength={DESCRIPTION_LIMIT}
+                rows={4}
+                onChange={(e) => updateField("description", e.target.value)}
+                placeholder="What makes this place worth visiting, historical significance, what to expect, and recommended visit duration…"
+                className="text-sm leading-relaxed"
+              />
+              {errors.description && (
+                <p className="text-xs text-destructive">{errors.description}</p>
+              )}
+            </div>
+
+            {/* Multiple Categories */}
+            <CategoryMultiSelect
+              selected={form.categories}
+              onChange={(cats) => updateField("categories", cats)}
+              error={errors.categories}
+            />
+          </section>
+
+          {/* 3. INDIAN VISITOR ENTRY FEES */}
+          <section className="flex flex-col gap-3.5 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Ticket className="size-4 text-primary" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Indian Visitor Entry Fees
+                  </h3>
                   <p className="text-xs text-muted-foreground">
-                    A single price for everyone. Leave empty for free entry.
+                    Ticket prices for domestic / Indian citizens
                   </p>
-                )}
+                </div>
               </div>
+
+              <div className="w-36">
+                <Select
+                  value={form.entryFeeType}
+                  onValueChange={(val) => updateField("entryFeeType", val as EntryFeeType)}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PAID">Paid entry</SelectItem>
+                    <SelectItem value="FREE">Free entry</SelectItem>
+                    <SelectItem value="UNKNOWN">Not provided</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {form.entryFeeType === "PAID" && (
+              <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border/80 bg-background/50 p-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="create-adult-fee" className="text-xs">
+                      Adult entry fee (₹) <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="create-adult-fee"
+                      type="number"
+                      min={0}
+                      step="any"
+                      value={form.adultFee}
+                      onChange={(e) => updateField("adultFee", e.target.value)}
+                      placeholder="e.g. 50"
+                      className="text-sm"
+                    />
+                    {errors.adultFee && (
+                      <p className="text-xs text-destructive">{errors.adultFee}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="create-child-fee" className="text-xs">
+                      Child entry fee (₹)
+                    </Label>
+                    <Input
+                      id="create-child-fee"
+                      type="number"
+                      min={0}
+                      step="any"
+                      value={form.childFee}
+                      onChange={(e) => updateField("childFee", e.target.value)}
+                      placeholder="e.g. 25 (or 0 if free for kids)"
+                      className="text-sm"
+                    />
+                    {errors.childFee && (
+                      <p className="text-xs text-destructive">{errors.childFee}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="create-child-max-age" className="text-xs">
+                      Maximum child age for child ticket
+                    </Label>
+                    <span className="text-xs font-semibold text-primary">
+                      Up to {form.childMaxAge} years
+                    </span>
+                  </div>
+                  <Select
+                    value={String(form.childMaxAge)}
+                    onValueChange={(val) => updateField("childMaxAge", Number(val))}
+                  >
+                    <SelectTrigger id="create-child-max-age" className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 13 }, (_, i) => (
+                        <SelectItem key={i} value={String(i)}>
+                          {i === 0 ? "Under 1 year (infants only)" : `${i} years and below`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[0.72rem] text-muted-foreground">
+                    Children aged {form.childMaxAge} and under pay the child fee. Visitors older than {form.childMaxAge} pay the adult entry fee.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="create-fee-notes" className="text-xs">
+                    Fee conditions or notes (optional)
+                  </Label>
+                  <Input
+                    id="create-fee-notes"
+                    value={form.entryFeeConditions}
+                    onChange={(e) => updateField("entryFeeConditions", e.target.value)}
+                    placeholder="e.g. Camera fee ₹50 extra, ID required for children"
+                    className="text-xs"
+                  />
+                </div>
+              </div>
+            )}
+
+            {form.entryFeeType === "FREE" && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                Entry is marked completely free for all Indian visitors.
+              </p>
+            )}
+
+            {form.entryFeeType === "UNKNOWN" && (
+              <p className="text-xs text-muted-foreground">
+                Entry fee status is unknown or not configured. It will be clearly indicated to travellers rather than assumed as ₹0.
+              </p>
+            )}
+          </section>
+
+          {/* 4. FOREIGN VISITOR ENTRY FEES */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe2 className="size-4 text-primary" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Foreign Visitor Entry Fees
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Separate ticketing rules for international tourists
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="toggle-foreign-pricing"
+                  checked={form.hasForeignPricing}
+                  onCheckedChange={(checked) => updateField("hasForeignPricing", checked)}
+                />
+                <Label htmlFor="toggle-foreign-pricing" className="cursor-pointer text-xs font-medium">
+                  {form.hasForeignPricing ? "Enabled" : "Disabled"}
+                </Label>
+              </div>
+            </div>
+
+            {!form.hasForeignPricing ? (
+              <p className="text-xs text-muted-foreground">
+                Separate foreign visitor pricing is not configured. When disabled, international pricing is omitted rather than treated as free.
+              </p>
             ) : (
-              <div className="flex flex-col gap-2">
-                {state.pricing.map((band, index) => (
-                  <div key={`${band.visitor}-${index}`} className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
+              <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border/80 bg-background/50 p-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-medium">Pricing status for foreign visitors</Label>
+                  <div className="w-36">
+                    <Select
+                      value={form.foreignEntryFeeType}
+                      onValueChange={(val) =>
+                        updateField("foreignEntryFeeType", val as EntryFeeType)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PAID">Paid entry</SelectItem>
+                        <SelectItem value="FREE">Free entry</SelectItem>
+                        <SelectItem value="UNKNOWN">Not provided</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {form.foreignEntryFeeType === "PAID" && (
+                  <>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="create-foreign-adult-fee" className="text-xs">
+                          Foreign adult fee (₹) <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="create-foreign-adult-fee"
+                          type="number"
+                          min={0}
+                          step="any"
+                          value={form.foreignAdultFee}
+                          onChange={(e) => updateField("foreignAdultFee", e.target.value)}
+                          placeholder="e.g. 500"
+                          className="text-sm"
+                        />
+                        {errors.foreignAdultFee && (
+                          <p className="text-xs text-destructive">{errors.foreignAdultFee}</p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="create-foreign-child-fee" className="text-xs">
+                          Foreign child fee (₹)
+                        </Label>
+                        <Input
+                          id="create-foreign-child-fee"
+                          type="number"
+                          min={0}
+                          step="any"
+                          value={form.foreignChildFee}
+                          onChange={(e) => updateField("foreignChildFee", e.target.value)}
+                          placeholder="e.g. 250 (or 0 if free)"
+                          className="text-sm"
+                        />
+                        {errors.foreignChildFee && (
+                          <p className="text-xs text-destructive">{errors.foreignChildFee}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="create-foreign-child-max-age" className="text-xs">
+                          Maximum child age for foreign child ticket
+                        </Label>
+                        <span className="text-xs font-semibold text-primary">
+                          Up to {form.foreignChildMaxAge} years
+                        </span>
+                      </div>
                       <Select
-                        value={band.visitor}
-                        onValueChange={(value) =>
-                          updateBand(index, { visitor: value as PlaceVisitor })
+                        value={String(form.foreignChildMaxAge)}
+                        onValueChange={(val) =>
+                          updateField("foreignChildMaxAge", Number(val))
                         }
                       >
-                        <SelectTrigger className="w-32 shrink-0">
+                        <SelectTrigger id="create-foreign-child-max-age" className="h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="DOMESTIC">Domestic</SelectItem>
-                          <SelectItem value="FOREIGN">Foreign</SelectItem>
+                          {Array.from({ length: 13 }, (_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              {i === 0 ? "Under 1 year (infants only)" : `${i} years and below`}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
-                      <Input
-                        value={band.ageGroup}
-                        list="place-age-groups"
-                        onChange={(event) =>
-                          updateBand(index, { ageGroup: event.target.value })
-                        }
-                        placeholder="Age group"
-                        aria-label={`Age group ${index + 1}`}
-                        className="flex-1"
-                      />
-                      <Input
-                        value={Number.isFinite(band.amount) ? String(band.amount) : ""}
-                        inputMode="decimal"
-                        onChange={(event) =>
-                          updateBand(index, { amount: Number(event.target.value) })
-                        }
-                        placeholder="0"
-                        aria-label={`Price for ${band.ageGroup || `band ${index + 1}`}`}
-                        className="w-28 shrink-0"
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        aria-label={`Remove ${band.ageGroup || "price row"}`}
-                        onClick={() => removeBand(index)}
-                      >
-                        <Trash2 className="size-4 text-destructive" />
-                      </Button>
+                      <p className="text-[0.72rem] text-muted-foreground">
+                        Foreign children aged {form.foreignChildMaxAge} and under pay the child fee. Visitors older than {form.foreignChildMaxAge} pay the foreign adult fee.
+                      </p>
                     </div>
-                  </div>
-                ))}
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addBand("DOMESTIC")}
-                  >
-                    <Plus className="size-3.5" />
-                    Domestic price
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addBand("FOREIGN")}
-                  >
-                    <Plus className="size-3.5" />
-                    Foreign price
-                  </Button>
-                </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="create-foreign-fee-notes" className="text-xs">
+                        Foreign fee conditions or notes (optional)
+                      </Label>
+                      <Input
+                        id="create-foreign-fee-notes"
+                        value={form.foreignEntryFeeConditions}
+                        onChange={(e) => updateField("foreignEntryFeeConditions", e.target.value)}
+                        placeholder="e.g. Passport required at entrance"
+                        className="text-xs"
+                      />
+                    </div>
+                  </>
+                )}
 
-                <p className="text-xs text-muted-foreground">
-                  Prices vary by age group and visitor type. These replace the
-                  single price, so leave the rows out if one price covers
-                  everyone.
-                </p>
+                {form.foreignEntryFeeType === "FREE" && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    Entry is explicitly marked free for foreign visitors.
+                  </p>
+                )}
+
+                {form.foreignEntryFeeType === "UNKNOWN" && (
+                  <p className="text-xs text-muted-foreground">
+                    Foreign entry fee is not configured or unknown.
+                  </p>
+                )}
               </div>
             )}
+          </section>
 
-            {errors.pricing ? (
-              <p className="text-xs text-destructive">{errors.pricing}</p>
-            ) : null}
+          {/* 5. PLACE ADDRESS & GOOGLE MAPS LOCATION */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/60 p-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-primary" />
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Place Address & Location</h3>
+                <p className="text-xs text-muted-foreground">
+                  Manual physical address and optional Google Maps sharing link
+                </p>
+              </div>
+            </div>
 
-            <datalist id="place-age-groups">
-              {AGE_GROUP_SUGGESTIONS.map((group) => (
-                <option key={group} value={group} />
-              ))}
-            </datalist>
-          </div>
+            {/* Read-only State & District summary */}
+            <div className="flex items-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-xs">
+              <span className="text-muted-foreground">Region:</span>
+              <Badge variant="outline" className="font-medium">
+                {selectedDistrictName || "No district selected"}
+              </Badge>
+              <span className="text-muted-foreground">·</span>
+              <Badge variant="outline" className="font-medium">
+                {selectedStateName || "No state selected"}
+              </Badge>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <Label>Photos</Label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="create-place-address-line" className="text-xs">
+                  Address line or landmark (optional)
+                </Label>
+                <Input
+                  id="create-place-address-line"
+                  value={form.addressLine}
+                  onChange={(e) => updateField("addressLine", e.target.value)}
+                  placeholder="e.g. Sayyaji Rao Rd, Agrahara"
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="create-place-locality" className="text-xs">
+                  Locality or town (optional)
+                </Label>
+                <Input
+                  id="create-place-locality"
+                  value={form.locality}
+                  onChange={(e) => updateField("locality", e.target.value)}
+                  placeholder="e.g. Chamrajpura"
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="create-place-pincode" className="text-xs">
+                  PIN code (optional)
+                </Label>
+                <Input
+                  id="create-place-pincode"
+                  value={form.pincode}
+                  maxLength={6}
+                  onChange={(e) => updateField("pincode", e.target.value)}
+                  placeholder="e.g. 570001"
+                  className="text-sm"
+                />
+                {errors.pincode && (
+                  <p className="text-xs text-destructive">{errors.pincode}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Google Maps link */}
+            <div className="mt-1 flex flex-col gap-1.5">
+              <Label htmlFor="create-place-maps-link" className="flex items-center gap-1.5 text-xs">
+                <span>Google Maps sharing link (optional)</span>
+              </Label>
+              <Input
+                id="create-place-maps-link"
+                type="url"
+                value={form.mapsUrl}
+                onChange={(e) => updateField("mapsUrl", e.target.value)}
+                placeholder="Paste Google Maps sharing link (e.g. https://maps.app.goo.gl/...)"
+                className="text-sm"
+              />
+              {resolvingLocation ? (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin text-primary" />
+                  Resolving coordinates from Google Maps link…
+                </p>
+              ) : resolved ? (
+                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  ✓ Coordinates resolved: {resolved.latitude.toFixed(5)}, {resolved.longitude.toFixed(5)}
+                </p>
+              ) : locationResolutionFailed ? (
+                <p className="text-xs text-destructive">
+                  Could not read coordinates from this link. Check the link or rely on the manual address above.
+                </p>
+              ) : (
+                <p className="text-[0.72rem] text-muted-foreground">
+                  Share the place on Google Maps, copy the link, and paste here. Coordinates will be automatically extracted.
+                </p>
+              )}
+              {errors.mapsUrl && (
+                <p className="text-xs text-destructive">{errors.mapsUrl}</p>
+              )}
+            </div>
+          </section>
+
+          {/* 6. PHOTOS */}
+          <section className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-semibold">
+                Photos <span className="text-xs font-normal text-muted-foreground">({form.photos.length}/{MAX_PHOTOS})</span>
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                Optional, but places with photos attract more visitors
+              </span>
+            </div>
+
             <label
               className={cn(
-                "flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground transition-colors",
-                "hover:bg-accent"
+                "flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                form.photos.length >= MAX_PHOTOS && "pointer-events-none opacity-50"
               )}
             >
-              <ImagePlus className="size-4" />
-              {state.photos.length === 0
-                ? "Add photos of the place"
-                : `${state.photos.length} of ${MAX_PHOTOS} added`}
+              <ImagePlus className="size-5 text-primary" />
+              <span>{form.photos.length === 0 ? "Add photos of the place" : "Add more photos"}</span>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 multiple
+                disabled={form.photos.length >= MAX_PHOTOS}
                 className="sr-only"
-                onChange={(event) => {
-                  addPhotos(event.target.files);
-                  event.target.value = "";
+                onChange={(e) => {
+                  addPhotos(e.target.files);
+                  e.target.value = "";
                 }}
               />
             </label>
-            {state.photos.length > 0 ? (
-              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {state.photos.map((photo, index) => (
-                  <li
-                    key={`${photo.url}-${index}`}
-                    className="relative aspect-square overflow-hidden rounded-xl border border-border"
+
+            {form.photos.length > 0 && (
+              <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                {form.photos.map((photo, idx) => (
+                  <div
+                    key={`${photo.url}-${idx}`}
+                    className="group relative aspect-video overflow-hidden rounded-xl border border-border bg-muted"
                   >
-                    {photo.url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={photo.url}
-                        alt=""
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      <span className="flex size-full items-center justify-center text-xs text-muted-foreground">
-                        {photo.file?.name ?? "Photo"}
-                      </span>
-                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo.url} alt="" className="size-full object-cover" />
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
-                      aria-label={`Remove photo ${index + 1}`}
-                      onClick={() => removePhoto(index)}
-                      className="absolute right-1 top-1 size-6 p-0"
+                      variant="destructive"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute right-1 top-1 size-6 p-0 opacity-80 transition-opacity hover:opacity-100"
+                      aria-label="Remove photo"
                     >
                       <Trash2 className="size-3" />
                     </Button>
-                  </li>
+                  </div>
                 ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Optional, but places with photos get far more bookings.
-              </p>
+              </div>
             )}
-          </div>
+          </section>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="place-maps-url" className="flex items-center gap-1.5">
-              <MapPin className="size-3.5" />
-              Google Maps location
-            </Label>
-            <Input
-              id="place-maps-url"
-              type="url"
-              value={state.mapsUrl}
-              onChange={(event) => set("mapsUrl", event.target.value)}
-              placeholder="Paste a Google Maps link"
-            />
-            {resolvingLocation ? (
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="size-3.5 animate-spin" />
-                Resolving Google Maps link…
-              </p>
-            ) : coordinates ? (
-              <p className="text-xs text-emerald-600">Location detected</p>
-            ) : errors.mapsUrl ? (
-              <p className="text-xs text-destructive">{errors.mapsUrl}</p>
-            ) : locationResolutionFailed ? (
-              <p className="text-xs text-destructive">{INVALID_MAPS_LINK}</p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Share the place on Google Maps, copy the link, and paste it here —
-                the coordinates are filled in from it.
-              </p>
-            )}
-          </div>
-
-          {formError ? (
-            <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {/* Global error banner */}
+          {formError && (
+            <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
               {formError}
             </p>
-          ) : null}
-
-          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            {/* Mirrors what the customer place page will show, so a guide can see
-                the consequence of the pricing they just entered. */}
-            <span>
-              Customers see{" "}
-              {priceLabel(
-                hasBands
-                  ? state.pricing
-                  : state.entryfee.trim() === ""
-                    ? []
-                    : [{ visitor: "DOMESTIC", ageGroup: "", amount: Number(state.entryfee) }],
-                !hasBands && state.entryfee.trim() !== ""
-                  ? Number(state.entryfee)
-                  : null
-              ).toLowerCase()}
-              .
-            </span>
-            {uploading ? (
-              <span className="flex items-center gap-1.5">
-                <Loader2 className="size-3.5 animate-spin" />
-                Uploading photos…
-              </span>
-            ) : null}
-          </div>
+          )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
             variant="outline"
-            disabled={saving}
+            disabled={saving || uploading}
             onClick={() => onOpenChange(false)}
           >
             Cancel
           </Button>
           <Button
             type="button"
-            disabled={saving || uploading || resolvingLocation || !coordinates}
-            onClick={save}
+            disabled={saving || uploading}
+            onClick={handleSave}
+            className="gap-2"
           >
-            {saving ? "Creating…" : "Create place"}
+            {saving || uploading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                {uploading ? "Uploading photos…" : "Saving place…"}
+              </>
+            ) : (
+              "Save place"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

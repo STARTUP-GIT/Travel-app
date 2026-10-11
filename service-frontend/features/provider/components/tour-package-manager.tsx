@@ -2406,9 +2406,16 @@ function PackagePlacePicker({
                     {place.status === "PENDING" ? "Awaiting review" : "Not live"}
                   </Badge>
                 )}
-                <Badge variant="outline" className="shrink-0 text-[0.6rem]">
-                  {place.category}
-                </Badge>
+                {((place.categories && place.categories.length > 0)
+                  ? place.categories
+                  : [place.category || "Place"]
+                )
+                  .slice(0, 2)
+                  .map((cat) => (
+                    <Badge key={cat} variant="outline" className="shrink-0 text-[0.6rem]">
+                      {cat}
+                    </Badge>
+                  ))}
               </button>
             );
           })}
@@ -2424,7 +2431,7 @@ function PackagePlacePicker({
             onClick={() => setCreating(true)}
             className="h-8 text-xs"
           >
-            <Plus className="size-3.5 mr-1" />
+            <Plus className="mr-1 size-3.5" />
             Create a new place in {districtName ?? "this district"}
           </Button>
           <CreatePlaceDialog
@@ -2432,6 +2439,10 @@ function PackagePlacePicker({
             onOpenChange={setCreating}
             districtId={districtId}
             districtName={districtName ?? "this district"}
+            stateId={
+              filteredDistricts.find((d) => d.id === districtId)?.stateId ??
+              filteredDistricts.find((d) => d.id === districtId)?.state?.id
+            }
             onCreated={addCreated}
           />
         </div>

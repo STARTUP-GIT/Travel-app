@@ -23,7 +23,8 @@ function cardPrice(place: Place): string {
   if (bands.length > 0) {
     return `From ${formatCurrency(Math.min(...bands.map((band) => band.amount)))}`;
   }
-  if (place.entryfee === null) return "Free entry";
+  if (place.entryFeeType === "FREE" || place.entryfee === 0) return "Free entry";
+  if (place.entryFeeType === "UNKNOWN" || place.entryfee === null) return "Entry fee unlisted";
   return `${formatCurrency(place.entryfee)} entry`;
 }
 

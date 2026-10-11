@@ -58,9 +58,23 @@ export function PlacesManager({
         const query = searchQuery.toLowerCase();
         const matchesName = place.name.toLowerCase().includes(query);
         const matchesCat = place.category?.toLowerCase().includes(query);
+        const matchesCategories = place.categories?.some((c) =>
+          c.toLowerCase().includes(query)
+        );
         const matchesDesc = place.description?.toLowerCase().includes(query);
         const matchesDistrict = place.district?.name.toLowerCase().includes(query);
-        if (!matchesName && !matchesCat && !matchesDesc && !matchesDistrict) {
+        const matchesAddress =
+          place.locality?.toLowerCase().includes(query) ||
+          place.addressLine?.toLowerCase().includes(query);
+
+        if (
+          !matchesName &&
+          !matchesCat &&
+          !matchesCategories &&
+          !matchesDesc &&
+          !matchesDistrict &&
+          !matchesAddress
+        ) {
           return false;
         }
       }
@@ -193,12 +207,24 @@ export function PlacesManager({
                 ? "Pending review"
                 : "Rejected";
 
-            const priceDisplay =
-              place.pricing && place.pricing.length > 0
-                ? "Pricing bands"
-                : typeof place.entryfee === "number" && place.entryfee > 0
-                ? formatCurrency(place.entryfee)
-                : "Free entry";
+            const categories =
+              Array.isArray(place.categories) && place.categories.length > 0
+                ? place.categories
+                : place.category
+                ? [place.category]
+                : [];
+
+            let priceDisplay = "Fee not provided";
+            if (place.pricing && place.pricing.length > 0) {
+              priceDisplay = "Pricing bands";
+            } else if (place.entryFeeType === "FREE" || place.entryfee === 0) {
+              priceDisplay = "Free entry";
+            } else if (place.entryFeeType === "PAID" || (typeof place.entryfee === "number" && place.entryfee > 0)) {
+              priceDisplay = `${formatCurrency(place.entryfee!)}`;
+              if (typeof place.childEntryFee === "number" && place.childEntryFee >= 0) {
+                priceDisplay += ` · Child ${formatCurrency(place.childEntryFee)}`;
+              }
+            }
 
             return (
               <div
@@ -225,15 +251,26 @@ export function PlacesManager({
                         {statusLabel}
                       </Badge>
                     </div>
-                    {place.category && (
-                      <div className="absolute bottom-2 left-2">
-                        <Badge
-                          variant="secondary"
-                          className="bg-black/60 text-white backdrop-blur-md"
-                        >
-                          <Tag className="mr-1 size-3" />
-                          {place.category}
-                        </Badge>
+                    {categories.length > 0 && (
+                      <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
+                        {categories.slice(0, 2).map((cat) => (
+                          <Badge
+                            key={cat}
+                            variant="secondary"
+                            className="bg-black/60 px-2 py-0 text-[0.65rem] text-white backdrop-blur-md"
+                          >
+                            <Tag className="mr-1 size-2.5" />
+                            {cat}
+                          </Badge>
+                        ))}
+                        {categories.length > 2 && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-black/60 px-1.5 py-0 text-[0.65rem] text-white backdrop-blur-md"
+                          >
+                            +{categories.length - 2}
+                          </Badge>
+                        )}
                       </div>
                     )}
                   </div>

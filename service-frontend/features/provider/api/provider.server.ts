@@ -650,13 +650,70 @@ type RawManageablePlace = {
   description?: string | null;
   images: string[] | null;
   category: string | null;
+  categories?: string[] | null;
   entryfee: number | null;
+  entryFeeType?: string | null;
+  childEntryFee?: number | null;
+  childMaxAge?: number | null;
+  entryFeeConditions?: string | null;
+  hasForeignPricing?: boolean | null;
+  foreignEntryFeeType?: string | null;
+  foreignAdultFee?: number | null;
+  foreignChildFee?: number | null;
+  foreignChildMaxAge?: number | null;
+  foreignEntryFeeConditions?: string | null;
+  addressLine?: string | null;
+  locality?: string | null;
+  pincode?: string | null;
+  mapsUrl?: string | null;
   latitude?: number | null;
   longitude?: number | null;
   status: ManageablePlace["status"];
-  district: { id: string; name: string } | null;
+  district: {
+    id: string;
+    name: string;
+    stateId?: string;
+    state?: { id: string; name: string } | null;
+  } | null;
   pricing?: PlacePricingBand[];
 };
+
+function normalizeManageablePlace(row: RawManageablePlace): ManageablePlace {
+  const cats =
+    row.categories && row.categories.length > 0
+      ? row.categories
+      : row.category
+      ? [row.category]
+      : [];
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? undefined,
+    images: row.images ?? [],
+    category: row.category ?? (cats[0] || ""),
+    categories: cats,
+    entryfee: row.entryfee ?? null,
+    entryFeeType: row.entryFeeType ?? (row.entryfee === null ? "UNKNOWN" : row.entryfee === 0 ? "FREE" : "PAID"),
+    childEntryFee: row.childEntryFee ?? null,
+    childMaxAge: row.childMaxAge ?? 12,
+    entryFeeConditions: row.entryFeeConditions ?? null,
+    hasForeignPricing: Boolean(row.hasForeignPricing),
+    foreignEntryFeeType: row.foreignEntryFeeType ?? null,
+    foreignAdultFee: row.foreignAdultFee ?? null,
+    foreignChildFee: row.foreignChildFee ?? null,
+    foreignChildMaxAge: row.foreignChildMaxAge ?? 12,
+    foreignEntryFeeConditions: row.foreignEntryFeeConditions ?? null,
+    addressLine: row.addressLine ?? null,
+    locality: row.locality ?? null,
+    pincode: row.pincode ?? null,
+    mapsUrl: row.mapsUrl ?? null,
+    latitude: row.latitude ?? undefined,
+    longitude: row.longitude ?? undefined,
+    status: row.status,
+    district: row.district ?? null,
+    pricing: row.pricing ?? undefined,
+  };
+}
 
 export type { TourPackagesResult };
 
@@ -787,19 +844,7 @@ export async function getManageablePlaces(
       { fallback: "The places in this district could not be loaded." }
     );
     return {
-      places: (rows ?? []).map((row) => ({
-        id: row.id,
-        name: row.name,
-        description: row.description ?? undefined,
-        images: row.images ?? [],
-        category: row.category ?? "",
-        entryfee: row.entryfee ?? null,
-        latitude: row.latitude ?? undefined,
-        longitude: row.longitude ?? undefined,
-        status: row.status,
-        district: row.district ?? null,
-        pricing: row.pricing ?? undefined,
-      })),
+      places: (rows ?? []).map(normalizeManageablePlace),
       error: null,
     };
   } catch (error) {
@@ -828,19 +873,7 @@ export async function getAllManageablePlaces(
       fallback: "Places could not be loaded.",
     });
     return {
-      places: (rows ?? []).map((row) => ({
-        id: row.id,
-        name: row.name,
-        description: row.description ?? undefined,
-        images: row.images ?? [],
-        category: row.category ?? "",
-        entryfee: row.entryfee ?? null,
-        latitude: row.latitude ?? undefined,
-        longitude: row.longitude ?? undefined,
-        status: row.status,
-        district: row.district ?? null,
-        pricing: row.pricing ?? undefined,
-      })),
+      places: (rows ?? []).map(normalizeManageablePlace),
       error: null,
     };
   } catch (error) {
@@ -915,13 +948,30 @@ export async function submitPlaceAsGuide(
         name: input.name.trim(),
         description: input.description.trim(),
         districtId: input.districtId,
+        ...(input.stateId ? { stateId: input.stateId } : {}),
         images: input.images,
         entryfee: input.entryfee,
         category: input.category.trim(),
+        categories:
+          input.categories && input.categories.length > 0
+            ? input.categories
+            : [input.category.trim()],
+        entryFeeType: input.entryFeeType,
+        childEntryFee: input.childEntryFee,
+        childMaxAge: input.childMaxAge,
+        entryFeeConditions: input.entryFeeConditions,
+        hasForeignPricing: input.hasForeignPricing,
+        foreignEntryFeeType: input.foreignEntryFeeType,
+        foreignAdultFee: input.foreignAdultFee,
+        foreignChildFee: input.foreignChildFee,
+        foreignChildMaxAge: input.foreignChildMaxAge,
+        foreignEntryFeeConditions: input.foreignEntryFeeConditions,
+        addressLine: input.addressLine,
+        locality: input.locality,
+        pincode: input.pincode,
+        mapsUrl: input.mapsUrl,
         latitude: input.latitude,
         longitude: input.longitude,
-        // Only sent when bands exist, so a place with one flat price is not
-        // rewritten to have no pricing data at all.
         ...(input.pricing && input.pricing.length > 0
           ? { pricing: input.pricing }
           : {}),
@@ -935,19 +985,7 @@ export async function submitPlaceAsGuide(
     throw new ProviderApiError("The place could not be created.", 502, {});
   }
 
-  return {
-    id: data.place.id,
-    name: data.place.name,
-    description: data.place.description ?? undefined,
-    images: data.place.images ?? [],
-    category: data.place.category ?? "",
-    entryfee: data.place.entryfee ?? null,
-    latitude: data.place.latitude ?? undefined,
-    longitude: data.place.longitude ?? undefined,
-    status: data.place.status,
-    district: data.place.district ?? null,
-    pricing: data.place.pricing ?? undefined,
-  };
+  return normalizeManageablePlace(data.place);
 }
 
 /**
@@ -967,9 +1005,25 @@ export async function editPlaceAsGuide(
         ...(input.name !== undefined ? { name: input.name.trim() } : {}),
         ...(input.description !== undefined ? { description: input.description.trim() } : {}),
         ...(input.districtId !== undefined ? { districtId: input.districtId } : {}),
+        ...(input.stateId !== undefined ? { stateId: input.stateId } : {}),
         ...(input.images !== undefined ? { images: input.images } : {}),
         ...(input.entryfee !== undefined ? { entryfee: input.entryfee } : {}),
         ...(input.category !== undefined ? { category: input.category.trim() } : {}),
+        ...(input.categories !== undefined ? { categories: input.categories } : {}),
+        ...(input.entryFeeType !== undefined ? { entryFeeType: input.entryFeeType } : {}),
+        ...(input.childEntryFee !== undefined ? { childEntryFee: input.childEntryFee } : {}),
+        ...(input.childMaxAge !== undefined ? { childMaxAge: input.childMaxAge } : {}),
+        ...(input.entryFeeConditions !== undefined ? { entryFeeConditions: input.entryFeeConditions } : {}),
+        ...(input.hasForeignPricing !== undefined ? { hasForeignPricing: input.hasForeignPricing } : {}),
+        ...(input.foreignEntryFeeType !== undefined ? { foreignEntryFeeType: input.foreignEntryFeeType } : {}),
+        ...(input.foreignAdultFee !== undefined ? { foreignAdultFee: input.foreignAdultFee } : {}),
+        ...(input.foreignChildFee !== undefined ? { foreignChildFee: input.foreignChildFee } : {}),
+        ...(input.foreignChildMaxAge !== undefined ? { foreignChildMaxAge: input.foreignChildMaxAge } : {}),
+        ...(input.foreignEntryFeeConditions !== undefined ? { foreignEntryFeeConditions: input.foreignEntryFeeConditions } : {}),
+        ...(input.addressLine !== undefined ? { addressLine: input.addressLine } : {}),
+        ...(input.locality !== undefined ? { locality: input.locality } : {}),
+        ...(input.pincode !== undefined ? { pincode: input.pincode } : {}),
+        ...(input.mapsUrl !== undefined ? { mapsUrl: input.mapsUrl } : {}),
         ...(input.latitude !== undefined ? { latitude: input.latitude } : {}),
         ...(input.longitude !== undefined ? { longitude: input.longitude } : {}),
         ...(input.pricing !== undefined ? { pricing: input.pricing } : {}),
@@ -982,19 +1036,7 @@ export async function editPlaceAsGuide(
     throw new ProviderApiError("The place could not be updated.", 502, {});
   }
 
-  return {
-    id: data.place.id,
-    name: data.place.name,
-    description: data.place.description ?? undefined,
-    images: data.place.images ?? [],
-    category: data.place.category ?? "",
-    entryfee: data.place.entryfee ?? null,
-    latitude: data.place.latitude ?? undefined,
-    longitude: data.place.longitude ?? undefined,
-    status: data.place.status,
-    district: data.place.district ?? null,
-    pricing: data.place.pricing ?? undefined,
-  };
+  return normalizeManageablePlace(data.place);
 }
 
 export async function getTourPackages(token: string): Promise<TourPackagesResult> {  try {

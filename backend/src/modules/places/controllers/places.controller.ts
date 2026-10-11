@@ -33,6 +33,258 @@ async function shouldAutoApprovePlaces(districtAutoApproves: boolean): Promise<b
   }
 }
 
+function parseCategories(body: any): { categories: string[]; primaryCategory: string } | { error: string } {
+  let categories: string[] = [];
+  if (Array.isArray(body.categories)) {
+    categories = Array.from(
+      new Set(
+        body.categories
+          .map((c: any) => (typeof c === "string" ? c.trim() : ""))
+          .filter(Boolean)
+      )
+    );
+  } else if (typeof body.category === "string" && body.category.trim()) {
+    categories = [body.category.trim()];
+  }
+
+  if (categories.length === 0 || !categories[0]) {
+    return { error: "At least one category is required" };
+  }
+  return { categories, primaryCategory: categories[0] };
+}
+
+function parseFeeFields(body: any): {
+  entryFeeType: string;
+  entryfee: number | null;
+  childEntryFee: number | null;
+  childMaxAge: number;
+  entryFeeConditions: string | null;
+  hasForeignPricing: boolean;
+  foreignEntryFeeType: string | null;
+  foreignAdultFee: number | null;
+  foreignChildFee: number | null;
+  foreignChildMaxAge: number;
+  foreignEntryFeeConditions: string | null;
+  pricingRows: PlacePricingInput[];
+} | { error: string } {
+  const rawType = typeof body.entryFeeType === "string" ? body.entryFeeType.toUpperCase() : undefined;
+  let entryFeeType = "FREE";
+  if (rawType === "PAID" || rawType === "FREE" || rawType === "UNKNOWN") {
+    entryFeeType = rawType;
+  } else if (body.entryfee !== undefined && body.entryfee !== null && body.entryfee !== "") {
+    entryFeeType = "PAID";
+  }
+
+  let entryfee: number | null = null;
+  let childEntryFee: number | null = null;
+  let childMaxAge = 12;
+  const entryFeeConditions = typeof body.entryFeeConditions === "string" && body.entryFeeConditions.trim() ? body.entryFeeConditions.trim() : null;
+
+  if (entryFeeType === "PAID") {
+    if (body.entryfee !== undefined && body.entryfee !== null && body.entryfee !== "") {
+      const num = Number(body.entryfee);
+      if (!Number.isFinite(num) || num < 0) {
+        return { error: "Adult entry fee must be a valid non-negative number" };
+      }
+      entryfee = num;
+    } else {
+      return { error: "Adult entry fee is required for paid entry" };
+    }
+
+    if (body.childEntryFee !== undefined && body.childEntryFee !== null && body.childEntryFee !== "") {
+      const childNum = Number(body.childEntryFee);
+      if (!Number.isFinite(childNum) || childNum < 0) {
+        return { error: "Child entry fee must be a valid non-negative number" };
+      }
+      childEntryFee = childNum;
+    }
+  } else if (entryFeeType === "FREE") {
+    entryfee = 0;
+    childEntryFee = 0;
+  } else if (entryFeeType === "UNKNOWN") {
+    entryfee = null;
+    childEntryFee = null;
+  }
+
+  if (body.childMaxAge !== undefined && body.childMaxAge !== null && body.childMaxAge !== "") {
+    const age = parseInt(String(body.childMaxAge), 10);
+    if (!Number.isFinite(age) || age < 0 || age > 12) {
+      return { error: "Maximum child age must be between 0 and 12 years" };
+    }
+    childMaxAge = age;
+  }
+
+  const hasForeignPricing = Boolean(body.hasForeignPricing);
+  let foreignEntryFeeType: string | null = null;
+  let foreignAdultFee: number | null = null;
+  let foreignChildFee: number | null = null;
+  let foreignChildMaxAge = 12;
+  const foreignEntryFeeConditions = typeof body.foreignEntryFeeConditions === "string" && body.foreignEntryFeeConditions.trim() ? body.foreignEntryFeeConditions.trim() : null;
+
+  if (hasForeignPricing) {
+    const rawFType = typeof body.foreignEntryFeeType === "string" ? body.foreignEntryFeeType.toUpperCase() : undefined;
+    foreignEntryFeeType = rawFType === "PAID" || rawFType === "FREE" || rawFType === "UNKNOWN" ? rawFType : "PAID";
+
+    if (foreignEntryFeeType === "PAID") {
+      if (body.foreignAdultFee !== undefined && body.foreignAdultFee !== null && body.foreignAdultFee !== "") {
+        const fNum = Number(body.foreignAdultFee);
+        if (!Number.isFinite(fNum) || fNum < 0) {
+          return { error: "Foreign adult entry fee must be a valid non-negative number" };
+        }
+        foreignAdultFee = fNum;
+      } else {
+        return { error: "Foreign adult fee is required when separate foreign pricing is enabled and paid" };
+      }
+
+      if (body.foreignChildFee !== undefined && body.foreignChildFee !== null && body.foreignChildFee !== "") {
+        const fcNum = Number(body.foreignChildFee);
+        if (!Number.isFinite(fcNum) || fcNum < 0) {
+          return { error: "Foreign child entry fee must be a valid non-negative number" };
+        }
+        foreignChildFee = fcNum;
+      }
+    } else if (foreignEntryFeeType === "FREE") {
+      foreignAdultFee = 0;
+      foreignChildFee = 0;
+    } else if (foreignEntryFeeType === "UNKNOWN") {
+      foreignAdultFee = null;
+      foreignChildFee = null;
+    }
+
+    if (body.foreignChildMaxAge !== undefined && body.foreignChildMaxAge !== null && body.foreignChildMaxAge !== "") {
+      const fAge = parseInt(String(body.foreignChildMaxAge), 10);
+      if (!Number.isFinite(fAge) || fAge < 0 || fAge > 12) {
+        return { error: "Foreign maximum child age must be between 0 and 12 years" };
+      }
+      foreignChildMaxAge = fAge;
+    }
+  } else {
+    if (body.foreignAdultFee !== undefined && body.foreignAdultFee !== null && body.foreignAdultFee !== "") {
+      const num = Number(body.foreignAdultFee);
+      if (Number.isFinite(num) && num >= 0) foreignAdultFee = num;
+    }
+    if (body.foreignChildFee !== undefined && body.foreignChildFee !== null && body.foreignChildFee !== "") {
+      const num = Number(body.foreignChildFee);
+      if (Number.isFinite(num) && num >= 0) foreignChildFee = num;
+    }
+    if (body.foreignEntryFeeType) foreignEntryFeeType = String(body.foreignEntryFeeType);
+  }
+
+  const pricingRows: PlacePricingInput[] = [];
+  if (entryFeeType === "PAID" && entryfee !== null) {
+    pricingRows.push({ visitor: "DOMESTIC", ageGroup: "Adult", amount: entryfee });
+    if (childEntryFee !== null) {
+      pricingRows.push({ visitor: "DOMESTIC", ageGroup: "Child", amount: childEntryFee });
+    }
+  } else if (entryFeeType === "FREE") {
+    pricingRows.push({ visitor: "DOMESTIC", ageGroup: "Adult", amount: 0 });
+    pricingRows.push({ visitor: "DOMESTIC", ageGroup: "Child", amount: 0 });
+  }
+
+  if (hasForeignPricing) {
+    if (foreignEntryFeeType === "PAID" && foreignAdultFee !== null) {
+      pricingRows.push({ visitor: "FOREIGN", ageGroup: "Adult", amount: foreignAdultFee });
+      if (foreignChildFee !== null) {
+        pricingRows.push({ visitor: "FOREIGN", ageGroup: "Child", amount: foreignChildFee });
+      }
+    } else if (foreignEntryFeeType === "FREE") {
+      pricingRows.push({ visitor: "FOREIGN", ageGroup: "Adult", amount: 0 });
+      pricingRows.push({ visitor: "FOREIGN", ageGroup: "Child", amount: 0 });
+    }
+  }
+
+  return {
+    entryFeeType,
+    entryfee,
+    childEntryFee,
+    childMaxAge,
+    entryFeeConditions,
+    hasForeignPricing,
+    foreignEntryFeeType,
+    foreignAdultFee,
+    foreignChildFee,
+    foreignChildMaxAge,
+    foreignEntryFeeConditions,
+    pricingRows,
+  };
+}
+
+function parseAddressAndLocation(body: any): {
+  addressLine: string | null;
+  locality: string | null;
+  pincode: string | null;
+  mapsUrl: string | null;
+  latitude: number;
+  longitude: number;
+} | { error: string } {
+  const addressLine = typeof body.addressLine === "string" && body.addressLine.trim() ? body.addressLine.trim() : null;
+  const locality = typeof body.locality === "string" && body.locality.trim() ? body.locality.trim() : null;
+  const pincode = typeof body.pincode === "string" && body.pincode.trim() ? body.pincode.trim() : null;
+  const mapsUrl = typeof body.mapsUrl === "string" && body.mapsUrl.trim() ? body.mapsUrl.trim() : null;
+
+  if (mapsUrl) {
+    try {
+      const parsed = new URL(mapsUrl);
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+        return { error: "Google Maps link must be a valid URL" };
+      }
+    } catch {
+      return { error: "Invalid Google Maps link format" };
+    }
+  }
+
+  let latitude = 0;
+  let longitude = 0;
+  if (typeof body.latitude === "number" && Number.isFinite(body.latitude)) {
+    latitude = body.latitude;
+  }
+  if (typeof body.longitude === "number" && Number.isFinite(body.longitude)) {
+    longitude = body.longitude;
+  }
+
+  return { addressLine, locality, pincode, mapsUrl, latitude, longitude };
+}
+
+async function validateStateAndDistrict(districtId: string, stateId?: string): Promise<
+  | { ok: true; district: any }
+  | { ok: false; status: number; message: string }
+> {
+  const district = await prisma.district.findUnique({
+    where: { id: districtId },
+    include: {
+      state: {
+        include: { country: true },
+      },
+    },
+  });
+
+  if (!district) {
+    return { ok: false, status: 404, message: "District not found" };
+  }
+
+  if (stateId && district.stateId !== stateId) {
+    return {
+      ok: false,
+      status: 400,
+      message: "The selected district does not belong to the selected state",
+    };
+  }
+
+  if (
+    !district.isServiceAvailable ||
+    !district.state.isServiceAvailable ||
+    (district.state.country && !district.state.country.isServiceAvailable)
+  ) {
+    return {
+      ok: false,
+      status: 400,
+      message: "Places cannot be added in disabled states or districts",
+    };
+  }
+
+  return { ok: true, district };
+}
+
 export const getPlacesByDistrict = async (req: Request, res: Response) => {
   try {
     const { districtId } = req.params as { districtId: string };
@@ -79,38 +331,90 @@ export const addPlace = async (req: Request, res: Response) => {
       name,
       description,
       districtId,
+      stateId,
       images,
-      entryfee,
-      category,
-      latitude,
-      longitude,
     } = req.body;
 
-    const pricing = parsePlacePricing(pricingFromBody(req.body));
-    if (!pricing.ok) {
-      return res.status(400).json({ message: pricing.message });
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "Place name is required" });
     }
+    if (typeof description !== "string" || !description.trim()) {
+      return res.status(400).json({ message: "Place description is required" });
+    }
+    if (typeof districtId !== "string" || !districtId.trim()) {
+      return res.status(400).json({ message: "District ID is required" });
+    }
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ message: "At least one image is required" });
+    }
+
+    const locValidation = await validateStateAndDistrict(districtId, stateId);
+    if (!locValidation.ok) {
+      return res.status(locValidation.status).json({ message: locValidation.message });
+    }
+
+    const catResult = parseCategories(req.body);
+    if ("error" in catResult) {
+      return res.status(400).json({ message: catResult.error });
+    }
+
+    const feeResult = parseFeeFields(req.body);
+    if ("error" in feeResult) {
+      return res.status(400).json({ message: feeResult.error });
+    }
+
+    const addrResult = parseAddressAndLocation(req.body);
+    if ("error" in addrResult) {
+      return res.status(400).json({ message: addrResult.error });
+    }
+
+    const pricing = parsePlacePricing(pricingFromBody(req.body));
+    const finalPricingRows = pricing.ok && pricing.rows.length > 0 ? pricing.rows : feeResult.pricingRows;
 
     const newPlace = await prisma.$transaction(async (tx) => {
       const created = await tx.place.create({
         data: {
-          name,
-          description,
+          name: name.trim(),
+          description: description.trim(),
           districtId,
           images,
-          entryfee,
-          category,
-          latitude,
-          longitude,
+          entryfee: feeResult.entryfee,
+          category: catResult.primaryCategory,
+          categories: catResult.categories,
+          entryFeeType: feeResult.entryFeeType,
+          childEntryFee: feeResult.childEntryFee,
+          childMaxAge: feeResult.childMaxAge,
+          entryFeeConditions: feeResult.entryFeeConditions,
+          hasForeignPricing: feeResult.hasForeignPricing,
+          foreignEntryFeeType: feeResult.foreignEntryFeeType,
+          foreignAdultFee: feeResult.foreignAdultFee,
+          foreignChildFee: feeResult.foreignChildFee,
+          foreignChildMaxAge: feeResult.foreignChildMaxAge,
+          foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+          addressLine: addrResult.addressLine,
+          locality: addrResult.locality,
+          pincode: addrResult.pincode,
+          mapsUrl: addrResult.mapsUrl,
+          latitude: addrResult.latitude,
+          longitude: addrResult.longitude,
           status: "APPROVED",
         },
       });
 
-      await replacePlacePricing(tx, created.id, pricing.rows);
+      await replacePlacePricing(tx, created.id, finalPricingRows);
 
       return tx.place.findUniqueOrThrow({
         where: { id: created.id },
-        include: placePricingInclude,
+        include: {
+          district: {
+            include: {
+              state: {
+                include: { country: true },
+              },
+            },
+          },
+          ...placePricingInclude,
+        },
       });
     });
 
@@ -177,12 +481,34 @@ export const getManageablePlaces = async (req: Request, res: Response) => {
         description: true,
         images: true,
         category: true,
+        categories: true,
         entryfee: true,
+        entryFeeType: true,
+        childEntryFee: true,
+        childMaxAge: true,
+        entryFeeConditions: true,
+        hasForeignPricing: true,
+        foreignEntryFeeType: true,
+        foreignAdultFee: true,
+        foreignChildFee: true,
+        foreignChildMaxAge: true,
+        foreignEntryFeeConditions: true,
+        addressLine: true,
+        locality: true,
+        pincode: true,
+        mapsUrl: true,
         latitude: true,
         longitude: true,
         status: true,
         districtId: true,
-        district: { select: { id: true, name: true } },
+        district: {
+          select: {
+            id: true,
+            name: true,
+            stateId: true,
+            state: { select: { id: true, name: true, isServiceAvailable: true } },
+          },
+        },
         ...placePricingInclude,
       },
       orderBy: { name: "asc" },
@@ -238,11 +564,38 @@ export const getManageablePlacesByDistrict = async (req: Request, res: Response)
       select: {
         id: true,
         name: true,
+        description: true,
         images: true,
         category: true,
+        categories: true,
         entryfee: true,
+        entryFeeType: true,
+        childEntryFee: true,
+        childMaxAge: true,
+        entryFeeConditions: true,
+        hasForeignPricing: true,
+        foreignEntryFeeType: true,
+        foreignAdultFee: true,
+        foreignChildFee: true,
+        foreignChildMaxAge: true,
+        foreignEntryFeeConditions: true,
+        addressLine: true,
+        locality: true,
+        pincode: true,
+        mapsUrl: true,
+        latitude: true,
+        longitude: true,
         status: true,
-        district: { select: { id: true, name: true } },
+        districtId: true,
+        district: {
+          select: {
+            id: true,
+            name: true,
+            stateId: true,
+            state: { select: { id: true, name: true, isServiceAvailable: true } },
+          },
+        },
+        ...placePricingInclude,
       },
       orderBy: { name: "asc" },
     });
@@ -532,11 +885,8 @@ export const submitPlace = async (req: Request, res: Response) => {
       name,
       description,
       districtId,
+      stateId,
       images,
-      entryfee,
-      category,
-      latitude,
-      longitude,
     } = req.body;
 
     if (typeof name !== "string" || !name.trim()) {
@@ -551,53 +901,64 @@ export const submitPlace = async (req: Request, res: Response) => {
     if (!Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ message: "At least one image is required" });
     }
-    if (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
-      return res.status(400).json({ message: "Entry fee must be a non-negative number or null" });
+
+    const locValidation = await validateStateAndDistrict(districtId, stateId);
+    if (!locValidation.ok) {
+      return res.status(locValidation.status).json({ message: locValidation.message });
     }
-    if (typeof category !== "string" || !category.trim()) {
-      return res.status(400).json({ message: "Category is required" });
-    }
-    if (typeof latitude !== "number" || typeof longitude !== "number") {
-      return res.status(400).json({ message: "Valid coordinates (latitude and longitude) are required" });
+    const district = locValidation.district;
+
+    const catResult = parseCategories(req.body);
+    if ("error" in catResult) {
+      return res.status(400).json({ message: catResult.error });
     }
 
-    const pricing = parsePlacePricing(pricingFromBody(req.body));
-    if (!pricing.ok) {
-      return res.status(400).json({ message: pricing.message });
+    const feeResult = parseFeeFields(req.body);
+    if ("error" in feeResult) {
+      return res.status(400).json({ message: feeResult.error });
     }
 
-    const district = await prisma.district.findUnique({
-      where: {
-        id: districtId,
-      },
-    });
-
-    if (!district) {
-      return res.status(404).json({
-        message: "District not found",
-      });
+    const addrResult = parseAddressAndLocation(req.body);
+    if ("error" in addrResult) {
+      return res.status(400).json({ message: addrResult.error });
     }
 
-    /*
-     * Cast to the create input rather than letting TypeScript infer it: a
-     * `place_submission` Json column is typed `InputJsonValue`, which the
-     * project's `exactOptionalPropertyTypes` will not accept as an inferred
-     * object type, and the spread already guarantees the rows are a plain array
-     * of numbers and strings. Omitted entirely when there are no bands, which is
-     * what keeps "no pricing submitted" distinct from "pricing submitted empty",
-     * and when the column itself is not there yet.
-     */
+    const pricingSnapshot = pricingFromBody(req.body);
+    let finalPricingRows: PlacePricingInput[] = [];
+    if (pricingSnapshot !== undefined) {
+      const parsed = parsePlacePricing(pricingSnapshot);
+      if (!parsed.ok) return res.status(400).json({ message: parsed.message });
+      finalPricingRows = parsed.rows;
+    } else {
+      finalPricingRows = feeResult.pricingRows;
+    }
+
     const submissionData: Prisma.place_submissionUncheckedCreateInput = {
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       districtId,
       images,
-      entryfee: typeof entryfee === "number" ? entryfee : null,
-      category,
-      latitude,
-      longitude,
-      ...(pricing.rows.length > 0
-        ? { pricing: pricing.rows as unknown as Prisma.InputJsonValue }
+      entryfee: feeResult.entryfee,
+      category: catResult.primaryCategory,
+      categories: catResult.categories,
+      entryFeeType: feeResult.entryFeeType,
+      childEntryFee: feeResult.childEntryFee,
+      childMaxAge: feeResult.childMaxAge,
+      entryFeeConditions: feeResult.entryFeeConditions,
+      hasForeignPricing: feeResult.hasForeignPricing,
+      foreignEntryFeeType: feeResult.foreignEntryFeeType,
+      foreignAdultFee: feeResult.foreignAdultFee,
+      foreignChildFee: feeResult.foreignChildFee,
+      foreignChildMaxAge: feeResult.foreignChildMaxAge,
+      foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+      addressLine: addrResult.addressLine,
+      locality: addrResult.locality,
+      pincode: addrResult.pincode,
+      mapsUrl: addrResult.mapsUrl,
+      latitude: addrResult.latitude,
+      longitude: addrResult.longitude,
+      ...(finalPricingRows.length > 0
+        ? { pricing: finalPricingRows as unknown as Prisma.InputJsonValue }
         : {}),
       ...(req.specific_guide ? { specificGuideId: req.specific_guide } : {}),
       ...(req.common_guide ? { commonGuideId: req.common_guide } : {}),
@@ -607,18 +968,29 @@ export const submitPlace = async (req: Request, res: Response) => {
       const result = await prisma.$transaction(async (tx) => {
         const newPlace = await tx.place.create({
           data: {
-            name,
-            description,
+            name: name.trim(),
+            description: description.trim(),
             districtId,
             images,
-            entryfee: typeof entryfee === "number" ? entryfee : null,
-            category,
-            latitude,
-            longitude,
-            // The place schema defaults to PENDING, so it has to be marked
-            // APPROVED explicitly here. Without it an "auto-approved" place
-            // stayed invisible to travellers, because every public place query
-            // filters on status APPROVED.
+            entryfee: feeResult.entryfee,
+            category: catResult.primaryCategory,
+            categories: catResult.categories,
+            entryFeeType: feeResult.entryFeeType,
+            childEntryFee: feeResult.childEntryFee,
+            childMaxAge: feeResult.childMaxAge,
+            entryFeeConditions: feeResult.entryFeeConditions,
+            hasForeignPricing: feeResult.hasForeignPricing,
+            foreignEntryFeeType: feeResult.foreignEntryFeeType,
+            foreignAdultFee: feeResult.foreignAdultFee,
+            foreignChildFee: feeResult.foreignChildFee,
+            foreignChildMaxAge: feeResult.foreignChildMaxAge,
+            foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+            addressLine: addrResult.addressLine,
+            locality: addrResult.locality,
+            pincode: addrResult.pincode,
+            mapsUrl: addrResult.mapsUrl,
+            latitude: addrResult.latitude,
+            longitude: addrResult.longitude,
             status: "APPROVED",
           },
         });
@@ -631,7 +1003,7 @@ export const submitPlace = async (req: Request, res: Response) => {
           },
         });
 
-        await replacePlacePricing(tx, newPlace.id, pricing.rows);
+        await replacePlacePricing(tx, newPlace.id, finalPricingRows);
 
         return { newPlace, submission };
       });
@@ -643,36 +1015,32 @@ export const submitPlace = async (req: Request, res: Response) => {
       });
     }
 
-    /*
-     * Manual approval: the place row is still created, but left PENDING, and the
-     * submission is linked to it.
-     *
-     * The review workflow is unchanged — every public place query filters on
-     * status APPROVED, so the place stays invisible to travellers and still sits
-     * in the admin queue, where approving it flips the status on the very same
-     * row the guide owns.
-     *
-     * Creating it upfront rather than waiting for approval is what lets a guide
-     * put the place into a package straight away: a package has to reference a
-     * real place, and without a place there would be nothing to reference until
-     * an admin acted. The alternative — creating the place on approval — leaves
-     * the guide's package pointing at a draft that does not exist, and every
-     * public place query would still hide it, so nothing visible changes either
-     * way; only the guide's own ability to work on their package does.
-     */
     const result = await prisma.$transaction(async (tx) => {
       const pendingPlace = await tx.place.create({
         data: {
-          name,
-          description,
+          name: name.trim(),
+          description: description.trim(),
           districtId,
           images,
-          entryfee: typeof entryfee === "number" ? entryfee : null,
-          category,
-          latitude,
-          longitude,
-          // PENDING is the schema default; set explicitly so the intent is
-          // readable next to the APPROVED branch above.
+          entryfee: feeResult.entryfee,
+          category: catResult.primaryCategory,
+          categories: catResult.categories,
+          entryFeeType: feeResult.entryFeeType,
+          childEntryFee: feeResult.childEntryFee,
+          childMaxAge: feeResult.childMaxAge,
+          entryFeeConditions: feeResult.entryFeeConditions,
+          hasForeignPricing: feeResult.hasForeignPricing,
+          foreignEntryFeeType: feeResult.foreignEntryFeeType,
+          foreignAdultFee: feeResult.foreignAdultFee,
+          foreignChildFee: feeResult.foreignChildFee,
+          foreignChildMaxAge: feeResult.foreignChildMaxAge,
+          foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+          addressLine: addrResult.addressLine,
+          locality: addrResult.locality,
+          pincode: addrResult.pincode,
+          mapsUrl: addrResult.mapsUrl,
+          latitude: addrResult.latitude,
+          longitude: addrResult.longitude,
           status: "PENDING",
         },
       });
@@ -685,7 +1053,7 @@ export const submitPlace = async (req: Request, res: Response) => {
         },
       });
 
-      await replacePlacePricing(tx, pendingPlace.id, pricing.rows);
+      await replacePlacePricing(tx, pendingPlace.id, finalPricingRows);
 
       return { place: pendingPlace, submission };
     });
@@ -710,11 +1078,9 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
     const {
       name,
       description,
+      districtId,
+      stateId,
       images,
-      entryfee,
-      category,
-      latitude,
-      longitude,
     } = req.body;
 
     const place = await prisma.place.findUnique({
@@ -722,7 +1088,9 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
         id: placeId,
       },
       include: {
-        district: true,
+        district: {
+          include: { state: { include: { country: true } } },
+        },
       },
     });
 
@@ -752,112 +1120,144 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       }
     }
 
-    // An edit is a partial update, so pricing is only touched when the guide
-    // actually sent it: `undefined` means "leave the bands as they are", which is
-    // different from an explicit empty list meaning "this place has one flat
-    // price again". The distinction is carried through the submission so an
-    // admin's approval applies the same intent.
+    if (districtId) {
+      const locValidation = await validateStateAndDistrict(districtId, stateId);
+      if (!locValidation.ok) {
+        return res.status(locValidation.status).json({ message: locValidation.message });
+      }
+    }
+
     const pricingSnapshot = pricingFromBody(req.body);
-    const pricingRows: PlacePricingInput[] = [];
+    let pricingRows: PlacePricingInput[] | undefined = undefined;
 
     if (pricingSnapshot !== undefined) {
       const pricing = parsePlacePricing(pricingSnapshot);
       if (!pricing.ok) {
         return res.status(400).json({ message: pricing.message });
       }
-      pricingRows.push(...pricing.rows);
+      pricingRows = pricing.rows;
     }
 
     const data: Record<string, unknown> = {};
 
     if (name !== undefined) {
-      if (typeof name !== "string" || !name) {
-        return res.status(400).json({
-          message: "name must be a non-empty string",
-        });
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({ message: "name must be a non-empty string" });
       }
-      data.name = name;
+      data.name = name.trim();
     }
 
     if (description !== undefined) {
-      if (typeof description !== "string" || !description) {
-        return res.status(400).json({
-          message: "description must be a non-empty string",
-        });
+      if (typeof description !== "string" || !description.trim()) {
+        return res.status(400).json({ message: "description must be a non-empty string" });
       }
-      data.description = description;
+      data.description = description.trim();
+    }
+
+    if (districtId !== undefined) {
+      data.districtId = districtId;
     }
 
     if (images !== undefined) {
       if (!Array.isArray(images)) {
-        return res.status(400).json({
-          message: "images must be an array",
-        });
+        return res.status(400).json({ message: "images must be an array" });
       }
       data.images = images;
     }
 
-    if (entryfee !== undefined) {
-      if (entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
-        return res.status(400).json({
-          message: "entryfee must be a non-negative number or null",
-        });
+    if (req.body.category !== undefined || req.body.categories !== undefined) {
+      const catResult = parseCategories(req.body);
+      if ("error" in catResult) {
+        return res.status(400).json({ message: catResult.error });
       }
-      data.entryfee = entryfee;
+      data.category = catResult.primaryCategory;
+      data.categories = catResult.categories;
     }
 
-    if (category !== undefined) {
-      if (typeof category !== "string") {
-        return res.status(400).json({
-          message: "category must be a string",
-        });
+    if (
+      req.body.entryfee !== undefined ||
+      req.body.entryFeeType !== undefined ||
+      req.body.childEntryFee !== undefined ||
+      req.body.childMaxAge !== undefined ||
+      req.body.hasForeignPricing !== undefined
+    ) {
+      const feeResult = parseFeeFields({
+        ...place,
+        ...req.body,
+      });
+      if ("error" in feeResult) {
+        return res.status(400).json({ message: feeResult.error });
       }
-      data.category = category;
+      data.entryfee = feeResult.entryfee;
+      data.entryFeeType = feeResult.entryFeeType;
+      data.childEntryFee = feeResult.childEntryFee;
+      data.childMaxAge = feeResult.childMaxAge;
+      data.entryFeeConditions = feeResult.entryFeeConditions;
+      data.hasForeignPricing = feeResult.hasForeignPricing;
+      data.foreignEntryFeeType = feeResult.foreignEntryFeeType;
+      data.foreignAdultFee = feeResult.foreignAdultFee;
+      data.foreignChildFee = feeResult.foreignChildFee;
+      data.foreignChildMaxAge = feeResult.foreignChildMaxAge;
+      data.foreignEntryFeeConditions = feeResult.foreignEntryFeeConditions;
+      if (pricingRows === undefined) {
+        pricingRows = feeResult.pricingRows;
+      }
     }
 
-    if (latitude !== undefined) {
-      if (typeof latitude !== "number") {
-        return res.status(400).json({
-          message: "latitude must be a number",
-        });
+    if (
+      req.body.addressLine !== undefined ||
+      req.body.locality !== undefined ||
+      req.body.pincode !== undefined ||
+      req.body.mapsUrl !== undefined ||
+      req.body.latitude !== undefined ||
+      req.body.longitude !== undefined
+    ) {
+      const addrResult = parseAddressAndLocation({
+        ...place,
+        ...req.body,
+      });
+      if ("error" in addrResult) {
+        return res.status(400).json({ message: addrResult.error });
       }
-      data.latitude = latitude;
+      data.addressLine = addrResult.addressLine;
+      data.locality = addrResult.locality;
+      data.pincode = addrResult.pincode;
+      data.mapsUrl = addrResult.mapsUrl;
+      data.latitude = addrResult.latitude;
+      data.longitude = addrResult.longitude;
     }
 
-    if (longitude !== undefined) {
-      if (typeof longitude !== "number") {
-        return res.status(400).json({
-          message: "longitude must be a number",
-        });
-      }
-      data.longitude = longitude;
-    }
-
-    if (Object.keys(data).length === 0 && pricingSnapshot === undefined) {
+    if (Object.keys(data).length === 0 && pricingRows === undefined) {
       return res.status(400).json({
         message: "At least one place field must be provided",
       });
     }
 
-    /*
-     * Typed as the row's own fields rather than as the Prisma create input:
-     * `districtId` is supplied by each `create` call below, so requiring it here
-     * would be wrong. Only `pricing` needs the Json cast, for the same
-     * `exactOptionalPropertyTypes` reason as in `submitPlace`.
-     */
     const pendingData = {
       name: (data.name as string) ?? place.name,
       description: (data.description as string) ?? place.description,
+      districtId: (data.districtId as string) ?? place.districtId,
       images: (data.images as string[]) ?? place.images,
-      entryfee: data.entryfee !== undefined ? data.entryfee as number | null : place.entryfee,
+      entryfee: data.entryfee !== undefined ? (data.entryfee as number | null) : place.entryfee,
       category: (data.category as string) ?? place.category,
+      categories: (data.categories as string[]) ?? place.categories,
+      entryFeeType: (data.entryFeeType as string) ?? place.entryFeeType,
+      childEntryFee: data.childEntryFee !== undefined ? (data.childEntryFee as number | null) : place.childEntryFee,
+      childMaxAge: data.childMaxAge !== undefined ? (data.childMaxAge as number | null) : place.childMaxAge,
+      entryFeeConditions: data.entryFeeConditions !== undefined ? (data.entryFeeConditions as string | null) : place.entryFeeConditions,
+      hasForeignPricing: data.hasForeignPricing !== undefined ? Boolean(data.hasForeignPricing) : place.hasForeignPricing,
+      foreignEntryFeeType: data.foreignEntryFeeType !== undefined ? (data.foreignEntryFeeType as string | null) : place.foreignEntryFeeType,
+      foreignAdultFee: data.foreignAdultFee !== undefined ? (data.foreignAdultFee as number | null) : place.foreignAdultFee,
+      foreignChildFee: data.foreignChildFee !== undefined ? (data.foreignChildFee as number | null) : place.foreignChildFee,
+      foreignChildMaxAge: data.foreignChildMaxAge !== undefined ? (data.foreignChildMaxAge as number | null) : place.foreignChildMaxAge,
+      foreignEntryFeeConditions: data.foreignEntryFeeConditions !== undefined ? (data.foreignEntryFeeConditions as string | null) : place.foreignEntryFeeConditions,
+      addressLine: data.addressLine !== undefined ? (data.addressLine as string | null) : place.addressLine,
+      locality: data.locality !== undefined ? (data.locality as string | null) : place.locality,
+      pincode: data.pincode !== undefined ? (data.pincode as string | null) : place.pincode,
+      mapsUrl: data.mapsUrl !== undefined ? (data.mapsUrl as string | null) : place.mapsUrl,
       latitude: (data.latitude as number) ?? place.latitude,
       longitude: (data.longitude as number) ?? place.longitude,
-      // Only carried when the guide actually sent bands, so omitting the field
-      // means "leave the pricing alone" rather than "delete all the bands". Cast
-      // for the same reason as in `submitPlace`: these rows were validated above
-      // and are a plain array of numbers and strings.
-      ...(pricingSnapshot !== undefined
+      ...(pricingRows !== undefined
         ? { pricing: pricingRows as unknown as Prisma.InputJsonValue }
         : {}),
     };
@@ -871,14 +1271,13 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
           data: { ...data, status: "APPROVED" },
         });
 
-        if (pricingSnapshot !== undefined) {
+        if (pricingRows !== undefined) {
           await replacePlacePricing(tx, placeId, pricingRows);
         }
 
         const submission = await tx.place_submission.create({
           data: {
             ...pendingData,
-            districtId: place.districtId,
             placeId: updatedPlace.id,
             status: "APPROVED",
             ...(req.specific_guide ? { specificGuideId: req.specific_guide } : {}),
@@ -899,7 +1298,6 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
     const submission = await prisma.place_submission.create({
       data: {
         ...pendingData,
-        districtId: place.districtId,
         placeId,
         status: "PENDING",
         ...(req.specific_guide ? { specificGuideId: req.specific_guide } : {}),
@@ -926,11 +1324,9 @@ export const editPlace = async (req: Request, res: Response) => {
     const {
       name,
       description,
+      districtId,
+      stateId,
       images,
-      entryfee,
-      category,
-      latitude,
-      longitude,
     } = req.body;
 
     const place = await prisma.place.findUnique({
@@ -945,20 +1341,112 @@ export const editPlace = async (req: Request, res: Response) => {
       });
     }
 
-    // Same partial-update contract as the guide edit path: bands are replaced
-    // only when the request carries them, so an admin saving an unrelated field
-    // does not silently wipe the pricing an admin set earlier.
+    if (districtId) {
+      const locValidation = await validateStateAndDistrict(districtId, stateId);
+      if (!locValidation.ok) {
+        return res.status(locValidation.status).json({ message: locValidation.message });
+      }
+    }
+
     const pricingSnapshot = pricingFromBody(req.body);
-    const pricingRows: PlacePricingInput[] = [];
+    let pricingRows: PlacePricingInput[] | undefined = undefined;
 
     if (pricingSnapshot !== undefined) {
       const pricing = parsePlacePricing(pricingSnapshot);
       if (!pricing.ok) {
         return res.status(400).json({ message: pricing.message });
       }
-      pricingRows.push(...pricing.rows);
+      pricingRows = pricing.rows;
     }
 
+    const data: Record<string, unknown> = {};
+
+    if (name !== undefined) {
+      if (typeof name !== "string" || !name.trim()) {
+        return res.status(400).json({ message: "name must be a non-empty string" });
+      }
+      data.name = name.trim();
+    }
+
+    if (description !== undefined) {
+      if (typeof description !== "string" || !description.trim()) {
+        return res.status(400).json({ message: "description must be a non-empty string" });
+      }
+      data.description = description.trim();
+    }
+
+    if (districtId !== undefined) {
+      data.districtId = districtId;
+    }
+
+    if (images !== undefined) {
+      if (!Array.isArray(images)) {
+        return res.status(400).json({ message: "images must be an array" });
+      }
+      data.images = images;
+    }
+
+    if (req.body.category !== undefined || req.body.categories !== undefined) {
+      const catResult = parseCategories(req.body);
+      if ("error" in catResult) {
+        return res.status(400).json({ message: catResult.error });
+      }
+      data.category = catResult.primaryCategory;
+      data.categories = catResult.categories;
+    }
+
+    if (
+      req.body.entryfee !== undefined ||
+      req.body.entryFeeType !== undefined ||
+      req.body.childEntryFee !== undefined ||
+      req.body.childMaxAge !== undefined ||
+      req.body.hasForeignPricing !== undefined
+    ) {
+      const feeResult = parseFeeFields({
+        ...place,
+        ...req.body,
+      });
+      if ("error" in feeResult) {
+        return res.status(400).json({ message: feeResult.error });
+      }
+      data.entryfee = feeResult.entryfee;
+      data.entryFeeType = feeResult.entryFeeType;
+      data.childEntryFee = feeResult.childEntryFee;
+      data.childMaxAge = feeResult.childMaxAge;
+      data.entryFeeConditions = feeResult.entryFeeConditions;
+      data.hasForeignPricing = feeResult.hasForeignPricing;
+      data.foreignEntryFeeType = feeResult.foreignEntryFeeType;
+      data.foreignAdultFee = feeResult.foreignAdultFee;
+      data.foreignChildFee = feeResult.foreignChildFee;
+      data.foreignChildMaxAge = feeResult.foreignChildMaxAge;
+      data.foreignEntryFeeConditions = feeResult.foreignEntryFeeConditions;
+      if (pricingRows === undefined) {
+        pricingRows = feeResult.pricingRows;
+      }
+    }
+
+    if (
+      req.body.addressLine !== undefined ||
+      req.body.locality !== undefined ||
+      req.body.pincode !== undefined ||
+      req.body.mapsUrl !== undefined ||
+      req.body.latitude !== undefined ||
+      req.body.longitude !== undefined
+    ) {
+      const addrResult = parseAddressAndLocation({
+        ...place,
+        ...req.body,
+      });
+      if ("error" in addrResult) {
+        return res.status(400).json({ message: addrResult.error });
+      }
+      data.addressLine = addrResult.addressLine;
+      data.locality = addrResult.locality;
+      data.pincode = addrResult.pincode;
+      data.mapsUrl = addrResult.mapsUrl;
+      data.latitude = addrResult.latitude;
+      data.longitude = addrResult.longitude;
+    }
 
     const updatedPlace = await prisma.$transaction(async (tx) => {
       const updated = await tx.place.update({
@@ -966,24 +1454,27 @@ export const editPlace = async (req: Request, res: Response) => {
           id: placeId,
         },
         data: {
-          ...(name !== undefined ? { name } : {}),
-          ...(description !== undefined ? { description } : {}),
-          ...(images !== undefined ? { images } : {}),
-          ...(entryfee !== undefined ? { entryfee } : {}),
-          ...(category !== undefined ? { category } : {}),
-          ...(latitude !== undefined ? { latitude } : {}),
-          ...(longitude !== undefined ? { longitude } : {}),
+          ...data,
           status: "APPROVED",
         },
       });
 
-      if (pricingSnapshot !== undefined) {
+      if (pricingRows !== undefined) {
         await replacePlacePricing(tx, placeId, pricingRows);
       }
 
       return tx.place.findUniqueOrThrow({
         where: { id: updated.id },
-        include: placePricingInclude,
+        include: {
+          district: {
+            include: {
+              state: {
+                include: { country: true },
+              },
+            },
+          },
+          ...placePricingInclude,
+        },
       });
     });
 
@@ -1008,11 +1499,14 @@ export const getPendingPlaceSubmissions = async (req: Request, res: Response) =>
       },
       include: {
         place: true,
-        district: true,
+        district: {
+          include: {
+            state: {
+              include: { country: true },
+            },
+          },
+        },
         specificGuide: true,
-        // An explicit list rather than `true`, so the guide's password hash is
-        // not dragged into an admin response. `agencyName` is included so an
-        // admin can attribute a submission to the guide's agency.
         commonGuide: {
           select: {
             id: true,
@@ -1066,9 +1560,6 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
       });
     }
 
-    // Read the same tolerant way the query did: no `pricing` on the row means
-    // this submission carries no bands, which is the same case as a submission
-    // created before the column existed, and changes no pricing.
     const submittedPricing =
       "pricing" in submission ? submission.pricing : null;
 
@@ -1095,17 +1586,31 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
           data: {
             name: submission.name,
             description: submission.description,
+            districtId: submission.districtId,
             images: submission.images,
             entryfee: submission.entryfee,
             category: submission.category,
+            categories: submission.categories,
+            entryFeeType: submission.entryFeeType,
+            childEntryFee: submission.childEntryFee,
+            childMaxAge: submission.childMaxAge,
+            entryFeeConditions: submission.entryFeeConditions,
+            hasForeignPricing: submission.hasForeignPricing,
+            foreignEntryFeeType: submission.foreignEntryFeeType,
+            foreignAdultFee: submission.foreignAdultFee,
+            foreignChildFee: submission.foreignChildFee,
+            foreignChildMaxAge: submission.foreignChildMaxAge,
+            foreignEntryFeeConditions: submission.foreignEntryFeeConditions,
+            addressLine: submission.addressLine,
+            locality: submission.locality,
+            pincode: submission.pincode,
+            mapsUrl: submission.mapsUrl,
             latitude: submission.latitude,
             longitude: submission.longitude,
             status: "APPROVED",
           },
         });
 
-        // The reviewed bands become the live bands here — the same moment the
-        // reviewed scalars become the live scalars.
         await applySubmittedPricing(tx, placeId, submittedPricing);
 
         await tx.place_submission.update({
@@ -1135,6 +1640,21 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
           images: submission.images,
           entryfee: submission.entryfee,
           category: submission.category,
+          categories: submission.categories,
+          entryFeeType: submission.entryFeeType,
+          childEntryFee: submission.childEntryFee,
+          childMaxAge: submission.childMaxAge,
+          entryFeeConditions: submission.entryFeeConditions,
+          hasForeignPricing: submission.hasForeignPricing,
+          foreignEntryFeeType: submission.foreignEntryFeeType,
+          foreignAdultFee: submission.foreignAdultFee,
+          foreignChildFee: submission.foreignChildFee,
+          foreignChildMaxAge: submission.foreignChildMaxAge,
+          foreignEntryFeeConditions: submission.foreignEntryFeeConditions,
+          addressLine: submission.addressLine,
+          locality: submission.locality,
+          pincode: submission.pincode,
+          mapsUrl: submission.mapsUrl,
           latitude: submission.latitude,
           longitude: submission.longitude,
           status: "APPROVED",

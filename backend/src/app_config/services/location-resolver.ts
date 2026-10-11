@@ -56,25 +56,36 @@ function isValidCoordinates(latitude: number, longitude: number): boolean {
 export async function resolveGoogleMapsShortLink(value: string) {
   let currentUrl: URL;
   try {
-    currentUrl = new URL(value);
+    currentUrl = new URL(value.trim());
   } catch {
-    throw new Error("Invalid Google Maps short link");
+    throw new Error("Invalid Google Maps link");
   }
 
   if (
     currentUrl.protocol !== "https:" ||
-    currentUrl.hostname !== "maps.app.goo.gl" ||
+    (currentUrl.hostname !== "maps.app.goo.gl" && !GOOGLE_MAPS_HOST.test(currentUrl.hostname)) ||
     currentUrl.username ||
     currentUrl.password ||
     currentUrl.port ||
     currentUrl.pathname === "/"
   ) {
-    throw new Error("Only https://maps.app.goo.gl/* links are accepted");
+    throw new Error("Only valid Google Maps sharing links are accepted");
+  }
+
+  // If the link directly embeds coordinates, parse them directly without needing network redirects
+  const directCoordinates = parseCoordinates(currentUrl);
+  if (directCoordinates) {
+    return directCoordinates;
+  }
+
+  // If not a shortlink and direct coordinates couldn't be found, we cannot resolve further
+  if (currentUrl.hostname !== "maps.app.goo.gl") {
+    throw new Error("Coordinates were not found in this Google Maps link");
   }
 
   for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects += 1) {
     if (!isAllowedResolvedUrl(currentUrl)) {
-      throw new Error("Google Maps short link redirected to a disallowed host");
+      throw new Error("Google Maps link redirected to a disallowed host");
     }
 
     const response = await fetch(currentUrl, {

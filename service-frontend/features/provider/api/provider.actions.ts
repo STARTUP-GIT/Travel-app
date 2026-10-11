@@ -11,7 +11,9 @@ import { PLACE_PHOTO_FOLDER, PROFILE_PHOTO_FOLDER } from "@/lib/upload/image";
 import { uploadImageWithToken } from "@/features/provider/api/upload.server";
 
 import { requireProviderSession } from "@/features/provider/state/provider-session";
+import { getStates, getDistrictsByState, type StateRef } from "@/features/locations/api/locations.api";
 import type {
+  DistrictRef,
   ManageablePlace,
   PlaceSubmissionInput,
   ProviderKind,
@@ -368,6 +370,26 @@ export async function loadAvailableSpecificGuides(): Promise<ActionResult<Specif
   return run(async () => {
     const session = await requireCommonGuide();
     return getAvailableSpecificGuides(session.token);
+  });
+}
+
+/**
+ * Loads all enabled states for location pickers.
+ */
+export async function loadEnabledStates(): Promise<ActionResult<StateRef[]>> {
+  return run(async () => {
+    return getStates();
+  });
+}
+
+/**
+ * Loads enabled districts for a given state.
+ */
+export async function loadEnabledDistrictsByState(
+  stateId: string
+): Promise<ActionResult<DistrictRef[]>> {
+  return run(async () => {
+    return getDistrictsByState(stateId);
   });
 }
 

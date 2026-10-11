@@ -27,6 +27,21 @@ export type Place = {
    */
   entryfee: number | null;
   category: string;
+  categories?: string[];
+  entryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  childEntryFee?: number | null;
+  childMaxAge?: number | null;
+  entryFeeConditions?: string | null;
+  hasForeignPricing?: boolean;
+  foreignEntryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  foreignAdultFee?: number | null;
+  foreignChildFee?: number | null;
+  foreignChildMaxAge?: number | null;
+  foreignEntryFeeConditions?: string | null;
+  addressLine?: string | null;
+  locality?: string | null;
+  pincode?: string | null;
+  mapsUrl?: string | null;
   /**
    * Per-band prices, when the place charges differently by age group or visitor
    * type. Empty or absent for the overwhelming majority of places, which is also

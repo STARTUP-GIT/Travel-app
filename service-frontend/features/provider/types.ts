@@ -344,33 +344,63 @@ export type ManageablePlace = {
   description?: string;
   images: string[];
   category: string;
+  categories?: string[];
   entryfee: number | null;
+  entryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  childEntryFee?: number | null;
+  childMaxAge?: number | null;
+  entryFeeConditions?: string | null;
+  hasForeignPricing?: boolean;
+  foreignEntryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  foreignAdultFee?: number | null;
+  foreignChildFee?: number | null;
+  foreignChildMaxAge?: number | null;
+  foreignEntryFeeConditions?: string | null;
+  addressLine?: string | null;
+  locality?: string | null;
+  pincode?: string | null;
+  mapsUrl?: string | null;
   latitude?: number;
   longitude?: number;
   status: ListingStatus;
-  district: { id: string; name: string } | null;
+  districtId?: string;
+  stateId?: string;
+  state?: { id: string; name: string } | null;
+  district: {
+    id: string;
+    name: string;
+    stateId?: string;
+    state?: { id: string; name: string } | null;
+  } | null;
   pricing?: PlacePricingBand[];
 };
 
-/** Everything the existing place form collects, plus the ticket bands. */
+/** Everything the existing place form collects, plus the ticket bands and address fields. */
 export type PlaceSubmissionInput = {
   name: string;
   description: string;
   districtId: string;
+  stateId?: string;
   images: string[];
-  /**
-   * The single flat price, kept because most places charge one amount. Left null
-   * for a free place; ignored by the customer when bands are supplied, which are
-   * then the only prices shown.
-   */
   entryfee: number | null;
   category: string;
+  categories?: string[];
+  entryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  childEntryFee?: number | null;
+  childMaxAge?: number | null;
+  entryFeeConditions?: string | null;
+  hasForeignPricing?: boolean;
+  foreignEntryFeeType?: "FREE" | "PAID" | "UNKNOWN" | string | null;
+  foreignAdultFee?: number | null;
+  foreignChildFee?: number | null;
+  foreignChildMaxAge?: number | null;
+  foreignEntryFeeConditions?: string | null;
+  addressLine?: string | null;
+  locality?: string | null;
+  pincode?: string | null;
+  mapsUrl?: string | null;
   latitude: number;
   longitude: number;
-  /**
-   * Optional. An empty list means the place has one flat price (or is free), which
-   * is exactly how every place without bands already reads.
-   */
   pricing?: PlacePricingBand[];
 };
 
@@ -454,6 +484,7 @@ export type RestaurantRecord = {
 export type DistrictRef = {
   id: string;
   name: string;
+  stateId?: string;
   state?: { id: string; name: string; country?: { id: string; name: string } } | null;
 };
 

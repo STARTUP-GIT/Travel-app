@@ -1317,14 +1317,6 @@ export type common_guide_packageCreateincludedMealsInput = {
   set: string[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type common_guide_packageUpdatepackageImagesInput = {
   set?: string[]
   push?: string | string[]
