@@ -25,7 +25,10 @@ import { ErrorState } from "@/components/shared/states";
 import { GlassCard } from "@/components/shared/glass-card";
 import { RequestStatusBadge } from "@/components/shared/status-badge";
 import { RequestActions } from "@/features/provider/components/request-row";
-import { PrintBookingButton } from "@/features/provider/components/print-booking-button";
+import {
+  PrintBookingButton,
+  OfficialBookingDocument,
+} from "@/features/provider/components/print-booking-button";
 import { loadRequests } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import {
@@ -128,7 +131,8 @@ export default async function RequestDetailPage({
     (request.pricingUnit ? `Per ${request.pricingUnit}` : "Agreed Tour Rate");
 
   return (
-    <div className="app-container mx-auto max-w-6xl py-6 space-y-6">
+    <>
+      <div className="app-container mx-auto max-w-6xl py-6 space-y-6 print:hidden">
       {/* Top Header & Breadcrumb Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
         <div>
@@ -153,7 +157,7 @@ export default async function RequestDetailPage({
 
         <div className="flex items-center gap-3 shrink-0">
           <RequestStatusBadge status={request.status} />
-          <PrintBookingButton request={request} />
+          <PrintBookingButton request={request} withPrintDocument={false} />
         </div>
       </div>
 
@@ -163,22 +167,22 @@ export default async function RequestDetailPage({
         <div className="lg:col-span-8 space-y-6">
           {/* 1. Customer Information Card */}
           <GlassCard className="p-5 sm:p-6 space-y-5">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="flex size-7 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                   <Users className="size-4" />
                 </span>
                 <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
                   Customer & Traveller Information
                 </h2>
               </div>
-              <Badge variant="secondary" className="text-xs font-semibold">
+              <Badge variant="secondary" className="text-xs font-semibold shrink-0">
                 {totalGuests} {pluralize(totalGuests, "Traveller")}
               </Badge>
             </div>
 
             {/* Customer Identity Row */}
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-4 min-w-0">
               <AppImage
                 src={request.customer.photo}
                 alt={request.customer.name}
@@ -186,26 +190,26 @@ export default async function RequestDetailPage({
                 fallbackClassName="rounded-2xl"
               />
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="text-base font-bold text-foreground">{request.customer.name}</p>
+                <p className="text-base font-bold text-foreground break-words [overflow-wrap:anywhere]">{request.customer.name}</p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                   <a
                     href={`mailto:${request.customer.email}`}
-                    className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium"
+                    className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium break-all [overflow-wrap:anywhere]"
                   >
-                    <Mail className="size-3.5" />
+                    <Mail className="size-3.5 shrink-0" />
                     {request.customer.email}
                   </a>
                   {request.customer.phone ? (
                     <a
                       href={`tel:${request.customer.phone}`}
-                      className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium"
+                      className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium break-words [overflow-wrap:anywhere]"
                     >
-                      <Phone className="size-3.5" />
+                      <Phone className="size-3.5 shrink-0" />
                       {request.customer.phone}
                     </a>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                      <Phone className="size-3.5" /> Phone not provided
+                      <Phone className="size-3.5 shrink-0" /> Phone not provided
                     </span>
                   )}
                 </div>
@@ -492,7 +496,7 @@ export default async function RequestDetailPage({
               Review saved snapshot terms and print an authoritative A4 document or save as PDF without navigating away.
             </p>
             <div className="pt-2">
-              <PrintBookingButton request={request} />
+              <PrintBookingButton request={request} withPrintDocument={false} />
             </div>
           </GlassCard>
 
@@ -509,6 +513,8 @@ export default async function RequestDetailPage({
         </div>
       </div>
     </div>
-  );
+    <OfficialBookingDocument request={request} />
+  </>
+);
 }
 
