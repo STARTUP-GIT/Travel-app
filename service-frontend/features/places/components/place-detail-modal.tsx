@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Coins,
   ExternalLink,
   Globe2,
   MapPin,
@@ -219,6 +220,46 @@ export function PlaceDetailModal({
               </p>
             )}
           </div>
+
+          {/* Additional Fees */}
+          {place.hasAdditionalFees && Array.isArray(place.additionalFees) && place.additionalFees.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-3.5">
+              <h4 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                <Coins className="size-4 text-primary" />
+                Additional Place Fees
+              </h4>
+              <div className="mt-2 divide-y divide-border/60">
+                {place.additionalFees.map((fee) => (
+                  <div key={fee.id} className="flex items-center justify-between py-2 text-xs">
+                    <div>
+                      <div className="font-semibold text-foreground flex items-center gap-1.5">
+                        <span>{fee.name}</span>
+                        {fee.visitor !== "ALL" && (
+                          <Badge variant="outline" className="text-[0.65rem]">
+                            {fee.visitor === "FOREIGN" ? "Foreign visitors" : "Domestic visitors"}
+                          </Badge>
+                        )}
+                      </div>
+                      {fee.conditions && (
+                        <p className="mt-0.5 text-[0.7rem] text-muted-foreground italic">
+                          {fee.conditions}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      {fee.status === "FREE" ? (
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">Free</span>
+                      ) : fee.status === "PAID" && typeof fee.amount === "number" ? (
+                        <span className="font-semibold text-foreground">{formatCurrency(fee.amount)}</span>
+                      ) : (
+                        <span className="text-muted-foreground italic">To be confirmed at venue</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Address & Coordinates */}
           <div className="rounded-xl border border-border/70 bg-muted/20 p-3">

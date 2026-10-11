@@ -2911,6 +2911,8 @@ export const PlaceScalarFieldEnum = {
   pincode: 'pincode',
   mapsUrl: 'mapsUrl',
   status: 'status',
+  hasAdditionalFees: 'hasAdditionalFees',
+  additionalFees: 'additionalFees',
   latitude: 'latitude',
   longitude: 'longitude',
   createdAt: 'createdAt',
@@ -2958,6 +2960,8 @@ export const Place_submissionScalarFieldEnum = {
   latitude: 'latitude',
   longitude: 'longitude',
   pricing: 'pricing',
+  hasAdditionalFees: 'hasAdditionalFees',
+  additionalFees: 'additionalFees',
   status: 'status',
   rejectionReason: 'rejectionReason',
   specificGuideId: 'specificGuideId',
@@ -3561,20 +3565,6 @@ export type ListEnumplaceSubmissionStatusFieldRefInput<$PrismaModel> = FieldRefI
 
 
 /**
- * Reference to a field of type 'placeVisitorType'
- */
-export type EnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType'>
-    
-
-
-/**
- * Reference to a field of type 'placeVisitorType[]'
- */
-export type ListEnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType[]'>
-    
-
-
-/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -3585,6 +3575,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'placeVisitorType'
+ */
+export type EnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType'>
+    
+
+
+/**
+ * Reference to a field of type 'placeVisitorType[]'
+ */
+export type ListEnumplaceVisitorTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'placeVisitorType[]'>
     
 
 

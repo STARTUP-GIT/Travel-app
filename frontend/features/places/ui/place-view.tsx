@@ -423,6 +423,41 @@ export function PlaceView({
                         ) : null}
                       </div>
                     ) : null}
+
+                    {/* Additional Fees */}
+                    {place.hasAdditionalFees && Array.isArray(place.additionalFees) && place.additionalFees.length > 0 && (
+                      <div className="border-t border-border/70 pt-2.5">
+                        <h4 className="text-sm font-semibold text-foreground">
+                          Additional Place Fees
+                        </h4>
+                        <div className="mt-1.5 space-y-1.5 text-xs">
+                          {place.additionalFees.map((fee) => (
+                            <div key={fee.id} className="flex items-center justify-between">
+                              <div>
+                                <span className="font-medium text-foreground">{fee.name}</span>
+                                {fee.visitor && fee.visitor !== "ALL" && (
+                                  <span className="ml-1 text-[0.7rem] text-muted-foreground">
+                                    ({fee.visitor === "FOREIGN" ? "Foreign visitors" : "Domestic visitors"})
+                                  </span>
+                                )}
+                                {fee.conditions ? (
+                                  <p className="text-[0.7rem] text-muted-foreground italic">{fee.conditions}</p>
+                                ) : null}
+                              </div>
+                              <div className="text-right">
+                                {fee.status === "FREE" ? (
+                                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">Free</span>
+                                ) : fee.status === "PAID" && typeof fee.amount === "number" ? (
+                                  <span className="font-semibold">{formatCurrency(fee.amount)}</span>
+                                ) : (
+                                  <span className="text-muted-foreground italic">To be confirmed at venue</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </section>
               ) : null}

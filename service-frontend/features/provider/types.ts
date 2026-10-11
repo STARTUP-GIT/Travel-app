@@ -330,6 +330,28 @@ export type PlacePricingBand = {
   amount: number;
 };
 
+export type PlaceAdditionalFeeCategory =
+  | "CAMERA"
+  | "VIDEO"
+  | "PARKING"
+  | "SPECIAL_EXHIBIT"
+  | "GUIDE_SUPPLEMENT"
+  | "OTHER";
+
+export type PlaceAdditionalFeeVisitor = "ALL" | "DOMESTIC" | "FOREIGN";
+
+export type PlaceAdditionalFeeStatus = "PAID" | "FREE" | "UNKNOWN";
+
+export type PlaceAdditionalFee = {
+  id: string;
+  category: PlaceAdditionalFeeCategory;
+  name: string;
+  amount: number | null;
+  status: PlaceAdditionalFeeStatus;
+  visitor: PlaceAdditionalFeeVisitor;
+  conditions?: string | null;
+};
+
 /**
  * A place a guide can offer in a tour package.
  *
@@ -356,6 +378,8 @@ export type ManageablePlace = {
   foreignChildFee?: number | null;
   foreignChildMaxAge?: number | null;
   foreignEntryFeeConditions?: string | null;
+  hasAdditionalFees?: boolean;
+  additionalFees?: PlaceAdditionalFee[] | null;
   addressLine?: string | null;
   locality?: string | null;
   pincode?: string | null;
@@ -395,6 +419,8 @@ export type PlaceSubmissionInput = {
   foreignChildFee?: number | null;
   foreignChildMaxAge?: number | null;
   foreignEntryFeeConditions?: string | null;
+  hasAdditionalFees?: boolean;
+  additionalFees?: PlaceAdditionalFee[] | null;
   addressLine?: string | null;
   locality?: string | null;
   pincode?: string | null;
@@ -547,6 +573,91 @@ export type ProviderListingInput = {
 /*  Requests (bookings / reservations)                                        */
 /* -------------------------------------------------------------------------- */
 
+export type ItineraryPlaceItem = {
+  id: string;
+  name: string;
+  visitArrangement?: string | null;
+  expectedDuration?: string | null;
+  duration?: string | null;
+  entryFeeStatus?: string | null;
+  entryFeeAmount?: number | null;
+  images?: string[];
+  description?: string | null;
+  category?: string | null;
+  district?: string | null;
+  state?: string | null;
+  order?: number;
+};
+
+export type BookingSnapshotData = {
+  packageId?: string | null;
+  packageName?: string | null;
+  packageDescription?: string | null;
+  duration?: string | null;
+  maxGroupSize?: number | null;
+  pricingMode?: string | null;
+  pricingUnit?: string | null;
+  basePrice?: number | null;
+  adultRate?: number | null;
+  childRate?: number | null;
+  adultsCount?: number | null;
+  childrenCount?: number | null;
+  numberOfAdults?: number | null;
+  numberOfChildren?: number | null;
+  totalGuests?: number | null;
+  totalTravellers?: number | null;
+  childPolicy?: {
+    childrenAllowed?: boolean;
+    childMaxAge?: number;
+    childrenCountTowardCapacity?: boolean;
+    childDiscountType?: string;
+    childDiscountPercent?: number | null;
+    childRate?: number | null;
+    adultRate?: number | null;
+    breakdown?: string;
+  } | null;
+  cancellationPolicy?: string | null;
+  tripStartTime?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
+  pickupLocation?: string | null;
+  foodArrangement?: string | null;
+  transportArrangement?: string | null;
+  notes?: string | null;
+  inclusions?: string[];
+  exclusions?: string[];
+  meals?: {
+    service?: string;
+    included?: string[];
+    details?: string | null;
+  } | null;
+  transport?: {
+    service?: string;
+    vehicles?: Array<{
+      type?: string;
+      model?: string;
+      capacity?: number;
+      arrangement?: string;
+      isPrivate?: boolean;
+      status?: string;
+      pricePerDay?: number | null;
+      includedChargeCategories?: string[];
+      excludedChargeCategories?: string[];
+      conditions?: string | null;
+    }> | null;
+  } | null;
+  specificGuide?: {
+    id?: string;
+    name?: string;
+    photo?: string | null;
+    tagline?: string | null;
+    languages?: string[];
+  } | null;
+  places?: ItineraryPlaceItem[];
+  calculatedTotalPrice?: number | null;
+};
+
 export type ProviderRequest = {
   id: string;
   kind: ProviderRequestKind;
@@ -566,11 +677,67 @@ export type ProviderRequest = {
   /** Hotel check-out, otherwise null. */
   endDate: string | null;
   time: string | null;
+  tripStartTime?: string | null;
   guests: number | null;
+  adults?: number | null;
+  children?: number | null;
   rooms: number | null;
   amount: number | null;
-  places: { id: string; name: string }[];
+  pricingMode?: string | null;
+  pricingUnit?: string | null;
+  cancellationPolicy?: string | null;
+  paymentStatus?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
+  requestedPickupName?: string | null;
+  requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
+  pickupLocation?: string | null;
+  notes?: string | null;
   requestTicketAssistance?: boolean;
+  foodStatus?: string | null;
+  foodDetails?: string | null;
+  transportStatus?: string | null;
+  transportDetails?: string | null;
+  entryFeeStatus?: string | null;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  places: ItineraryPlaceItem[];
+  packageDetails?: {
+    id?: string;
+    name?: string;
+    description?: string | null;
+    duration?: string | null;
+    maxGroupSize?: number | null;
+    pricingMode?: string | null;
+    pricingUnit?: string | null;
+    price?: number | null;
+    cancellationPolicy?: string | null;
+    childrenAllowed?: boolean;
+    childMaxAge?: number | null;
+    childDiscountType?: string;
+    childDiscountPercent?: number | null;
+    mealsService?: string;
+    includedMeals?: string[];
+    mealDetails?: string | null;
+    transportService?: string;
+    transportVehicles?: any[];
+    pickupLocation?: string | null;
+    inclusions?: string[];
+    exclusions?: string[];
+    places?: ItineraryPlaceItem[];
+  } | null;
+  bookingSnapshot?: BookingSnapshotData | null;
+  specificGuide?: {
+    id: string;
+    name: string;
+    tagline?: string | null;
+    photo?: string | null;
+  } | null;
+  tourGuideName?: string | null;
+  agencyName?: string | null;
+  isPackageTour?: boolean;
   createdAt: string;
 };
 

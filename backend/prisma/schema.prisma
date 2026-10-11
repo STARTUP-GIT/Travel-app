@@ -163,6 +163,8 @@ model place {
   mapsUrl         String?
   status          placeSubmissionStatus @default(PENDING)
   pricing         place_pricing[]
+  hasAdditionalFees Boolean @default(false)
+  additionalFees  Json?
   latitude        Float    @default(0)
   longitude       Float    @default(0)
   createdAt       DateTime @default(now())
@@ -232,6 +234,8 @@ model place_submission {
   // submission changes no pricing, which is what every submission created
   // before this column existed means.
   pricing         Json?
+  hasAdditionalFees Boolean @default(false)
+  additionalFees  Json?
   status          placeSubmissionStatus @default(PENDING)
   rejectionReason String?
   specificGuideId String?

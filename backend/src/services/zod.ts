@@ -159,7 +159,7 @@ export const commonGuidePackageSchema = z.object({
   mealDetails: z.string().nullable().optional(),
   transportStatus: z.string().default("EXCLUDED"),
   transportDetails: z.string().nullable().optional(),
-  transportService: z.enum(["INCLUDED", "ON_REQUEST", "NO_SERVICE"]).default("NO_SERVICE"),
+  transportService: z.enum(["INCLUDED", "NO_SERVICE"]).default("NO_SERVICE"),
   transportVehicles: z.any().optional(),
   entryFeeStatus: z.enum(["INCLUDED", "EXCLUDED"]).default("EXCLUDED"),
   entryFeeDetails: z.string().nullable().optional(),

@@ -49,10 +49,10 @@ export function CommonGuideServices({
         className="w-full"
       >
         <div className="flex items-center justify-between border-b border-border pb-4">
-          <TabsList className="h-11 rounded-2xl bg-muted/60 p-1">
+          <TabsList className="h-12 rounded-2xl border border-border/80 bg-muted/70 p-1.5 shadow-sm">
             <TabsTrigger
               value="packages"
-              className="gap-2 rounded-xl px-4 py-2 font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="gap-2 rounded-xl px-4 py-2 font-semibold text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-border/80 data-[state=active]:shadow-sm"
             >
               <Route className="size-4" />
               Tour Packages
@@ -62,7 +62,7 @@ export function CommonGuideServices({
             </TabsTrigger>
             <TabsTrigger
               value="places"
-              className="gap-2 rounded-xl px-4 py-2 font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="gap-2 rounded-xl px-4 py-2 font-semibold text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:border data-[state=active]:border-border/80 data-[state=active]:shadow-sm"
             >
               <Compass className="size-4" />
               Places

@@ -631,7 +631,7 @@ export function PackageBookingModal({
                 <div className="rounded-lg bg-card p-2 border border-border">
                   <span className="text-muted-foreground block text-[10px]">Transport</span>
                   <span className="font-medium text-foreground">
-                    {pkg.transportStatus === "INCLUDED" ? "Included" : "Pay Separately"}
+                    {(pkg.transportService === "INCLUDED" || pkg.transportStatus === "INCLUDED") ? "Included in package" : "No transport service"}
                   </span>
                 </div>
                 <div className="rounded-lg bg-card p-2 border border-border">

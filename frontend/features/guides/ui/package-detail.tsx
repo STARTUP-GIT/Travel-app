@@ -382,13 +382,15 @@ export function PackageDetail({
                                 {v.type || v.vehicleType || "Car"} · {v.capacity} seats
                               </span>
                               <Badge variant="outline" className="text-[0.65rem]">
-                                {isPriv ? "Private Vehicle (Tour Only)" : "Shared Transport"}
+                                {isPriv
+                                  ? "Option A: Private — this booking group only"
+                                  : "Option B: Shared — mixed booking groups"}
                               </Badge>
                             </div>
                             <p className="text-[0.7rem] text-muted-foreground leading-relaxed italic">
                               {isPriv
-                                ? "“The vehicle is reserved for this booking party for the agreed tour. Unrelated customers are not added to the same vehicle.”"
-                                : "“Passengers from different bookings may travel together. Available seats and passenger capacity must be checked before the booking is confirmed.”"}
+                                ? "“The vehicle is reserved for the customers in this booking. Customers from unrelated bookings will not share the vehicle.”"
+                                : "“Customers from different bookings may share the same vehicle. Passenger capacity and available seats must be checked across all affected bookings.”"}
                             </p>
                             <div className="pt-1 border-t space-y-0.5 text-[0.7rem]">
                               <p className="text-emerald-700 font-medium">
@@ -410,48 +412,11 @@ export function PackageDetail({
                     {pkg.transportDetails || "Dedicated transportation is provided and included in the advertised price."}
                   </p>
                 </div>
-              ) : pkg.transportService === "ON_REQUEST" || (!pkg.transportService && pkg.transportStatus === "OPTIONAL") ? (
-                <div className="space-y-2">
-                  <Badge variant="warning">Can be arranged if requested</Badge>
-                  {Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0 ? (
-                    <div className="space-y-2">
-                      {pkg.transportVehicles.map((v, i) => {
-                        const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
-                        const inc = (v.includedChargeCategories && v.includedChargeCategories.length > 0)
-                          ? v.includedChargeCategories.join(", ")
-                          : v.chargesIncluded || "Fuel, Driver allowance";
-                        const exc = (v.excludedChargeCategories && v.excludedChargeCategories.length > 0)
-                          ? v.excludedChargeCategories.join(", ")
-                          : v.chargesExcluded || (v as any).additionalChargesExcluded || "Tolls, Parking";
-                        return (
-                          <div key={i} className="rounded-xl border border-border bg-muted/30 p-2.5 text-xs space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="font-semibold text-foreground">
-                                {v.type || v.vehicleType || "Car"} · {v.capacity} seats
-                              </span>
-                              <Badge variant="outline" className="text-[0.65rem]">
-                                {isPriv ? "Private Vehicle" : "Shared Transport"}
-                              </Badge>
-                            </div>
-                            <div className="text-[0.7rem] space-y-0.5">
-                              {v.pricePerDay ? <p className="font-medium text-primary">Est. rate: ₹{v.pricePerDay}</p> : null}
-                              <p className="text-emerald-700 font-medium"><span className="font-semibold">✓ Included:</span> {inc}</p>
-                              <p className="text-muted-foreground"><span className="font-semibold text-foreground">✗ Excluded:</span> {exc}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {pkg.transportDetails || "Transport is not included in the base tour package price. Available upon request with separate confirmation."}
-                  </p>
-                </div>
               ) : (
                 <div className="space-y-1.5">
                   <Badge variant="outline">No transport service</Badge>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Transport is not provided or arranged for this package. Travellers meet at the pickup point or travel independently.
+                    Transport is not provided for this package. Travellers meet at the pickup point or travel independently.
                   </p>
                 </div>
               )}

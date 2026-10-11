@@ -403,16 +403,61 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         Array.isArray(pkg.transportVehicles) &&
         pkg.transportVehicles.length > 0
       ) {
-        const maxCapacity = Math.max(
-          ...pkg.transportVehicles.map((v: any) => (typeof v.capacity === "number" ? v.capacity : 4))
-        );
         const countingPassengers = pkg.childrenCountTowardCapacity
           ? numberOfPeople
           : numberOfAdults;
-        if (countingPassengers > maxCapacity) {
-          return res.status(400).json({
-            message: `Group size (${countingPassengers}) exceeds the maximum vehicle capacity of ${maxCapacity} passengers.`,
+
+        const isAnyPrivate = pkg.transportVehicles.some((v: any) =>
+          v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false
+        );
+
+        if (isAnyPrivate) {
+          // Private — this booking group only: customers from unrelated bookings will not share the vehicle
+          const maxCapacity = Math.max(
+            ...pkg.transportVehicles.map((v: any) => (typeof v.capacity === "number" ? v.capacity : 4))
+          );
+          if (countingPassengers > maxCapacity) {
+            return res.status(400).json({
+              message: `Group size (${countingPassengers}) exceeds the private vehicle capacity of ${maxCapacity} passengers.`,
+            });
+          }
+
+          const existingPrivateBooking = await prisma.common_guide_booking.findFirst({
+            where: {
+              packageId: pkg.id,
+              bookingDate: data.bookingDate,
+              bookingTime: data.bookingTime ?? null,
+              status: { in: ["CONFIRMED", "PENDING"] },
+            },
           });
+          if (existingPrivateBooking) {
+            return res.status(409).json({
+              message: "The private vehicle for this package is already reserved by another booking group for the selected date and time.",
+            });
+          }
+        } else {
+          // Shared — mixed booking groups: passenger capacity and available seats must be checked across all affected bookings
+          const totalSharedCapacity = pkg.transportVehicles.reduce(
+            (sum: number, v: any) => sum + (typeof v.capacity === "number" ? v.capacity : 4),
+            0
+          );
+          const existingSharedBookings = await prisma.common_guide_booking.findMany({
+            where: {
+              packageId: pkg.id,
+              bookingDate: data.bookingDate,
+              bookingTime: data.bookingTime ?? null,
+              status: { in: ["CONFIRMED", "PENDING"] },
+            },
+          });
+          const bookedSeats = existingSharedBookings.reduce((sum, b) => {
+            return sum + (pkg.childrenCountTowardCapacity ? b.numberOfPeople : b.numberOfAdults);
+          }, 0);
+          const availableSeats = totalSharedCapacity - bookedSeats;
+          if (countingPassengers > availableSeats) {
+            return res.status(400).json({
+              message: `Vehicle capacity exceeded. Only ${Math.max(0, availableSeats)} seats remaining on this shared vehicle (requested: ${countingPassengers}).`,
+            });
+          }
         }
       }
     }

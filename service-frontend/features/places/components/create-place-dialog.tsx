@@ -43,10 +43,12 @@ import {
   loadEnabledDistrictsByState,
 } from "@/features/provider/api/provider.actions";
 import { CategoryMultiSelect } from "@/features/places/components/category-select";
+import { AdditionalFeesSection } from "@/features/places/components/additional-fees-section";
 import type {
   DistrictRef,
   ManageablePlace,
   PlacePricingBand,
+  PlaceAdditionalFee,
 } from "@/features/provider/types";
 import type { StateRef } from "@/features/locations/api/locations.api";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,10 @@ export type CreatePlaceFormState = {
   childFee: string;
   childMaxAge: number;
   entryFeeConditions: string;
+
+  // Additional Fees
+  hasAdditionalFees: boolean;
+  additionalFees: PlaceAdditionalFee[];
 
   // Foreign Visitor Entry Fees
   hasForeignPricing: boolean;
@@ -109,6 +115,8 @@ function initialFormState(initialDistrictId = "", initialStateId = ""): CreatePl
     childFee: "",
     childMaxAge: 12,
     entryFeeConditions: "",
+    hasAdditionalFees: false,
+    additionalFees: [],
     hasForeignPricing: false,
     foreignEntryFeeType: "UNKNOWN",
     foreignAdultFee: "",
@@ -495,6 +503,8 @@ export function CreatePlaceDialog({
         foreignChildFee,
         foreignChildMaxAge: form.foreignChildMaxAge,
         foreignEntryFeeConditions: form.foreignEntryFeeConditions.trim() || null,
+        hasAdditionalFees: form.hasAdditionalFees,
+        additionalFees: form.hasAdditionalFees ? form.additionalFees : [],
         addressLine: form.addressLine.trim() || null,
         locality: form.locality.trim() || null,
         pincode: form.pincode.trim() || null,
@@ -771,19 +781,6 @@ export function CreatePlaceDialog({
                     Children aged {form.childMaxAge} and under pay the child fee. Visitors older than {form.childMaxAge} pay the adult entry fee.
                   </p>
                 </div>
-
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="create-fee-notes" className="text-xs">
-                    Fee conditions or notes (optional)
-                  </Label>
-                  <Input
-                    id="create-fee-notes"
-                    value={form.entryFeeConditions}
-                    onChange={(e) => updateField("entryFeeConditions", e.target.value)}
-                    placeholder="e.g. Camera fee ₹50 extra, ID required for children"
-                    className="text-xs"
-                  />
-                </div>
               </div>
             )}
 
@@ -799,6 +796,14 @@ export function CreatePlaceDialog({
               </p>
             )}
           </section>
+
+          {/* ADDITIONAL FEES */}
+          <AdditionalFeesSection
+            enabled={form.hasAdditionalFees}
+            onEnabledChange={(enabled) => updateField("hasAdditionalFees", enabled)}
+            fees={form.additionalFees}
+            onChange={(fees) => updateField("additionalFees", fees)}
+          />
 
           {/* 4. FOREIGN VISITOR ENTRY FEES */}
           <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card/60 p-4">

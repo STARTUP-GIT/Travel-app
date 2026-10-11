@@ -24,6 +24,8 @@ import {
   submitPlacePath,
 } from "@/features/provider/config";
 import type {
+  BookingSnapshotData,
+  ItineraryPlaceItem,
   FoodCategory,
   HotelRecord,
   ManagedRecord,
@@ -662,6 +664,8 @@ type RawManageablePlace = {
   foreignChildFee?: number | null;
   foreignChildMaxAge?: number | null;
   foreignEntryFeeConditions?: string | null;
+  hasAdditionalFees?: boolean | null;
+  additionalFees?: any | null;
   addressLine?: string | null;
   locality?: string | null;
   pincode?: string | null;
@@ -703,6 +707,8 @@ function normalizeManageablePlace(row: RawManageablePlace): ManageablePlace {
     foreignChildFee: row.foreignChildFee ?? null,
     foreignChildMaxAge: row.foreignChildMaxAge ?? 12,
     foreignEntryFeeConditions: row.foreignEntryFeeConditions ?? null,
+    hasAdditionalFees: Boolean(row.hasAdditionalFees),
+    additionalFees: Array.isArray(row.additionalFees) ? row.additionalFees : null,
     addressLine: row.addressLine ?? null,
     locality: row.locality ?? null,
     pincode: row.pincode ?? null,
@@ -966,6 +972,8 @@ export async function submitPlaceAsGuide(
         foreignChildFee: input.foreignChildFee,
         foreignChildMaxAge: input.foreignChildMaxAge,
         foreignEntryFeeConditions: input.foreignEntryFeeConditions,
+        hasAdditionalFees: Boolean(input.hasAdditionalFees),
+        additionalFees: input.hasAdditionalFees ? (input.additionalFees ?? []) : [],
         addressLine: input.addressLine,
         locality: input.locality,
         pincode: input.pincode,
@@ -1020,6 +1028,8 @@ export async function editPlaceAsGuide(
         ...(input.foreignChildFee !== undefined ? { foreignChildFee: input.foreignChildFee } : {}),
         ...(input.foreignChildMaxAge !== undefined ? { foreignChildMaxAge: input.foreignChildMaxAge } : {}),
         ...(input.foreignEntryFeeConditions !== undefined ? { foreignEntryFeeConditions: input.foreignEntryFeeConditions } : {}),
+        ...(input.hasAdditionalFees !== undefined ? { hasAdditionalFees: input.hasAdditionalFees } : {}),
+        ...(input.additionalFees !== undefined ? { additionalFees: input.additionalFees } : {}),
         ...(input.addressLine !== undefined ? { addressLine: input.addressLine } : {}),
         ...(input.locality !== undefined ? { locality: input.locality } : {}),
         ...(input.pincode !== undefined ? { pincode: input.pincode } : {}),
@@ -1418,15 +1428,40 @@ type RawSpecificGuideBooking = {
   placeId: string;
   bookingDate: string;
   bookingTime: string | null;
+  tripStartTime?: string | null;
   status: RequestStatus;
   numberOfPeople?: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
   totalPrice?: number;
+  pricingMode?: string;
+  pricingUnit?: string;
   isPackageTour?: boolean;
   packageName?: string;
   tourGuideName?: string;
   agencyName?: string;
   specificGuideStatus?: string;
   requestTicketAssistance?: boolean;
+  cancellationPolicy?: string | null;
+  paymentStatus?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
+  requestedPickupName?: string | null;
+  requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
+  bookingSnapshot?: BookingSnapshotData | null;
+  package?: any;
+  places?: RawPlace[];
+  selectedPlaces?: Array<{
+    id: string;
+    placeId: string;
+    visitArrangement?: string | null;
+    expectedDuration?: string | null;
+    entryFeeStatus?: string | null;
+    entryFeeAmount?: number | null;
+    place: RawPlace | null;
+  }>;
   createdAt: string;
   user: RawCustomer;
   place: RawPlace | null;
@@ -1435,20 +1470,48 @@ type RawSpecificGuideBooking = {
 type RawCommonGuideBooking = {
   id: string;
   commonGuideId: string;
+  packageId?: string | null;
   bookingDate: string;
   bookingTime: string | null;
+  tripStartTime?: string | null;
   status: RequestStatus;
   numberOfPeople?: number;
   numberOfAdults?: number;
   numberOfChildren?: number;
   totalPrice?: number;
-  package?: { id: string; name: string } | null;
-  specificGuide?: { id: string; full_name: string } | null;
+  pricingMode?: string | null;
+  pricingUnit?: string | null;
+  allowCustomerPlaceSelection?: boolean;
+  cancellationPolicy?: string | null;
+  foodStatus?: string | null;
+  foodDetails?: string | null;
+  transportStatus?: string | null;
+  transportDetails?: string | null;
+  entryFeeStatus?: string | null;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  paymentStatus?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
+  requestedPickupName?: string | null;
+  requestedPickupAddress?: string | null;
+  requestedPickupMapsUrl?: string | null;
+  package?: any;
+  specificGuide?: { id: string; full_name: string; tagline?: string | null; profile_pic?: string | null } | null;
   specificGuideStatus?: string | null;
-  bookingSnapshot?: unknown;
+  bookingSnapshot?: BookingSnapshotData | null;
   createdAt: string;
   user: RawCustomer;
-  selectedPlaces: { id: string; placeId: string; place: RawPlace | null }[];
+  selectedPlaces: Array<{
+    id: string;
+    placeId: string;
+    visitArrangement?: string | null;
+    expectedDuration?: string | null;
+    entryFeeStatus?: string | null;
+    entryFeeAmount?: number | null;
+    place: RawPlace | null;
+  }>;
 };
 
 export async function getProviderRequests(
@@ -1512,26 +1575,68 @@ export async function getProviderRequests(
       { fallback: "Could not load your bookings" }
     );
 
-    return rows.map((row) => ({
-      id: row.id,
-      kind: "specific_guide_booking" as ProviderRequestKind,
-      listingId: row.placeId,
-      listingName: row.isPackageTour
-        ? `${row.packageName || "Package Tour"} (${row.agencyName || row.tourGuideName || "Tour Guide"})`
-        : (row.place?.name ?? "Guided visit"),
-      listingImage: null,
-      customer: customer(row.user),
-      status: row.status,
-      date: row.bookingDate,
-      endDate: null,
-      time: row.bookingTime ?? null,
-      guests: typeof row.numberOfPeople === "number" ? row.numberOfPeople : 1,
-      rooms: null,
-      amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
-      places: row.place ? [{ id: row.place.id, name: row.place.name }] : [],
-      requestTicketAssistance: Boolean(row.requestTicketAssistance),
-      createdAt: row.createdAt,
-    }));
+    return rows.map((row) => {
+      const places: ItineraryPlaceItem[] = [];
+      if (row.selectedPlaces && row.selectedPlaces.length > 0) {
+        for (const sp of row.selectedPlaces) {
+          if (sp.place) {
+            places.push({
+              id: sp.place.id,
+              name: sp.place.name,
+              visitArrangement: sp.visitArrangement ?? null,
+              expectedDuration: sp.expectedDuration ?? null,
+              entryFeeStatus: sp.entryFeeStatus ?? null,
+              entryFeeAmount: sp.entryFeeAmount ?? null,
+            });
+          }
+        }
+      } else if (row.places && row.places.length > 0) {
+        for (const p of row.places) {
+          places.push({ id: p.id, name: p.name });
+        }
+      } else if (row.place) {
+        places.push({ id: row.place.id, name: row.place.name });
+      }
+
+      return {
+        id: row.id,
+        kind: "specific_guide_booking" as ProviderRequestKind,
+        listingId: row.placeId,
+        listingName: row.isPackageTour
+          ? `${row.packageName || "Package Tour"} (${row.agencyName || row.tourGuideName || "Tour Guide"})`
+          : (row.place?.name ?? "Guided visit"),
+        listingImage: null,
+        customer: customer(row.user),
+        status: row.status,
+        date: row.bookingDate,
+        endDate: null,
+        time: row.bookingTime ?? null,
+        tripStartTime: row.tripStartTime ?? row.bookingTime ?? null,
+        guests: typeof row.numberOfPeople === "number" ? row.numberOfPeople : 1,
+        adults: typeof row.numberOfAdults === "number" ? row.numberOfAdults : null,
+        children: typeof row.numberOfChildren === "number" ? row.numberOfChildren : null,
+        rooms: null,
+        amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
+        pricingMode: row.pricingMode ?? null,
+        pricingUnit: row.pricingUnit ?? null,
+        cancellationPolicy: row.cancellationPolicy ?? null,
+        paymentStatus: row.paymentStatus ?? null,
+        pickupName: row.pickupName ?? row.requestedPickupName ?? null,
+        pickupAddress: row.pickupAddress ?? row.requestedPickupAddress ?? null,
+        pickupMapsUrl: row.pickupMapsUrl ?? row.requestedPickupMapsUrl ?? null,
+        requestedPickupName: row.requestedPickupName ?? null,
+        requestedPickupAddress: row.requestedPickupAddress ?? null,
+        requestedPickupMapsUrl: row.requestedPickupMapsUrl ?? null,
+        places,
+        packageDetails: row.package ?? null,
+        bookingSnapshot: (row.bookingSnapshot as BookingSnapshotData) ?? null,
+        tourGuideName: row.tourGuideName ?? null,
+        agencyName: row.agencyName ?? null,
+        isPackageTour: Boolean(row.isPackageTour),
+        requestTicketAssistance: Boolean(row.requestTicketAssistance),
+        createdAt: row.createdAt,
+      };
+    });
   }
 
   const rows = await authorized<RawCommonGuideBooking[]>(
@@ -1541,24 +1646,48 @@ export async function getProviderRequests(
   );
 
   return rows.map((row) => {
-    const places = (row.selectedPlaces ?? [])
-      .filter((entry) => entry.place)
-      .map((entry) => ({
-        id: (entry.place as RawPlace).id,
-        name: (entry.place as RawPlace).name,
-      }));
+    const snapshot = (row.bookingSnapshot as BookingSnapshotData) ?? null;
+
+    let places: ItineraryPlaceItem[] = [];
+    if (snapshot?.places && Array.isArray(snapshot.places) && snapshot.places.length > 0) {
+      places = snapshot.places;
+    } else if (row.selectedPlaces && row.selectedPlaces.length > 0) {
+      places = row.selectedPlaces
+        .filter((entry) => entry.place)
+        .map((entry) => ({
+          id: entry.place!.id,
+          name: entry.place!.name,
+          visitArrangement: entry.visitArrangement ?? null,
+          expectedDuration: entry.expectedDuration ?? null,
+          entryFeeStatus: entry.entryFeeStatus ?? null,
+          entryFeeAmount: entry.entryFeeAmount ?? null,
+        }));
+    } else if (row.package?.places && Array.isArray(row.package.places)) {
+      places = row.package.places
+        .filter((entry: any) => entry.place)
+        .map((entry: any) => ({
+          id: entry.place.id,
+          name: entry.place.name,
+          visitArrangement: entry.visitArrangement ?? null,
+          expectedDuration: entry.expectedDuration ?? null,
+          entryFeeStatus: entry.entryFeeStatus ?? null,
+          entryFeeAmount: entry.entryFeeAmount ?? null,
+        }));
+    }
 
     const guestCount =
       typeof row.numberOfPeople === "number" && row.numberOfPeople > 0
         ? row.numberOfPeople
         : (row.numberOfAdults ?? 1) + (row.numberOfChildren ?? 0);
 
+    const packageName = snapshot?.packageName ?? row.package?.name ?? null;
+
     return {
       id: row.id,
       kind: "common_guide_booking" as ProviderRequestKind,
       listingId: row.commonGuideId,
       listingName:
-        row.package?.name ??
+        packageName ??
         (places.map((place) => place.name).join(", ") || "Guided tour"),
       listingImage: null,
       customer: customer(row.user),
@@ -1566,10 +1695,53 @@ export async function getProviderRequests(
       date: row.bookingDate,
       endDate: null,
       time: row.bookingTime ?? null,
+      tripStartTime: row.tripStartTime ?? snapshot?.tripStartTime ?? row.bookingTime ?? null,
       guests: guestCount,
+      adults: row.numberOfAdults ?? snapshot?.adultsCount ?? null,
+      children: row.numberOfChildren ?? snapshot?.childrenCount ?? null,
       rooms: null,
       amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
+      pricingMode: row.pricingMode ?? snapshot?.pricingMode ?? row.package?.pricingMode ?? null,
+      pricingUnit: row.pricingUnit ?? snapshot?.pricingUnit ?? row.package?.pricingUnit ?? null,
+      cancellationPolicy: row.cancellationPolicy ?? snapshot?.cancellationPolicy ?? row.package?.cancellationPolicy ?? null,
+      paymentStatus: row.paymentStatus ?? null,
+      pickupName: row.pickupName ?? row.requestedPickupName ?? snapshot?.pickupName ?? null,
+      pickupAddress: row.pickupAddress ?? row.requestedPickupAddress ?? snapshot?.pickupAddress ?? null,
+      pickupMapsUrl: row.pickupMapsUrl ?? row.requestedPickupMapsUrl ?? snapshot?.pickupMapsUrl ?? null,
+      requestedPickupName: row.requestedPickupName ?? null,
+      requestedPickupAddress: row.requestedPickupAddress ?? null,
+      requestedPickupMapsUrl: row.requestedPickupMapsUrl ?? null,
+      foodStatus: row.foodStatus ?? null,
+      foodDetails: row.foodDetails ?? snapshot?.meals?.details ?? null,
+      transportStatus: row.transportStatus ?? null,
+      transportDetails: row.transportDetails ?? null,
+      entryFeeStatus: row.entryFeeStatus ?? null,
+      entryFeeDetails: row.entryFeeDetails ?? null,
+      additionalCostsDetails: row.additionalCostsDetails ?? null,
       places,
+      packageDetails: row.package ? {
+        ...row.package,
+        places: row.package.places?.map((p: any) => ({
+          id: p.place?.id ?? p.placeId,
+          name: p.place?.name ?? "",
+          visitArrangement: p.visitArrangement ?? null,
+          expectedDuration: p.expectedDuration ?? null,
+          entryFeeStatus: p.entryFeeStatus ?? null,
+          entryFeeAmount: p.entryFeeAmount ?? null,
+        })),
+      } : null,
+      bookingSnapshot: snapshot,
+      specificGuide: row.specificGuide ? {
+        id: row.specificGuide.id,
+        name: row.specificGuide.full_name,
+        tagline: row.specificGuide.tagline ?? null,
+        photo: row.specificGuide.profile_pic ?? null,
+      } : (snapshot?.specificGuide ? {
+        id: snapshot.specificGuide.id ?? "",
+        name: snapshot.specificGuide.name ?? "",
+        tagline: snapshot.specificGuide.tagline ?? null,
+        photo: snapshot.specificGuide.photo ?? null,
+      } : null),
       createdAt: row.createdAt,
     };
   });

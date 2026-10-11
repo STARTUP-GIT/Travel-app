@@ -1,7 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { Printer, Compass, Eye, MapPin, Calendar, Clock, Users, ShieldCheck, Ticket } from "lucide-react";
+import {
+  Printer,
+  Compass,
+  Eye,
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  ShieldCheck,
+  Ticket,
+  Utensils,
+  Car,
+  ExternalLink,
+  FileText,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +26,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatBookingDate,
+  formatBookingTime,
+  formatBookingRef,
+} from "@/lib/utils";
 import type { ProviderRequest } from "@/features/provider/types";
 
 export function PrintBookingButton({ request }: { request: ProviderRequest }) {
@@ -21,7 +41,50 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
     window.print();
   };
 
-  const refCode = `KTG-${request.id.slice(0, 8).toUpperCase()}`;
+  const refCode = formatBookingRef(request.id);
+  const tourDateFormatted = formatBookingDate(request.date);
+  const createdDateFormatted = formatBookingDate(request.createdAt);
+  const tourTimeFormatted = formatBookingTime(request.tripStartTime || request.time);
+
+  const adults = request.adults ?? request.bookingSnapshot?.numberOfAdults;
+  const children = request.children ?? request.bookingSnapshot?.numberOfChildren;
+  const totalGuests =
+    request.guests ??
+    request.bookingSnapshot?.totalGuests ??
+    (adults ? adults + (children ?? 0) : 1);
+
+  const pickupName =
+    request.pickupName ||
+    request.requestedPickupName ||
+    request.packageDetails?.pickupLocation;
+  const pickupAddress = request.pickupAddress || request.requestedPickupAddress;
+  const pickupMapsUrl = request.pickupMapsUrl || request.requestedPickupMapsUrl;
+
+  const places =
+    request.places && request.places.length > 0
+      ? request.places
+      : request.packageDetails?.places ?? [];
+
+  const foodText =
+    request.foodDetails ||
+    request.foodStatus ||
+    request.bookingSnapshot?.foodArrangement;
+
+  const transportText =
+    request.transportDetails ||
+    request.transportStatus ||
+    request.bookingSnapshot?.transportArrangement;
+
+  const notes = request.notes || request.bookingSnapshot?.notes;
+  const cancellationPolicy =
+    request.cancellationPolicy ||
+    request.bookingSnapshot?.cancellationPolicy ||
+    "Standard tour policy: Full refund up to 48 hours prior to start. Non-refundable thereafter.";
+
+  const pricingModeDisplay =
+    request.pricingMode ||
+    request.bookingSnapshot?.pricingMode ||
+    (request.pricingUnit ? `Per ${request.pricingUnit}` : "Agreed Tour Rate");
 
   return (
     <>
@@ -30,7 +93,7 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
           variant="outline"
           size="sm"
           onClick={() => setViewOpen(true)}
-          className="rounded-xl gap-1.5 text-xs font-semibold"
+          className="rounded-xl gap-1.5 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-colors"
         >
           <Eye className="size-3.5 text-primary" /> View Confirmation
         </Button>
@@ -39,7 +102,7 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
           variant="default"
           size="sm"
           onClick={handlePrint}
-          className="rounded-xl gap-1.5 text-xs font-semibold"
+          className="rounded-xl gap-1.5 text-xs font-semibold shadow-sm"
         >
           <Printer className="size-3.5" /> Print Confirmation
         </Button>
@@ -47,106 +110,235 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
 
       {/* On-screen Readable Confirmation Dialog */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto p-6 rounded-3xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 rounded-3xl print:hidden">
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-primary font-bold text-lg">
                 <Compass className="size-5" />
                 <span>Karnataka Tourism Guide</span>
               </div>
-              <Badge variant="outline" className="font-mono text-xs">
+              <Badge variant="outline" className="font-mono text-xs px-2.5 py-0.5 font-bold">
                 {refCode}
               </Badge>
             </div>
             <DialogTitle className="text-base font-bold text-foreground mt-2">
-              Authoritative Booking Confirmation
+              Official Booking Confirmation & Workspace Snapshot
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Review saved customer and itinerary details before printing.
+              Review all persisted customer, package, and itinerary details before printing or saving to PDF.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2 text-xs">
-            {/* Status and Ref Banner */}
-            <div className="flex items-center justify-between rounded-xl bg-muted/40 p-3 border">
+            {/* Status and Key Tour Schedule Banner */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-2xl bg-muted/40 p-3.5 border">
               <div>
                 <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground block font-bold">
                   Status
                 </span>
                 <span className="font-bold text-sm text-foreground">{request.status}</span>
               </div>
-              <div className="text-right">
+              <div>
                 <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground block font-bold">
-                  Booking Date
+                  Tour Date
                 </span>
-                <span className="font-semibold text-foreground">{formatDate(request.date)}</span>
+                <span className="font-semibold text-foreground">{tourDateFormatted}</span>
+              </div>
+              <div>
+                <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground block font-bold">
+                  Start Time
+                </span>
+                <span className="font-semibold text-foreground">{tourTimeFormatted}</span>
+              </div>
+              <div>
+                <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground block font-bold">
+                  Requested On
+                </span>
+                <span className="font-semibold text-foreground">{createdDateFormatted}</span>
               </div>
             </div>
 
-            {/* Customer & Service Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl border p-4 bg-card">
-              <div className="space-y-1">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold">
-                  Traveller Details
-                </p>
-                <p className="font-bold text-sm text-foreground">{request.customer.name}</p>
-                <p className="text-muted-foreground">{request.customer.email}</p>
-                {request.customer.phone && <p className="text-muted-foreground">{request.customer.phone}</p>}
-                {request.guests && (
-                  <p className="text-primary font-semibold pt-1 flex items-center gap-1">
-                    <Users className="size-3" /> {request.guests} Travellers
+            {/* Customer & Travellers Info */}
+            <div className="rounded-2xl border p-4 bg-card space-y-3">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
+                  <Users className="size-3.5 text-primary" /> Customer & Traveller Details
+                </span>
+                <span className="font-medium text-xs text-primary">
+                  {totalGuests} Total {totalGuests === 1 ? "Traveller" : "Travellers"}
+                  {adults !== undefined && children !== undefined && (
+                    <span className="text-muted-foreground text-[0.7rem] ml-1.5">
+                      ({adults} {adults === 1 ? "Adult" : "Adults"}, {children} {children === 1 ? "Child" : "Children"})
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block">Full Name</span>
+                  <p className="font-bold text-sm text-foreground">{request.customer.name}</p>
+                </div>
+                <div>
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block">Email Address</span>
+                  <a href={`mailto:${request.customer.email}`} className="text-primary hover:underline font-medium">
+                    {request.customer.email}
+                  </a>
+                </div>
+                <div>
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block">Phone Number</span>
+                  {request.customer.phone ? (
+                    <a href={`tel:${request.customer.phone}`} className="text-primary hover:underline font-medium">
+                      {request.customer.phone}
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">Not provided</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Pickup Point */}
+              {(pickupName || pickupAddress) && (
+                <div className="pt-2 border-t mt-2">
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block mb-0.5">
+                    Meeting / Pickup Location
+                  </span>
+                  <p className="font-medium text-foreground">{pickupName || "Designated Location"}</p>
+                  {pickupAddress && <p className="text-muted-foreground text-[0.7rem]">{pickupAddress}</p>}
+                  {pickupMapsUrl && (
+                    <a
+                      href={pickupMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary text-[0.7rem] hover:underline mt-1"
+                    >
+                      <MapPin className="size-3" /> View on Google Maps <ExternalLink className="size-2.5" />
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Special Notes */}
+              {notes && (
+                <div className="pt-2 border-t mt-2">
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block mb-0.5">
+                    Traveller Notes / Requests
+                  </span>
+                  <p className="text-muted-foreground italic bg-muted/30 p-2 rounded-xl text-[0.7rem]">
+                    &ldquo;{notes}&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Selected Package Details */}
+            <div className="rounded-2xl border p-4 bg-card space-y-3">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
+                  <Compass className="size-3.5 text-primary" /> Selected Package / Service
+                </span>
+                <Badge variant="secondary" className="text-[0.7rem]">
+                  {pricingModeDisplay}
+                </Badge>
+              </div>
+              <div>
+                <p className="font-bold text-base text-foreground">{request.listingName}</p>
+                {request.packageDetails?.description && (
+                  <p className="text-muted-foreground text-[0.7rem] mt-1 line-clamp-2">
+                    {request.packageDetails.description}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-1">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold">
-                  Package / Experience
-                </p>
-                <p className="font-bold text-sm text-foreground">{request.listingName}</p>
-                {request.time && (
-                  <p className="text-muted-foreground flex items-center gap-1">
-                    <Clock className="size-3" /> Scheduled Start: {request.time}
-                  </p>
-                )}
+              {/* Food, Transport, and Ticket Assistance */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t text-[0.7rem]">
+                <div className="flex items-start gap-1.5">
+                  <Utensils className="size-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-foreground">Meals:</span>
+                    <span className="text-muted-foreground">{foodText || "Not included"}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-1.5">
+                  <Car className="size-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-foreground">Transport:</span>
+                    <span className="text-muted-foreground">{transportText || "Self / Not included"}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-1.5">
+                  <Ticket className="size-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-foreground">Ticket Assistance:</span>
+                    <span className="text-muted-foreground">
+                      {request.requestTicketAssistance ? "Requested" : "Standard"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Places Breakdown */}
-            {request.places && request.places.length > 0 && (
-              <div className="rounded-xl border p-4 space-y-2">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
-                  <MapPin className="size-3.5 text-primary" /> Included Places ({request.places.length})
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {request.places.map((place, idx) => (
-                    <Badge key={place.id} variant="outline" className="text-xs">
-                      {idx + 1}. {place.name}
-                    </Badge>
+            {/* Places / Itinerary Stops */}
+            {places.length > 0 && (
+              <div className="rounded-2xl border p-4 space-y-2 bg-card">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
+                    <MapPin className="size-3.5 text-primary" /> Scheduled Itinerary ({places.length} Stops)
+                  </span>
+                </div>
+                <div className="divide-y text-[0.75rem]">
+                  {places.map((place, idx) => (
+                    <div key={place.id || idx} className="py-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="size-5 rounded-full bg-primary/10 text-primary font-bold text-[0.65rem] flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <div>
+                          <p className="font-semibold text-foreground">{place.name}</p>
+                          {(place.district || place.category) && (
+                            <p className="text-[0.65rem] text-muted-foreground">
+                              {[place.district, place.category].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right text-[0.7rem] text-muted-foreground">
+                        {place.visitArrangement && <span className="block font-medium">{place.visitArrangement}</span>}
+                        {place.duration && <span>{place.duration}</span>}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Financial Breakdown */}
-            <div className="rounded-xl border p-4 bg-primary/5 border-primary/20 flex items-center justify-between">
-              <div>
-                <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold block">
-                  Agreed Total Amount
-                </span>
-                <span className="text-lg font-bold text-primary">
-                  {request.amount !== null ? formatCurrency(request.amount) : "Pricing on confirmation"}
-                </span>
+            {/* Financial Summary & Truthful Payment Status */}
+            <div className="rounded-2xl border p-4 bg-primary/5 border-primary/20 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold block">
+                    Agreed Total Tour Amount
+                  </span>
+                  <span className="text-xl font-bold text-primary">
+                    {request.amount !== null ? formatCurrency(request.amount) : "Pricing on confirmation"}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <Badge variant="outline" className="text-[0.65rem] border-primary/30 text-primary font-semibold">
+                    {request.paymentStatus || "Direct Settlement"}
+                  </Badge>
+                  <p className="text-[0.65rem] text-muted-foreground mt-1">Direct settlement between guide & client</p>
+                </div>
               </div>
-              <div className="text-right text-[0.7rem] text-muted-foreground">
-                <p>Payment: Direct to Guide</p>
-                <p className="text-[0.65rem]">Official platform booking snapshot</p>
+              <div className="border-t border-primary/10 pt-2 text-[0.68rem] text-muted-foreground">
+                <p>
+                  <strong>Cancellation Policy:</strong> {cancellationPolicy}
+                </p>
               </div>
             </div>
 
             {/* Actions Inside Dialog */}
             <div className="flex justify-end gap-2 pt-2 border-t">
-              <Button variant="outline" size="sm" onClick={() => setViewOpen(false)}>
+              <Button variant="outline" size="sm" onClick={() => setViewOpen(false)} className="rounded-xl">
                 Close Preview
               </Button>
               <Button
@@ -154,9 +346,9 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
                 size="sm"
                 onClick={() => {
                   setViewOpen(false);
-                  setTimeout(() => window.print(), 150);
+                  setTimeout(() => window.print(), 200);
                 }}
-                className="gap-1.5"
+                className="gap-1.5 rounded-xl shadow-sm"
               >
                 <Printer className="size-3.5" /> Print to PDF
               </Button>
@@ -165,67 +357,180 @@ export function PrintBookingButton({ request }: { request: ProviderRequest }) {
         </DialogContent>
       </Dialog>
 
-      {/* Clean Print Layout for Browser Printing */}
-      <div className="hidden print:block fixed inset-0 bg-white p-8 z-50 text-black space-y-6">
-        <div className="flex items-center justify-between border-b pb-4">
-          <div className="flex items-center gap-2">
-            <Compass className="size-8 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold">Karnataka Tourism Guide</h1>
-              <p className="text-xs text-gray-500">Service Provider Official Booking Confirmation</p>
+      {/* Official Printable Document (Rendered only during window.print) */}
+      <div className="hidden print:block official-print-document font-sans text-black">
+        {/* Printable Header */}
+        <div className="border-b-2 border-gray-900 pb-4 mb-5 flex justify-between items-start print-avoid-break">
+          <div>
+            <div className="flex items-center gap-2">
+              <Compass className="size-7 text-black stroke-[2.5]" />
+              <h1 className="text-2xl font-black tracking-tight text-black">Karnataka Tourism Guide</h1>
             </div>
+            <p className="text-xs text-gray-700 font-semibold tracking-wide uppercase mt-1">
+              Official Service Provider Booking Confirmation
+            </p>
+            <p className="text-[10px] text-gray-500">Government Registered Guide & Tour Booking Platform</p>
           </div>
           <div className="text-right">
-            <p className="font-mono font-bold text-sm">{refCode}</p>
-            <p className="text-xs text-gray-500">Status: {request.status}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
-          <div>
-            <span className="text-xs text-gray-500 block">Customer</span>
-            <span className="font-semibold">{request.customer.name}</span>
-            <span className="text-xs block text-gray-600">{request.customer.email}</span>
-            {request.customer.phone && <span className="text-xs block text-gray-600">{request.customer.phone}</span>}
-            {request.guests && <span className="text-xs block text-gray-600">Travellers: {request.guests}</span>}
-          </div>
-          <div>
-            <span className="text-xs text-gray-500 block">Listing / Package</span>
-            <span className="font-semibold">{request.listingName}</span>
-            <span className="text-xs block text-gray-600">Date: {formatDate(request.date)}</span>
-            {request.time && <span className="text-xs block text-gray-600">Time: {request.time}</span>}
-          </div>
-        </div>
-
-        {request.places && request.places.length > 0 && (
-          <div className="border-b pb-4">
-            <span className="text-xs text-gray-500 block mb-1">Scheduled Places / Stops:</span>
-            <div className="flex flex-wrap gap-2 text-xs">
-              {request.places.map((p, idx) => (
-                <span key={p.id} className="border px-2 py-1 rounded bg-gray-50 font-medium">
-                  {idx + 1}. {p.name}
-                </span>
-              ))}
+            <div className="inline-block border-2 border-gray-900 px-3 py-1 font-mono font-bold text-sm bg-gray-50">
+              {refCode}
             </div>
+            <p className="text-[11px] font-semibold text-gray-800 mt-1.5">Status: {request.status}</p>
+            <p className="text-[10px] text-gray-500">Issued: {formatBookingDate(new Date())}</p>
+          </div>
+        </div>
+
+        {/* Schedule & Customer Grid */}
+        <div className="grid grid-cols-2 gap-4 border border-gray-300 p-4 rounded-md mb-5 bg-gray-50/50 print-avoid-break">
+          <div>
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 border-b pb-1">
+              Traveller Information
+            </h2>
+            <p className="text-sm font-bold text-black">{request.customer.name}</p>
+            <p className="text-xs text-gray-800">Email: {request.customer.email}</p>
+            <p className="text-xs text-gray-800">
+              Phone: {request.customer.phone ? request.customer.phone : "Not provided"}
+            </p>
+            <p className="text-xs font-semibold text-gray-900 mt-1">
+              Travellers: {totalGuests} Total
+              {adults !== undefined && children !== undefined ? ` (${adults} Adults, ${children} Children)` : ""}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 border-b pb-1">
+              Tour Schedule & Pickup
+            </h2>
+            <p className="text-xs text-gray-800">
+              <strong className="text-black">Tour Date:</strong> {tourDateFormatted}
+            </p>
+            <p className="text-xs text-gray-800">
+              <strong className="text-black">Scheduled Start Time:</strong> {tourTimeFormatted} (IST)
+            </p>
+            <p className="text-xs text-gray-800">
+              <strong className="text-black">Requested On:</strong> {createdDateFormatted}
+            </p>
+            <p className="text-xs text-gray-800 mt-1">
+              <strong className="text-black">Pickup Location:</strong> {pickupName || "Designated Meeting Point"}
+            </p>
+            {pickupAddress && <p className="text-[11px] text-gray-600">{pickupAddress}</p>}
+          </div>
+        </div>
+
+        {/* Service Package & Details */}
+        <div className="border border-gray-300 p-4 rounded-md mb-5 print-avoid-break">
+          <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 border-b pb-1">
+            Selected Package / Service Details
+          </h2>
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-base font-bold text-black">{request.listingName}</p>
+              <p className="text-xs text-gray-600">Pricing Basis: {pricingModeDisplay}</p>
+            </div>
+            {request.tourGuideName && (
+              <div className="text-right text-xs">
+                <span className="text-gray-500 block">Assigned Guide:</span>
+                <span className="font-semibold text-black">{request.tourGuideName}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t text-xs">
+            <div>
+              <span className="font-semibold text-gray-700 block">Meals Configuration:</span>
+              <span className="text-gray-900">{foodText || "Not included"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700 block">Transport Arrangement:</span>
+              <span className="text-gray-900">{transportText || "Self / Not included"}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-gray-700 block">Ticket Purchasing:</span>
+              <span className="text-gray-900">
+                {request.requestTicketAssistance ? "Assistance Requested" : "Standard Policy"}
+              </span>
+            </div>
+          </div>
+
+          {notes && (
+            <div className="mt-3 pt-2 border-t text-xs">
+              <span className="font-semibold text-gray-700 block">Traveller Special Request:</span>
+              <p className="text-gray-800 italic mt-0.5">&ldquo;{notes}&rdquo;</p>
+            </div>
+          )}
+        </div>
+
+        {/* Ordered Itinerary Stops */}
+        {places.length > 0 && (
+          <div className="border border-gray-300 rounded-md mb-5 overflow-hidden print-avoid-break">
+            <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
+              <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-700">
+                Confirmed Itinerary Stops ({places.length} Locations)
+              </h2>
+            </div>
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-gray-300 bg-gray-50 text-[10px] uppercase text-gray-600 font-bold">
+                  <th className="py-2 px-3 w-10">#</th>
+                  <th className="py-2 px-3">Place / Destination</th>
+                  <th className="py-2 px-3">District / Category</th>
+                  <th className="py-2 px-3">Visit Arrangement</th>
+                  <th className="py-2 px-3 text-right">Duration</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {places.map((place, idx) => (
+                  <tr key={place.id || idx}>
+                    <td className="py-2 px-3 font-bold text-gray-700">{idx + 1}</td>
+                    <td className="py-2 px-3 font-semibold text-black">{place.name}</td>
+                    <td className="py-2 px-3 text-gray-600">
+                      {[place.district, place.category].filter(Boolean).join(" · ") || "—"}
+                    </td>
+                    <td className="py-2 px-3 text-gray-700">{place.visitArrangement || "Visit & Explore"}</td>
+                    <td className="py-2 px-3 text-right text-gray-700">{place.duration || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
-        <div className="flex justify-between items-center border-b pb-4">
-          <div>
-            <span className="text-xs text-gray-500 block">Total Quoted Value</span>
-            <span className="text-lg font-bold">
-              {request.amount !== null ? formatCurrency(request.amount) : "N/A"}
-            </span>
+        {/* Financial Terms & Truthful Payment Status */}
+        <div className="border-2 border-gray-900 p-4 rounded-md mb-5 bg-gray-50 print-avoid-break">
+          <div className="flex justify-between items-center mb-2 border-b border-gray-300 pb-2">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600 block">
+                Agreed Total Tour Amount
+              </span>
+              <span className="text-xl font-black text-black">
+                {request.amount !== null ? formatCurrency(request.amount) : "As Agreed"}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="inline-block border border-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase text-gray-800">
+                {request.paymentStatus || "Direct Settlement"}
+              </span>
+              <p className="text-[10px] text-gray-600 mt-0.5">
+                Direct settlement with Tour Guide / Unverified Platform Transaction
+              </p>
+            </div>
           </div>
-          <div className="text-right text-xs text-gray-500">
-            <span>Payment Method: Direct Settlement</span>
-          </div>
+          <p className="text-[10px] text-gray-600 leading-tight">
+            <strong>Cancellation & Terms:</strong> {cancellationPolicy}
+          </p>
         </div>
 
-        <div className="text-center text-xs text-gray-400 pt-4">
-          Official booking confirmation snapshot issued via Karnataka Tourism Guide.
+        {/* Official Document Footer */}
+        <div className="pt-3 border-t border-gray-300 text-center text-[10px] text-gray-500 print-avoid-break">
+          <p>
+            This official confirmation was generated via Karnataka Tourism Guide for booking reference {refCode}.
+          </p>
+          <p className="mt-0.5">
+            Tour services are rendered in accordance with Karnataka Tourism standards and verified guide guidelines.
+          </p>
         </div>
       </div>
     </>
   );
 }
+

@@ -256,7 +256,11 @@ export const getBookings = async (req: Request, res: Response) => {
       include: {
         user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
-        package: true,
+        package: {
+          include: {
+            places: { include: { place: true } },
+          },
+        },
         specificGuide: {
           select: {
             id: true,
@@ -323,7 +327,11 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       include: {
         user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
-        package: true,
+        package: {
+          include: {
+            places: { include: { place: true } },
+          },
+        },
         specificGuide: true,
       },
     });
@@ -357,7 +365,11 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       include: {
         user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
-        package: true,
+        package: {
+          include: {
+            places: { include: { place: true } },
+          },
+        },
         specificGuide: true,
       },
     });

@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import crypto from "crypto";
 import type { Prisma } from "../../../generated/client/client.js";
 import prisma from "../../../db/prisma.js";
 import { getAutoApprovalSettings } from "../../../services/approvalSettings.js";
@@ -209,6 +210,67 @@ function parseFeeFields(body: any): {
   };
 }
 
+function parseAdditionalFees(body: any): {
+  hasAdditionalFees: boolean;
+  additionalFees: any;
+} | { error: string } {
+  const hasAdditionalFees = Boolean(body.hasAdditionalFees);
+  if (!hasAdditionalFees) {
+    return {
+      hasAdditionalFees: false,
+      additionalFees: null,
+    };
+  }
+
+  if (!Array.isArray(body.additionalFees)) {
+    return {
+      hasAdditionalFees: true,
+      additionalFees: [],
+    };
+  }
+
+  const cleanedFees = [];
+  for (const fee of body.additionalFees) {
+    if (!fee || typeof fee !== "object") continue;
+    const category = typeof fee.category === "string" ? fee.category.trim() : "OTHER";
+    const name = typeof fee.name === "string" ? fee.name.trim() : "";
+    if (category === "OTHER" && !name) {
+      return { error: "Custom fee name is required when 'Other' category is selected." };
+    }
+    const displayName = name || category;
+    const status = ["PAID", "FREE", "UNKNOWN"].includes(fee.status) ? fee.status : "PAID";
+    let amount: number | null = null;
+    if (status === "PAID") {
+      const num = Number(fee.amount);
+      if (!Number.isFinite(num) || num < 0) {
+        return { error: `Amount for ${displayName} must be a valid non-negative number.` };
+      }
+      amount = num;
+    } else if (status === "FREE") {
+      amount = 0;
+    } else {
+      amount = null;
+    }
+    const visitor = ["ALL", "DOMESTIC", "FOREIGN"].includes(fee.visitor) ? fee.visitor : "ALL";
+    const conditions = typeof fee.conditions === "string" && fee.conditions.trim() ? fee.conditions.trim() : null;
+
+    cleanedFees.push({
+      id: typeof fee.id === "string" && fee.id ? fee.id : crypto.randomUUID(),
+      category,
+      name: displayName,
+      amount,
+      status,
+      visitor,
+      conditions,
+    });
+  }
+
+  return {
+    hasAdditionalFees: true,
+    additionalFees: cleanedFees,
+  };
+}
+
 function parseAddressAndLocation(body: any): {
   addressLine: string | null;
   locality: string | null;
@@ -363,6 +425,11 @@ export const addPlace = async (req: Request, res: Response) => {
       return res.status(400).json({ message: feeResult.error });
     }
 
+    const addFeeResult = parseAdditionalFees(req.body);
+    if ("error" in addFeeResult) {
+      return res.status(400).json({ message: addFeeResult.error });
+    }
+
     const addrResult = parseAddressAndLocation(req.body);
     if ("error" in addrResult) {
       return res.status(400).json({ message: addrResult.error });
@@ -391,6 +458,8 @@ export const addPlace = async (req: Request, res: Response) => {
           foreignChildFee: feeResult.foreignChildFee,
           foreignChildMaxAge: feeResult.foreignChildMaxAge,
           foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+          hasAdditionalFees: addFeeResult.hasAdditionalFees,
+          additionalFees: addFeeResult.additionalFees as unknown as Prisma.InputJsonValue,
           addressLine: addrResult.addressLine,
           locality: addrResult.locality,
           pincode: addrResult.pincode,
@@ -487,6 +556,8 @@ export const getManageablePlaces = async (req: Request, res: Response) => {
         childEntryFee: true,
         childMaxAge: true,
         entryFeeConditions: true,
+        hasAdditionalFees: true,
+        additionalFees: true,
         hasForeignPricing: true,
         foreignEntryFeeType: true,
         foreignAdultFee: true,
@@ -573,6 +644,8 @@ export const getManageablePlacesByDistrict = async (req: Request, res: Response)
         childEntryFee: true,
         childMaxAge: true,
         entryFeeConditions: true,
+        hasAdditionalFees: true,
+        additionalFees: true,
         hasForeignPricing: true,
         foreignEntryFeeType: true,
         foreignAdultFee: true,
@@ -933,6 +1006,11 @@ export const submitPlace = async (req: Request, res: Response) => {
       finalPricingRows = feeResult.pricingRows;
     }
 
+    const addFeeResult = parseAdditionalFees(req.body);
+    if ("error" in addFeeResult) {
+      return res.status(400).json({ message: addFeeResult.error });
+    }
+
     const submissionData: Prisma.place_submissionUncheckedCreateInput = {
       name: name.trim(),
       description: description.trim(),
@@ -951,6 +1029,8 @@ export const submitPlace = async (req: Request, res: Response) => {
       foreignChildFee: feeResult.foreignChildFee,
       foreignChildMaxAge: feeResult.foreignChildMaxAge,
       foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+      hasAdditionalFees: addFeeResult.hasAdditionalFees,
+      additionalFees: addFeeResult.additionalFees as unknown as Prisma.InputJsonValue,
       addressLine: addrResult.addressLine,
       locality: addrResult.locality,
       pincode: addrResult.pincode,
@@ -985,6 +1065,8 @@ export const submitPlace = async (req: Request, res: Response) => {
             foreignChildFee: feeResult.foreignChildFee,
             foreignChildMaxAge: feeResult.foreignChildMaxAge,
             foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+            hasAdditionalFees: addFeeResult.hasAdditionalFees,
+            additionalFees: addFeeResult.additionalFees as unknown as Prisma.InputJsonValue,
             addressLine: addrResult.addressLine,
             locality: addrResult.locality,
             pincode: addrResult.pincode,
@@ -1035,6 +1117,8 @@ export const submitPlace = async (req: Request, res: Response) => {
           foreignChildFee: feeResult.foreignChildFee,
           foreignChildMaxAge: feeResult.foreignChildMaxAge,
           foreignEntryFeeConditions: feeResult.foreignEntryFeeConditions,
+          hasAdditionalFees: addFeeResult.hasAdditionalFees,
+          additionalFees: addFeeResult.additionalFees as unknown as Prisma.InputJsonValue,
           addressLine: addrResult.addressLine,
           locality: addrResult.locality,
           pincode: addrResult.pincode,
@@ -1227,6 +1311,15 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       data.longitude = addrResult.longitude;
     }
 
+    if (req.body.hasAdditionalFees !== undefined || req.body.additionalFees !== undefined) {
+      const addFeeResult = parseAdditionalFees(req.body);
+      if ("error" in addFeeResult) {
+        return res.status(400).json({ message: addFeeResult.error });
+      }
+      data.hasAdditionalFees = addFeeResult.hasAdditionalFees;
+      data.additionalFees = addFeeResult.additionalFees as unknown as Prisma.InputJsonValue;
+    }
+
     if (Object.keys(data).length === 0 && pricingRows === undefined) {
       return res.status(400).json({
         message: "At least one place field must be provided",
@@ -1251,6 +1344,8 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       foreignChildFee: data.foreignChildFee !== undefined ? (data.foreignChildFee as number | null) : place.foreignChildFee,
       foreignChildMaxAge: data.foreignChildMaxAge !== undefined ? (data.foreignChildMaxAge as number | null) : place.foreignChildMaxAge,
       foreignEntryFeeConditions: data.foreignEntryFeeConditions !== undefined ? (data.foreignEntryFeeConditions as string | null) : place.foreignEntryFeeConditions,
+      hasAdditionalFees: data.hasAdditionalFees !== undefined ? Boolean(data.hasAdditionalFees) : place.hasAdditionalFees,
+      additionalFees: data.additionalFees !== undefined ? (data.additionalFees as Prisma.InputJsonValue) : (place.additionalFees as Prisma.InputJsonValue),
       addressLine: data.addressLine !== undefined ? (data.addressLine as string | null) : place.addressLine,
       locality: data.locality !== undefined ? (data.locality as string | null) : place.locality,
       pincode: data.pincode !== undefined ? (data.pincode as string | null) : place.pincode,
@@ -1448,6 +1543,15 @@ export const editPlace = async (req: Request, res: Response) => {
       data.longitude = addrResult.longitude;
     }
 
+    if (req.body.hasAdditionalFees !== undefined || req.body.additionalFees !== undefined) {
+      const addFeeResult = parseAdditionalFees(req.body);
+      if ("error" in addFeeResult) {
+        return res.status(400).json({ message: addFeeResult.error });
+      }
+      data.hasAdditionalFees = addFeeResult.hasAdditionalFees;
+      data.additionalFees = addFeeResult.additionalFees as unknown as Prisma.InputJsonValue;
+    }
+
     const updatedPlace = await prisma.$transaction(async (tx) => {
       const updated = await tx.place.update({
         where: {
@@ -1601,6 +1705,8 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
             foreignChildFee: submission.foreignChildFee,
             foreignChildMaxAge: submission.foreignChildMaxAge,
             foreignEntryFeeConditions: submission.foreignEntryFeeConditions,
+            hasAdditionalFees: submission.hasAdditionalFees,
+            additionalFees: (submission.additionalFees ?? undefined) as any,
             addressLine: submission.addressLine,
             locality: submission.locality,
             pincode: submission.pincode,
@@ -1651,6 +1757,8 @@ export const approvePlaceSubmission = async (req: Request, res: Response) => {
           foreignChildFee: submission.foreignChildFee,
           foreignChildMaxAge: submission.foreignChildMaxAge,
           foreignEntryFeeConditions: submission.foreignEntryFeeConditions,
+          hasAdditionalFees: submission.hasAdditionalFees,
+          additionalFees: (submission.additionalFees ?? undefined) as any,
           addressLine: submission.addressLine,
           locality: submission.locality,
           pincode: submission.pincode,

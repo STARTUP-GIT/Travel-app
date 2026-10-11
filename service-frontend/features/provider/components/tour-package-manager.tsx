@@ -78,6 +78,117 @@ const DESCRIPTION_LIMIT = 1000;
 const TRANSPORT_INCLUDED_CATEGORIES = ["Fuel", "Driver allowance", "Vehicle hire", "Other"];
 const TRANSPORT_EXCLUDED_CATEGORIES = ["Tolls", "Parking", "Extra distance", "Waiting charges", "Other"];
 
+const PREDEFINED_ITINERARY_DURATIONS = [
+  "15 minutes",
+  "30 minutes",
+  "45 minutes",
+  "1 hour",
+  "1 hour 30 minutes",
+  "2 hours",
+  "3 hours",
+  "4 hours",
+  "Half day",
+  "Full day",
+] as const;
+
+function ItineraryDurationSelector({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const trimmed = (value || "").trim();
+  const isPredefined = PREDEFINED_ITINERARY_DURATIONS.some(
+    (d) => d.toLowerCase() === trimmed.toLowerCase()
+  );
+  const isNotSpecified = !trimmed || trimmed.toLowerCase() === "not specified";
+
+  const selectedMode = isNotSpecified
+    ? "NOT_SPECIFIED"
+    : isPredefined
+    ? PREDEFINED_ITINERARY_DURATIONS.find(
+        (d) => d.toLowerCase() === trimmed.toLowerCase()
+      )!
+    : "CUSTOM";
+
+  const customMatch = trimmed.match(/^(\d+(?:\.\d+)?)\s*(minutes?|hours?|days?)?$/i);
+  const [customAmount, setCustomAmount] = React.useState<string>(
+    customMatch ? customMatch[1] : trimmed && !isPredefined ? trimmed : "1"
+  );
+  const [customUnit, setCustomUnit] = React.useState<string>(
+    customMatch && customMatch[2]?.toLowerCase().startsWith("min") ? "minutes" : "hours"
+  );
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Select
+        value={selectedMode}
+        onValueChange={(val) => {
+          if (val === "NOT_SPECIFIED") {
+            onChange("");
+          } else if (val === "CUSTOM") {
+            const num = Math.max(0.5, parseFloat(customAmount) || 1);
+            onChange(`${num} ${customUnit}`);
+          } else {
+            onChange(val);
+          }
+        }}
+      >
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder="Select duration" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="NOT_SPECIFIED">Not specified</SelectItem>
+          {PREDEFINED_ITINERARY_DURATIONS.map((d) => (
+            <SelectItem key={d} value={d}>
+              {d}
+            </SelectItem>
+          ))}
+          <SelectItem value="CUSTOM">Custom duration</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {selectedMode === "CUSTOM" && (
+        <div className="flex items-center gap-1.5">
+          <Input
+            type="number"
+            min={0.1}
+            step="any"
+            value={customAmount}
+            placeholder="Duration"
+            onChange={(e) => {
+              const val = e.target.value;
+              setCustomAmount(val);
+              const num = parseFloat(val);
+              if (num > 0) {
+                onChange(`${num} ${customUnit}`);
+              }
+            }}
+            className="h-8 w-24 text-xs"
+          />
+          <Select
+            value={customUnit}
+            onValueChange={(unit) => {
+              setCustomUnit(unit);
+              const num = Math.max(0.5, parseFloat(customAmount) || 1);
+              onChange(`${num} ${unit}`);
+            }}
+          >
+            <SelectTrigger className="h-8 flex-1 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="minutes">minutes</SelectItem>
+              <SelectItem value="hours">hours</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type EditorTab = "basic" | "itinerary" | "meals" | "transport" | "guide" | "children";
 
 type ItineraryPlaceConfig = {
@@ -193,7 +304,7 @@ function toPackagePlace(place: ManageablePlace): PackagePlace {
     district: place.district,
     itineraryOrder: 0,
     visitArrangement: "GUIDED",
-    expectedDuration: "1 hour",
+    expectedDuration: "",
     entryFeeStatus: place.entryfee && place.entryfee > 0 ? "EXCLUDED" : "INCLUDED",
     entryFeeAmount: place.entryfee ?? 0,
   };
@@ -215,7 +326,7 @@ function draftFrom(pkg: TourPackage): Draft {
       placeId: place.id,
       itineraryOrder: place.itineraryOrder ?? index,
       visitArrangement: place.visitArrangement ?? "GUIDED",
-      expectedDuration: place.expectedDuration ?? "1 hour",
+      expectedDuration: place.expectedDuration ?? "",
       entryFeeStatus: place.entryFeeStatus ?? (place.entryfee && place.entryfee > 0 ? "EXCLUDED" : "INCLUDED"),
       entryFeeAmount: place.entryFeeAmount ?? (place.entryfee ?? 0),
       price: place.price ?? 0,
@@ -247,7 +358,7 @@ function draftFrom(pkg: TourPackage): Draft {
     includedMeals: pkg.includedMeals ?? [],
     mealDetails: pkg.mealDetails ?? pkg.foodDetails ?? "",
 
-    transportService: pkg.transportService ?? (pkg.transportStatus === "INCLUDED" ? "INCLUDED" : pkg.transportStatus === "OPTIONAL" ? "ON_REQUEST" : "NO_SERVICE"),
+    transportService: pkg.transportService === "INCLUDED" || pkg.transportStatus === "INCLUDED" ? "INCLUDED" : "NO_SERVICE",
     transportVehicles: Array.isArray(pkg.transportVehicles)
       ? pkg.transportVehicles.map((v) => {
           const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
@@ -304,6 +415,15 @@ function validate(draft: Draft): string | null {
   }
   if (draft.transportService === "INCLUDED" && draft.transportVehicles.length === 0) {
     return "Please configure at least one vehicle option for the included transport service.";
+  }
+  for (const pid of draft.placeIds) {
+    const cfg = draft.itineraryConfig[pid];
+    if (cfg?.expectedDuration) {
+      const match = cfg.expectedDuration.match(/^(\d+(?:\.\d+)?)/);
+      if (match && parseFloat(match[1]) <= 0) {
+        return "Custom duration must be greater than zero.";
+      }
+    }
   }
   if (draft.childrenAllowed) {
     if (
@@ -397,7 +517,7 @@ export function TourPackageManager({
         placeId: pid,
         itineraryOrder: idx,
         visitArrangement: "GUIDED",
-        expectedDuration: "1 hour",
+        expectedDuration: "",
         entryFeeStatus: "EXCLUDED",
         entryFeeAmount: 0,
         price: draft.placePrices[pid] ?? 0,
@@ -406,7 +526,7 @@ export function TourPackageManager({
         placeId: pid,
         itineraryOrder: idx,
         visitArrangement: cfg.visitArrangement,
-        expectedDuration: cfg.expectedDuration,
+        expectedDuration: cfg.expectedDuration?.trim() || null,
         entryFeeStatus: cfg.entryFeeStatus,
         entryFeeAmount: Number(cfg.entryFeeAmount) || 0,
         price: Number(draft.placePrices[pid]) || 0,
@@ -433,7 +553,7 @@ export function TourPackageManager({
       mealDetails: draft.mealDetails,
 
       transportService: draft.transportService,
-      transportVehicles: draft.transportService !== "NO_SERVICE" ? draft.transportVehicles : [],
+      transportVehicles: draft.transportService === "INCLUDED" ? draft.transportVehicles : [],
       transportDetails: draft.transportDetails,
 
       hasSpecificGuide: draft.hasSpecificGuide,
@@ -512,7 +632,7 @@ export function TourPackageManager({
       placeId,
       itineraryOrder: draft.placeIds.indexOf(placeId),
       visitArrangement: "GUIDED",
-      expectedDuration: "1 hour",
+      expectedDuration: "",
       entryFeeStatus: "EXCLUDED",
       entryFeeAmount: 0,
       price: draft.placePrices[placeId] ?? 0,
@@ -924,7 +1044,7 @@ export function TourPackageManager({
                       placeId: pid,
                       itineraryOrder: index,
                       visitArrangement: "GUIDED",
-                      expectedDuration: "1 hour",
+                      expectedDuration: "",
                       entryFeeStatus: "EXCLUDED",
                       entryFeeAmount: 0,
                       price: draft.placePrices[pid] ?? 0,
@@ -1021,13 +1141,11 @@ export function TourPackageManager({
                             <Label className="text-[0.7rem] font-semibold text-muted-foreground">
                               Expected Duration
                             </Label>
-                            <Input
-                              value={cfg.expectedDuration}
-                              onChange={(e) =>
-                                updatePlaceConfig(pid, { expectedDuration: e.target.value })
+                            <ItineraryDurationSelector
+                              value={cfg.expectedDuration || ""}
+                              onChange={(val) =>
+                                updatePlaceConfig(pid, { expectedDuration: val })
                               }
-                              placeholder="e.g. 1.5 hours"
-                              className="h-8 text-xs"
                             />
                           </div>
 
@@ -1249,11 +1367,6 @@ export function TourPackageManager({
                     desc: "Dedicated transport is provided and included in tour price.",
                   },
                   {
-                    id: "ON_REQUEST",
-                    label: "Can be arranged if requested",
-                    desc: "Available upon customer request; quoted and confirmed separately.",
-                  },
-                  {
                     id: "NO_SERVICE",
                     label: "No transport service",
                     desc: "Transport is not provided. Customers travel independently.",
@@ -1278,19 +1391,15 @@ export function TourPackageManager({
                 ))}
               </div>
 
-              {(draft.transportService === "INCLUDED" || draft.transportService === "ON_REQUEST") && (
+              {draft.transportService === "INCLUDED" && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h5 className="text-xs font-bold text-foreground">
-                        {draft.transportService === "INCLUDED"
-                          ? "Configured Included Vehicles"
-                          : "Available On-Request Vehicles"}
+                        Configured Included Vehicles
                       </h5>
                       <p className="text-[0.7rem] text-muted-foreground">
-                        {draft.transportService === "INCLUDED"
-                          ? "Transport is part of the package price. Configure vehicles offered."
-                          : "Configure vehicle options that can be requested, with applicable prices and conditions."}
+                        Transport is part of the package price. Configure vehicles offered.
                       </p>
                     </div>
                     <Button type="button" size="sm" variant="outline" onClick={addVehicle} className="h-8 text-xs">
@@ -1377,8 +1486,8 @@ export function TourPackageManager({
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="PRIVATE">Private Vehicle (Tour Only)</SelectItem>
-                                    <SelectItem value="SHARED">Shared Transport</SelectItem>
+                                    <SelectItem value="PRIVATE">Option A: Private — this booking group only</SelectItem>
+                                    <SelectItem value="SHARED">Option B: Shared — mixed booking groups</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -1388,18 +1497,18 @@ export function TourPackageManager({
                             <div className="rounded-lg bg-muted/40 p-2.5 text-[0.7rem]">
                               {isPrivate ? (
                                 <p className="text-muted-foreground">
-                                  <strong className="text-foreground">Private Vehicle (Tour Only):</strong> “The vehicle is reserved for this booking party for the agreed tour. Unrelated customers are not added to the same vehicle.”
+                                  <strong className="text-foreground">Option A: Private — this booking group only:</strong> “The vehicle is reserved for the customers in this booking. Customers from unrelated bookings will not share the vehicle.”
                                 </p>
                               ) : (
                                 <p className="text-muted-foreground">
-                                  <strong className="text-foreground">Shared Transport:</strong> “Passengers from different bookings may travel together. Available seats and passenger capacity must be checked before the booking is confirmed.”
+                                  <strong className="text-foreground">Option B: Shared — mixed booking groups:</strong> “Customers from different bookings may share the same vehicle. Passenger capacity and available seats must be checked across all affected bookings.”
                                 </p>
                               )}
                             </div>
 
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                               <div className="flex flex-col gap-1">
-                                <Label className="text-[0.7rem] font-semibold">Availability / Request Status</Label>
+                                <Label className="text-[0.7rem] font-semibold">Availability Status</Label>
                                 <Select
                                   value={vehicle.status || "AVAILABLE"}
                                   onValueChange={(val: any) => updateVehicle(vIndex, { status: val })}
@@ -1409,29 +1518,9 @@ export function TourPackageManager({
                                   </SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="AVAILABLE">Available / Guaranteed</SelectItem>
-                                    <SelectItem value="ON_REQUEST">On Request / Subject to Confirmation</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
-
-                              {draft.transportService === "ON_REQUEST" && (
-                                <div className="flex flex-col gap-1">
-                                  <Label className="text-[0.7rem] font-semibold">Estimated Price (₹)</Label>
-                                  <Input
-                                    type="number"
-                                    min={0}
-                                    placeholder="e.g. 2500"
-                                    value={vehicle.pricePerDay ?? ""}
-                                    onChange={(e) =>
-                                      updateVehicle(vIndex, { pricePerDay: Number(e.target.value) || 0 })
-                                    }
-                                    className="h-8 text-xs"
-                                  />
-                                  <span className="text-[0.65rem] text-muted-foreground">
-                                    Additional charge arranged upon request; not in base package price.
-                                  </span>
-                                </div>
-                              )}
                             </div>
 
                             {/* Included Charges Checkbox Group */}
@@ -1527,25 +1616,6 @@ export function TourPackageManager({
                       })}
                     </div>
                   )}
-                </div>
-              )}
-
-              {draft.transportService === "ON_REQUEST" && (
-                <div className="rounded-xl border p-4 bg-muted/20 flex flex-col gap-2">
-                  <Label htmlFor="transport-details-request" className="text-xs font-semibold">
-                    General Request Terms & Notice
-                  </Label>
-                  <Textarea
-                    id="transport-details-request"
-                    rows={2}
-                    value={draft.transportDetails}
-                    onChange={(e) => setDraft({ ...draft, transportDetails: e.target.value })}
-                    placeholder="Specify booking lead time, driver contact policy, or extra guidelines for transport on request."
-                    className="text-xs"
-                  />
-                  <p className="text-[0.7rem] text-muted-foreground">
-                    Customer can request transport when booking; confirmation and payment will be arranged accordingly.
-                  </p>
                 </div>
               )}
 
@@ -1975,10 +2045,6 @@ export function TourPackageManager({
                   <Badge variant="success" className="gap-1">
                     <Car className="size-3" /> Transport Included
                   </Badge>
-                ) : pkg.transportService === "ON_REQUEST" ? (
-                  <Badge variant="outline" className="gap-1">
-                    <Car className="size-3" /> Transport on request
-                  </Badge>
                 ) : (
                   <Badge variant="secondary" className="text-muted-foreground gap-1">
                     <Car className="size-3" /> No transport
@@ -2079,7 +2145,7 @@ export function TourPackageManager({
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-[0.7rem] text-muted-foreground">
-                        <span>{place.expectedDuration || "1h"}</span>
+                        {place.expectedDuration ? <span>{place.expectedDuration}</span> : null}
                         <Badge variant={place.entryFeeStatus === "INCLUDED" ? "success" : "secondary"} className="text-[0.65rem]">
                           Entry fee: {place.entryFeeStatus === "INCLUDED" ? "Included" : "Excluded"}
                         </Badge>
@@ -2114,8 +2180,6 @@ export function TourPackageManager({
                   <p className="font-semibold">
                     {viewingPackage.transportService === "INCLUDED"
                       ? "Included with package"
-                      : viewingPackage.transportService === "ON_REQUEST"
-                      ? "Available upon request (additional charges apply)"
                       : "No transport service provided"}
                   </p>
                   {Array.isArray(viewingPackage.transportVehicles) && viewingPackage.transportVehicles.length > 0 && (
@@ -2133,13 +2197,13 @@ export function TourPackageManager({
                             <div className="flex items-center justify-between font-semibold text-foreground">
                               <span>{v.type || v.vehicleType || "Car"} ({v.capacity} seats)</span>
                               <Badge variant="outline" className="text-[0.65rem]">
-                                {isPriv ? "Private (Tour Only)" : "Shared Transport"}
+                                {isPriv ? "Option A: Private — this booking group only" : "Option B: Shared — mixed booking groups"}
                               </Badge>
                             </div>
                             <p className="text-[0.65rem] text-muted-foreground italic">
                               {isPriv
-                                ? "Reserved for this booking party for the agreed tour."
-                                : "Passengers from different bookings may travel together."}
+                                ? "“The vehicle is reserved for the customers in this booking. Customers from unrelated bookings will not share the vehicle.”"
+                                : "“Customers from different bookings may share the same vehicle. Passenger capacity and available seats must be checked across all affected bookings.”"}
                             </p>
                             <div className="text-[0.65rem] flex flex-col gap-0.5 pt-1 border-t">
                               <div><span className="font-medium text-foreground">Included:</span> {inc}</div>

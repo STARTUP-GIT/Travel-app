@@ -38,6 +38,16 @@ export type Place = {
   foreignChildFee?: number | null;
   foreignChildMaxAge?: number | null;
   foreignEntryFeeConditions?: string | null;
+  hasAdditionalFees?: boolean;
+  additionalFees?: Array<{
+    id: string;
+    category: string;
+    name: string;
+    amount: number | null;
+    status: "PAID" | "FREE" | "UNKNOWN";
+    visitor: "ALL" | "DOMESTIC" | "FOREIGN";
+    conditions?: string | null;
+  }> | null;
   addressLine?: string | null;
   locality?: string | null;
   pincode?: string | null;
