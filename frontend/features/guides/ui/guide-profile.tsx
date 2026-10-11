@@ -44,6 +44,7 @@ import {
   createSpecificGuideBooking,
 } from "@/features/bookings/api/bookings.api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -334,6 +335,7 @@ export function GuideBookingSheet({
   allowCustomerPlaceSelection?: boolean;
 }) {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const { profile } = useProfile();
   const router = useRouter();
 
   const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
@@ -349,30 +351,27 @@ export function GuideBookingSheet({
   const [requestedPickupAddress, setRequestedPickupAddress] = React.useState("");
   const [requestedPickupMapsUrl, setRequestedPickupMapsUrl] = React.useState("");
   const [requestTicketAssistance, setRequestTicketAssistance] = React.useState(false);
+  const [notes, setNotes] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
+  const guideId = guide.guide.id;
+  const lastGuideIdRef = React.useRef(guideId);
   React.useEffect(() => {
-    if (open) {
-      setRequestTicketAssistance(false);
-    }
-  }, [open]);
-
-  React.useEffect(() => {
-    if (open && isCommon) {
-      if (!allowCustomerPlaceSelection) {
-        setSelectedPlaces(placesForGuide.map((p) => p.id));
-      } else if (defaultSelectedPlaceIds.length > 0) {
-        setSelectedPlaces(defaultSelectedPlaceIds);
-      } else if (placesForGuide.length === 1) {
-        setSelectedPlaces([placesForGuide[0].id]);
+    if (guideId !== lastGuideIdRef.current) {
+      lastGuideIdRef.current = guideId;
+      if (isCommon) {
+        if (!allowCustomerPlaceSelection) {
+          setSelectedPlaces(placesForGuide.map((p) => p.id));
+        } else if (defaultSelectedPlaceIds.length > 0) {
+          setSelectedPlaces(defaultSelectedPlaceIds);
+        } else if (placesForGuide.length === 1) {
+          setSelectedPlaces([placesForGuide[0].id]);
+        }
+      } else {
+        setSelectedPlaces([]);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, allowCustomerPlaceSelection]);
-
-  React.useEffect(() => {
-    if (open && !isCommon) setSelectedPlaces([]);
-  }, [open, isCommon]);
+  }, [guideId, isCommon, allowCustomerPlaceSelection, defaultSelectedPlaceIds, placesForGuide]);
 
   const minDate = new Date();
   const todayIso = minDate.toISOString().slice(0, 10);
@@ -415,6 +414,7 @@ export function GuideBookingSheet({
           requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
           requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
           requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
+          notes: notes.trim() || undefined,
         });
       } else {
         await createSpecificGuideBooking({
@@ -429,6 +429,7 @@ export function GuideBookingSheet({
           requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
           requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
           requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
+          notes: notes.trim() || undefined,
         });
       }
       toast.success("Booking request sent", {
@@ -670,6 +671,55 @@ export function GuideBookingSheet({
               </div>
             </div>
           ) : null}
+
+          {/* Customer Details & Special Requests */}
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2 border-b pb-2">
+              <Compass className="size-4 text-primary" />
+              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Customer & Traveller Details
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] text-muted-foreground block">Customer Name</span>
+                <span className="font-semibold text-foreground">
+                  {profile?.name || user?.name || "Karnataka traveller"}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-muted-foreground block">Email Address</span>
+                <span className="font-medium text-foreground">
+                  {profile?.email || user?.email || "Signed in"}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-muted-foreground block">Phone Number</span>
+                <span className="font-medium text-foreground">
+                  {profile?.phonenumber ? profile.phonenumber : "Not provided in profile"}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-muted-foreground block">Traveller Count</span>
+                <span className="font-medium text-foreground">
+                  {numberOfPeople} Traveller{numberOfPeople > 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-1.5 pt-1">
+              <Label htmlFor="guide-booking-notes" className="text-xs font-medium text-muted-foreground">
+                Special Requests / Guide Notes (Optional)
+              </Label>
+              <textarea
+                id="guide-booking-notes"
+                rows={2}
+                placeholder="e.g. Any special interests, meeting landmark preferences, language requests..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full rounded-xl border border-input bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+              />
+            </div>
+          </div>
 
           <BookingSummary
             title="Booking summary"

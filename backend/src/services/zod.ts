@@ -82,7 +82,7 @@ export const userProfileUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   username: z.string().min(3).optional(),
   email: z.string().email().optional(),
-  phonenumber: z.string().min(10).max(15).optional(),
+  phonenumber: z.string().min(7).max(20).or(z.literal("")).optional(),
   profilepic: z.string().optional(),
   password: z.string().min(6).optional(),
 });
@@ -309,29 +309,75 @@ export const ownerSigninSchema = z.object({
   password: z.string().min(6),
 });
 
-export const hotelCreateSchema = z.object({
+export const hotelRoomTypeAdditionalServiceSchema = z.object({
   name: z.string().min(1),
-  address: z.string().min(1),
-  profile_logo: z.string().min(1),
-  districtId: z.string().min(1),
-  description: z.string().nullable().optional(),
-  rating: z.number().min(0).max(5),
-  review: z.array(z.string()).optional(),
-  cost_per_night: z.number().int().nonnegative(),
+  type: z.enum(["INCLUDED", "EXTRA_CHARGE", "UNAVAILABLE"]),
+  price: z.number().nonnegative().optional(),
+  priceBasis: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const hotelRoomTypeInputSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, "Room type title is required"),
+  description: z.string().min(1, "Room description is required"),
+  category: z.string().optional(),
+  roomType: z.enum(["AC", "NON_AC"]),
+  maxOccupancy: z.number().int().positive("Maximum occupancy must be at least 1 guest"),
+  availableRooms: z.number().int().nonnegative("Available rooms cannot be negative"),
+  pricePerNight: z.number().nonnegative("Price per night must be non-negative"),
+  roomOverviewPhoto: z.string().min(1, "Room overview photo is required"),
+  bathroomPhoto: z.string().min(1, "Bathroom photo is required"),
   images: z.array(z.string()).optional(),
-  latitude: z.number(),
-  longitude: z.number(),
+  hasHotWater: z.boolean().default(true),
+  hotWaterCharge: z.number().nonnegative().nullable().optional(),
+  hasTv: z.boolean().default(true),
+  hasAttachedBathroom: z.boolean().default(true),
+  hasWifi: z.boolean().default(true),
+  facilities: z.array(z.string()).optional(),
+  additionalServices: z.array(hotelRoomTypeAdditionalServiceSchema).optional(),
+  conditions: z.string().nullable().optional(),
+  isActive: z.boolean().optional(),
+  displayOrder: z.number().int().optional(),
+});
+
+export const hotelCreateSchema = z.object({
+  name: z.string().min(1, "Hotel name is required"),
+  address: z.string().min(1, "Address is required"),
+  profile_logo: z.string().min(1, "Cover photo is required"),
+  districtId: z.string().min(1, "District is required"),
+  stateId: z.string().optional(),
+  description: z.string().nullable().optional(),
+  rating: z.number().min(0).max(5).optional().default(0),
+  review: z.array(z.string()).optional(),
+  cost_per_night: z.number().int().nonnegative().optional().default(0),
+  images: z.array(z.string()).optional(),
+  latitude: z.number().optional().default(0),
+  longitude: z.number().optional().default(0),
   phone_number: z.string().optional(),
   whatsapp_number: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  website: z.string().url().optional().or(z.literal("")),
   booking_enabled: z.boolean().optional(),
+  star_rating: z.number().int().min(1).max(5).nullable().optional(),
+  maps_url: z.string().nullable().optional(),
+  check_in_time_type: z.enum(["SPECIFIC", "RANGE", "FLEXIBLE"]).nullable().optional(),
+  check_in_time: z.string().nullable().optional(),
+  check_in_start_time: z.string().nullable().optional(),
+  check_in_end_time: z.string().nullable().optional(),
+  check_out_time_type: z.enum(["SPECIFIC", "RANGE", "FLEXIBLE"]).nullable().optional(),
+  check_out_time: z.string().nullable().optional(),
+  check_out_start_time: z.string().nullable().optional(),
+  check_out_end_time: z.string().nullable().optional(),
+  roomTypes: z.array(hotelRoomTypeInputSchema).optional(),
 });
 
 export const hotelUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   address: z.string().min(1).optional(),
   profile_logo: z.string().min(1).optional(),
+  districtId: z.string().min(1).optional(),
+  stateId: z.string().optional(),
   description: z.string().nullable().optional(),
   rating: z.number().min(0).max(5).optional(),
   review: z.array(z.string()).optional(),
@@ -341,9 +387,20 @@ export const hotelUpdateSchema = z.object({
   longitude: z.number().optional(),
   phone_number: z.string().optional(),
   whatsapp_number: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  website: z.string().url().optional().or(z.literal("")),
   booking_enabled: z.boolean().optional(),
+  star_rating: z.number().int().min(1).max(5).nullable().optional(),
+  maps_url: z.string().nullable().optional(),
+  check_in_time_type: z.enum(["SPECIFIC", "RANGE", "FLEXIBLE"]).nullable().optional(),
+  check_in_time: z.string().nullable().optional(),
+  check_in_start_time: z.string().nullable().optional(),
+  check_in_end_time: z.string().nullable().optional(),
+  check_out_time_type: z.enum(["SPECIFIC", "RANGE", "FLEXIBLE"]).nullable().optional(),
+  check_out_time: z.string().nullable().optional(),
+  check_out_start_time: z.string().nullable().optional(),
+  check_out_end_time: z.string().nullable().optional(),
+  roomTypes: z.array(hotelRoomTypeInputSchema).optional(),
 });
 
 export const restaurentCreateSchema = z.object({
@@ -394,6 +451,7 @@ const startOfToday = () => {
 
 export const hotelBookingSchema = z.object({
   hotelId: z.string().min(1),
+  roomTypeId: z.string().optional(),
   checkIn: z.coerce
     .date()
     .refine((date) => date >= startOfToday(), {
@@ -406,6 +464,8 @@ export const hotelBookingSchema = z.object({
     }),
   guests: z.number().int().positive(),
   rooms: z.number().int().positive(),
+  selectedAddOns: z.array(z.string()).optional(),
+  notes: z.string().optional(),
 });
 
 export const restaurantReservationSchema = z.object({
@@ -434,6 +494,7 @@ export const specificGuideBookingSchema = z.object({
   requestedPickupAddress: z.string().optional(),
   requestedPickupMapsUrl: z.string().optional(),
   requestTicketAssistance: z.boolean().optional(),
+  notes: z.string().optional(),
 });
 
 export const commonGuideBookingSchema = z.object({
@@ -462,6 +523,7 @@ export const commonGuideBookingSchema = z.object({
   requestedPickupMapsUrl: z.string().optional(),
   requestedPickupLat: z.number().optional(),
   requestedPickupLng: z.number().optional(),
+  notes: z.string().optional(),
 });
 
 export const guideBookingStatusSchema = z.enum([

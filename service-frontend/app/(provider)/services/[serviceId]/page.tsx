@@ -11,7 +11,8 @@ import { Rating } from "@/components/shared/rating";
 import { ListingStatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { VenueForm } from "@/features/provider/components/venue-form";
-import { getDistricts } from "@/features/locations/api/locations.api";
+import { HotelForm } from "@/features/provider/components/hotel-form";
+import { getDistricts, getStates } from "@/features/locations/api/locations.api";
 import { loadListings } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import type { ProviderListing } from "@/features/provider/types";
@@ -67,7 +68,75 @@ export default async function ServiceDetailPage({
     );
   }
 
-  const districts = await getDistricts().catch(() => []);
+  const [districts, states] = await Promise.all([
+    getDistricts().catch(() => []),
+    getStates().catch(() => []),
+  ]);
+
+  if (hotel) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+        <BackLink href="/services" />
+        <PageHeader
+          title={`Edit ${listing.name}`}
+          description="Changes are visible to travellers as soon as you save."
+        />
+
+        {result.partial ? (
+          <NoticeState
+            className="mb-4"
+            title="Approved listings only"
+            description="This page falls back to the public listing that belongs to you because the service cannot currently return your own hotel list."
+          />
+        ) : null}
+
+        <GlassCard className="mb-8 gap-4 p-5">
+          <div className="flex items-center gap-3">
+            <AppImage
+              src={listing.image}
+              alt={listing.name}
+              className="size-16 shrink-0 rounded-xl"
+              fallbackClassName="rounded-xl"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate text-base font-semibold">{listing.name}</p>
+                {listing.status ? (
+                  <ListingStatusBadge status={listing.status} />
+                ) : null}
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Listed {formatDate(listing.createdAt)}
+              </p>
+            </div>
+          </div>
+
+          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <Fact icon={Star} label="Rating">
+              <Rating value={listing.rating} size="sm" />
+            </Fact>
+            <Fact icon={MapPin} label="District">
+              {listing.subtitle || "—"}
+            </Fact>
+            <Fact icon={CalendarDays} label="Starting from">
+              {formatCurrency(hotel.cost_per_night)} / night
+            </Fact>
+            <Fact icon={Star} label="Reviews">
+              {pluralize(listing.reviews.length, "review")}
+            </Fact>
+          </dl>
+        </GlassCard>
+
+        <HotelForm
+          initialHotel={hotel}
+          listingId={listing.id}
+          submitLabel="Save changes"
+          initialStates={states}
+          initialDistricts={districts}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="app-container max-w-2xl">
@@ -126,11 +195,6 @@ export default async function ServiceDetailPage({
           <Fact icon={MapPin} label="District">
             {listing.subtitle || "—"}
           </Fact>
-          {hotel ? (
-            <Fact icon={CalendarDays} label="Per night">
-              {formatCurrency(hotel.cost_per_night)}
-            </Fact>
-          ) : null}
           <Fact icon={Star} label="Reviews">
             {pluralize(listing.reviews.length, "review")}
           </Fact>
@@ -161,7 +225,7 @@ export default async function ServiceDetailPage({
       </GlassCard>
 
       <VenueForm
-        kind={listing.kind === "restaurant" ? "restaurant" : "hotel"}
+        kind="restaurant"
         districts={districts}
         listingId={listing.id}
         submitLabel="Save changes"
@@ -173,7 +237,7 @@ export default async function ServiceDetailPage({
           profileLogo: record.profile_logo,
           districtId: record.districtId,
           description: record.description ?? "",
-          costPerNight: hotel ? hotel.cost_per_night : 0,
+          costPerNight: 0,
           latitude: record.latitude,
           longitude: record.longitude,
           phone: record.phone_number ?? "",

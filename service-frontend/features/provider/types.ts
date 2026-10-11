@@ -456,6 +456,39 @@ export const FOOD_CATEGORIES: { value: FoodCategory; label: string }[] = [
   { value: "VEG_AND_NONVEG", label: "Veg & non-veg" },
 ];
 
+export type HotelRoomTypeRecord = {
+  id?: string;
+  hotelId?: string;
+  title: string;
+  description: string;
+  category?: string | null;
+  roomType: "AC" | "NON_AC";
+  maxOccupancy: number;
+  availableRooms: number;
+  pricePerNight: number;
+  roomOverviewPhoto: string;
+  bathroomPhoto: string;
+  images?: string[];
+  hasHotWater: boolean;
+  hotWaterCharge?: number | null;
+  hasTv: boolean;
+  hasAttachedBathroom: boolean;
+  hasWifi: boolean;
+  facilities?: string[];
+  additionalServices?: {
+    name: string;
+    type: "INCLUDED" | "EXTRA_CHARGE" | "UNAVAILABLE";
+    price?: number;
+    priceBasis?: string;
+    description?: string;
+  }[] | null;
+  conditions?: string | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type HotelRecord = {
   id: string;
   name: string;
@@ -476,6 +509,17 @@ export type HotelRecord = {
   booking_enabled: boolean;
   status: ListingStatus;
   hotelOwnerId: string;
+  star_rating?: number | null;
+  maps_url?: string | null;
+  check_in_time_type?: "SPECIFIC" | "RANGE" | null;
+  check_in_time?: string | null;
+  check_in_start_time?: string | null;
+  check_in_end_time?: string | null;
+  check_out_time_type?: "SPECIFIC" | "RANGE" | null;
+  check_out_time?: string | null;
+  check_out_start_time?: string | null;
+  check_out_end_time?: string | null;
+  room_types?: HotelRoomTypeRecord[];
   createdAt: string;
   updatedAt: string;
   district?: DistrictRef | null;
@@ -567,6 +611,19 @@ export type ProviderListingInput = {
   /** Restaurant only. */
   foodCategory: FoodCategory;
   menu: string[];
+  /** Hotel specific fields */
+  starRating?: number | null;
+  mapsUrl?: string | null;
+  stateId?: string | null;
+  checkInTimeType?: "SPECIFIC" | "RANGE" | null;
+  checkInTime?: string | null;
+  checkInStartTime?: string | null;
+  checkInEndTime?: string | null;
+  checkOutTimeType?: "SPECIFIC" | "RANGE" | null;
+  checkOutTime?: string | null;
+  checkOutStartTime?: string | null;
+  checkOutEndTime?: string | null;
+  roomTypes?: HotelRoomTypeRecord[];
 };
 
 /* -------------------------------------------------------------------------- */

@@ -1,3 +1,4 @@
+import * as React from "react";
 import { ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
 
@@ -22,8 +23,24 @@ export function HotelCard({
 }) {
   const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
+  const minPrice = React.useMemo(() => {
+    if (hotel.room_types && hotel.room_types.length > 0) {
+      const activePrices = hotel.room_types
+        .filter((rt) => rt.isActive !== false)
+        .map((rt) => rt.pricePerNight)
+        .filter((p) => p >= 0);
+      if (activePrices.length > 0) {
+        return Math.min(...activePrices);
+      }
+    }
+    return hotel.cost_per_night;
+  }, [hotel]);
+
+  const hasAc = hotel.room_types?.some((rt) => rt.roomType === "AC" && rt.isActive !== false);
+  const hasNonAc = hotel.room_types?.some((rt) => rt.roomType === "NON_AC" && rt.isActive !== false);
+
   return (
-    <GlassCard hover className={cn("group", className)}>
+    <GlassCard hover className={cn("group flex flex-col", className)}>
       <Link
         href={`${districtBase}/hotels/${hotel.id}`}
         className="flex flex-1 flex-col"
@@ -35,8 +52,17 @@ export function HotelCard({
             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
-          <Badge className="absolute right-3 top-3 bg-white/85 text-primary backdrop-blur-md">
-            {formatCurrency(hotel.cost_per_night)}
+
+          {/* Star classification badge */}
+          {hotel.star_rating ? (
+            <Badge className="absolute left-3 top-3 border-amber-400/40 bg-amber-500/90 text-white backdrop-blur-md">
+              {"★".repeat(hotel.star_rating)} {hotel.star_rating}-Star
+            </Badge>
+          ) : null}
+
+          {/* Price badge */}
+          <Badge className="absolute right-3 top-3 bg-white/90 text-primary backdrop-blur-md dark:bg-zinc-900/90 dark:text-primary">
+            {formatCurrency(minPrice)}
             <span className="font-normal text-muted-foreground">/night</span>
           </Badge>
         </div>
@@ -46,13 +72,36 @@ export function HotelCard({
             <h3 className="line-clamp-1 font-semibold leading-tight">
               {hotel.name}
             </h3>
-            <Rating value={hotel.rating} count={hotel.review?.length} className="shrink-0 text-xs" />
+            <Rating
+              value={hotel.rating}
+              count={hotel.review?.length}
+              className="shrink-0 text-xs"
+            />
           </div>
           <p className="line-clamp-1 text-sm text-muted-foreground">
             {hotel.address}
           </p>
 
-          <div className="mt-auto flex items-center justify-between gap-2 pt-1.5">
+          {/* Room types pill preview */}
+          {hotel.room_types && hotel.room_types.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <Badge variant="outline" className="text-[0.65rem] font-medium">
+                {hotel.room_types.length} {hotel.room_types.length === 1 ? "room type" : "room types"}
+              </Badge>
+              {hasAc ? (
+                <Badge variant="secondary" className="text-[0.65rem]">
+                  AC
+                </Badge>
+              ) : null}
+              {hasNonAc ? (
+                <Badge variant="secondary" className="text-[0.65rem]">
+                  Non-AC
+                </Badge>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="mt-auto flex items-center justify-between gap-2 pt-2">
             <span className="inline-flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="size-3.5 shrink-0" />
               <span className="truncate">{hotel.district?.name ?? "Karnataka"}</span>

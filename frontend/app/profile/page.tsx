@@ -30,13 +30,13 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const { update: updateSession } = useSession();
   const { slug, stateSlug, clearDestination } = useCurrentDistrict();
-  const { data: fetchedProfile } = useProfile();
+  const { profile: contextProfile, isLoading: profileLoading, setProfile } = useProfile();
   const router = useRouter();
 
   // Fresh profile from the backend; a successful save takes precedence so the
-  // header updates instantly (no effect needed — derived state).
+  // header updates instantly.
   const [savedProfile, setSavedProfile] = React.useState<CustomerProfile | null>(null);
-  const profile = savedProfile ?? fetchedProfile ?? null;
+  const profile = savedProfile ?? contextProfile ?? null;
 
   const [editing, setEditing] = React.useState(false);
   const [loadingEditor, setLoadingEditor] = React.useState(false);
@@ -51,6 +51,7 @@ export default function ProfileScreen() {
     try {
       const current = await getProfile();
       setSavedProfile(current);
+      setProfile(current);
       setEditing(true);
     } catch (error) {
       toast.error("Couldn't load your profile", {
@@ -64,6 +65,7 @@ export default function ProfileScreen() {
   const displayName = profile?.name ?? user?.name ?? "Karnataka traveller";
   const username = profile?.username ?? "";
   const displayEmail = profile?.email ?? user?.email ?? "Signed in";
+  const displayPhone = profile?.phonenumber ? profile.phonenumber : "Not provided";
   const photo = profile?.profilepic ?? user?.image ?? undefined;
 
   const links = [
@@ -79,22 +81,36 @@ export default function ProfileScreen() {
         <ScreenHeader title="Profile" subtitle="Your Karnataka Tourism Guide account" />
 
         <div className="app-container">
-          {/* User card */}
-          <div className="card-surface flex items-center gap-4 rounded-3xl p-5">
-            <Avatar className="size-16">
-              {photo ? <AvatarImage src={photo} alt={displayName} /> : null}
-              <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">
-                {displayName.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <h1 className="truncate text-lg font-bold">{displayName}</h1>
-              {username ? (
-                <p className="truncate text-sm text-muted-foreground">@{username}</p>
-              ) : null}
-              <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
+          {/* User card with loading support */}
+          {profileLoading && !profile ? (
+            <div className="card-surface flex items-center gap-4 rounded-3xl p-5 animate-pulse">
+              <div className="size-16 rounded-full bg-muted shrink-0" />
+              <div className="min-w-0 space-y-2 flex-1">
+                <div className="h-5 w-32 rounded bg-muted" />
+                <div className="h-3.5 w-24 rounded bg-muted" />
+                <div className="h-3 w-40 rounded bg-muted" />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="card-surface flex items-center gap-4 rounded-3xl p-5">
+              <Avatar className="size-16">
+                {photo ? <AvatarImage src={photo} alt={displayName} /> : null}
+                <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">
+                  {displayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-bold">{displayName}</h1>
+                {username ? (
+                  <p className="truncate text-sm text-muted-foreground">@{username}</p>
+                ) : null}
+                <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
+                <p className="truncate text-xs text-muted-foreground mt-0.5">
+                  Phone: <span className="font-medium text-foreground">{displayPhone}</span>
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="mt-5 space-y-2.5">
             {/* Edit Profile action */}
@@ -174,6 +190,7 @@ export default function ProfileScreen() {
             onOpenChange={setEditing}
             onSaved={(updated) => {
               setSavedProfile(updated);
+              setProfile(updated);
               void updateSession({
                 user: {
                   name: updated.name,

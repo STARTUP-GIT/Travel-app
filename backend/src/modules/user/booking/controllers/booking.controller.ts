@@ -13,13 +13,29 @@ import {
   commonGuideBookingSchema,
 } from "../../../../services/zod.js";
 
+const userSafeSelect = {
+  id: true,
+  name: true,
+  username: true,
+  email: true,
+  phonenumber: true,
+  profilepic: true,
+} as const;
+
 export const createHotelBooking = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const data = hotelBookingSchema.parse(req.body);
 
-    const hotel = await ownerPrisma.hotel.findUnique({
+    const hotel = await prisma.hotel.findUnique({
       where: { id: data.hotelId },
+      include: {
+        district: { include: { state: true } },
+      },
     });
 
     if (!hotel) {
@@ -32,9 +48,7 @@ export const createHotelBooking = async (req: Request, res: Response) => {
       });
     }
 
-    const district = await findDistrictWithHierarchy(hotel.districtId);
-
-    if (!district || !isDistrictAvailable(district)) {
+    if (!hotel.district?.isServiceAvailable || !hotel.district.state?.isServiceAvailable) {
       return res.status(400).json({
         message: "Booking is not available for this location",
       });
@@ -55,20 +69,174 @@ export const createHotelBooking = async (req: Request, res: Response) => {
       )
     );
 
-    const totalAmount = hotel.cost_per_night * nights * data.rooms;
+    let booking;
 
-    const booking = await ownerPrisma.hotel_booking.create({
-      data: {
-        hotelId: data.hotelId,
-        userId,
-        checkIn: data.checkIn,
-        checkOut: data.checkOut,
-        guests: data.guests,
-        rooms: data.rooms,
-        totalAmount,
-      },
-      include: { hotel: true, user: true },
-    });
+    if (data.roomTypeId) {
+      const roomType = await prisma.hotel_room_type.findFirst({
+        where: { id: data.roomTypeId, hotelId: data.hotelId, isActive: true },
+      });
+
+      if (!roomType) {
+        return res.status(404).json({ message: "Selected room type is not available" });
+      }
+
+      if (data.guests > roomType.maxOccupancy * data.rooms) {
+        return res.status(400).json({
+          message: `The selected rooms accommodate up to ${roomType.maxOccupancy * data.rooms} guests (${roomType.maxOccupancy} per room). Please adjust guest or room count.`,
+        });
+      }
+
+      if (data.rooms > roomType.availableRooms) {
+        return res.status(400).json({
+          message: `Only ${roomType.availableRooms} room(s) currently available for this room type.`,
+        });
+      }
+
+      const baseRoomTotal = roomType.pricePerNight * nights * data.rooms;
+      let addOnsTotal = 0;
+      const appliedAddOns: { name: string; type: string; price: number; priceBasis: string; total: number }[] = [];
+
+      if (Array.isArray(data.selectedAddOns) && data.selectedAddOns.length > 0 && Array.isArray(roomType.additionalServices)) {
+        const services = roomType.additionalServices as any[];
+        for (const addOnName of data.selectedAddOns) {
+          const match = services.find((s: any) => s.name === addOnName);
+          if (match && match.type === "EXTRA_CHARGE" && typeof match.price === "number") {
+            let charge = match.price;
+            const basis = match.priceBasis || "PER_DAY";
+            if (basis === "PER_DAY") charge *= nights;
+            else if (basis === "PER_PERSON") charge *= data.guests;
+            else if (basis === "PER_ROOM") charge *= data.rooms;
+            addOnsTotal += charge;
+            appliedAddOns.push({
+              name: match.name,
+              type: match.type,
+              price: match.price,
+              priceBasis: basis,
+              total: charge,
+            });
+          }
+        }
+      }
+
+      const calculatedTotalAmount = baseRoomTotal + addOnsTotal;
+
+      const bookingSnapshot = {
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        hotelAddress: hotel.address,
+        hotelPhone: hotel.phone_number,
+        hotelEmail: hotel.email,
+        mapsUrl: hotel.maps_url,
+        starRating: hotel.star_rating,
+        checkInTimePolicy: {
+          type: hotel.check_in_time_type,
+          time: hotel.check_in_time,
+          startTime: hotel.check_in_start_time,
+          endTime: hotel.check_in_end_time,
+        },
+        checkOutTimePolicy: {
+          type: hotel.check_out_time_type,
+          time: hotel.check_out_time,
+          startTime: hotel.check_out_start_time,
+          endTime: hotel.check_out_end_time,
+        },
+        roomTypeId: roomType.id,
+        roomTitle: roomType.title,
+        roomDescription: roomType.description,
+        roomType: roomType.roomType,
+        maxOccupancy: roomType.maxOccupancy,
+        pricePerNight: roomType.pricePerNight,
+        roomsCount: data.rooms,
+        nightsCount: nights,
+        guestsCount: data.guests,
+        baseRoomTotal,
+        appliedAddOns,
+        addOnsTotal,
+        totalAmount: calculatedTotalAmount,
+        facilities: roomType.facilities,
+        hasHotWater: roomType.hasHotWater,
+        hotWaterCharge: roomType.hotWaterCharge,
+        hasTv: roomType.hasTv,
+        hasAttachedBathroom: roomType.hasAttachedBathroom,
+        hasWifi: roomType.hasWifi,
+        roomOverviewPhoto: roomType.roomOverviewPhoto,
+        bathroomPhoto: roomType.bathroomPhoto,
+        notes: data.notes || null,
+      };
+
+      try {
+        booking = await prisma.$transaction(async (tx) => {
+          const freshRoom = await tx.hotel_room_type.findUnique({
+            where: { id: roomType.id },
+          });
+
+          if (!freshRoom || freshRoom.availableRooms < data.rooms) {
+            throw new Error("INSUFFICIENT_ROOM_INVENTORY");
+          }
+
+          await tx.hotel_room_type.update({
+            where: { id: roomType.id },
+            data: { availableRooms: { decrement: data.rooms } },
+          });
+
+          return await tx.hotel_booking.create({
+            data: {
+              hotelId: data.hotelId,
+              userId,
+              roomTypeId: roomType.id,
+              checkIn: data.checkIn,
+              checkOut: data.checkOut,
+              guests: data.guests,
+              rooms: data.rooms,
+              totalAmount: calculatedTotalAmount,
+              bookingSnapshot,
+              notes: data.notes || null,
+              status: "PENDING",
+            },
+            include: {
+              hotel: true,
+              roomType: true,
+              user: { select: userSafeSelect },
+            },
+          });
+        });
+      } catch (err: any) {
+        if (err?.message === "INSUFFICIENT_ROOM_INVENTORY") {
+          return res.status(409).json({
+            message: "The requested rooms are no longer available. Please select another room type.",
+          });
+        }
+        throw err;
+      }
+    } else {
+      const totalAmount = hotel.cost_per_night * nights * data.rooms;
+      booking = await prisma.hotel_booking.create({
+        data: {
+          hotelId: data.hotelId,
+          userId,
+          checkIn: data.checkIn,
+          checkOut: data.checkOut,
+          guests: data.guests,
+          rooms: data.rooms,
+          totalAmount,
+          notes: data.notes || null,
+          bookingSnapshot: {
+            hotelName: hotel.name,
+            hotelAddress: hotel.address,
+            pricePerNight: hotel.cost_per_night,
+            roomsCount: data.rooms,
+            nightsCount: nights,
+            guestsCount: data.guests,
+            totalAmount,
+            notes: data.notes || null,
+          },
+        },
+        include: {
+          hotel: true,
+          user: { select: userSafeSelect },
+        },
+      });
+    }
 
     return res.status(201).json({
       message: "Hotel booking created successfully",
@@ -95,9 +263,17 @@ export const getUserHotelBookings = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
 
-    const bookings = await ownerPrisma.hotel_booking.findMany({
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const bookings = await prisma.hotel_booking.findMany({
       where: { userId },
-      include: { hotel: true },
+      include: {
+        hotel: true,
+        roomType: true,
+        user: { select: userSafeSelect },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -290,7 +466,11 @@ export const getUserSpecificGuideBookings = async (req: Request, res: Response) 
 
     const bookings = await prisma.specific_guide_booking.findMany({
       where: { userId },
-      include: { specificGuide: true, place: true },
+      include: {
+        specificGuide: true,
+        place: true,
+        user: { select: userSafeSelect },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -571,6 +751,7 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       pickupName: data.pickupName || pkg?.pickupName || null,
       pickupAddress: data.pickupAddress || pkg?.pickupAddress || null,
       pickupMapsUrl: data.pickupMapsUrl || pkg?.pickupMapsUrl || null,
+      notes: data.notes || null,
       meals: {
         service: pkg?.mealsService ?? "NO_SERVICE",
         included: pkg?.includedMeals ?? [],
@@ -686,6 +867,7 @@ export const getUserCommonGuideBookings = async (req: Request, res: Response) =>
         commonGuide: true,
         specificGuide: true,
         package: true,
+        user: { select: userSafeSelect },
         selectedPlaces: { include: { place: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -736,6 +918,110 @@ export const getSpecificGuideLocation = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Get specific guide location error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getUserBookingById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { bookingId } = req.params as { bookingId: string };
+    if (!bookingId) {
+      return res.status(400).json({ message: "Booking ID is required" });
+    }
+
+    // 1. Check Tour Guide (Common Guide) Booking
+    const commonBooking = await prisma.common_guide_booking.findFirst({
+      where: { id: bookingId, userId },
+      include: {
+        commonGuide: true,
+        specificGuide: true,
+        package: {
+          include: {
+            places: { include: { place: true } },
+          },
+        },
+        user: { select: userSafeSelect },
+        selectedPlaces: {
+          include: {
+            place: {
+              include: {
+                district: { include: { state: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (commonBooking) {
+      return res.status(200).json({
+        type: "common",
+        booking: commonBooking,
+      });
+    }
+
+    // 2. Check Specific Guide Booking
+    const specificBooking = await prisma.specific_guide_booking.findFirst({
+      where: { id: bookingId, userId },
+      include: {
+        specificGuide: true,
+        place: {
+          include: {
+            district: { include: { state: true } },
+          },
+        },
+        user: { select: userSafeSelect },
+      },
+    });
+
+    if (specificBooking) {
+      return res.status(200).json({
+        type: "specific",
+        booking: specificBooking,
+      });
+    }
+
+    // 3. Check Hotel Booking
+    const hotelBooking = await ownerPrisma.hotel_booking.findFirst({
+      where: { id: bookingId, userId },
+      include: {
+        hotel: true,
+        user: { select: userSafeSelect },
+      },
+    });
+
+    if (hotelBooking) {
+      return res.status(200).json({
+        type: "hotel",
+        booking: hotelBooking,
+      });
+    }
+
+    // 4. Check Restaurant Reservation
+    const reservation = await ownerPrisma.restaurant_reservation.findFirst({
+      where: { id: bookingId, userId },
+      include: {
+        restaurent: true,
+        user: { select: userSafeSelect },
+      },
+    });
+
+    if (reservation) {
+      return res.status(200).json({
+        type: "restaurant",
+        booking: reservation,
+      });
+    }
+
+    return res.status(404).json({ message: "Booking not found" });
+  } catch (error) {
+    console.error("Get user booking by ID error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

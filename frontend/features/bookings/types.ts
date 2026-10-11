@@ -1,5 +1,5 @@
 import type { CommonGuide, SpecificGuide } from "@/features/guides/types";
-import type { Hotel } from "@/features/hotels/types";
+import type { Hotel, HotelRoomType } from "@/features/hotels/types";
 import type { Restaurent } from "@/features/restaurants/types";
 import type { Place } from "@/features/places/types";
 
@@ -10,10 +10,20 @@ export type BookingStatus =
   | "CANCELLED"
   | "COMPLETED";
 
+export type BookingUser = {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  phonenumber?: string;
+  profilepic?: string | null;
+};
+
 export type HotelBooking = {
   id: string;
   hotelId: string;
   userId: string;
+  roomTypeId?: string | null;
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -23,6 +33,9 @@ export type HotelBooking = {
   createdAt: string;
   updatedAt: string;
   hotel: Hotel;
+  roomType?: HotelRoomType | null;
+  bookingSnapshot?: any;
+  user?: BookingUser;
 };
 
 export type RestaurantReservation = {
@@ -35,6 +48,7 @@ export type RestaurantReservation = {
   createdAt: string;
   updatedAt: string;
   restaurent: Restaurent;
+  user?: BookingUser;
 };
 
 export type SpecificGuideBooking = {
@@ -63,11 +77,13 @@ export type SpecificGuideBooking = {
   additionalCostsDetails?: string | null;
   paymentStatus?: string;
   requestTicketAssistance?: boolean;
+  notes?: string | null;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
   specificGuide: SpecificGuide;
   place: Place;
+  user?: BookingUser;
 };
 
 export type CommonGuideBooking = {
@@ -111,10 +127,12 @@ export type CommonGuideBooking = {
   entryFeeDetails?: string | null;
   additionalCostsDetails?: string | null;
   paymentStatus?: string;
+  notes?: string | null;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
   commonGuide: CommonGuide;
+  user?: BookingUser;
   selectedPlaces: {
     id: string;
     placeId: string;
@@ -135,6 +153,7 @@ export type CreateSpecificGuideBookingInput = {
   requestedPickupMapsUrl?: string;
   requestTicketAssistance?: boolean;
   totalPrice?: number;
+  notes?: string;
 };
 
 export type CreateCommonGuideBookingInput = {
@@ -156,6 +175,7 @@ export type CreateCommonGuideBookingInput = {
   requestedPickupName?: string;
   requestedPickupAddress?: string;
   requestedPickupMapsUrl?: string;
+  notes?: string;
 };
 
 export type CreateReservationInput = {
@@ -163,3 +183,9 @@ export type CreateReservationInput = {
   reservationDate: string;
   guests: number;
 };
+
+export type BookingDetailResponse =
+  | { type: "common"; booking: CommonGuideBooking }
+  | { type: "specific"; booking: SpecificGuideBooking }
+  | { type: "hotel"; booking: HotelBooking }
+  | { type: "restaurant"; booking: RestaurantReservation };

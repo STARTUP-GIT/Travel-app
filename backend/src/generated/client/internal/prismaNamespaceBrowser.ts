@@ -71,6 +71,7 @@ export const ModelName = {
   common_guide_booking: 'common_guide_booking',
   common_guide_booking_places: 'common_guide_booking_places',
   hotel: 'hotel',
+  hotel_room_type: 'hotel_room_type',
   restaurent: 'restaurent',
   hotel_owner: 'hotel_owner',
   restaurent_owner: 'restaurent_owner',
@@ -536,10 +537,50 @@ export const HotelScalarFieldEnum = {
   status: 'status',
   hotelOwnerId: 'hotelOwnerId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  star_rating: 'star_rating',
+  maps_url: 'maps_url',
+  check_in_time_type: 'check_in_time_type',
+  check_in_time: 'check_in_time',
+  check_in_start_time: 'check_in_start_time',
+  check_in_end_time: 'check_in_end_time',
+  check_out_time_type: 'check_out_time_type',
+  check_out_time: 'check_out_time',
+  check_out_start_time: 'check_out_start_time',
+  check_out_end_time: 'check_out_end_time'
 } as const
 
 export type HotelScalarFieldEnum = (typeof HotelScalarFieldEnum)[keyof typeof HotelScalarFieldEnum]
+
+
+export const Hotel_room_typeScalarFieldEnum = {
+  id: 'id',
+  hotelId: 'hotelId',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  roomType: 'roomType',
+  maxOccupancy: 'maxOccupancy',
+  availableRooms: 'availableRooms',
+  pricePerNight: 'pricePerNight',
+  roomOverviewPhoto: 'roomOverviewPhoto',
+  bathroomPhoto: 'bathroomPhoto',
+  images: 'images',
+  hasHotWater: 'hasHotWater',
+  hotWaterCharge: 'hotWaterCharge',
+  hasTv: 'hasTv',
+  hasAttachedBathroom: 'hasAttachedBathroom',
+  hasWifi: 'hasWifi',
+  facilities: 'facilities',
+  additionalServices: 'additionalServices',
+  conditions: 'conditions',
+  isActive: 'isActive',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type Hotel_room_typeScalarFieldEnum = (typeof Hotel_room_typeScalarFieldEnum)[keyof typeof Hotel_room_typeScalarFieldEnum]
 
 
 export const RestaurentScalarFieldEnum = {
@@ -611,7 +652,11 @@ export const Hotel_bookingScalarFieldEnum = {
   totalAmount: 'totalAmount',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  roomTypeId: 'roomTypeId',
+  bookingSnapshot: 'bookingSnapshot',
+  notes: 'notes',
+  paymentStatus: 'paymentStatus'
 } as const
 
 export type Hotel_bookingScalarFieldEnum = (typeof Hotel_bookingScalarFieldEnum)[keyof typeof Hotel_bookingScalarFieldEnum]

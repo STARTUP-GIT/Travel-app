@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import { createCommonGuideBooking } from "@/features/bookings/api/bookings.api";
 import type { CommonGuideBooking } from "@/features/bookings/types";
 import type { PackageWithContext } from "@/features/guides/types";
@@ -56,6 +57,7 @@ export function PackageBookingModal({
 }: PackageBookingModalProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { profile } = useProfile();
 
   // Tomorrow's date formatted as YYYY-MM-DD
   const minDate = React.useMemo(() => {
@@ -73,23 +75,26 @@ export function PackageBookingModal({
   const [adults, setAdults] = React.useState(1);
   const [children, setChildren] = React.useState(0);
 
-  // Selected places: All selected by default
+  // Selected places: All selected by default, preserved across harmless rerenders
   const [selectedPlaceIds, setSelectedPlaceIds] = React.useState<string[]>(() =>
     pkg.places.map((p) => p.id)
   );
 
-  // Reset selected places when package opens
+  // Only re-initialize places if switching to a different package id
+  const lastPkgIdRef = React.useRef(pkg.id);
   React.useEffect(() => {
-    if (open) {
+    if (pkg.id !== lastPkgIdRef.current) {
+      lastPkgIdRef.current = pkg.id;
       setSelectedPlaceIds(pkg.places.map((p) => p.id));
     }
-  }, [open, pkg.places]);
+  }, [pkg.id, pkg.places]);
 
   // Alternative pickup request state
   const [isRequestingPickup, setIsRequestingPickup] = React.useState(false);
   const [requestedPickupName, setRequestedPickupName] = React.useState("");
   const [requestedPickupAddress, setRequestedPickupAddress] = React.useState("");
   const [requestedPickupMapsUrl, setRequestedPickupMapsUrl] = React.useState("");
+  const [notes, setNotes] = React.useState("");
 
   const [submitting, setSubmitting] = React.useState(false);
   const [confirmedBooking, setConfirmedBooking] =
@@ -233,6 +238,7 @@ export function PackageBookingModal({
         requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
         requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
         requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
+        notes: notes.trim() || undefined,
       });
 
       setConfirmedBooking(booking);
@@ -640,6 +646,55 @@ export function PackageBookingModal({
                     {pkg.entryFeeStatus === "INCLUDED" ? "Included" : "Pay at Gate"}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Customer Details & Special Requests */}
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+              <div className="flex items-center gap-2 border-b pb-2">
+                <Users className="size-4 text-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Customer & Traveller Details
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Customer Name</span>
+                  <span className="font-semibold text-foreground">
+                    {profile?.name || user?.name || "Karnataka traveller"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Email Address</span>
+                  <span className="font-medium text-foreground">
+                    {profile?.email || user?.email || "Signed in"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Phone Number</span>
+                  <span className="font-medium text-foreground">
+                    {profile?.phonenumber ? profile.phonenumber : "Not provided in profile"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Traveller Breakdown</span>
+                  <span className="font-medium text-foreground">
+                    {adults} Adult(s){children > 0 ? `, ${children} Child(ren)` : ""}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-1.5 pt-1">
+                <Label htmlFor="booking-notes" className="text-xs font-medium text-muted-foreground">
+                  Special Requests / Tour Notes (Optional)
+                </Label>
+                <textarea
+                  id="booking-notes"
+                  rows={2}
+                  placeholder="e.g. Elderly traveller needing gentle walking pace, preferred pickup landmark, language preference..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full rounded-xl border border-input bg-background p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                />
               </div>
             </div>
 

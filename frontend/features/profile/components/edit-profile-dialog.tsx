@@ -26,6 +26,7 @@ type FieldErrors = {
   name?: string;
   username?: string;
   email?: string;
+  phone?: string;
 };
 
 type EditProfileDialogProps = {
@@ -63,7 +64,7 @@ export function EditProfileDialog({
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
           <DialogDescription>
-            Update your name, username and profile photo.
+            Update your name, username, contact phone, and profile photo.
           </DialogDescription>
         </DialogHeader>
         {open ? (
@@ -92,6 +93,7 @@ function ProfileEditForm({
   const [name, setName] = React.useState(profile.name);
   const [username, setUsername] = React.useState(profile.username);
   const [email, setEmail] = React.useState(profile.email);
+  const [phone, setPhone] = React.useState(profile.phonenumber || "");
   const [file, setFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = React.useState<string | null>(null);
@@ -141,6 +143,9 @@ function ProfileEditForm({
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       next.email = "Enter a valid email address";
     }
+    if (phone.trim() && !/^[+0-9\s\-()]{7,20}$/.test(phone.trim())) {
+      next.phone = "Enter a valid phone number (7-20 digits)";
+    }
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -164,6 +169,7 @@ function ProfileEditForm({
         name: name.trim(),
         username: username.trim(),
         email: email.trim(),
+        phonenumber: phone.trim(),
         ...(profilepic ? { profilepic } : {}),
       });
 
@@ -297,6 +303,33 @@ function ProfileEditForm({
         {errors.email ? (
           <p className="text-xs text-destructive">{errors.email}</p>
         ) : null}
+      </div>
+
+      {/* Phone Number */}
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="edit-profile-phone"
+          className="text-xs font-medium text-muted-foreground"
+        >
+          Phone number
+        </Label>
+        <Input
+          id="edit-profile-phone"
+          type="tel"
+          placeholder="e.g. +91 98765 43210"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          autoComplete="tel"
+          disabled={saving}
+          aria-invalid={Boolean(errors.phone)}
+        />
+        {errors.phone ? (
+          <p className="text-xs text-destructive">{errors.phone}</p>
+        ) : (
+          <p className="text-[0.7rem] text-muted-foreground">
+            Optional · Used by tour guides to reach you on tour day
+          </p>
+        )}
       </div>
 
       <DialogFooter className="gap-2 sm:gap-2">

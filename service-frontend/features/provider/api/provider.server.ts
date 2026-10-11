@@ -1281,6 +1281,18 @@ function listingPayload(
 
   if (kind === "hotel") {
     payload.cost_per_night = input.costPerNight;
+    if (input.starRating !== undefined) payload.star_rating = input.starRating;
+    if (input.mapsUrl !== undefined) payload.maps_url = input.mapsUrl || null;
+    if (input.stateId !== undefined) payload.stateId = input.stateId;
+    if (input.checkInTimeType !== undefined) payload.check_in_time_type = input.checkInTimeType;
+    if (input.checkInTime !== undefined) payload.check_in_time = input.checkInTime || null;
+    if (input.checkInStartTime !== undefined) payload.check_in_start_time = input.checkInStartTime || null;
+    if (input.checkInEndTime !== undefined) payload.check_in_end_time = input.checkInEndTime || null;
+    if (input.checkOutTimeType !== undefined) payload.check_out_time_type = input.checkOutTimeType;
+    if (input.checkOutTime !== undefined) payload.check_out_time = input.checkOutTime || null;
+    if (input.checkOutStartTime !== undefined) payload.check_out_start_time = input.checkOutStartTime || null;
+    if (input.checkOutEndTime !== undefined) payload.check_out_end_time = input.checkOutEndTime || null;
+    if (input.roomTypes !== undefined) payload.roomTypes = input.roomTypes;
   } else {
     payload.menu = input.menu;
     payload.food_category = input.foodCategory as FoodCategory;
@@ -1342,7 +1354,10 @@ export async function updateProviderListing(
     restaurent?: RestaurantRecord;
   }>(path, token, {
     method: "PATCH",
-    body: listingPayload(kind, input, { creating: false }),
+    body: {
+      ...listingPayload(kind, input, { creating: false }),
+      districtId: input.districtId,
+    },
     fallback: "Could not save the service",
   });
 

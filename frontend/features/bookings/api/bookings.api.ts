@@ -1,5 +1,6 @@
 import { api } from "@/lib/api/client";
 import type {
+  BookingDetailResponse,
   CommonGuideBooking,
   CreateCommonGuideBookingInput,
   CreateSpecificGuideBookingInput,
@@ -8,6 +9,10 @@ import type {
   SpecificGuideBooking,
 } from "@/features/bookings/types";
 import { listReservations } from "@/features/reservations/api/reservations.api";
+
+export async function getBookingById(bookingId: string): Promise<BookingDetailResponse> {
+  return api.get<BookingDetailResponse>(`/users/booking/api/bookings/${bookingId}`);
+}
 
 export async function createSpecificGuideBooking(
   input: CreateSpecificGuideBookingInput

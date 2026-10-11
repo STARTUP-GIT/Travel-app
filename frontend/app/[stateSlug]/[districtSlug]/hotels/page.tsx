@@ -4,7 +4,7 @@ import { Hotel } from "lucide-react";
 
 import { ScreenHeader } from "@/components/shared/screen-header";
 import { EmptyState } from "@/components/shared/states";
-import { HotelCard } from "@/features/hotels/ui/hotel-card";
+import { HotelListWithFilters } from "@/features/hotels/ui/hotel-list-with-filters";
 import { getHotelsForDistrict } from "@/features/hotels/api/hotels.api";
 import { resolveStateDistrict, tryStateDistrict } from "@/features/locations/server";
 import { DistrictUnavailable } from "@/components/shared/district-unavailable";
@@ -46,7 +46,7 @@ export default async function HotelsPage({
   );
 
   return (
-    <div className="pb-6">
+    <div className="pb-8">
       <ScreenHeader
         title="Hotels"
         subtitle={`${district.name} district · ${hotels.length} stay${hotels.length === 1 ? "" : "s"}`}
@@ -60,18 +60,15 @@ export default async function HotelsPage({
             description={`There are no approved hotels in ${district.name} right now. Check back soon!`}
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {hotels.map((hotel) => (
-              <HotelCard
-                key={hotel.id}
-                hotel={hotel}
-                districtSlug={district.slug}
-                stateSlug={state.slug}
-              />
-            ))}
-          </div>
+          <HotelListWithFilters
+            hotels={hotels}
+            districtSlug={district.slug}
+            stateSlug={state.slug}
+            districtName={district.name}
+          />
         )}
       </div>
     </div>
   );
 }
+

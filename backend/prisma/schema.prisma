@@ -528,6 +528,50 @@ model hotel {
   updatedAt             DateTime @updatedAt
   district              district @relation(fields: [districtId], references: [id])
   bookings              hotel_booking[]
+
+  // Additive fields for hotel details, declared star classification, map link & check-in/out policies
+  star_rating           Int?
+  maps_url              String?
+  check_in_time_type    String?
+  check_in_time         String?
+  check_in_start_time   String?
+  check_in_end_time     String?
+  check_out_time_type   String?
+  check_out_time        String?
+  check_out_start_time  String?
+  check_out_end_time    String?
+  room_types            hotel_room_type[]
+}
+
+model hotel_room_type {
+  id                    String    @id @default(uuid())
+  hotelId               String
+  hotel                 hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  title                 String
+  description           String
+  category              String?
+  roomType              String    @default("AC")
+  maxOccupancy          Int       @default(2)
+  availableRooms        Int       @default(1)
+  pricePerNight         Float     @default(0)
+  roomOverviewPhoto     String
+  bathroomPhoto         String
+  images                String[]  @default([])
+  hasHotWater           Boolean   @default(true)
+  hotWaterCharge        Float?
+  hasTv                 Boolean   @default(true)
+  hasAttachedBathroom   Boolean   @default(true)
+  hasWifi               Boolean   @default(true)
+  facilities            String[]  @default([])
+  additionalServices    Json?
+  conditions            String?
+  isActive              Boolean   @default(true)
+  displayOrder          Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  bookings              hotel_booking[]
+
+  @@index([hotelId])
 }
 
 model  restaurent {
@@ -598,6 +642,13 @@ model hotel_booking {
   updatedAt     DateTime    @updatedAt
   hotel         hotel       @relation(fields: [hotelId], references: [id], onDelete: Cascade)
   user          user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Additive fields for room types, booking snapshot, notes and payment status
+  roomTypeId      String?
+  roomType        hotel_room_type? @relation(fields: [roomTypeId], references: [id], onDelete: SetNull)
+  bookingSnapshot Json?
+  notes           String?
+  paymentStatus   String           @default("NOT_VERIFIED")
 }
 
 model restaurant_reservation {

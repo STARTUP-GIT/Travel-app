@@ -150,6 +150,11 @@ export type common_guide_booking_places = Prisma.common_guide_booking_placesMode
  */
 export type hotel = Prisma.hotelModel
 /**
+ * Model hotel_room_type
+ * 
+ */
+export type hotel_room_type = Prisma.hotel_room_typeModel
+/**
  * Model restaurent
  * 
  */

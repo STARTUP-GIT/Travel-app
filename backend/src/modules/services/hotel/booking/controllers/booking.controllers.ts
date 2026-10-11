@@ -31,6 +31,7 @@ export const getOwnerBookings = async (req: Request, res: Response) => {
       where: { hotelId: { in: hotelIds } },
       include: {
         hotel: true,
+        roomType: true,
         user: { select: userSafeSelect },
       },
       orderBy: { createdAt: "desc" },
@@ -60,6 +61,7 @@ export const getOwnerBookingById = async (req: Request, res: Response) => {
       where: { id: bookingId },
       include: {
         hotel: true,
+        roomType: true,
         user: { select: userSafeSelect },
       },
     });
@@ -119,13 +121,26 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedBooking = await prisma.hotel_booking.update({
-      where: { id: bookingId },
-      data: { status },
-      include: {
-        hotel: true,
-        user: { select: userSafeSelect },
-      },
+    const updatedBooking = await prisma.$transaction(async (tx) => {
+      const isCancellation = status === "CANCELLED" || status === "REJECTED";
+      const wasActive = booking.status === "PENDING" || booking.status === "CONFIRMED";
+
+      if (isCancellation && wasActive && booking.roomTypeId) {
+        await tx.hotel_room_type.update({
+          where: { id: booking.roomTypeId },
+          data: { availableRooms: { increment: booking.rooms } },
+        });
+      }
+
+      return await tx.hotel_booking.update({
+        where: { id: bookingId },
+        data: { status },
+        include: {
+          hotel: true,
+          user: { select: userSafeSelect },
+          roomType: true,
+        },
+      });
     });
 
     return res.status(200).json({

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, Compass, Eye, Hotel, Printer, RefreshCw, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, Compass, Eye, FileText, Hotel, Printer, RefreshCw, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 
 import { AuthGate } from "@/components/shared/auth-gate";
@@ -141,7 +141,7 @@ function RowShell({
   );
 
   const inner = (
-    <div className="card-surface flex w-full items-center gap-3 rounded-2xl p-3">
+    <div className="card-surface flex w-full items-center gap-3 rounded-2xl p-3 hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer">
       {img}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{title}</p>
@@ -154,7 +154,7 @@ function RowShell({
 
   if (!href) return inner;
   return (
-    <Link href={href} className="block">
+    <Link href={href} className="block group">
       {inner}
     </Link>
   );
@@ -162,38 +162,58 @@ function RowShell({
 
 function HotelRow({ booking }: { booking: HotelBooking }) {
   return (
-    <RowShell
-      image={booking.hotel?.images?.[0] ?? booking.hotel?.profile_logo}
-      title={booking.hotel?.name ?? "Hotel stay"}
-      subtitle={`${booking.checkIn ? `Check-in ${booking.checkIn}` : ""}${booking.checkOut ? ` → ${booking.checkOut}` : ""}`}
-      meta={`${booking.rooms || 1} room(s) · ${booking.guests || 1} guest(s)`}
-      status={booking.status}
-      href={booking.hotel ? `/explore` : null}
-    />
+    <div className="space-y-2">
+      <RowShell
+        image={booking.hotel?.images?.[0] ?? booking.hotel?.profile_logo}
+        title={booking.hotel?.name ?? "Hotel stay"}
+        subtitle={`${booking.checkIn ? `Check-in ${booking.checkIn}` : ""}${booking.checkOut ? ` → ${booking.checkOut}` : ""}`}
+        meta={`${booking.rooms || 1} room(s) · ${booking.guests || 1} guest(s)`}
+        status={booking.status}
+        href={`/bookings/${booking.id}`}
+      />
+      <div className="flex justify-end gap-2 px-1">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+        >
+          <Link href={`/bookings/${booking.id}`}>
+            <FileText className="size-3.5 text-primary" /> View Details
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 
 function ReservationRow({ booking }: { booking: RestaurantReservation }) {
   return (
-    <RowShell
-      image={booking.restaurent?.images?.[0] ?? booking.restaurent?.profile_logo}
-      title={booking.restaurent?.name ?? "Restaurant reservation"}
-      subtitle={`${booking.reservationDate ?? ""} · ${booking.guests ?? 1} guest(s)`}
-      status={booking.status}
-      href="/explore"
-    />
+    <div className="space-y-2">
+      <RowShell
+        image={booking.restaurent?.images?.[0] ?? booking.restaurent?.profile_logo}
+        title={booking.restaurent?.name ?? "Restaurant reservation"}
+        subtitle={`${booking.reservationDate ?? ""} · ${booking.guests ?? 1} guest(s)`}
+        status={booking.status}
+        href={`/bookings/${booking.id}`}
+      />
+      <div className="flex justify-end gap-2 px-1">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+        >
+          <Link href={`/bookings/${booking.id}`}>
+            <FileText className="size-3.5 text-primary" /> View Details
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 
 function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
-  const district = booking.place?.district;
-  const districtSlug = district ? slugify(district.name) : null;
-  const stateSlug = district?.state?.name ? slugify(district.state.name) : null;
-  const href =
-    districtSlug && stateSlug
-      ? `/${stateSlug}/${districtSlug}/guides/${booking.specificGuideId}`
-      : null;
-
   const [openTrack, setOpenTrack] = React.useState(false);
   const [openPrint, setOpenPrint] = React.useState(false);
   const [locData, setLocData] = React.useState<{
@@ -207,7 +227,8 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
     error: string | null;
   }>({ loading: false, data: null, error: null });
 
-  const fetchLocation = async () => {
+  const fetchLocation = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     setOpenTrack(true);
     setLocData({ loading: true, data: null, error: null });
     try {
@@ -226,15 +247,28 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
         subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
         meta={booking.requestTicketAssistance ? "Ticket purchasing assistance requested" : undefined}
         status={booking.status}
-        href={href}
+        href={`/bookings/${booking.id}`}
       />
       <div className="flex justify-end gap-2 px-1">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+        >
+          <Link href={`/bookings/${booking.id}`}>
+            <FileText className="size-3.5 text-primary" /> View Details
+          </Link>
+        </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
           className="h-8 rounded-xl text-xs gap-1.5"
-          onClick={() => setOpenPrint(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenPrint(true);
+          }}
         >
           <Eye className="size-3.5 text-primary" /> View Confirmation
         </Button>
@@ -243,7 +277,8 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
           size="sm"
           variant="outline"
           className="h-8 rounded-xl text-xs gap-1.5"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setOpenPrint(true);
             setTimeout(() => window.print(), 200);
           }}
@@ -275,6 +310,9 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
           guideName: booking.specificGuide?.full_name,
           guidePhone: booking.specificGuide?.phone,
           guideEmail: booking.specificGuide?.email,
+          customerName: booking.user?.name,
+          customerEmail: booking.user?.email,
+          customerPhone: booking.user?.phonenumber,
           places: booking.place ? [{ id: booking.place.id, name: booking.place.name, districtName: booking.place.district?.name }] : [],
           numberOfPeople: booking.numberOfPeople || 1,
           bookingDate: booking.bookingDate,
@@ -341,7 +379,6 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
 }
 
 function CommonRow({ booking }: { booking: CommonGuideBooking }) {
-  const firstName = booking.selectedPlaces?.find((p) => p.place?.name)?.place?.name;
   const [openPrint, setOpenPrint] = React.useState(false);
 
   return (
@@ -352,15 +389,28 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
         subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
         meta={booking.selectedPlaces?.map((p) => p.place?.name).filter(Boolean).join(", ")}
         status={booking.status}
-        href={firstName ? "/explore" : null}
+        href={`/bookings/${booking.id}`}
       />
       <div className="flex justify-end gap-2 px-1">
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-xl text-xs gap-1.5"
+        >
+          <Link href={`/bookings/${booking.id}`}>
+            <FileText className="size-3.5 text-primary" /> View Details
+          </Link>
+        </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
           className="h-8 rounded-xl text-xs gap-1.5"
-          onClick={() => setOpenPrint(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenPrint(true);
+          }}
         >
           <Eye className="size-3.5 text-primary" /> View Confirmation
         </Button>
@@ -369,7 +419,8 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
           size="sm"
           variant="outline"
           className="h-8 rounded-xl text-xs gap-1.5"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setOpenPrint(true);
             setTimeout(() => window.print(), 200);
           }}
@@ -393,6 +444,9 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
           guideName: booking.commonGuide?.full_name,
           guidePhone: booking.commonGuide?.phone,
           guideEmail: booking.commonGuide?.email,
+          customerName: booking.user?.name,
+          customerEmail: booking.user?.email,
+          customerPhone: booking.user?.phonenumber,
           specificGuideName: booking.specificGuide?.full_name,
           specificGuidePhone: booking.specificGuide?.phone,
           specificGuideStatus: booking.specificGuideStatus,

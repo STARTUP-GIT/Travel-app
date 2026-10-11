@@ -10,6 +10,7 @@ import {
   getUserSpecificGuideBookings,
   getUserCommonGuideBookings,
   getSpecificGuideLocation,
+  getUserBookingById,
 } from "../controllers/booking.controller.js";
 
 const router = express.Router();
@@ -23,5 +24,6 @@ router.get("/api/specific-guide-bookings", userauthMiddleware, getUserSpecificGu
 router.get("/api/specific-guide-location/:bookingId", userauthMiddleware, getSpecificGuideLocation);
 router.post("/api/common-guide-bookings", userauthMiddleware, createCommonGuideBooking);
 router.get("/api/common-guide-bookings", userauthMiddleware, getUserCommonGuideBookings);
+router.get("/api/bookings/:bookingId", userauthMiddleware, getUserBookingById);
 
 export default router;

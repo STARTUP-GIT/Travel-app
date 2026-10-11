@@ -26,6 +26,33 @@ export type RestaurentOwnerRecord = {
   updatedAt: Date;
 };
 
+export type HotelRoomTypeRecord = {
+  id: string;
+  hotelId: string;
+  title: string;
+  description: string;
+  category?: string | null;
+  roomType: string;
+  maxOccupancy: number;
+  availableRooms: number;
+  pricePerNight: number;
+  roomOverviewPhoto: string;
+  bathroomPhoto: string;
+  images: string[];
+  hasHotWater: boolean;
+  hotWaterCharge?: number | null;
+  hasTv: boolean;
+  hasAttachedBathroom: boolean;
+  hasWifi: boolean;
+  facilities: string[];
+  additionalServices?: any;
+  conditions?: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type HotelRecord = {
   id: string;
   name: string;
@@ -45,6 +72,16 @@ export type HotelRecord = {
   website: string | null;
   booking_enabled: boolean;
   hotelOwnerId: string;
+  star_rating?: number | null;
+  maps_url?: string | null;
+  check_in_time_type?: string | null;
+  check_in_time?: string | null;
+  check_in_start_time?: string | null;
+  check_in_end_time?: string | null;
+  check_out_time_type?: string | null;
+  check_out_time?: string | null;
+  check_out_start_time?: string | null;
+  check_out_end_time?: string | null;
   createdAt: Date;
   updatedAt: Date;
   district?: {
@@ -53,6 +90,7 @@ export type HotelRecord = {
     isServiceAvailable: boolean;
   };
   hotel_owner?: HotelOwnerRecord;
+  room_types?: HotelRoomTypeRecord[];
 };
 
 export type RestaurentRecord = {
@@ -108,6 +146,10 @@ export type HotelBookingRecord = {
   rooms: number;
   totalAmount: number;
   status: bookingStatus;
+  roomTypeId?: string | null;
+  bookingSnapshot?: any;
+  notes?: string | null;
+  paymentStatus?: string;
   createdAt: Date;
   updatedAt: Date;
   hotel?: {
@@ -120,7 +162,12 @@ export type HotelBookingRecord = {
     booking_enabled: boolean;
     phone_number: string | null;
     whatsapp_number: string | null;
+    maps_url?: string | null;
+    star_rating?: number | null;
+    check_in_time?: string | null;
+    check_out_time?: string | null;
   };
+  roomType?: HotelRoomTypeRecord | null;
   user?: UserRecord;
 };
 
@@ -161,6 +208,7 @@ export interface OwnerQueryClient {
   hotel_owner: OwnerDelegate<HotelOwnerRecord>;
   restaurent_owner: OwnerDelegate<RestaurentOwnerRecord>;
   hotel: OwnerDelegate<HotelRecord>;
+  hotel_room_type: OwnerDelegate<HotelRoomTypeRecord>;
   restaurent: OwnerDelegate<RestaurentRecord>;
   hotel_booking: OwnerDelegate<HotelBookingRecord>;
   restaurant_reservation: OwnerDelegate<RestaurantReservationRecord>;

@@ -270,16 +270,6 @@ export async function uploadProfilePhoto(
   });
 }
 
-/**
- * Uploads the photo chosen on the sign-up form using the backend token the
- * registration just produced.
- *
- * Sign-up is the one flow with no session to authenticate with, and the upload
- * endpoint requires one, so the photo is sent after the account exists: the
- * account is created, signed in, and only then is the file uploaded with that
- * fresh session. `profilePic` is never part of the signup payload, so the
- * backend never receives a hand-typed URL.
- */
 export async function uploadSignupPhoto(
   kind: ProviderKind,
   email: string,
@@ -287,11 +277,40 @@ export async function uploadSignupPhoto(
   file: File
 ): Promise<ActionResult<string>> {
   return run(async () => {
-    // Re-authenticating here is what gives the upload a valid token: the signup
-    // POST itself returns no session, and the endpoint rejects anonymous files.
     const token = await signinWithEmail(kind, email, password);
     return uploadImageWithToken(token, file, PROFILE_PHOTO_FOLDER);
   });
+}
+
+export async function uploadHotelPhoto(
+  file: File,
+  folder: "hotel_profile" | "hotel_rooms" | "hotel_bathrooms" = "hotel_profile"
+): Promise<ActionResult<string>> {
+  return run(async () => {
+    const session = await requireProviderSession("/services");
+    return uploadImageWithToken(session.token, file, folder);
+  });
+}
+
+export async function resolveLocationLink(
+  url: string
+): Promise<ActionResult<{ latitude: number; longitude: number }>> {
+  return run(async () => {
+    const session = await requireProviderSession("/services");
+    const coords = await resolvePlaceCoordinates(session.token, url);
+    if (!coords) {
+      throw new Error("Could not resolve coordinates from this Google Maps link. Please verify the link.");
+    }
+    return coords;
+  });
+}
+
+export async function fetchStates(): Promise<StateRef[]> {
+  return getStates().catch(() => []);
+}
+
+export async function fetchDistrictsByState(stateId: string): Promise<DistrictRef[]> {
+  return getDistrictsByState(stateId).catch(() => []);
 }
 
 /* -------------------------------------------------------------------------- */

@@ -1,6 +1,6 @@
 import express from "express";
 
-import { adminAuthMiddleware, guideAuthMiddleware } from "../../../middlewares/auth.midleware.js";
+import { adminAuthMiddleware, guideAuthMiddleware, anyAuthMiddleware } from "../../../middlewares/auth.midleware.js";
 import { districtServiceMiddleware } from "../../../middlewares/districtService.middleware.js";
 // The same controller the admin place form calls, so a guide's Google Maps link
 // is resolved by exactly the code the admin's is: one resolver, one message, one
@@ -41,9 +41,9 @@ router.get(
   getManageablePlacesByDistrict
 );
 
-// A guide pastes a Google Maps link instead of typing coordinates; the shared
-// resolver turns it into the latitude/longitude the place row needs.
-router.post("/api/places/resolve-location", guideAuthMiddleware, resolvePlaceLocation);
+// A provider pastes a Google Maps link instead of typing coordinates; the shared
+// resolver turns it into the latitude/longitude the record needs.
+router.post("/api/places/resolve-location", anyAuthMiddleware, resolvePlaceLocation);
 
 router.get("/api/places/:placeId", getPlaceById);
 
