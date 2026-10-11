@@ -292,6 +292,16 @@ export async function uploadHotelPhoto(
   });
 }
 
+export async function uploadRestaurantPhoto(
+  file: File,
+  folder: "restaurant_profile" | "restaurant_dishes" | "restaurant_branches" = "restaurant_profile"
+): Promise<ActionResult<string>> {
+  return run(async () => {
+    const session = await requireProviderSession("/services");
+    return uploadImageWithToken(session.token, file, folder);
+  });
+}
+
 export async function resolveLocationLink(
   url: string
 ): Promise<ActionResult<{ latitude: number; longitude: number }>> {

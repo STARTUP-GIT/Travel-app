@@ -285,41 +285,171 @@ export const getUserHotelBookings = async (req: Request, res: Response) => {
   }
 };
 
+function parseTimeToMinutes(timeStr?: string | null): number | null {
+  if (!timeStr) return null;
+  const clean = timeStr.trim().toUpperCase();
+  const match12 = clean.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+  if (match12 && match12[1] && match12[2] && match12[3]) {
+    let hours = parseInt(match12[1], 10);
+    const minutes = parseInt(match12[2], 10);
+    const period = match12[3];
+    if (period === "PM" && hours < 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  }
+  const match24 = clean.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24 && match24[1] && match24[2]) {
+    const hours = parseInt(match24[1], 10);
+    const minutes = parseInt(match24[2], 10);
+    return hours * 60 + minutes;
+  }
+  return null;
+}
+
+export function isTimeWithinOperatingHours(resTime?: string | null, openTime?: string | null, closeTime?: string | null): boolean {
+  if (!resTime || !openTime || !closeTime) return true;
+  const resMin = parseTimeToMinutes(resTime);
+  const openMin = parseTimeToMinutes(openTime);
+  const closeMin = parseTimeToMinutes(closeTime);
+  if (resMin === null || openMin === null || closeMin === null) return true;
+
+  if (openMin <= closeMin) {
+    return resMin >= openMin && resMin <= closeMin;
+  } else {
+    // Overnight hours (e.g. 06:00 PM to 02:00 AM)
+    return resMin >= openMin || resMin <= closeMin;
+  }
+}
+
 export const createRestaurantReservation = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const data = restaurantReservationSchema.parse(req.body);
 
-    const restaurent = await ownerPrisma.restaurent.findUnique({
+    const restaurent = await prisma.restaurent.findUnique({
       where: { id: data.restaurantId },
+      include: {
+        district: {
+          include: {
+            state: true,
+          },
+        },
+        parent_restaurant: {
+          include: {
+            district: true,
+          },
+        },
+      },
     });
 
     if (!restaurent) {
-      return res.status(404).json({ message: "Restaurent not found" });
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
+    if (restaurent.status !== "APPROVED") {
+      return res.status(400).json({
+        message: "This restaurant listing is not currently approved for reservations",
+      });
     }
 
     if (!restaurent.booking_enabled) {
       return res.status(400).json({
-        message: "Reservation is not available for this restaurent",
+        message: "Online table reservations are not enabled for this restaurant",
       });
     }
 
-    const district = await findDistrictWithHierarchy(restaurent.districtId);
-
-    if (!district || !isDistrictAvailable(district)) {
+    if (!restaurent.district?.isServiceAvailable || !restaurent.district?.state?.isServiceAvailable) {
       return res.status(400).json({
         message: "Reservation is not available for this location",
       });
     }
 
-    const reservation = await ownerPrisma.restaurant_reservation.create({
+    // Operating hours check
+    if (data.reservationTime && restaurent.opening_time && restaurent.closing_time) {
+      const withinHours = isTimeWithinOperatingHours(
+        data.reservationTime,
+        restaurent.opening_time,
+        restaurent.closing_time
+      );
+
+      if (!withinHours) {
+        return res.status(400).json({
+          message: `The restaurant operates between ${restaurent.opening_time} and ${restaurent.closing_time}. Please select a time within operating hours.`,
+        });
+      }
+    }
+
+    // Concurrency / duplicate submission prevention (within 30 seconds)
+    const recentReservation = await prisma.restaurant_reservation.findFirst({
+      where: {
+        restaurantId: data.restaurantId,
+        userId,
+        reservationDate: new Date(data.reservationDate),
+        ...(data.reservationTime ? { reservationTime: data.reservationTime } : {}),
+        createdAt: {
+          gte: new Date(Date.now() - 30 * 1000),
+        },
+      },
+      include: {
+        restaurent: {
+          include: {
+            district: true,
+            parent_restaurant: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    if (recentReservation) {
+      return res.status(200).json({
+        message: "Restaurant reservation created successfully",
+        reservation: recentReservation,
+      });
+    }
+
+    const snapshot = {
+      restaurantId: restaurent.id,
+      restaurantName: restaurent.name,
+      address: restaurent.address,
+      mapsUrl: restaurent.maps_url,
+      phone: restaurent.phone_number,
+      whatsapp: restaurent.whatsapp_number,
+      openingTime: restaurent.opening_time,
+      closingTime: restaurent.closing_time,
+      foodCategory: restaurent.food_category,
+      reservationDate: data.reservationDate,
+      reservationTime: data.reservationTime ?? null,
+      guests: data.guests,
+      notes: data.notes ?? null,
+      districtName: restaurent.district?.name ?? null,
+      stateName: restaurent.district?.state?.name ?? null,
+      isBranch: Boolean(restaurent.parent_restaurant_id),
+      parentRestaurantName: restaurent.parent_restaurant?.name ?? null,
+    };
+
+    const reservation = await prisma.restaurant_reservation.create({
       data: {
         restaurantId: data.restaurantId,
         userId,
-        reservationDate: data.reservationDate,
+        reservationDate: new Date(data.reservationDate),
+        reservationTime: data.reservationTime ?? null,
         guests: data.guests,
+        notes: data.notes ?? null,
+        reservationSnapshot: snapshot,
       },
-      include: { restaurent: true, user: true },
+      include: {
+        restaurent: {
+          include: {
+            district: true,
+            parent_restaurant: true,
+          },
+        },
+        user: true,
+      },
     });
 
     return res.status(201).json({
@@ -346,10 +476,20 @@ export const createRestaurantReservation = async (req: Request, res: Response) =
 export const getUserRestaurantReservations = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-    const reservations = await ownerPrisma.restaurant_reservation.findMany({
+    const reservations = await prisma.restaurant_reservation.findMany({
       where: { userId },
-      include: { restaurent: true },
+      include: {
+        restaurent: {
+          include: {
+            district: true,
+            parent_restaurant: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -1004,10 +1144,23 @@ export const getUserBookingById = async (req: Request, res: Response) => {
     }
 
     // 4. Check Restaurant Reservation
-    const reservation = await ownerPrisma.restaurant_reservation.findFirst({
+    const reservation = await prisma.restaurant_reservation.findFirst({
       where: { id: bookingId, userId },
       include: {
-        restaurent: true,
+        restaurent: {
+          include: {
+            district: {
+              include: {
+                state: true,
+              },
+            },
+            parent_restaurant: {
+              include: {
+                district: true,
+              },
+            },
+          },
+        },
         user: { select: userSafeSelect },
       },
     });

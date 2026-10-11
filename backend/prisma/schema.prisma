@@ -600,6 +600,33 @@ model  restaurent {
   updatedAt             DateTime @updatedAt
   district              district @relation(fields: [districtId], references: [id])
   reservations          restaurant_reservation[]
+
+  // Additive fields for map link, operating hours, branch management and structured dishes
+  maps_url              String?
+  opening_time          String?
+  closing_time          String?
+  has_branches          Boolean   @default(false)
+  parent_restaurant_id  String?
+  parent_restaurant     restaurent? @relation("RestaurantBranches", fields: [parent_restaurant_id], references: [id], onDelete: Cascade)
+  branches              restaurent[] @relation("RestaurantBranches")
+  dishes                restaurant_dish[]
+}
+
+model restaurant_dish {
+  id            String   @id @default(uuid())
+  restaurantId  String
+  restaurant    restaurent @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name          String
+  description   String?
+  foodCategory  Food_Category @default(VEG_AND_NONVEG)
+  price         Float?
+  image         String?
+  isAvailable   Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([restaurantId])
 }
 
 model hotel_owner {
@@ -662,6 +689,11 @@ model restaurant_reservation {
   updatedAt     DateTime    @updatedAt
   restaurent    restaurent  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   user          user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Additive fields for reservation time, notes and snapshot
+  reservationTime     String?
+  notes               String?
+  reservationSnapshot Json?
 }
 
 // model tranport {

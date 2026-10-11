@@ -227,3 +227,117 @@ export function emptyHotel(): HotelFormValues {
   };
 }
 
+export const restaurantDishSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().trim().min(1, "Dish name is required"),
+  description: z.string().trim().default(""),
+  foodCategory: z.enum(["PUREVEG", "NONVEG", "VEG_AND_NONVEG"]).default("VEG_AND_NONVEG"),
+  price: z.coerce.number().min(0, "Price cannot be negative").nullable().optional(),
+  image: z.string().trim().optional(),
+  isAvailable: z.boolean().default(true),
+  displayOrder: z.number().int().default(0),
+});
+
+export type RestaurantDishValues = z.infer<typeof restaurantDishSchema>;
+
+export const restaurantBranchSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().trim().min(1, "Branch name is required"),
+  address: z.string().trim().min(1, "Address is required"),
+  stateId: z.string().min(1, "Select state for branch"),
+  districtId: z.string().min(1, "Select district for branch"),
+  mapsUrl: z.string().trim().optional(),
+  latitude: z.coerce.number().default(0),
+  longitude: z.coerce.number().default(0),
+  phone: z.string().trim().default(""),
+  whatsapp: z.string().trim().default(""),
+  email: z.string().trim().default(""),
+  openingTime: z.string().trim().default(""),
+  closingTime: z.string().trim().default(""),
+  bookingEnabled: z.boolean().default(true),
+  profileLogo: z.string().trim().default(""),
+  images: z.array(z.string()).default([]),
+});
+
+export type RestaurantBranchValues = z.infer<typeof restaurantBranchSchema>;
+
+export const restaurantFormSchema = z.object({
+  name: z.string().trim().min(1, "Restaurant name is required"),
+  address: z.string().trim().min(1, "Physical address is required"),
+  profileLogo: z.string().trim().min(1, "Cover photo is required"),
+  stateId: z.string().min(1, "Choose a state"),
+  districtId: z.string().min(1, "Choose a district"),
+  description: z.string().trim().default(""),
+  mapsUrl: z.string().trim().default(""),
+  phone: z.string().trim().regex(/^[0-9+\-\s]{10,15}$/, "Enter a valid phone number").or(z.literal("")).default(""),
+  whatsapp: z.string().trim().regex(/^[0-9+\-\s]{10,15}$/, "Enter a valid WhatsApp number").or(z.literal("")).default(""),
+  email: z.string().trim().email("Enter a valid email").or(z.literal("")).default(""),
+  website: z.string().trim().url("Enter a valid website URL starting with https://").or(z.literal("")).default(""),
+  foodCategory: z.enum(["PUREVEG", "NONVEG", "VEG_AND_NONVEG"]).default("VEG_AND_NONVEG"),
+  openingTime: z.string().trim().default("09:00 AM"),
+  closingTime: z.string().trim().default("10:30 PM"),
+  bookingEnabled: z.boolean().default(true),
+  hasBranches: z.boolean().default(false),
+  images: z.array(z.string()).default([]),
+  dishes: z.array(restaurantDishSchema).default([]),
+  branches: z.array(restaurantBranchSchema).default([]),
+});
+
+export type RestaurantFormValues = z.infer<typeof restaurantFormSchema>;
+
+export function emptyRestaurantDish(order = 0): RestaurantDishValues {
+  return {
+    name: "",
+    description: "",
+    foodCategory: "VEG_AND_NONVEG",
+    price: 250,
+    image: "",
+    isAvailable: true,
+    displayOrder: order,
+  };
+}
+
+export function emptyRestaurantBranch(parentName = ""): RestaurantBranchValues {
+  return {
+    name: parentName,
+    address: "",
+    stateId: "",
+    districtId: "",
+    mapsUrl: "",
+    latitude: 0,
+    longitude: 0,
+    phone: "",
+    whatsapp: "",
+    email: "",
+    openingTime: "09:00 AM",
+    closingTime: "10:30 PM",
+    bookingEnabled: true,
+    profileLogo: "",
+    images: [],
+  };
+}
+
+export function emptyRestaurant(): RestaurantFormValues {
+  return {
+    name: "",
+    address: "",
+    profileLogo: "",
+    stateId: "",
+    districtId: "",
+    description: "",
+    mapsUrl: "",
+    phone: "",
+    whatsapp: "",
+    email: "",
+    website: "",
+    foodCategory: "VEG_AND_NONVEG",
+    openingTime: "09:00 AM",
+    closingTime: "10:30 PM",
+    bookingEnabled: true,
+    hasBranches: false,
+    images: [],
+    dishes: [emptyRestaurantDish(0)],
+    branches: [],
+  };
+}
+

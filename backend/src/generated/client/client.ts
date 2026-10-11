@@ -160,6 +160,11 @@ export type hotel_room_type = Prisma.hotel_room_typeModel
  */
 export type restaurent = Prisma.restaurentModel
 /**
+ * Model restaurant_dish
+ * 
+ */
+export type restaurant_dish = Prisma.restaurant_dishModel
+/**
  * Model hotel_owner
  * 
  */

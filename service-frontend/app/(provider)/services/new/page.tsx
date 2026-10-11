@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 
 import { BackLink } from "@/components/shared/screen-header";
 import { PageHeader } from "@/components/shared/page-header";
-import { VenueForm } from "@/features/provider/components/venue-form";
 import { HotelForm } from "@/features/provider/components/hotel-form";
-import { getDistricts, getStates } from "@/features/locations/api/locations.api";
+import { RestaurantForm } from "@/features/provider/components/restaurant-form";
+import { getStates } from "@/features/locations/api/locations.api";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 
 export const metadata: Metadata = { title: "Add a listing" };
@@ -18,8 +18,9 @@ export default async function NewServicePage() {
     redirect("/services");
   }
 
+  const states = await getStates().catch(() => []);
+
   if (session.kind === "hotel") {
-    const states = await getStates().catch(() => []);
     return (
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <BackLink href="/services" />
@@ -37,20 +38,19 @@ export default async function NewServicePage() {
     );
   }
 
-  const districts = await getDistricts().catch(() => []);
-
   return (
-    <div className="app-container max-w-2xl">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
       <BackLink href="/services" />
       <PageHeader
         title="Add a restaurant"
         description="Everything here is shown to travellers once the platform approves the listing."
       />
-      <VenueForm
-        kind="restaurant"
-        districts={districts}
-        submitLabel="Submit for review"
-      />
+      <div className="mt-6">
+        <RestaurantForm
+          submitLabel="Submit for review"
+          initialStates={states}
+        />
+      </div>
     </div>
   );
 }

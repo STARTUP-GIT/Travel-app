@@ -28,7 +28,9 @@ export async function getRestaurantsForDistrict(
   if (!districtId) return [];
   const restaurants = await getRestaurants(districtId);
   return restaurants.filter(
-    (r) => (r.districtId ?? r.district?.id) === districtId
+    (r) =>
+      (r.districtId ?? r.district?.id) === districtId ||
+      r.branches?.some((b) => (b.districtId ?? b.district?.id) === districtId)
   );
 }
 

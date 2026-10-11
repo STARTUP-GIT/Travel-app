@@ -43,6 +43,9 @@ export type RestaurantReservation = {
   restaurantId: string;
   userId: string;
   reservationDate: string;
+  reservationTime?: string | null;
+  notes?: string | null;
+  reservationSnapshot?: any;
   guests: number;
   status: BookingStatus;
   createdAt: string;
@@ -181,7 +184,9 @@ export type CreateCommonGuideBookingInput = {
 export type CreateReservationInput = {
   restaurantId: string;
   reservationDate: string;
+  reservationTime?: string;
   guests: number;
+  notes?: string;
 };
 
 export type BookingDetailResponse =

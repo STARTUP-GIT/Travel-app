@@ -12,6 +12,21 @@ const userSafeSelect = {
   profilepic: true,
 } as const;
 
+const restaurantInclude = {
+  include: {
+    district: {
+      include: {
+        state: true,
+      },
+    },
+    parent_restaurant: {
+      include: {
+        district: true,
+      },
+    },
+  },
+} as const;
+
 export const getOwnerReservations = async (req: Request, res: Response) => {
   try {
     const ownerId = req.restaurent_owner;
@@ -30,7 +45,7 @@ export const getOwnerReservations = async (req: Request, res: Response) => {
     const reservations = await prisma.restaurant_reservation.findMany({
       where: { restaurantId: { in: restaurentIds } },
       include: {
-        restaurent: true,
+        restaurent: restaurantInclude,
         user: { select: userSafeSelect },
       },
       orderBy: { createdAt: "desc" },
@@ -59,7 +74,7 @@ export const getOwnerReservationById = async (req: Request, res: Response) => {
     const reservation = await prisma.restaurant_reservation.findUnique({
       where: { id: reservationId },
       include: {
-        restaurent: true,
+        restaurent: restaurantInclude,
         user: { select: userSafeSelect },
       },
     });
@@ -123,7 +138,7 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
       where: { id: reservationId },
       data: { status },
       include: {
-        restaurent: true,
+        restaurent: restaurantInclude,
         user: { select: userSafeSelect },
       },
     });

@@ -93,6 +93,20 @@ export type HotelRecord = {
   room_types?: HotelRoomTypeRecord[];
 };
 
+export type RestaurantDishRecord = {
+  id: string;
+  restaurantId: string;
+  name: string;
+  description: string | null;
+  foodCategory: Food_Category;
+  price: number | null;
+  image: string | null;
+  isAvailable: boolean;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type RestaurentRecord = {
   id: string;
   name: string;
@@ -113,6 +127,13 @@ export type RestaurentRecord = {
   website: string | null;
   booking_enabled: boolean;
   restaurentOwnerId: string;
+  maps_url?: string | null;
+  opening_time?: string | null;
+  closing_time?: string | null;
+  has_branches?: boolean;
+  parent_restaurant_id?: string | null;
+  branches?: RestaurentRecord[];
+  dishes?: RestaurantDishRecord[];
   createdAt: Date;
   updatedAt: Date;
   district?: {
@@ -178,6 +199,9 @@ export type RestaurantReservationRecord = {
   reservationDate: Date;
   guests: number;
   status: bookingStatus;
+  reservationTime?: string | null;
+  notes?: string | null;
+  reservationSnapshot?: any;
   createdAt: Date;
   updatedAt: Date;
   restaurent?: {
@@ -190,6 +214,9 @@ export type RestaurantReservationRecord = {
     booking_enabled: boolean;
     phone_number: string | null;
     whatsapp_number: string | null;
+    opening_time?: string | null;
+    closing_time?: string | null;
+    maps_url?: string | null;
   };
   user?: UserRecord;
 };
@@ -210,6 +237,7 @@ export interface OwnerQueryClient {
   hotel: OwnerDelegate<HotelRecord>;
   hotel_room_type: OwnerDelegate<HotelRoomTypeRecord>;
   restaurent: OwnerDelegate<RestaurentRecord>;
+  restaurant_dish: OwnerDelegate<RestaurantDishRecord>;
   hotel_booking: OwnerDelegate<HotelBookingRecord>;
   restaurant_reservation: OwnerDelegate<RestaurantReservationRecord>;
 }

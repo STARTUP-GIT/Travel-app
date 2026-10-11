@@ -1296,6 +1296,13 @@ function listingPayload(
   } else {
     payload.menu = input.menu;
     payload.food_category = input.foodCategory as FoodCategory;
+    if (input.mapsUrl !== undefined) payload.maps_url = input.mapsUrl || null;
+    if (input.stateId !== undefined) payload.stateId = input.stateId;
+    if (input.openingTime !== undefined) payload.opening_time = input.openingTime || null;
+    if (input.closingTime !== undefined) payload.closing_time = input.closingTime || null;
+    if (input.hasBranches !== undefined) payload.has_branches = Boolean(input.hasBranches);
+    if (input.branches !== undefined) payload.branches = input.branches;
+    if (input.dishes !== undefined) payload.dishes = input.dishes;
   }
 
   return payload;
@@ -1430,6 +1437,9 @@ type RawRestaurantReservation = {
   id: string;
   restaurantId: string;
   reservationDate: string;
+  reservationTime?: string | null;
+  notes?: string | null;
+  reservationSnapshot?: any;
   guests: number;
   status: RequestStatus;
   createdAt: string;
@@ -1574,11 +1584,12 @@ export async function getProviderRequests(
       status: row.status,
       date: row.reservationDate,
       endDate: null,
-      time: null,
+      time: row.reservationTime ?? null,
       guests: row.guests,
       rooms: null,
       amount: null,
       places: [],
+      notes: row.notes ?? null,
       createdAt: row.createdAt,
     }));
   }

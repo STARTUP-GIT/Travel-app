@@ -403,13 +403,44 @@ export const hotelUpdateSchema = z.object({
   roomTypes: z.array(hotelRoomTypeInputSchema).optional(),
 });
 
-export const restaurentCreateSchema = z.object({
-  name: z.string().min(1),
-  address: z.string().min(1),
-  profile_logo: z.string().min(1),
-  districtId: z.string().min(1),
+export const restaurantDishInputSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Dish name is required"),
   description: z.string().nullable().optional(),
-  rating: z.number().min(0).max(5),
+  foodCategory: z.nativeEnum(Food_Category).default(Food_Category.VEG_AND_NONVEG),
+  price: z.number().nonnegative().nullable().optional(),
+  image: z.string().nullable().optional(),
+  isAvailable: z.boolean().default(true),
+  displayOrder: z.number().int().optional(),
+});
+
+export const restaurantBranchInputSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Branch name is required"),
+  address: z.string().min(1, "Address is required"),
+  districtId: z.string().min(1, "District is required"),
+  stateId: z.string().optional(),
+  maps_url: z.string().nullable().optional(),
+  latitude: z.number(),
+  longitude: z.number(),
+  phone_number: z.string().nullable().optional(),
+  whatsapp_number: z.string().nullable().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  opening_time: z.string().nullable().optional(),
+  closing_time: z.string().nullable().optional(),
+  booking_enabled: z.boolean().default(true),
+  profile_logo: z.string().optional(),
+  images: z.array(z.string()).optional(),
+});
+
+export const restaurentCreateSchema = z.object({
+  name: z.string().min(1, "Restaurant name is required"),
+  address: z.string().min(1, "Address is required"),
+  profile_logo: z.string().min(1, "Cover photo is required"),
+  districtId: z.string().min(1, "District is required"),
+  stateId: z.string().optional(),
+  description: z.string().nullable().optional(),
+  rating: z.number().min(0).max(5).default(0),
   review: z.array(z.string()).optional(),
   menu: z.array(z.string()).optional(),
   food_category: z.nativeEnum(Food_Category).optional(),
@@ -418,15 +449,23 @@ export const restaurentCreateSchema = z.object({
   longitude: z.number(),
   phone_number: z.string().optional(),
   whatsapp_number: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  website: z.string().url().optional().or(z.literal("")),
   booking_enabled: z.boolean().optional(),
+  maps_url: z.string().nullable().optional(),
+  opening_time: z.string().nullable().optional(),
+  closing_time: z.string().nullable().optional(),
+  has_branches: z.boolean().optional(),
+  branches: z.array(restaurantBranchInputSchema).optional(),
+  dishes: z.array(restaurantDishInputSchema).optional(),
 });
 
 export const restaurentUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   address: z.string().min(1).optional(),
   profile_logo: z.string().min(1).optional(),
+  districtId: z.string().min(1).optional(),
+  stateId: z.string().optional(),
   description: z.string().nullable().optional(),
   rating: z.number().min(0).max(5).optional(),
   review: z.array(z.string()).optional(),
@@ -437,9 +476,15 @@ export const restaurentUpdateSchema = z.object({
   longitude: z.number().optional(),
   phone_number: z.string().optional(),
   whatsapp_number: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().url().optional(),
+  email: z.string().email().optional().or(z.literal("")),
+  website: z.string().url().optional().or(z.literal("")),
   booking_enabled: z.boolean().optional(),
+  maps_url: z.string().nullable().optional(),
+  opening_time: z.string().nullable().optional(),
+  closing_time: z.string().nullable().optional(),
+  has_branches: z.boolean().optional(),
+  branches: z.array(restaurantBranchInputSchema).optional(),
+  dishes: z.array(restaurantDishInputSchema).optional(),
 });
 
 const startOfToday = () => {
@@ -475,7 +520,9 @@ export const restaurantReservationSchema = z.object({
     .refine((date) => date >= startOfToday(), {
       message: "Reservation date must not be in the past",
     }),
-  guests: z.number().int().positive(),
+  reservationTime: z.string().min(1, "Reservation time is required").optional(),
+  guests: z.number().int().positive("Party size must be at least 1 person"),
+  notes: z.string().optional(),
 });
 
 export const specificGuideBookingSchema = z.object({

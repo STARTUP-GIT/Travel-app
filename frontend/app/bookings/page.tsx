@@ -188,12 +188,27 @@ function HotelRow({ booking }: { booking: HotelBooking }) {
 }
 
 function ReservationRow({ booking }: { booking: RestaurantReservation }) {
+  const formattedDate = booking.reservationDate
+    ? new Date(booking.reservationDate).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+  const timePart = booking.reservationTime ? ` at ${booking.reservationTime}` : "";
+  const guestsPart = `${booking.guests ?? 1} guest${(booking.guests ?? 1) === 1 ? "" : "s"}`;
+  const addressPart =
+    (booking as any).reservationSnapshot?.restaurantAddress ||
+    booking.restaurent?.address
+      ? ` · ${(booking as any).reservationSnapshot?.restaurantAddress || booking.restaurent?.address}`
+      : "";
+
   return (
     <div className="space-y-2">
       <RowShell
         image={booking.restaurent?.images?.[0] ?? booking.restaurent?.profile_logo}
         title={booking.restaurent?.name ?? "Restaurant reservation"}
-        subtitle={`${booking.reservationDate ?? ""} · ${booking.guests ?? 1} guest(s)`}
+        subtitle={`${formattedDate}${timePart} · ${guestsPart}${addressPart}`}
         status={booking.status}
         href={`/bookings/${booking.id}`}
       />

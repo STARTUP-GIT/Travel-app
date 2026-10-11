@@ -58,6 +58,11 @@ export type RestaurentMinAggregateOutputType = {
   restaurentOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  maps_url: string | null
+  opening_time: string | null
+  closing_time: string | null
+  has_branches: boolean | null
+  parent_restaurant_id: string | null
 }
 
 export type RestaurentMaxAggregateOutputType = {
@@ -80,6 +85,11 @@ export type RestaurentMaxAggregateOutputType = {
   restaurentOwnerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  maps_url: string | null
+  opening_time: string | null
+  closing_time: string | null
+  has_branches: boolean | null
+  parent_restaurant_id: string | null
 }
 
 export type RestaurentCountAggregateOutputType = {
@@ -105,6 +115,11 @@ export type RestaurentCountAggregateOutputType = {
   restaurentOwnerId: number
   createdAt: number
   updatedAt: number
+  maps_url: number
+  opening_time: number
+  closing_time: number
+  has_branches: number
+  parent_restaurant_id: number
   _all: number
 }
 
@@ -141,6 +156,11 @@ export type RestaurentMinAggregateInputType = {
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
+  maps_url?: true
+  opening_time?: true
+  closing_time?: true
+  has_branches?: true
+  parent_restaurant_id?: true
 }
 
 export type RestaurentMaxAggregateInputType = {
@@ -163,6 +183,11 @@ export type RestaurentMaxAggregateInputType = {
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
+  maps_url?: true
+  opening_time?: true
+  closing_time?: true
+  has_branches?: true
+  parent_restaurant_id?: true
 }
 
 export type RestaurentCountAggregateInputType = {
@@ -188,6 +213,11 @@ export type RestaurentCountAggregateInputType = {
   restaurentOwnerId?: true
   createdAt?: true
   updatedAt?: true
+  maps_url?: true
+  opening_time?: true
+  closing_time?: true
+  has_branches?: true
+  parent_restaurant_id?: true
   _all?: true
 }
 
@@ -300,6 +330,11 @@ export type RestaurentGroupByOutputType = {
   restaurentOwnerId: string
   createdAt: Date
   updatedAt: Date
+  maps_url: string | null
+  opening_time: string | null
+  closing_time: string | null
+  has_branches: boolean
+  parent_restaurant_id: string | null
   _count: RestaurentCountAggregateOutputType | null
   _avg: RestaurentAvgAggregateOutputType | null
   _sum: RestaurentSumAggregateOutputType | null
@@ -348,9 +383,17 @@ export type restaurentWhereInput = {
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
+  maps_url?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  opening_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  closing_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  has_branches?: Prisma.BoolFilter<"restaurent"> | boolean
+  parent_restaurant_id?: Prisma.StringNullableFilter<"restaurent"> | string | null
   restaurentOwner?: Prisma.XOR<Prisma.Restaurent_ownerScalarRelationFilter, Prisma.restaurent_ownerWhereInput>
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   reservations?: Prisma.Restaurant_reservationListRelationFilter
+  parent_restaurant?: Prisma.XOR<Prisma.RestaurentNullableScalarRelationFilter, Prisma.restaurentWhereInput> | null
+  branches?: Prisma.RestaurentListRelationFilter
+  dishes?: Prisma.Restaurant_dishListRelationFilter
 }
 
 export type restaurentOrderByWithRelationInput = {
@@ -376,9 +419,17 @@ export type restaurentOrderByWithRelationInput = {
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  maps_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  opening_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  closing_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  has_branches?: Prisma.SortOrder
+  parent_restaurant_id?: Prisma.SortOrderInput | Prisma.SortOrder
   restaurentOwner?: Prisma.restaurent_ownerOrderByWithRelationInput
   district?: Prisma.districtOrderByWithRelationInput
   reservations?: Prisma.restaurant_reservationOrderByRelationAggregateInput
+  parent_restaurant?: Prisma.restaurentOrderByWithRelationInput
+  branches?: Prisma.restaurentOrderByRelationAggregateInput
+  dishes?: Prisma.restaurant_dishOrderByRelationAggregateInput
 }
 
 export type restaurentWhereUniqueInput = Prisma.AtLeast<{
@@ -407,9 +458,17 @@ export type restaurentWhereUniqueInput = Prisma.AtLeast<{
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
+  maps_url?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  opening_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  closing_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  has_branches?: Prisma.BoolFilter<"restaurent"> | boolean
+  parent_restaurant_id?: Prisma.StringNullableFilter<"restaurent"> | string | null
   restaurentOwner?: Prisma.XOR<Prisma.Restaurent_ownerScalarRelationFilter, Prisma.restaurent_ownerWhereInput>
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   reservations?: Prisma.Restaurant_reservationListRelationFilter
+  parent_restaurant?: Prisma.XOR<Prisma.RestaurentNullableScalarRelationFilter, Prisma.restaurentWhereInput> | null
+  branches?: Prisma.RestaurentListRelationFilter
+  dishes?: Prisma.Restaurant_dishListRelationFilter
 }, "id">
 
 export type restaurentOrderByWithAggregationInput = {
@@ -435,6 +494,11 @@ export type restaurentOrderByWithAggregationInput = {
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  maps_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  opening_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  closing_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  has_branches?: Prisma.SortOrder
+  parent_restaurant_id?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.restaurentCountOrderByAggregateInput
   _avg?: Prisma.restaurentAvgOrderByAggregateInput
   _max?: Prisma.restaurentMaxOrderByAggregateInput
@@ -468,6 +532,11 @@ export type restaurentScalarWhereWithAggregatesInput = {
   restaurentOwnerId?: Prisma.StringWithAggregatesFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"restaurent"> | Date | string
+  maps_url?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
+  opening_time?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
+  closing_time?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
+  has_branches?: Prisma.BoolWithAggregatesFilter<"restaurent"> | boolean
+  parent_restaurant_id?: Prisma.StringNullableWithAggregatesFilter<"restaurent"> | string | null
 }
 
 export type restaurentCreateInput = {
@@ -491,9 +560,16 @@ export type restaurentCreateInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
   district: Prisma.districtCreateNestedOneWithoutRestaurentInput
   reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentUncheckedCreateInput = {
@@ -519,7 +595,14 @@ export type restaurentUncheckedCreateInput = {
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
   reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentUpdateInput = {
@@ -543,9 +626,16 @@ export type restaurentUpdateInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
   reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateInput = {
@@ -571,7 +661,14 @@ export type restaurentUncheckedUpdateInput = {
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentCreateManyInput = {
@@ -597,6 +694,11 @@ export type restaurentCreateManyInput = {
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
 }
 
 export type restaurentUpdateManyMutationInput = {
@@ -620,6 +722,10 @@ export type restaurentUpdateManyMutationInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type restaurentUncheckedUpdateManyInput = {
@@ -645,6 +751,11 @@ export type restaurentUncheckedUpdateManyInput = {
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type RestaurentListRelationFilter = {
@@ -655,6 +766,11 @@ export type RestaurentListRelationFilter = {
 
 export type restaurentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type RestaurentNullableScalarRelationFilter = {
+  is?: Prisma.restaurentWhereInput | null
+  isNot?: Prisma.restaurentWhereInput | null
 }
 
 export type restaurentCountOrderByAggregateInput = {
@@ -680,6 +796,11 @@ export type restaurentCountOrderByAggregateInput = {
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  maps_url?: Prisma.SortOrder
+  opening_time?: Prisma.SortOrder
+  closing_time?: Prisma.SortOrder
+  has_branches?: Prisma.SortOrder
+  parent_restaurant_id?: Prisma.SortOrder
 }
 
 export type restaurentAvgOrderByAggregateInput = {
@@ -708,6 +829,11 @@ export type restaurentMaxOrderByAggregateInput = {
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  maps_url?: Prisma.SortOrder
+  opening_time?: Prisma.SortOrder
+  closing_time?: Prisma.SortOrder
+  has_branches?: Prisma.SortOrder
+  parent_restaurant_id?: Prisma.SortOrder
 }
 
 export type restaurentMinOrderByAggregateInput = {
@@ -730,6 +856,11 @@ export type restaurentMinOrderByAggregateInput = {
   restaurentOwnerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  maps_url?: Prisma.SortOrder
+  opening_time?: Prisma.SortOrder
+  closing_time?: Prisma.SortOrder
+  has_branches?: Prisma.SortOrder
+  parent_restaurant_id?: Prisma.SortOrder
 }
 
 export type restaurentSumOrderByAggregateInput = {
@@ -797,6 +928,26 @@ export type restaurentCreateimagesInput = {
   set: string[]
 }
 
+export type restaurentCreateNestedOneWithoutBranchesInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutBranchesInput, Prisma.restaurentUncheckedCreateWithoutBranchesInput>
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutBranchesInput
+  connect?: Prisma.restaurentWhereUniqueInput
+}
+
+export type restaurentCreateNestedManyWithoutParent_restaurantInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput> | Prisma.restaurentCreateWithoutParent_restaurantInput[] | Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput[]
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput | Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput[]
+  createMany?: Prisma.restaurentCreateManyParent_restaurantInputEnvelope
+  connect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+}
+
+export type restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput> | Prisma.restaurentCreateWithoutParent_restaurantInput[] | Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput[]
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput | Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput[]
+  createMany?: Prisma.restaurentCreateManyParent_restaurantInputEnvelope
+  connect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+}
+
 export type restaurentUpdatereviewInput = {
   set?: string[]
   push?: string | string[]
@@ -814,6 +965,58 @@ export type EnumFood_CategoryFieldUpdateOperationsInput = {
 export type restaurentUpdateimagesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type restaurentUpdateOneWithoutBranchesNestedInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutBranchesInput, Prisma.restaurentUncheckedCreateWithoutBranchesInput>
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutBranchesInput
+  upsert?: Prisma.restaurentUpsertWithoutBranchesInput
+  disconnect?: Prisma.restaurentWhereInput | boolean
+  delete?: Prisma.restaurentWhereInput | boolean
+  connect?: Prisma.restaurentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.restaurentUpdateToOneWithWhereWithoutBranchesInput, Prisma.restaurentUpdateWithoutBranchesInput>, Prisma.restaurentUncheckedUpdateWithoutBranchesInput>
+}
+
+export type restaurentUpdateManyWithoutParent_restaurantNestedInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput> | Prisma.restaurentCreateWithoutParent_restaurantInput[] | Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput[]
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput | Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput[]
+  upsert?: Prisma.restaurentUpsertWithWhereUniqueWithoutParent_restaurantInput | Prisma.restaurentUpsertWithWhereUniqueWithoutParent_restaurantInput[]
+  createMany?: Prisma.restaurentCreateManyParent_restaurantInputEnvelope
+  set?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  disconnect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  delete?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  connect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  update?: Prisma.restaurentUpdateWithWhereUniqueWithoutParent_restaurantInput | Prisma.restaurentUpdateWithWhereUniqueWithoutParent_restaurantInput[]
+  updateMany?: Prisma.restaurentUpdateManyWithWhereWithoutParent_restaurantInput | Prisma.restaurentUpdateManyWithWhereWithoutParent_restaurantInput[]
+  deleteMany?: Prisma.restaurentScalarWhereInput | Prisma.restaurentScalarWhereInput[]
+}
+
+export type restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput> | Prisma.restaurentCreateWithoutParent_restaurantInput[] | Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput[]
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput | Prisma.restaurentCreateOrConnectWithoutParent_restaurantInput[]
+  upsert?: Prisma.restaurentUpsertWithWhereUniqueWithoutParent_restaurantInput | Prisma.restaurentUpsertWithWhereUniqueWithoutParent_restaurantInput[]
+  createMany?: Prisma.restaurentCreateManyParent_restaurantInputEnvelope
+  set?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  disconnect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  delete?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  connect?: Prisma.restaurentWhereUniqueInput | Prisma.restaurentWhereUniqueInput[]
+  update?: Prisma.restaurentUpdateWithWhereUniqueWithoutParent_restaurantInput | Prisma.restaurentUpdateWithWhereUniqueWithoutParent_restaurantInput[]
+  updateMany?: Prisma.restaurentUpdateManyWithWhereWithoutParent_restaurantInput | Prisma.restaurentUpdateManyWithWhereWithoutParent_restaurantInput[]
+  deleteMany?: Prisma.restaurentScalarWhereInput | Prisma.restaurentScalarWhereInput[]
+}
+
+export type restaurentCreateNestedOneWithoutDishesInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutDishesInput, Prisma.restaurentUncheckedCreateWithoutDishesInput>
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutDishesInput
+  connect?: Prisma.restaurentWhereUniqueInput
+}
+
+export type restaurentUpdateOneRequiredWithoutDishesNestedInput = {
+  create?: Prisma.XOR<Prisma.restaurentCreateWithoutDishesInput, Prisma.restaurentUncheckedCreateWithoutDishesInput>
+  connectOrCreate?: Prisma.restaurentCreateOrConnectWithoutDishesInput
+  upsert?: Prisma.restaurentUpsertWithoutDishesInput
+  connect?: Prisma.restaurentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.restaurentUpdateToOneWithWhereWithoutDishesInput, Prisma.restaurentUpdateWithoutDishesInput>, Prisma.restaurentUncheckedUpdateWithoutDishesInput>
 }
 
 export type restaurentCreateNestedManyWithoutRestaurentOwnerInput = {
@@ -893,8 +1096,15 @@ export type restaurentCreateWithoutDistrictInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
   reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentUncheckedCreateWithoutDistrictInput = {
@@ -919,7 +1129,14 @@ export type restaurentUncheckedCreateWithoutDistrictInput = {
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
   reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentCreateOrConnectWithoutDistrictInput = {
@@ -974,6 +1191,389 @@ export type restaurentScalarWhereInput = {
   restaurentOwnerId?: Prisma.StringFilter<"restaurent"> | string
   createdAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurent"> | Date | string
+  maps_url?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  opening_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  closing_time?: Prisma.StringNullableFilter<"restaurent"> | string | null
+  has_branches?: Prisma.BoolFilter<"restaurent"> | boolean
+  parent_restaurant_id?: Prisma.StringNullableFilter<"restaurent"> | string | null
+}
+
+export type restaurentCreateWithoutBranchesInput = {
+  id?: string
+  name: string
+  address: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
+  district: Prisma.districtCreateNestedOneWithoutRestaurentInput
+  reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
+}
+
+export type restaurentUncheckedCreateWithoutBranchesInput = {
+  id?: string
+  name: string
+  address: string
+  districtId: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  restaurentOwnerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
+  reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
+}
+
+export type restaurentCreateOrConnectWithoutBranchesInput = {
+  where: Prisma.restaurentWhereUniqueInput
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutBranchesInput, Prisma.restaurentUncheckedCreateWithoutBranchesInput>
+}
+
+export type restaurentCreateWithoutParent_restaurantInput = {
+  id?: string
+  name: string
+  address: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
+  district: Prisma.districtCreateNestedOneWithoutRestaurentInput
+  reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
+}
+
+export type restaurentUncheckedCreateWithoutParent_restaurantInput = {
+  id?: string
+  name: string
+  address: string
+  districtId: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  restaurentOwnerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
+}
+
+export type restaurentCreateOrConnectWithoutParent_restaurantInput = {
+  where: Prisma.restaurentWhereUniqueInput
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput>
+}
+
+export type restaurentCreateManyParent_restaurantInputEnvelope = {
+  data: Prisma.restaurentCreateManyParent_restaurantInput | Prisma.restaurentCreateManyParent_restaurantInput[]
+  skipDuplicates?: boolean
+}
+
+export type restaurentUpsertWithoutBranchesInput = {
+  update: Prisma.XOR<Prisma.restaurentUpdateWithoutBranchesInput, Prisma.restaurentUncheckedUpdateWithoutBranchesInput>
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutBranchesInput, Prisma.restaurentUncheckedCreateWithoutBranchesInput>
+  where?: Prisma.restaurentWhereInput
+}
+
+export type restaurentUpdateToOneWithWhereWithoutBranchesInput = {
+  where?: Prisma.restaurentWhereInput
+  data: Prisma.XOR<Prisma.restaurentUpdateWithoutBranchesInput, Prisma.restaurentUncheckedUpdateWithoutBranchesInput>
+}
+
+export type restaurentUpdateWithoutBranchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
+  district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
+  reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
+}
+
+export type restaurentUncheckedUpdateWithoutBranchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
+}
+
+export type restaurentUpsertWithWhereUniqueWithoutParent_restaurantInput = {
+  where: Prisma.restaurentWhereUniqueInput
+  update: Prisma.XOR<Prisma.restaurentUpdateWithoutParent_restaurantInput, Prisma.restaurentUncheckedUpdateWithoutParent_restaurantInput>
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutParent_restaurantInput, Prisma.restaurentUncheckedCreateWithoutParent_restaurantInput>
+}
+
+export type restaurentUpdateWithWhereUniqueWithoutParent_restaurantInput = {
+  where: Prisma.restaurentWhereUniqueInput
+  data: Prisma.XOR<Prisma.restaurentUpdateWithoutParent_restaurantInput, Prisma.restaurentUncheckedUpdateWithoutParent_restaurantInput>
+}
+
+export type restaurentUpdateManyWithWhereWithoutParent_restaurantInput = {
+  where: Prisma.restaurentScalarWhereInput
+  data: Prisma.XOR<Prisma.restaurentUpdateManyMutationInput, Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantInput>
+}
+
+export type restaurentCreateWithoutDishesInput = {
+  id?: string
+  name: string
+  address: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
+  district: Prisma.districtCreateNestedOneWithoutRestaurentInput
+  reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+}
+
+export type restaurentUncheckedCreateWithoutDishesInput = {
+  id?: string
+  name: string
+  address: string
+  districtId: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  restaurentOwnerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
+  reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+}
+
+export type restaurentCreateOrConnectWithoutDishesInput = {
+  where: Prisma.restaurentWhereUniqueInput
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutDishesInput, Prisma.restaurentUncheckedCreateWithoutDishesInput>
+}
+
+export type restaurentUpsertWithoutDishesInput = {
+  update: Prisma.XOR<Prisma.restaurentUpdateWithoutDishesInput, Prisma.restaurentUncheckedUpdateWithoutDishesInput>
+  create: Prisma.XOR<Prisma.restaurentCreateWithoutDishesInput, Prisma.restaurentUncheckedCreateWithoutDishesInput>
+  where?: Prisma.restaurentWhereInput
+}
+
+export type restaurentUpdateToOneWithWhereWithoutDishesInput = {
+  where?: Prisma.restaurentWhereInput
+  data: Prisma.XOR<Prisma.restaurentUpdateWithoutDishesInput, Prisma.restaurentUncheckedUpdateWithoutDishesInput>
+}
+
+export type restaurentUpdateWithoutDishesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
+  district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
+  reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+}
+
+export type restaurentUncheckedUpdateWithoutDishesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
 }
 
 export type restaurentCreateWithoutRestaurentOwnerInput = {
@@ -997,8 +1597,15 @@ export type restaurentCreateWithoutRestaurentOwnerInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
   district: Prisma.districtCreateNestedOneWithoutRestaurentInput
   reservations?: Prisma.restaurant_reservationCreateNestedManyWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentUncheckedCreateWithoutRestaurentOwnerInput = {
@@ -1023,7 +1630,14 @@ export type restaurentUncheckedCreateWithoutRestaurentOwnerInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
   reservations?: Prisma.restaurant_reservationUncheckedCreateNestedManyWithoutRestaurentInput
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentCreateOrConnectWithoutRestaurentOwnerInput = {
@@ -1073,8 +1687,15 @@ export type restaurentCreateWithoutReservationsInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
   restaurentOwner: Prisma.restaurent_ownerCreateNestedOneWithoutRestaurentsInput
   district: Prisma.districtCreateNestedOneWithoutRestaurentInput
+  parent_restaurant?: Prisma.restaurentCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.restaurentCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentUncheckedCreateWithoutReservationsInput = {
@@ -1100,6 +1721,13 @@ export type restaurentUncheckedCreateWithoutReservationsInput = {
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
+  branches?: Prisma.restaurentUncheckedCreateNestedManyWithoutParent_restaurantInput
+  dishes?: Prisma.restaurant_dishUncheckedCreateNestedManyWithoutRestaurantInput
 }
 
 export type restaurentCreateOrConnectWithoutReservationsInput = {
@@ -1139,8 +1767,15 @@ export type restaurentUpdateWithoutReservationsInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateWithoutReservationsInput = {
@@ -1166,6 +1801,13 @@ export type restaurentUncheckedUpdateWithoutReservationsInput = {
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentCreateManyDistrictInput = {
@@ -1190,6 +1832,11 @@ export type restaurentCreateManyDistrictInput = {
   restaurentOwnerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
 }
 
 export type restaurentUpdateWithoutDistrictInput = {
@@ -1213,8 +1860,15 @@ export type restaurentUpdateWithoutDistrictInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
   restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
   reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateWithoutDistrictInput = {
@@ -1239,7 +1893,14 @@ export type restaurentUncheckedUpdateWithoutDistrictInput = {
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateManyWithoutDistrictInput = {
@@ -1264,6 +1925,133 @@ export type restaurentUncheckedUpdateManyWithoutDistrictInput = {
   restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type restaurentCreateManyParent_restaurantInput = {
+  id?: string
+  name: string
+  address: string
+  districtId: string
+  description?: string | null
+  rating: number
+  review?: Prisma.restaurentCreatereviewInput | string[]
+  menu?: Prisma.restaurentCreatemenuInput | string[]
+  food_category?: $Enums.Food_Category
+  images?: Prisma.restaurentCreateimagesInput | string[]
+  profile_logo: string
+  latitude: number
+  longitude: number
+  phone_number?: string | null
+  whatsapp_number?: string | null
+  email?: string | null
+  website?: string | null
+  booking_enabled?: boolean
+  status?: $Enums.placeSubmissionStatus
+  restaurentOwnerId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+}
+
+export type restaurentUpdateWithoutParent_restaurantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  restaurentOwner?: Prisma.restaurent_ownerUpdateOneRequiredWithoutRestaurentsNestedInput
+  district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
+  reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
+}
+
+export type restaurentUncheckedUpdateWithoutParent_restaurantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
+}
+
+export type restaurentUncheckedUpdateManyWithoutParent_restaurantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  districtId?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  review?: Prisma.restaurentUpdatereviewInput | string[]
+  menu?: Prisma.restaurentUpdatemenuInput | string[]
+  food_category?: Prisma.EnumFood_CategoryFieldUpdateOperationsInput | $Enums.Food_Category
+  images?: Prisma.restaurentUpdateimagesInput | string[]
+  profile_logo?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+  phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  booking_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
+  restaurentOwnerId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type restaurentCreateManyRestaurentOwnerInput = {
@@ -1288,6 +2076,11 @@ export type restaurentCreateManyRestaurentOwnerInput = {
   status?: $Enums.placeSubmissionStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  maps_url?: string | null
+  opening_time?: string | null
+  closing_time?: string | null
+  has_branches?: boolean
+  parent_restaurant_id?: string | null
 }
 
 export type restaurentUpdateWithoutRestaurentOwnerInput = {
@@ -1311,8 +2104,15 @@ export type restaurentUpdateWithoutRestaurentOwnerInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
   district?: Prisma.districtUpdateOneRequiredWithoutRestaurentNestedInput
   reservations?: Prisma.restaurant_reservationUpdateManyWithoutRestaurentNestedInput
+  parent_restaurant?: Prisma.restaurentUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.restaurentUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateWithoutRestaurentOwnerInput = {
@@ -1337,7 +2137,14 @@ export type restaurentUncheckedUpdateWithoutRestaurentOwnerInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservations?: Prisma.restaurant_reservationUncheckedUpdateManyWithoutRestaurentNestedInput
+  branches?: Prisma.restaurentUncheckedUpdateManyWithoutParent_restaurantNestedInput
+  dishes?: Prisma.restaurant_dishUncheckedUpdateManyWithoutRestaurantNestedInput
 }
 
 export type restaurentUncheckedUpdateManyWithoutRestaurentOwnerInput = {
@@ -1362,6 +2169,11 @@ export type restaurentUncheckedUpdateManyWithoutRestaurentOwnerInput = {
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  maps_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opening_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closing_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  has_branches?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  parent_restaurant_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1371,10 +2183,14 @@ export type restaurentUncheckedUpdateManyWithoutRestaurentOwnerInput = {
 
 export type RestaurentCountOutputType = {
   reservations: number
+  branches: number
+  dishes: number
 }
 
 export type RestaurentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reservations?: boolean | RestaurentCountOutputTypeCountReservationsArgs
+  branches?: boolean | RestaurentCountOutputTypeCountBranchesArgs
+  dishes?: boolean | RestaurentCountOutputTypeCountDishesArgs
 }
 
 /**
@@ -1392,6 +2208,20 @@ export type RestaurentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
  */
 export type RestaurentCountOutputTypeCountReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.restaurant_reservationWhereInput
+}
+
+/**
+ * RestaurentCountOutputType without action
+ */
+export type RestaurentCountOutputTypeCountBranchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.restaurentWhereInput
+}
+
+/**
+ * RestaurentCountOutputType without action
+ */
+export type RestaurentCountOutputTypeCountDishesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.restaurant_dishWhereInput
 }
 
 
@@ -1418,9 +2248,17 @@ export type restaurentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  maps_url?: boolean
+  opening_time?: boolean
+  closing_time?: boolean
+  has_branches?: boolean
+  parent_restaurant_id?: boolean
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
   reservations?: boolean | Prisma.restaurent$reservationsArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
+  branches?: boolean | Prisma.restaurent$branchesArgs<ExtArgs>
+  dishes?: boolean | Prisma.restaurent$dishesArgs<ExtArgs>
   _count?: boolean | Prisma.RestaurentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurent"]>
 
@@ -1447,8 +2285,14 @@ export type restaurentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  maps_url?: boolean
+  opening_time?: boolean
+  closing_time?: boolean
+  has_branches?: boolean
+  parent_restaurant_id?: boolean
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
 }, ExtArgs["result"]["restaurent"]>
 
 export type restaurentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1474,8 +2318,14 @@ export type restaurentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  maps_url?: boolean
+  opening_time?: boolean
+  closing_time?: boolean
+  has_branches?: boolean
+  parent_restaurant_id?: boolean
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
 }, ExtArgs["result"]["restaurent"]>
 
 export type restaurentSelectScalar = {
@@ -1501,22 +2351,32 @@ export type restaurentSelectScalar = {
   restaurentOwnerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  maps_url?: boolean
+  opening_time?: boolean
+  closing_time?: boolean
+  has_branches?: boolean
+  parent_restaurant_id?: boolean
 }
 
-export type restaurentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "districtId" | "description" | "rating" | "review" | "menu" | "food_category" | "images" | "profile_logo" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "restaurentOwnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["restaurent"]>
+export type restaurentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "districtId" | "description" | "rating" | "review" | "menu" | "food_category" | "images" | "profile_logo" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "restaurentOwnerId" | "createdAt" | "updatedAt" | "maps_url" | "opening_time" | "closing_time" | "has_branches" | "parent_restaurant_id", ExtArgs["result"]["restaurent"]>
 export type restaurentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
   reservations?: boolean | Prisma.restaurent$reservationsArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
+  branches?: boolean | Prisma.restaurent$branchesArgs<ExtArgs>
+  dishes?: boolean | Prisma.restaurent$dishesArgs<ExtArgs>
   _count?: boolean | Prisma.RestaurentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type restaurentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
 }
 export type restaurentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurentOwner?: boolean | Prisma.restaurent_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
+  parent_restaurant?: boolean | Prisma.restaurent$parent_restaurantArgs<ExtArgs>
 }
 
 export type $restaurentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1525,6 +2385,9 @@ export type $restaurentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     restaurentOwner: Prisma.$restaurent_ownerPayload<ExtArgs>
     district: Prisma.$districtPayload<ExtArgs>
     reservations: Prisma.$restaurant_reservationPayload<ExtArgs>[]
+    parent_restaurant: Prisma.$restaurentPayload<ExtArgs> | null
+    branches: Prisma.$restaurentPayload<ExtArgs>[]
+    dishes: Prisma.$restaurant_dishPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1549,6 +2412,11 @@ export type $restaurentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     restaurentOwnerId: string
     createdAt: Date
     updatedAt: Date
+    maps_url: string | null
+    opening_time: string | null
+    closing_time: string | null
+    has_branches: boolean
+    parent_restaurant_id: string | null
   }, ExtArgs["result"]["restaurent"]>
   composites: {}
 }
@@ -1946,6 +2814,9 @@ export interface Prisma__restaurentClient<T, Null = never, ExtArgs extends runti
   restaurentOwner<T extends Prisma.restaurent_ownerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.restaurent_ownerDefaultArgs<ExtArgs>>): Prisma.Prisma__restaurent_ownerClient<runtime.Types.Result.GetResult<Prisma.$restaurent_ownerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   district<T extends Prisma.districtDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.districtDefaultArgs<ExtArgs>>): Prisma.Prisma__districtClient<runtime.Types.Result.GetResult<Prisma.$districtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   reservations<T extends Prisma.restaurent$reservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.restaurent$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$restaurant_reservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  parent_restaurant<T extends Prisma.restaurent$parent_restaurantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.restaurent$parent_restaurantArgs<ExtArgs>>): Prisma.Prisma__restaurentClient<runtime.Types.Result.GetResult<Prisma.$restaurentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  branches<T extends Prisma.restaurent$branchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.restaurent$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$restaurentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dishes<T extends Prisma.restaurent$dishesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.restaurent$dishesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$restaurant_dishPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1997,6 +2868,11 @@ export interface restaurentFieldRefs {
   readonly restaurentOwnerId: Prisma.FieldRef<"restaurent", 'String'>
   readonly createdAt: Prisma.FieldRef<"restaurent", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"restaurent", 'DateTime'>
+  readonly maps_url: Prisma.FieldRef<"restaurent", 'String'>
+  readonly opening_time: Prisma.FieldRef<"restaurent", 'String'>
+  readonly closing_time: Prisma.FieldRef<"restaurent", 'String'>
+  readonly has_branches: Prisma.FieldRef<"restaurent", 'Boolean'>
+  readonly parent_restaurant_id: Prisma.FieldRef<"restaurent", 'String'>
 }
     
 
@@ -2419,6 +3295,73 @@ export type restaurent$reservationsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.Restaurant_reservationScalarFieldEnum | Prisma.Restaurant_reservationScalarFieldEnum[]
+}
+
+/**
+ * restaurent.parent_restaurant
+ */
+export type restaurent$parent_restaurantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the restaurent
+   */
+  select?: Prisma.restaurentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the restaurent
+   */
+  omit?: Prisma.restaurentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.restaurentInclude<ExtArgs> | null
+  where?: Prisma.restaurentWhereInput
+}
+
+/**
+ * restaurent.branches
+ */
+export type restaurent$branchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the restaurent
+   */
+  select?: Prisma.restaurentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the restaurent
+   */
+  omit?: Prisma.restaurentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.restaurentInclude<ExtArgs> | null
+  where?: Prisma.restaurentWhereInput
+  orderBy?: Prisma.restaurentOrderByWithRelationInput | Prisma.restaurentOrderByWithRelationInput[]
+  cursor?: Prisma.restaurentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RestaurentScalarFieldEnum | Prisma.RestaurentScalarFieldEnum[]
+}
+
+/**
+ * restaurent.dishes
+ */
+export type restaurent$dishesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the restaurant_dish
+   */
+  select?: Prisma.restaurant_dishSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the restaurant_dish
+   */
+  omit?: Prisma.restaurant_dishOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.restaurant_dishInclude<ExtArgs> | null
+  where?: Prisma.restaurant_dishWhereInput
+  orderBy?: Prisma.restaurant_dishOrderByWithRelationInput | Prisma.restaurant_dishOrderByWithRelationInput[]
+  cursor?: Prisma.restaurant_dishWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Restaurant_dishScalarFieldEnum | Prisma.Restaurant_dishScalarFieldEnum[]
 }
 
 /**

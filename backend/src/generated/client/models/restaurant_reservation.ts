@@ -43,6 +43,8 @@ export type Restaurant_reservationMinAggregateOutputType = {
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
+  reservationTime: string | null
+  notes: string | null
 }
 
 export type Restaurant_reservationMaxAggregateOutputType = {
@@ -54,6 +56,8 @@ export type Restaurant_reservationMaxAggregateOutputType = {
   status: $Enums.bookingStatus | null
   createdAt: Date | null
   updatedAt: Date | null
+  reservationTime: string | null
+  notes: string | null
 }
 
 export type Restaurant_reservationCountAggregateOutputType = {
@@ -65,6 +69,9 @@ export type Restaurant_reservationCountAggregateOutputType = {
   status: number
   createdAt: number
   updatedAt: number
+  reservationTime: number
+  notes: number
+  reservationSnapshot: number
   _all: number
 }
 
@@ -86,6 +93,8 @@ export type Restaurant_reservationMinAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  reservationTime?: true
+  notes?: true
 }
 
 export type Restaurant_reservationMaxAggregateInputType = {
@@ -97,6 +106,8 @@ export type Restaurant_reservationMaxAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  reservationTime?: true
+  notes?: true
 }
 
 export type Restaurant_reservationCountAggregateInputType = {
@@ -108,6 +119,9 @@ export type Restaurant_reservationCountAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  reservationTime?: true
+  notes?: true
+  reservationSnapshot?: true
   _all?: true
 }
 
@@ -206,6 +220,9 @@ export type Restaurant_reservationGroupByOutputType = {
   status: $Enums.bookingStatus
   createdAt: Date
   updatedAt: Date
+  reservationTime: string | null
+  notes: string | null
+  reservationSnapshot: runtime.JsonValue | null
   _count: Restaurant_reservationCountAggregateOutputType | null
   _avg: Restaurant_reservationAvgAggregateOutputType | null
   _sum: Restaurant_reservationSumAggregateOutputType | null
@@ -240,6 +257,9 @@ export type restaurant_reservationWhereInput = {
   status?: Prisma.EnumbookingStatusFilter<"restaurant_reservation"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
+  reservationTime?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  notes?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  reservationSnapshot?: Prisma.JsonNullableFilter<"restaurant_reservation">
   restaurent?: Prisma.XOR<Prisma.RestaurentScalarRelationFilter, Prisma.restaurentWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
 }
@@ -253,6 +273,9 @@ export type restaurant_reservationOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  reservationTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  reservationSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   restaurent?: Prisma.restaurentOrderByWithRelationInput
   user?: Prisma.userOrderByWithRelationInput
 }
@@ -269,6 +292,9 @@ export type restaurant_reservationWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumbookingStatusFilter<"restaurant_reservation"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
+  reservationTime?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  notes?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  reservationSnapshot?: Prisma.JsonNullableFilter<"restaurant_reservation">
   restaurent?: Prisma.XOR<Prisma.RestaurentScalarRelationFilter, Prisma.restaurentWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.userWhereInput>
 }, "id">
@@ -282,6 +308,9 @@ export type restaurant_reservationOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  reservationTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  reservationSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.restaurant_reservationCountOrderByAggregateInput
   _avg?: Prisma.restaurant_reservationAvgOrderByAggregateInput
   _max?: Prisma.restaurant_reservationMaxOrderByAggregateInput
@@ -301,6 +330,9 @@ export type restaurant_reservationScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumbookingStatusWithAggregatesFilter<"restaurant_reservation"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"restaurant_reservation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"restaurant_reservation"> | Date | string
+  reservationTime?: Prisma.StringNullableWithAggregatesFilter<"restaurant_reservation"> | string | null
+  notes?: Prisma.StringNullableWithAggregatesFilter<"restaurant_reservation"> | string | null
+  reservationSnapshot?: Prisma.JsonNullableWithAggregatesFilter<"restaurant_reservation">
 }
 
 export type restaurant_reservationCreateInput = {
@@ -310,6 +342,9 @@ export type restaurant_reservationCreateInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   restaurent: Prisma.restaurentCreateNestedOneWithoutReservationsInput
   user: Prisma.userCreateNestedOneWithoutRestaurant_reservationInput
 }
@@ -323,6 +358,9 @@ export type restaurant_reservationUncheckedCreateInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUpdateInput = {
@@ -332,6 +370,9 @@ export type restaurant_reservationUpdateInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   restaurent?: Prisma.restaurentUpdateOneRequiredWithoutReservationsNestedInput
   user?: Prisma.userUpdateOneRequiredWithoutRestaurant_reservationNestedInput
 }
@@ -345,6 +386,9 @@ export type restaurant_reservationUncheckedUpdateInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationCreateManyInput = {
@@ -356,6 +400,9 @@ export type restaurant_reservationCreateManyInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUpdateManyMutationInput = {
@@ -365,6 +412,9 @@ export type restaurant_reservationUpdateManyMutationInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUncheckedUpdateManyInput = {
@@ -376,6 +426,9 @@ export type restaurant_reservationUncheckedUpdateManyInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type Restaurant_reservationListRelationFilter = {
@@ -397,6 +450,9 @@ export type restaurant_reservationCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  reservationTime?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  reservationSnapshot?: Prisma.SortOrder
 }
 
 export type restaurant_reservationAvgOrderByAggregateInput = {
@@ -412,6 +468,8 @@ export type restaurant_reservationMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  reservationTime?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
 }
 
 export type restaurant_reservationMinOrderByAggregateInput = {
@@ -423,6 +481,8 @@ export type restaurant_reservationMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  reservationTime?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
 }
 
 export type restaurant_reservationSumOrderByAggregateInput = {
@@ -520,6 +580,9 @@ export type restaurant_reservationCreateWithoutUserInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   restaurent: Prisma.restaurentCreateNestedOneWithoutReservationsInput
 }
 
@@ -531,6 +594,9 @@ export type restaurant_reservationUncheckedCreateWithoutUserInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationCreateOrConnectWithoutUserInput = {
@@ -571,6 +637,9 @@ export type restaurant_reservationScalarWhereInput = {
   status?: Prisma.EnumbookingStatusFilter<"restaurant_reservation"> | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"restaurant_reservation"> | Date | string
+  reservationTime?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  notes?: Prisma.StringNullableFilter<"restaurant_reservation"> | string | null
+  reservationSnapshot?: Prisma.JsonNullableFilter<"restaurant_reservation">
 }
 
 export type restaurant_reservationCreateWithoutRestaurentInput = {
@@ -580,6 +649,9 @@ export type restaurant_reservationCreateWithoutRestaurentInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   user: Prisma.userCreateNestedOneWithoutRestaurant_reservationInput
 }
 
@@ -591,6 +663,9 @@ export type restaurant_reservationUncheckedCreateWithoutRestaurentInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationCreateOrConnectWithoutRestaurentInput = {
@@ -627,6 +702,9 @@ export type restaurant_reservationCreateManyUserInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUpdateWithoutUserInput = {
@@ -636,6 +714,9 @@ export type restaurant_reservationUpdateWithoutUserInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   restaurent?: Prisma.restaurentUpdateOneRequiredWithoutReservationsNestedInput
 }
 
@@ -647,6 +728,9 @@ export type restaurant_reservationUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUncheckedUpdateManyWithoutUserInput = {
@@ -657,6 +741,9 @@ export type restaurant_reservationUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationCreateManyRestaurentInput = {
@@ -667,6 +754,9 @@ export type restaurant_reservationCreateManyRestaurentInput = {
   status?: $Enums.bookingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  reservationTime?: string | null
+  notes?: string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUpdateWithoutRestaurentInput = {
@@ -676,6 +766,9 @@ export type restaurant_reservationUpdateWithoutRestaurentInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   user?: Prisma.userUpdateOneRequiredWithoutRestaurant_reservationNestedInput
 }
 
@@ -687,6 +780,9 @@ export type restaurant_reservationUncheckedUpdateWithoutRestaurentInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type restaurant_reservationUncheckedUpdateManyWithoutRestaurentInput = {
@@ -697,6 +793,9 @@ export type restaurant_reservationUncheckedUpdateManyWithoutRestaurentInput = {
   status?: Prisma.EnumbookingStatusFieldUpdateOperationsInput | $Enums.bookingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reservationTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reservationSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 
@@ -710,6 +809,9 @@ export type restaurant_reservationSelect<ExtArgs extends runtime.Types.Extension
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  reservationTime?: boolean
+  notes?: boolean
+  reservationSnapshot?: boolean
   restaurent?: boolean | Prisma.restaurentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurant_reservation"]>
@@ -723,6 +825,9 @@ export type restaurant_reservationSelectCreateManyAndReturn<ExtArgs extends runt
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  reservationTime?: boolean
+  notes?: boolean
+  reservationSnapshot?: boolean
   restaurent?: boolean | Prisma.restaurentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurant_reservation"]>
@@ -736,6 +841,9 @@ export type restaurant_reservationSelectUpdateManyAndReturn<ExtArgs extends runt
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  reservationTime?: boolean
+  notes?: boolean
+  reservationSnapshot?: boolean
   restaurent?: boolean | Prisma.restaurentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["restaurant_reservation"]>
@@ -749,9 +857,12 @@ export type restaurant_reservationSelectScalar = {
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  reservationTime?: boolean
+  notes?: boolean
+  reservationSnapshot?: boolean
 }
 
-export type restaurant_reservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "userId" | "reservationDate" | "guests" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["restaurant_reservation"]>
+export type restaurant_reservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "userId" | "reservationDate" | "guests" | "status" | "createdAt" | "updatedAt" | "reservationTime" | "notes" | "reservationSnapshot", ExtArgs["result"]["restaurant_reservation"]>
 export type restaurant_reservationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurent?: boolean | Prisma.restaurentDefaultArgs<ExtArgs>
   user?: boolean | Prisma.userDefaultArgs<ExtArgs>
@@ -780,6 +891,9 @@ export type $restaurant_reservationPayload<ExtArgs extends runtime.Types.Extensi
     status: $Enums.bookingStatus
     createdAt: Date
     updatedAt: Date
+    reservationTime: string | null
+    notes: string | null
+    reservationSnapshot: runtime.JsonValue | null
   }, ExtArgs["result"]["restaurant_reservation"]>
   composites: {}
 }
@@ -1213,6 +1327,9 @@ export interface restaurant_reservationFieldRefs {
   readonly status: Prisma.FieldRef<"restaurant_reservation", 'bookingStatus'>
   readonly createdAt: Prisma.FieldRef<"restaurant_reservation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"restaurant_reservation", 'DateTime'>
+  readonly reservationTime: Prisma.FieldRef<"restaurant_reservation", 'String'>
+  readonly notes: Prisma.FieldRef<"restaurant_reservation", 'String'>
+  readonly reservationSnapshot: Prisma.FieldRef<"restaurant_reservation", 'Json'>
 }
     
 

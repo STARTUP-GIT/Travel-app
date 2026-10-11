@@ -44,7 +44,8 @@ export default async function RestaurantsPage({
   ).filter(
     (restaurant) =>
       restaurant.status === "APPROVED" &&
-      (restaurant.districtId ?? restaurant.district?.id) === district.id
+      ((restaurant.districtId ?? restaurant.district?.id) === district.id ||
+        restaurant.branches?.some((b) => (b.districtId ?? b.district?.id) === district.id))
   );
 
   return (

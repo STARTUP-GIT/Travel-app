@@ -139,10 +139,12 @@ export default function BookingDetailPage({
     : "—";
 
   const tourTimeFormatted =
+    (booking as any).reservationTime ||
     (booking as any).tripStartTime ||
     (booking as any).bookingTime ||
+    snapshot?.reservationTime ||
     snapshot?.tripStartTime ||
-    "09:00 AM";
+    "—";
 
   const totalTravellers =
     (booking as any).numberOfPeople ??

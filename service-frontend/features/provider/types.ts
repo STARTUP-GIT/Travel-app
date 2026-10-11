@@ -525,6 +525,38 @@ export type HotelRecord = {
   district?: DistrictRef | null;
 };
 
+export type RestaurantDishRecord = {
+  id?: string;
+  name: string;
+  description?: string | null;
+  foodCategory: FoodCategory;
+  price?: number | null;
+  image?: string | null;
+  isAvailable?: boolean;
+  displayOrder?: number;
+};
+
+export type RestaurantBranchRecord = {
+  id?: string;
+  name: string;
+  address: string;
+  districtId: string;
+  stateId?: string;
+  maps_url?: string | null;
+  latitude: number;
+  longitude: number;
+  phone_number?: string | null;
+  whatsapp_number?: string | null;
+  email?: string | null;
+  opening_time?: string | null;
+  closing_time?: string | null;
+  booking_enabled: boolean;
+  profile_logo?: string;
+  images?: string[];
+  district?: DistrictRef | null;
+  status?: ListingStatus;
+};
+
 export type RestaurantRecord = {
   id: string;
   name: string;
@@ -546,6 +578,14 @@ export type RestaurantRecord = {
   booking_enabled: boolean;
   status: ListingStatus;
   restaurentOwnerId: string;
+  maps_url?: string | null;
+  opening_time?: string | null;
+  closing_time?: string | null;
+  has_branches?: boolean;
+  parent_restaurant_id?: string | null;
+  branches?: RestaurantBranchRecord[];
+  dishes?: RestaurantDishRecord[];
+  parent_restaurant?: RestaurantRecord | null;
   createdAt: string;
   updatedAt: string;
   district?: DistrictRef | null;
@@ -624,6 +664,12 @@ export type ProviderListingInput = {
   checkOutStartTime?: string | null;
   checkOutEndTime?: string | null;
   roomTypes?: HotelRoomTypeRecord[];
+  /** Restaurant specific fields */
+  openingTime?: string | null;
+  closingTime?: string | null;
+  hasBranches?: boolean;
+  branches?: RestaurantBranchRecord[];
+  dishes?: RestaurantDishRecord[];
 };
 
 /* -------------------------------------------------------------------------- */

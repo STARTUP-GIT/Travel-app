@@ -12,6 +12,7 @@ import { ListingStatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { VenueForm } from "@/features/provider/components/venue-form";
 import { HotelForm } from "@/features/provider/components/hotel-form";
+import { RestaurantForm } from "@/features/provider/components/restaurant-form";
 import { getDistricts, getStates } from "@/features/locations/api/locations.api";
 import { loadListings } from "@/features/provider/api/provider.actions";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
@@ -139,7 +140,7 @@ export default async function ServiceDetailPage({
   }
 
   return (
-    <div className="app-container max-w-2xl">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
       <BackLink href="/services" />
       <PageHeader
         title={`Edit ${listing.name}`}
@@ -154,7 +155,7 @@ export default async function ServiceDetailPage({
         />
       ) : null}
 
-      <GlassCard className="mb-6 gap-4 p-4">
+      <GlassCard className="mb-8 gap-4 p-5">
         <div className="flex items-center gap-3">
           <AppImage
             src={listing.image}
@@ -164,7 +165,7 @@ export default async function ServiceDetailPage({
           />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-sm font-semibold">{listing.name}</p>
+              <p className="truncate text-base font-semibold">{listing.name}</p>
               {listing.status ? (
                 <ListingStatusBadge status={listing.status} />
               ) : null}
@@ -199,54 +200,14 @@ export default async function ServiceDetailPage({
             {pluralize(listing.reviews.length, "review")}
           </Fact>
         </dl>
-
-        {listing.reviews.length > 0 ? (
-          <details className="rounded-xl border border-border p-3 text-sm">
-            <summary className="cursor-pointer font-medium">
-              What travellers said
-            </summary>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-              {listing.reviews.map((review) => (
-                <li key={review}>{review}</li>
-              ))}
-            </ul>
-          </details>
-        ) : null}
-
-        {record.phone_number ? (
-          <p className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Phone className="size-3.5" />
-            {record.phone_number}
-            <Badge variant="outline" className="text-[0.6rem]">
-              Public contact
-            </Badge>
-          </p>
-        ) : null}
       </GlassCard>
 
-      <VenueForm
-        kind="restaurant"
-        districts={districts}
+      <RestaurantForm
+        initialRestaurant={restaurant ?? undefined}
         listingId={listing.id}
         submitLabel="Save changes"
-        bookingEnabled={record.booking_enabled}
-        images={record.images}
-        initial={{
-          name: record.name,
-          address: record.address,
-          profileLogo: record.profile_logo,
-          districtId: record.districtId,
-          description: record.description ?? "",
-          costPerNight: 0,
-          latitude: record.latitude,
-          longitude: record.longitude,
-          phone: record.phone_number ?? "",
-          whatsapp: record.whatsapp_number ?? "",
-          email: record.email ?? "",
-          website: record.website ?? "",
-          foodCategory: restaurant ? restaurant.food_category : "PUREVEG",
-          menu: restaurant ? restaurant.menu : [],
-        }}
+        initialStates={states}
+        initialDistricts={districts}
       />
     </div>
   );
