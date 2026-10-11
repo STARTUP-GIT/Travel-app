@@ -485,6 +485,11 @@ export type HotelRoomTypeRecord = {
   conditions?: string | null;
   isActive?: boolean;
   displayOrder?: number;
+  roomCategory?: "PRIVATE" | "DORMITORY" | string;
+  bedType?: string | null;
+  dormGender?: "MIXED" | "FEMALE" | "MALE" | string | null;
+  bedCapacity?: number | null;
+  pricingUnit?: "PER_ROOM" | "PER_BED" | string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -519,6 +524,12 @@ export type HotelRecord = {
   check_out_time?: string | null;
   check_out_start_time?: string | null;
   check_out_end_time?: string | null;
+  property_type?: "HOTEL" | "STAY" | string;
+  stay_category?: string | null;
+  accommodation_rules?: string | null;
+  cancellation_policy?: string | null;
+  activities?: string[];
+  facilities?: string[];
   room_types?: HotelRoomTypeRecord[];
   createdAt: string;
   updatedAt: string;
@@ -637,7 +648,7 @@ export type ProviderListingInput = {
   profileLogo: string;
   districtId: string;
   description: string;
-  rating: number;
+  rating?: number;
   costPerNight: number;
   latitude: number;
   longitude: number;
@@ -649,9 +660,9 @@ export type ProviderListingInput = {
   /** Existing gallery URLs. Never cleared by an edit, so they are round-tripped. */
   images: string[];
   /** Restaurant only. */
-  foodCategory: FoodCategory;
-  menu: string[];
-  /** Hotel specific fields */
+  foodCategory?: FoodCategory;
+  menu?: string[];
+  /** Hotel and Stays specific fields */
   starRating?: number | null;
   mapsUrl?: string | null;
   stateId?: string | null;
@@ -663,6 +674,16 @@ export type ProviderListingInput = {
   checkOutTime?: string | null;
   checkOutStartTime?: string | null;
   checkOutEndTime?: string | null;
+  propertyType?: "HOTEL" | "STAY" | string;
+  property_type?: "HOTEL" | "STAY" | string;
+  stayCategory?: string | null;
+  stay_category?: string | null;
+  accommodationRules?: string | null;
+  accommodation_rules?: string | null;
+  cancellationPolicy?: string | null;
+  cancellation_policy?: string | null;
+  activities?: string[];
+  facilities?: string[];
   roomTypes?: HotelRoomTypeRecord[];
   /** Restaurant specific fields */
   openingTime?: string | null;

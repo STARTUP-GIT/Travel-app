@@ -32,6 +32,7 @@ export type Hotel_room_typeAvgAggregateOutputType = {
   pricePerNight: number | null
   hotWaterCharge: number | null
   displayOrder: number | null
+  bedCapacity: number | null
 }
 
 export type Hotel_room_typeSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type Hotel_room_typeSumAggregateOutputType = {
   pricePerNight: number | null
   hotWaterCharge: number | null
   displayOrder: number | null
+  bedCapacity: number | null
 }
 
 export type Hotel_room_typeMinAggregateOutputType = {
@@ -64,6 +66,11 @@ export type Hotel_room_typeMinAggregateOutputType = {
   displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  roomCategory: string | null
+  bedType: string | null
+  dormGender: string | null
+  bedCapacity: number | null
+  pricingUnit: string | null
 }
 
 export type Hotel_room_typeMaxAggregateOutputType = {
@@ -88,6 +95,11 @@ export type Hotel_room_typeMaxAggregateOutputType = {
   displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  roomCategory: string | null
+  bedType: string | null
+  dormGender: string | null
+  bedCapacity: number | null
+  pricingUnit: string | null
 }
 
 export type Hotel_room_typeCountAggregateOutputType = {
@@ -115,6 +127,11 @@ export type Hotel_room_typeCountAggregateOutputType = {
   displayOrder: number
   createdAt: number
   updatedAt: number
+  roomCategory: number
+  bedType: number
+  dormGender: number
+  bedCapacity: number
+  pricingUnit: number
   _all: number
 }
 
@@ -125,6 +142,7 @@ export type Hotel_room_typeAvgAggregateInputType = {
   pricePerNight?: true
   hotWaterCharge?: true
   displayOrder?: true
+  bedCapacity?: true
 }
 
 export type Hotel_room_typeSumAggregateInputType = {
@@ -133,6 +151,7 @@ export type Hotel_room_typeSumAggregateInputType = {
   pricePerNight?: true
   hotWaterCharge?: true
   displayOrder?: true
+  bedCapacity?: true
 }
 
 export type Hotel_room_typeMinAggregateInputType = {
@@ -157,6 +176,11 @@ export type Hotel_room_typeMinAggregateInputType = {
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
+  roomCategory?: true
+  bedType?: true
+  dormGender?: true
+  bedCapacity?: true
+  pricingUnit?: true
 }
 
 export type Hotel_room_typeMaxAggregateInputType = {
@@ -181,6 +205,11 @@ export type Hotel_room_typeMaxAggregateInputType = {
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
+  roomCategory?: true
+  bedType?: true
+  dormGender?: true
+  bedCapacity?: true
+  pricingUnit?: true
 }
 
 export type Hotel_room_typeCountAggregateInputType = {
@@ -208,6 +237,11 @@ export type Hotel_room_typeCountAggregateInputType = {
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
+  roomCategory?: true
+  bedType?: true
+  dormGender?: true
+  bedCapacity?: true
+  pricingUnit?: true
   _all?: true
 }
 
@@ -322,6 +356,11 @@ export type Hotel_room_typeGroupByOutputType = {
   displayOrder: number
   createdAt: Date
   updatedAt: Date
+  roomCategory: string | null
+  bedType: string | null
+  dormGender: string | null
+  bedCapacity: number | null
+  pricingUnit: string | null
   _count: Hotel_room_typeCountAggregateOutputType | null
   _avg: Hotel_room_typeAvgAggregateOutputType | null
   _sum: Hotel_room_typeSumAggregateOutputType | null
@@ -372,6 +411,11 @@ export type hotel_room_typeWhereInput = {
   displayOrder?: Prisma.IntFilter<"hotel_room_type"> | number
   createdAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
+  roomCategory?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedType?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  dormGender?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedCapacity?: Prisma.IntNullableFilter<"hotel_room_type"> | number | null
+  pricingUnit?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
   hotel?: Prisma.XOR<Prisma.HotelScalarRelationFilter, Prisma.hotelWhereInput>
   bookings?: Prisma.Hotel_bookingListRelationFilter
 }
@@ -401,6 +445,11 @@ export type hotel_room_typeOrderByWithRelationInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roomCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  bedType?: Prisma.SortOrderInput | Prisma.SortOrder
+  dormGender?: Prisma.SortOrderInput | Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   hotel?: Prisma.hotelOrderByWithRelationInput
   bookings?: Prisma.hotel_bookingOrderByRelationAggregateInput
 }
@@ -433,6 +482,11 @@ export type hotel_room_typeWhereUniqueInput = Prisma.AtLeast<{
   displayOrder?: Prisma.IntFilter<"hotel_room_type"> | number
   createdAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
+  roomCategory?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedType?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  dormGender?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedCapacity?: Prisma.IntNullableFilter<"hotel_room_type"> | number | null
+  pricingUnit?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
   hotel?: Prisma.XOR<Prisma.HotelScalarRelationFilter, Prisma.hotelWhereInput>
   bookings?: Prisma.Hotel_bookingListRelationFilter
 }, "id">
@@ -462,6 +516,11 @@ export type hotel_room_typeOrderByWithAggregationInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roomCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  bedType?: Prisma.SortOrderInput | Prisma.SortOrder
+  dormGender?: Prisma.SortOrderInput | Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.hotel_room_typeCountOrderByAggregateInput
   _avg?: Prisma.hotel_room_typeAvgOrderByAggregateInput
   _max?: Prisma.hotel_room_typeMaxOrderByAggregateInput
@@ -497,6 +556,11 @@ export type hotel_room_typeScalarWhereWithAggregatesInput = {
   displayOrder?: Prisma.IntWithAggregatesFilter<"hotel_room_type"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"hotel_room_type"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"hotel_room_type"> | Date | string
+  roomCategory?: Prisma.StringNullableWithAggregatesFilter<"hotel_room_type"> | string | null
+  bedType?: Prisma.StringNullableWithAggregatesFilter<"hotel_room_type"> | string | null
+  dormGender?: Prisma.StringNullableWithAggregatesFilter<"hotel_room_type"> | string | null
+  bedCapacity?: Prisma.IntNullableWithAggregatesFilter<"hotel_room_type"> | number | null
+  pricingUnit?: Prisma.StringNullableWithAggregatesFilter<"hotel_room_type"> | string | null
 }
 
 export type hotel_room_typeCreateInput = {
@@ -523,6 +587,11 @@ export type hotel_room_typeCreateInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
   hotel: Prisma.hotelCreateNestedOneWithoutRoom_typesInput
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutRoomTypeInput
 }
@@ -552,6 +621,11 @@ export type hotel_room_typeUncheckedCreateInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutRoomTypeInput
 }
 
@@ -579,6 +653,11 @@ export type hotel_room_typeUpdateInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hotel?: Prisma.hotelUpdateOneRequiredWithoutRoom_typesNestedInput
   bookings?: Prisma.hotel_bookingUpdateManyWithoutRoomTypeNestedInput
 }
@@ -608,6 +687,11 @@ export type hotel_room_typeUncheckedUpdateInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutRoomTypeNestedInput
 }
 
@@ -636,6 +720,11 @@ export type hotel_room_typeCreateManyInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
 }
 
 export type hotel_room_typeUpdateManyMutationInput = {
@@ -662,6 +751,11 @@ export type hotel_room_typeUpdateManyMutationInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type hotel_room_typeUncheckedUpdateManyInput = {
@@ -689,6 +783,11 @@ export type hotel_room_typeUncheckedUpdateManyInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type Hotel_room_typeListRelationFilter = {
@@ -726,6 +825,11 @@ export type hotel_room_typeCountOrderByAggregateInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roomCategory?: Prisma.SortOrder
+  bedType?: Prisma.SortOrder
+  dormGender?: Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
 }
 
 export type hotel_room_typeAvgOrderByAggregateInput = {
@@ -734,6 +838,7 @@ export type hotel_room_typeAvgOrderByAggregateInput = {
   pricePerNight?: Prisma.SortOrder
   hotWaterCharge?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrder
 }
 
 export type hotel_room_typeMaxOrderByAggregateInput = {
@@ -758,6 +863,11 @@ export type hotel_room_typeMaxOrderByAggregateInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roomCategory?: Prisma.SortOrder
+  bedType?: Prisma.SortOrder
+  dormGender?: Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
 }
 
 export type hotel_room_typeMinOrderByAggregateInput = {
@@ -782,6 +892,11 @@ export type hotel_room_typeMinOrderByAggregateInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roomCategory?: Prisma.SortOrder
+  bedType?: Prisma.SortOrder
+  dormGender?: Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrder
+  pricingUnit?: Prisma.SortOrder
 }
 
 export type hotel_room_typeSumOrderByAggregateInput = {
@@ -790,6 +905,7 @@ export type hotel_room_typeSumOrderByAggregateInput = {
   pricePerNight?: Prisma.SortOrder
   hotWaterCharge?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  bedCapacity?: Prisma.SortOrder
 }
 
 export type Hotel_room_typeNullableScalarRelationFilter = {
@@ -897,6 +1013,11 @@ export type hotel_room_typeCreateWithoutHotelInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutRoomTypeInput
 }
 
@@ -924,6 +1045,11 @@ export type hotel_room_typeUncheckedCreateWithoutHotelInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutRoomTypeInput
 }
 
@@ -981,6 +1107,11 @@ export type hotel_room_typeScalarWhereInput = {
   displayOrder?: Prisma.IntFilter<"hotel_room_type"> | number
   createdAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"hotel_room_type"> | Date | string
+  roomCategory?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedType?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  dormGender?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
+  bedCapacity?: Prisma.IntNullableFilter<"hotel_room_type"> | number | null
+  pricingUnit?: Prisma.StringNullableFilter<"hotel_room_type"> | string | null
 }
 
 export type hotel_room_typeCreateWithoutBookingsInput = {
@@ -1007,6 +1138,11 @@ export type hotel_room_typeCreateWithoutBookingsInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
   hotel: Prisma.hotelCreateNestedOneWithoutRoom_typesInput
 }
 
@@ -1035,6 +1171,11 @@ export type hotel_room_typeUncheckedCreateWithoutBookingsInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
 }
 
 export type hotel_room_typeCreateOrConnectWithoutBookingsInput = {
@@ -1077,6 +1218,11 @@ export type hotel_room_typeUpdateWithoutBookingsInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hotel?: Prisma.hotelUpdateOneRequiredWithoutRoom_typesNestedInput
 }
 
@@ -1105,6 +1251,11 @@ export type hotel_room_typeUncheckedUpdateWithoutBookingsInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type hotel_room_typeCreateManyHotelInput = {
@@ -1131,6 +1282,11 @@ export type hotel_room_typeCreateManyHotelInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roomCategory?: string | null
+  bedType?: string | null
+  dormGender?: string | null
+  bedCapacity?: number | null
+  pricingUnit?: string | null
 }
 
 export type hotel_room_typeUpdateWithoutHotelInput = {
@@ -1157,6 +1313,11 @@ export type hotel_room_typeUpdateWithoutHotelInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookings?: Prisma.hotel_bookingUpdateManyWithoutRoomTypeNestedInput
 }
 
@@ -1184,6 +1345,11 @@ export type hotel_room_typeUncheckedUpdateWithoutHotelInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutRoomTypeNestedInput
 }
 
@@ -1211,6 +1377,11 @@ export type hotel_room_typeUncheckedUpdateManyWithoutHotelInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roomCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dormGender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedCapacity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pricingUnit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1269,6 +1440,11 @@ export type hotel_room_typeSelect<ExtArgs extends runtime.Types.Extensions.Inter
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  roomCategory?: boolean
+  bedType?: boolean
+  dormGender?: boolean
+  bedCapacity?: boolean
+  pricingUnit?: boolean
   hotel?: boolean | Prisma.hotelDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.hotel_room_type$bookingsArgs<ExtArgs>
   _count?: boolean | Prisma.Hotel_room_typeCountOutputTypeDefaultArgs<ExtArgs>
@@ -1299,6 +1475,11 @@ export type hotel_room_typeSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  roomCategory?: boolean
+  bedType?: boolean
+  dormGender?: boolean
+  bedCapacity?: boolean
+  pricingUnit?: boolean
   hotel?: boolean | Prisma.hotelDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hotel_room_type"]>
 
@@ -1327,6 +1508,11 @@ export type hotel_room_typeSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  roomCategory?: boolean
+  bedType?: boolean
+  dormGender?: boolean
+  bedCapacity?: boolean
+  pricingUnit?: boolean
   hotel?: boolean | Prisma.hotelDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hotel_room_type"]>
 
@@ -1355,9 +1541,14 @@ export type hotel_room_typeSelectScalar = {
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  roomCategory?: boolean
+  bedType?: boolean
+  dormGender?: boolean
+  bedCapacity?: boolean
+  pricingUnit?: boolean
 }
 
-export type hotel_room_typeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hotelId" | "title" | "description" | "category" | "roomType" | "maxOccupancy" | "availableRooms" | "pricePerNight" | "roomOverviewPhoto" | "bathroomPhoto" | "images" | "hasHotWater" | "hotWaterCharge" | "hasTv" | "hasAttachedBathroom" | "hasWifi" | "facilities" | "additionalServices" | "conditions" | "isActive" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["hotel_room_type"]>
+export type hotel_room_typeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "hotelId" | "title" | "description" | "category" | "roomType" | "maxOccupancy" | "availableRooms" | "pricePerNight" | "roomOverviewPhoto" | "bathroomPhoto" | "images" | "hasHotWater" | "hotWaterCharge" | "hasTv" | "hasAttachedBathroom" | "hasWifi" | "facilities" | "additionalServices" | "conditions" | "isActive" | "displayOrder" | "createdAt" | "updatedAt" | "roomCategory" | "bedType" | "dormGender" | "bedCapacity" | "pricingUnit", ExtArgs["result"]["hotel_room_type"]>
 export type hotel_room_typeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hotel?: boolean | Prisma.hotelDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.hotel_room_type$bookingsArgs<ExtArgs>
@@ -1401,6 +1592,11 @@ export type $hotel_room_typePayload<ExtArgs extends runtime.Types.Extensions.Int
     displayOrder: number
     createdAt: Date
     updatedAt: Date
+    roomCategory: string | null
+    bedType: string | null
+    dormGender: string | null
+    bedCapacity: number | null
+    pricingUnit: string | null
   }, ExtArgs["result"]["hotel_room_type"]>
   composites: {}
 }
@@ -1850,6 +2046,11 @@ export interface hotel_room_typeFieldRefs {
   readonly displayOrder: Prisma.FieldRef<"hotel_room_type", 'Int'>
   readonly createdAt: Prisma.FieldRef<"hotel_room_type", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"hotel_room_type", 'DateTime'>
+  readonly roomCategory: Prisma.FieldRef<"hotel_room_type", 'String'>
+  readonly bedType: Prisma.FieldRef<"hotel_room_type", 'String'>
+  readonly dormGender: Prisma.FieldRef<"hotel_room_type", 'String'>
+  readonly bedCapacity: Prisma.FieldRef<"hotel_room_type", 'Int'>
+  readonly pricingUnit: Prisma.FieldRef<"hotel_room_type", 'String'>
 }
     
 

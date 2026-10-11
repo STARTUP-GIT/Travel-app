@@ -31,6 +31,11 @@ export type HotelRoomType = {
   conditions?: string | null;
   isActive?: boolean;
   displayOrder?: number;
+  roomCategory?: "PRIVATE" | "DORMITORY" | string;
+  bedType?: string | null;
+  dormGender?: "MIXED" | "FEMALE" | "MALE" | string | null;
+  bedCapacity?: number | null;
+  pricingUnit?: "PER_ROOM" | "PER_BED" | string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -65,6 +70,12 @@ export type Hotel = {
   check_out_time?: string | null;
   check_out_start_time?: string | null;
   check_out_end_time?: string | null;
+  property_type?: "HOTEL" | "STAY" | string;
+  stay_category?: string | null;
+  accommodation_rules?: string | null;
+  cancellation_policy?: string | null;
+  activities?: string[];
+  facilities?: string[];
   room_types?: HotelRoomType[];
   createdAt: string;
   updatedAt: string;

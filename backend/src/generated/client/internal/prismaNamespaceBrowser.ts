@@ -548,7 +548,13 @@ export const HotelScalarFieldEnum = {
   check_out_time_type: 'check_out_time_type',
   check_out_time: 'check_out_time',
   check_out_start_time: 'check_out_start_time',
-  check_out_end_time: 'check_out_end_time'
+  check_out_end_time: 'check_out_end_time',
+  property_type: 'property_type',
+  stay_category: 'stay_category',
+  accommodation_rules: 'accommodation_rules',
+  cancellation_policy: 'cancellation_policy',
+  activities: 'activities',
+  facilities: 'facilities'
 } as const
 
 export type HotelScalarFieldEnum = (typeof HotelScalarFieldEnum)[keyof typeof HotelScalarFieldEnum]
@@ -578,7 +584,12 @@ export const Hotel_room_typeScalarFieldEnum = {
   isActive: 'isActive',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  roomCategory: 'roomCategory',
+  bedType: 'bedType',
+  dormGender: 'dormGender',
+  bedCapacity: 'bedCapacity',
+  pricingUnit: 'pricingUnit'
 } as const
 
 export type Hotel_room_typeScalarFieldEnum = (typeof Hotel_room_typeScalarFieldEnum)[keyof typeof Hotel_room_typeScalarFieldEnum]

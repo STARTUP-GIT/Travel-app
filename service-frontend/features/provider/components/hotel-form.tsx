@@ -170,6 +170,12 @@ export function HotelForm({
       checkOutTime: initialHotel.check_out_time ?? "11:00 AM",
       checkOutStartTime: initialHotel.check_out_start_time ?? "06:00 AM",
       checkOutEndTime: initialHotel.check_out_end_time ?? "11:00 AM",
+      propertyType: (initialHotel.property_type === "STAY" ? "STAY" : "HOTEL"),
+      stayCategory: initialHotel.stay_category ?? "",
+      accommodationRules: initialHotel.accommodation_rules ?? "",
+      cancellationPolicy: initialHotel.cancellation_policy ?? "",
+      activities: initialHotel.activities ?? [],
+      facilities: initialHotel.facilities ?? [],
       roomTypes: mappedRoomTypes,
     };
   });

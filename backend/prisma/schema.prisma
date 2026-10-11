@@ -541,6 +541,14 @@ model hotel {
   check_out_start_time  String?
   check_out_end_time    String?
   room_types            hotel_room_type[]
+
+  // Additive fields for Stays & Backpacker Hostels
+  property_type         String    @default("HOTEL")
+  stay_category         String?
+  accommodation_rules   String?
+  cancellation_policy   String?
+  activities            String[]  @default([])
+  facilities            String[]  @default([])
 }
 
 model hotel_room_type {
@@ -570,6 +578,13 @@ model hotel_room_type {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   bookings              hotel_booking[]
+
+  // Additive fields for Dormitory & Bed Inventory in Stays
+  roomCategory          String?   @default("PRIVATE")
+  bedType               String?
+  dormGender            String?
+  bedCapacity           Int?
+  pricingUnit           String?   @default("PER_ROOM")
 
   @@index([hotelId])
 }

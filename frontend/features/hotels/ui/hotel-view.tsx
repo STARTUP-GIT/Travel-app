@@ -4,16 +4,19 @@ import * as React from "react";
 import {
   Bath,
   BedDouble,
+  BedSingle,
   Building2,
   CalendarDays,
   Check,
   Clock,
   Compass,
   ExternalLink,
+  FileText,
   Flame,
   Globe,
   Info,
   MapPin,
+  ShieldCheck,
   Sparkles,
   Star,
   Tv,
@@ -52,6 +55,14 @@ import { createHotelBooking } from "@/features/hotels/api/hotels.api";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { formatCurrency } from "@/lib/utils";
 
+const STAY_CATEGORY_LABELS: Record<string, string> = {
+  HOSTEL: "Backpacker Hostel",
+  HOMESTAY: "Homestay",
+  GUESTHOUSE: "Guesthouse",
+  RESORT: "Boutique Stay",
+  OTHER: "Unique Stay",
+};
+
 export function HotelView({
   hotel,
   districtSlug,
@@ -68,21 +79,32 @@ export function HotelView({
 
   const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
 
+  const isStay = hotel.property_type === "STAY" || Boolean(hotel.stay_category);
+  const stayCategoryLabel = hotel.stay_category
+    ? (STAY_CATEGORY_LABELS[hotel.stay_category] ?? hotel.stay_category)
+    : "Stay & Hostel";
+
   const publishedRooms = React.useMemo(() => {
     return (hotel.room_types ?? []).filter((rt) => rt.isActive !== false);
   }, [hotel.room_types]);
 
+  const minRoom = React.useMemo(() => {
+    if (publishedRooms.length === 0) return null;
+    return [...publishedRooms].sort((a, b) => a.pricePerNight - b.pricePerNight)[0];
+  }, [publishedRooms]);
+
   const minPrice = React.useMemo(() => {
-    if (publishedRooms.length > 0) {
-      const prices = publishedRooms.map((rt) => rt.pricePerNight).filter((p) => p >= 0);
-      if (prices.length > 0) return Math.min(...prices);
-    }
+    if (minRoom) return minRoom.pricePerNight;
     return hotel.cost_per_night;
-  }, [publishedRooms, hotel.cost_per_night]);
+  }, [minRoom, hotel.cost_per_night]);
+
+  const priceUnitLabel = minRoom?.pricingUnit === "PER_BED" || minRoom?.roomCategory === "DORMITORY"
+    ? "starts per bed"
+    : "starts per night";
 
   function handleOpenBooking(roomTypeId?: string) {
     if (!hotel.booking_enabled) {
-      toast.error("Bookings for this hotel are currently not enabled.");
+      toast.error(`Bookings for this ${isStay ? "stay" : "hotel"} are currently not enabled.`);
       return;
     }
     setSelectedRoomId(roomTypeId);
@@ -114,7 +136,11 @@ export function HotelView({
 
   return (
     <div className="pb-12">
-      <ScreenHeader title="Hotel" subtitle={hotel.name} backHref={districtBase} />
+      <ScreenHeader
+        title={isStay ? stayCategoryLabel : "Hotel"}
+        subtitle={hotel.name}
+        backHref={districtBase}
+      />
 
       {/* Hero Banner */}
       <div className="relative -mx-4 overflow-hidden bg-zinc-900 sm:rounded-b-[2.5rem]">
@@ -129,9 +155,15 @@ export function HotelView({
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-5 sm:px-8">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-                  <Building2 className="size-3" /> Hotel
-                </span>
+                {isStay ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/80 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                    <BedSingle className="size-3" /> {stayCategoryLabel}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                    <Building2 className="size-3" /> Hotel
+                  </span>
+                )}
                 {hotel.star_rating ? (
                   <Badge className="border-amber-400/40 bg-amber-500/90 text-white shadow-sm backdrop-blur-md">
                     {"★".repeat(hotel.star_rating)} {hotel.star_rating}-Star Classification
@@ -155,7 +187,7 @@ export function HotelView({
                 {formatCurrency(minPrice)}
               </span>
               <span className="text-[0.65rem] uppercase tracking-wider text-white/80">
-                starts per night
+                {priceUnitLabel}
               </span>
             </div>
           </div>
@@ -245,6 +277,83 @@ export function HotelView({
               "A comfortable stay in Karnataka. Check the gallery, amenities, and traveller reviews."}
           </p>
         </section>
+
+        {/* SOCIAL & COMMUNITY EXPERIENCES (Hostels & Stays) */}
+        {hotel.activities && hotel.activities.length > 0 ? (
+          <section className="space-y-3">
+            <SectionHeader
+              title="Social & Community Experiences"
+              subtitle="Events, walking tours and activities hosted at this stay"
+            />
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-50/40 p-5 dark:bg-emerald-950/10">
+              <div className="flex flex-wrap items-center gap-2">
+                {hotel.activities.map((act) => (
+                  <span
+                    key={act}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-background/80 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 shadow-sm"
+                  >
+                    <Sparkles className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                    {act}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* PROPERTY & COMMUNITY FACILITIES */}
+        {hotel.facilities && hotel.facilities.length > 0 ? (
+          <section className="space-y-3">
+            <SectionHeader
+              title="Facilities & Amenities"
+              subtitle="Common spaces and facilities available to guests"
+            />
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                {hotel.facilities.map((fac) => (
+                  <span
+                    key={fac}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
+                  >
+                    <Check className="size-3.5 text-primary" />
+                    {fac}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* HOUSE RULES & POLICIES */}
+        {hotel.accommodation_rules || hotel.cancellation_policy ? (
+          <section className="space-y-4">
+            <SectionHeader title="House Rules & Policies" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {hotel.accommodation_rules ? (
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <ShieldCheck className="size-4 text-primary" />
+                    Accommodation & House Rules
+                  </div>
+                  <p className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                    {hotel.accommodation_rules}
+                  </p>
+                </div>
+              ) : null}
+              {hotel.cancellation_policy ? (
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <FileText className="size-4 text-primary" />
+                    Cancellation & Refund Policy
+                  </div>
+                  <p className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                    {hotel.cancellation_policy}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
 
         {/* LOCATION SECTION */}
         <section className="space-y-3">
@@ -403,12 +512,26 @@ function CustomerRoomCard({
             {/* Badges & Title */}
             <div>
               <div className="flex flex-wrap items-center gap-2">
+                {room.roomCategory === "DORMITORY" || room.pricingUnit === "PER_BED" ? (
+                  <Badge variant="outline" className="border-emerald-500/40 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300 text-xs font-semibold">
+                    <BedSingle className="mr-1 size-3" /> Dormitory Bed
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs">
+                    Private Room
+                  </Badge>
+                )}
                 <Badge
                   variant={room.roomType === "AC" ? "default" : "secondary"}
                   className="text-xs font-semibold"
                 >
-                  <Wind className="mr-1 size-3" /> {room.roomType === "AC" ? "AC Room" : "Non-AC Room"}
+                  <Wind className="mr-1 size-3" /> {room.roomType === "AC" ? "AC" : "Non-AC"}
                 </Badge>
+                {room.dormGender ? (
+                  <Badge variant="secondary" className="text-xs">
+                    {room.dormGender === "MIXED" ? "Mixed Dorm" : room.dormGender === "FEMALE" ? "Female Dorm" : "Male Dorm"}
+                  </Badge>
+                ) : null}
                 {room.category ? (
                   <Badge variant="outline" className="text-xs">
                     {room.category}
@@ -418,7 +541,13 @@ function CustomerRoomCard({
                   variant={isAvailable ? "outline" : "destructive"}
                   className="text-xs"
                 >
-                  {isAvailable ? `${room.availableRooms} rooms available` : "Sold Out"}
+                  {isAvailable
+                    ? `${room.availableRooms} ${
+                        room.roomCategory === "DORMITORY" || room.pricingUnit === "PER_BED"
+                          ? "beds"
+                          : "rooms"
+                      } available`
+                    : "Sold Out"}
                 </Badge>
               </div>
 
@@ -433,10 +562,17 @@ function CustomerRoomCard({
 
             {/* Occupancy & Key Amenities */}
             <div className="flex flex-wrap items-center gap-4 text-xs text-foreground/90">
-              <span className="flex items-center gap-1.5">
-                <Users className="size-3.5 text-primary" />
-                Up to {room.maxOccupancy} Guests
-              </span>
+              {room.roomCategory === "DORMITORY" || room.pricingUnit === "PER_BED" ? (
+                <span className="flex items-center gap-1.5 font-medium text-emerald-800 dark:text-emerald-300">
+                  <BedSingle className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                  {room.bedCapacity ? `${room.bedCapacity}-Bed Dorm` : "Dormitory"} {room.bedType ? `• ${room.bedType}` : ""}
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <Users className="size-3.5 text-primary" />
+                  Up to {room.maxOccupancy} Guests
+                </span>
+              )}
               {room.hasHotWater ? (
                 <span className="flex items-center gap-1.5">
                   <Flame className="size-3.5 text-amber-500" />
@@ -492,7 +628,9 @@ function CustomerRoomCard({
                 {formatCurrency(room.pricePerNight)}
               </div>
               <p className="text-[0.7rem] text-muted-foreground">
-                per room / night (taxes included)
+                {room.pricingUnit === "PER_BED" || room.roomCategory === "DORMITORY"
+                  ? "per bed / night (taxes included)"
+                  : "per room / night (taxes included)"}
               </p>
             </div>
 
@@ -569,8 +707,13 @@ export function HotelBookingSheet({
     return Math.max(0, Math.round(diff));
   }, [checkIn, checkOut]);
 
+  const isDorm =
+    activeRoom?.roomCategory === "DORMITORY" || activeRoom?.pricingUnit === "PER_BED";
+  const unitLabelSingular = isDorm ? "bed" : "room";
+  const unitLabelPlural = isDorm ? "beds" : "rooms";
+
   // Max capacity and available rooms validation
-  const maxAllowedGuests = (activeRoom?.maxOccupancy ?? 2) * rooms;
+  const maxAllowedGuests = isDorm ? rooms : (activeRoom?.maxOccupancy ?? 2) * rooms;
   const maxAvailableRooms = Math.max(1, activeRoom?.availableRooms ?? 5);
 
   // Auto-clamp guests if capacity reduced
@@ -629,13 +772,15 @@ export function HotelBookingSheet({
     }
     if (guests > maxAllowedGuests) {
       toast.error(
-        `Guest count (${guests}) exceeds capacity (${maxAllowedGuests}) for ${rooms} room(s).`
+        `Guest count (${guests}) exceeds capacity (${maxAllowedGuests}) for ${rooms} ${
+          rooms > 1 ? unitLabelPlural : unitLabelSingular
+        }.`
       );
       return;
     }
     if (activeRoom && rooms > activeRoom.availableRooms) {
       toast.error(
-        `Only ${activeRoom.availableRooms} rooms available for this room type.`
+        `Only ${activeRoom.availableRooms} ${unitLabelPlural} available for this option.`
       );
       return;
     }
@@ -653,7 +798,7 @@ export function HotelBookingSheet({
       });
 
       toast.success("Booking request sent successfully!", {
-        description: "The hotel will confirm your reservation.",
+        description: "The accommodation host will confirm your reservation.",
       });
       onOpenChange(false);
       setCheckIn("");
@@ -689,11 +834,13 @@ export function HotelBookingSheet({
           {publishedRooms.length > 0 ? (
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Select Room Type
+                Select Option / Room
               </Label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {publishedRooms.map((rt) => {
                   const isSelected = rt.id === activeRoom?.id;
+                  const rtIsDorm =
+                    rt.roomCategory === "DORMITORY" || rt.pricingUnit === "PER_BED";
                   return (
                     <button
                       key={rt.id}
@@ -718,10 +865,10 @@ export function HotelBookingSheet({
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs">
                         <span className="font-bold text-foreground">
-                          {formatCurrency(rt.pricePerNight)}/nt
+                          {formatCurrency(rt.pricePerNight)}/{rtIsDorm ? "bed" : "nt"}
                         </span>
                         <span className="text-[0.65rem] text-muted-foreground">
-                          {rt.availableRooms} avail
+                          {rt.availableRooms} {rtIsDorm ? "beds" : "avail"}
                         </span>
                       </div>
                     </button>
@@ -765,7 +912,8 @@ export function HotelBookingSheet({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="rooms" className="inline-flex items-center gap-1.5 text-xs font-medium">
-                <BedDouble className="size-3.5 text-primary" /> Rooms
+                {isDorm ? <BedSingle className="size-3.5 text-primary" /> : <BedDouble className="size-3.5 text-primary" />}
+                {isDorm ? "Beds to Book" : "Rooms"}
               </Label>
               <SelectRange
                 id="rooms"
@@ -775,7 +923,7 @@ export function HotelBookingSheet({
                 max={Math.min(10, maxAvailableRooms)}
               />
               <p className="text-[0.65rem] text-muted-foreground">
-                Max {maxAvailableRooms} rooms available
+                Max {maxAvailableRooms} {unitLabelPlural} available
               </p>
             </div>
 
@@ -791,7 +939,9 @@ export function HotelBookingSheet({
                 max={maxAllowedGuests}
               />
               <p className="text-[0.65rem] text-muted-foreground">
-                Capacity: {maxAllowedGuests} guests ({activeRoom?.maxOccupancy ?? 2}/room)
+                {isDorm
+                  ? `Capacity: ${rooms} guest${rooms > 1 ? "s" : ""} (1 bed / guest)`
+                  : `Capacity: ${maxAllowedGuests} guests (${activeRoom?.maxOccupancy ?? 2}/room)`}
               </p>
             </div>
           </div>
@@ -835,9 +985,9 @@ export function HotelBookingSheet({
             title="Price Breakdown"
             rows={[
               {
-                label: `Room: ${activeRoom?.title ?? hotel.name}`,
-                value: `${formatCurrency(roomPricePerNight)} × ${rooms} room${
-                  rooms > 1 ? "s" : ""
+                label: `${isDorm ? "Dorm Bed" : "Room"}: ${activeRoom?.title ?? hotel.name}`,
+                value: `${formatCurrency(roomPricePerNight)} × ${rooms} ${
+                  isDorm ? (rooms > 1 ? "beds" : "bed") : (rooms > 1 ? "rooms" : "room")
                 } × ${nights} night${nights === 1 ? "" : "s"}`,
                 strong: true,
               },

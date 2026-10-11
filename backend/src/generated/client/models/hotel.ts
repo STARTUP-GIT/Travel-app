@@ -72,6 +72,10 @@ export type HotelMinAggregateOutputType = {
   check_out_time: string | null
   check_out_start_time: string | null
   check_out_end_time: string | null
+  property_type: string | null
+  stay_category: string | null
+  accommodation_rules: string | null
+  cancellation_policy: string | null
 }
 
 export type HotelMaxAggregateOutputType = {
@@ -104,6 +108,10 @@ export type HotelMaxAggregateOutputType = {
   check_out_time: string | null
   check_out_start_time: string | null
   check_out_end_time: string | null
+  property_type: string | null
+  stay_category: string | null
+  accommodation_rules: string | null
+  cancellation_policy: string | null
 }
 
 export type HotelCountAggregateOutputType = {
@@ -138,6 +146,12 @@ export type HotelCountAggregateOutputType = {
   check_out_time: number
   check_out_start_time: number
   check_out_end_time: number
+  property_type: number
+  stay_category: number
+  accommodation_rules: number
+  cancellation_policy: number
+  activities: number
+  facilities: number
   _all: number
 }
 
@@ -188,6 +202,10 @@ export type HotelMinAggregateInputType = {
   check_out_time?: true
   check_out_start_time?: true
   check_out_end_time?: true
+  property_type?: true
+  stay_category?: true
+  accommodation_rules?: true
+  cancellation_policy?: true
 }
 
 export type HotelMaxAggregateInputType = {
@@ -220,6 +238,10 @@ export type HotelMaxAggregateInputType = {
   check_out_time?: true
   check_out_start_time?: true
   check_out_end_time?: true
+  property_type?: true
+  stay_category?: true
+  accommodation_rules?: true
+  cancellation_policy?: true
 }
 
 export type HotelCountAggregateInputType = {
@@ -254,6 +276,12 @@ export type HotelCountAggregateInputType = {
   check_out_time?: true
   check_out_start_time?: true
   check_out_end_time?: true
+  property_type?: true
+  stay_category?: true
+  accommodation_rules?: true
+  cancellation_policy?: true
+  activities?: true
+  facilities?: true
   _all?: true
 }
 
@@ -375,6 +403,12 @@ export type HotelGroupByOutputType = {
   check_out_time: string | null
   check_out_start_time: string | null
   check_out_end_time: string | null
+  property_type: string
+  stay_category: string | null
+  accommodation_rules: string | null
+  cancellation_policy: string | null
+  activities: string[]
+  facilities: string[]
   _count: HotelCountAggregateOutputType | null
   _avg: HotelAvgAggregateOutputType | null
   _sum: HotelSumAggregateOutputType | null
@@ -432,6 +466,12 @@ export type hotelWhereInput = {
   check_out_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_start_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_end_time?: Prisma.StringNullableFilter<"hotel"> | string | null
+  property_type?: Prisma.StringFilter<"hotel"> | string
+  stay_category?: Prisma.StringNullableFilter<"hotel"> | string | null
+  accommodation_rules?: Prisma.StringNullableFilter<"hotel"> | string | null
+  cancellation_policy?: Prisma.StringNullableFilter<"hotel"> | string | null
+  activities?: Prisma.StringNullableListFilter<"hotel">
+  facilities?: Prisma.StringNullableListFilter<"hotel">
   hotelOwner?: Prisma.XOR<Prisma.Hotel_ownerScalarRelationFilter, Prisma.hotel_ownerWhereInput>
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   bookings?: Prisma.Hotel_bookingListRelationFilter
@@ -470,6 +510,12 @@ export type hotelOrderByWithRelationInput = {
   check_out_time?: Prisma.SortOrderInput | Prisma.SortOrder
   check_out_start_time?: Prisma.SortOrderInput | Prisma.SortOrder
   check_out_end_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  property_type?: Prisma.SortOrder
+  stay_category?: Prisma.SortOrderInput | Prisma.SortOrder
+  accommodation_rules?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellation_policy?: Prisma.SortOrderInput | Prisma.SortOrder
+  activities?: Prisma.SortOrder
+  facilities?: Prisma.SortOrder
   hotelOwner?: Prisma.hotel_ownerOrderByWithRelationInput
   district?: Prisma.districtOrderByWithRelationInput
   bookings?: Prisma.hotel_bookingOrderByRelationAggregateInput
@@ -511,6 +557,12 @@ export type hotelWhereUniqueInput = Prisma.AtLeast<{
   check_out_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_start_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_end_time?: Prisma.StringNullableFilter<"hotel"> | string | null
+  property_type?: Prisma.StringFilter<"hotel"> | string
+  stay_category?: Prisma.StringNullableFilter<"hotel"> | string | null
+  accommodation_rules?: Prisma.StringNullableFilter<"hotel"> | string | null
+  cancellation_policy?: Prisma.StringNullableFilter<"hotel"> | string | null
+  activities?: Prisma.StringNullableListFilter<"hotel">
+  facilities?: Prisma.StringNullableListFilter<"hotel">
   hotelOwner?: Prisma.XOR<Prisma.Hotel_ownerScalarRelationFilter, Prisma.hotel_ownerWhereInput>
   district?: Prisma.XOR<Prisma.DistrictScalarRelationFilter, Prisma.districtWhereInput>
   bookings?: Prisma.Hotel_bookingListRelationFilter
@@ -549,6 +601,12 @@ export type hotelOrderByWithAggregationInput = {
   check_out_time?: Prisma.SortOrderInput | Prisma.SortOrder
   check_out_start_time?: Prisma.SortOrderInput | Prisma.SortOrder
   check_out_end_time?: Prisma.SortOrderInput | Prisma.SortOrder
+  property_type?: Prisma.SortOrder
+  stay_category?: Prisma.SortOrderInput | Prisma.SortOrder
+  accommodation_rules?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancellation_policy?: Prisma.SortOrderInput | Prisma.SortOrder
+  activities?: Prisma.SortOrder
+  facilities?: Prisma.SortOrder
   _count?: Prisma.hotelCountOrderByAggregateInput
   _avg?: Prisma.hotelAvgOrderByAggregateInput
   _max?: Prisma.hotelMaxOrderByAggregateInput
@@ -591,6 +649,12 @@ export type hotelScalarWhereWithAggregatesInput = {
   check_out_time?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
   check_out_start_time?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
   check_out_end_time?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
+  property_type?: Prisma.StringWithAggregatesFilter<"hotel"> | string
+  stay_category?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
+  accommodation_rules?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
+  cancellation_policy?: Prisma.StringNullableWithAggregatesFilter<"hotel"> | string | null
+  activities?: Prisma.StringNullableListFilter<"hotel">
+  facilities?: Prisma.StringNullableListFilter<"hotel">
 }
 
 export type hotelCreateInput = {
@@ -623,6 +687,12 @@ export type hotelCreateInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
   district: Prisma.districtCreateNestedOneWithoutHotelsInput
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutHotelInput
@@ -661,6 +731,12 @@ export type hotelUncheckedCreateInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutHotelInput
   room_types?: Prisma.hotel_room_typeUncheckedCreateNestedManyWithoutHotelInput
 }
@@ -695,6 +771,12 @@ export type hotelUpdateInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutHotelsNestedInput
   bookings?: Prisma.hotel_bookingUpdateManyWithoutHotelNestedInput
@@ -733,6 +815,12 @@ export type hotelUncheckedUpdateInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput
   room_types?: Prisma.hotel_room_typeUncheckedUpdateManyWithoutHotelNestedInput
 }
@@ -769,6 +857,12 @@ export type hotelCreateManyInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
 }
 
 export type hotelUpdateManyMutationInput = {
@@ -801,6 +895,12 @@ export type hotelUpdateManyMutationInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
 }
 
 export type hotelUncheckedUpdateManyInput = {
@@ -835,6 +935,12 @@ export type hotelUncheckedUpdateManyInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
 }
 
 export type HotelListRelationFilter = {
@@ -879,6 +985,12 @@ export type hotelCountOrderByAggregateInput = {
   check_out_time?: Prisma.SortOrder
   check_out_start_time?: Prisma.SortOrder
   check_out_end_time?: Prisma.SortOrder
+  property_type?: Prisma.SortOrder
+  stay_category?: Prisma.SortOrder
+  accommodation_rules?: Prisma.SortOrder
+  cancellation_policy?: Prisma.SortOrder
+  activities?: Prisma.SortOrder
+  facilities?: Prisma.SortOrder
 }
 
 export type hotelAvgOrderByAggregateInput = {
@@ -919,6 +1031,10 @@ export type hotelMaxOrderByAggregateInput = {
   check_out_time?: Prisma.SortOrder
   check_out_start_time?: Prisma.SortOrder
   check_out_end_time?: Prisma.SortOrder
+  property_type?: Prisma.SortOrder
+  stay_category?: Prisma.SortOrder
+  accommodation_rules?: Prisma.SortOrder
+  cancellation_policy?: Prisma.SortOrder
 }
 
 export type hotelMinOrderByAggregateInput = {
@@ -951,6 +1067,10 @@ export type hotelMinOrderByAggregateInput = {
   check_out_time?: Prisma.SortOrder
   check_out_start_time?: Prisma.SortOrder
   check_out_end_time?: Prisma.SortOrder
+  property_type?: Prisma.SortOrder
+  stay_category?: Prisma.SortOrder
+  accommodation_rules?: Prisma.SortOrder
+  cancellation_policy?: Prisma.SortOrder
 }
 
 export type hotelSumOrderByAggregateInput = {
@@ -1016,12 +1136,30 @@ export type hotelCreateimagesInput = {
   set: string[]
 }
 
+export type hotelCreateactivitiesInput = {
+  set: string[]
+}
+
+export type hotelCreatefacilitiesInput = {
+  set: string[]
+}
+
 export type hotelUpdatereviewInput = {
   set?: string[]
   push?: string | string[]
 }
 
 export type hotelUpdateimagesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type hotelUpdateactivitiesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type hotelUpdatefacilitiesInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -1126,6 +1264,12 @@ export type hotelCreateWithoutDistrictInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutHotelInput
   room_types?: Prisma.hotel_room_typeCreateNestedManyWithoutHotelInput
@@ -1162,6 +1306,12 @@ export type hotelUncheckedCreateWithoutDistrictInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutHotelInput
   room_types?: Prisma.hotel_room_typeUncheckedCreateNestedManyWithoutHotelInput
 }
@@ -1227,6 +1377,12 @@ export type hotelScalarWhereInput = {
   check_out_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_start_time?: Prisma.StringNullableFilter<"hotel"> | string | null
   check_out_end_time?: Prisma.StringNullableFilter<"hotel"> | string | null
+  property_type?: Prisma.StringFilter<"hotel"> | string
+  stay_category?: Prisma.StringNullableFilter<"hotel"> | string | null
+  accommodation_rules?: Prisma.StringNullableFilter<"hotel"> | string | null
+  cancellation_policy?: Prisma.StringNullableFilter<"hotel"> | string | null
+  activities?: Prisma.StringNullableListFilter<"hotel">
+  facilities?: Prisma.StringNullableListFilter<"hotel">
 }
 
 export type hotelCreateWithoutRoom_typesInput = {
@@ -1259,6 +1415,12 @@ export type hotelCreateWithoutRoom_typesInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
   district: Prisma.districtCreateNestedOneWithoutHotelsInput
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutHotelInput
@@ -1296,6 +1458,12 @@ export type hotelUncheckedCreateWithoutRoom_typesInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutHotelInput
 }
 
@@ -1345,6 +1513,12 @@ export type hotelUpdateWithoutRoom_typesInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutHotelsNestedInput
   bookings?: Prisma.hotel_bookingUpdateManyWithoutHotelNestedInput
@@ -1382,6 +1556,12 @@ export type hotelUncheckedUpdateWithoutRoom_typesInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput
 }
 
@@ -1415,6 +1595,12 @@ export type hotelCreateWithoutHotelOwnerInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   district: Prisma.districtCreateNestedOneWithoutHotelsInput
   bookings?: Prisma.hotel_bookingCreateNestedManyWithoutHotelInput
   room_types?: Prisma.hotel_room_typeCreateNestedManyWithoutHotelInput
@@ -1451,6 +1637,12 @@ export type hotelUncheckedCreateWithoutHotelOwnerInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedCreateNestedManyWithoutHotelInput
   room_types?: Prisma.hotel_room_typeUncheckedCreateNestedManyWithoutHotelInput
 }
@@ -1511,6 +1703,12 @@ export type hotelCreateWithoutBookingsInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   hotelOwner: Prisma.hotel_ownerCreateNestedOneWithoutHotelsInput
   district: Prisma.districtCreateNestedOneWithoutHotelsInput
   room_types?: Prisma.hotel_room_typeCreateNestedManyWithoutHotelInput
@@ -1548,6 +1746,12 @@ export type hotelUncheckedCreateWithoutBookingsInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
   room_types?: Prisma.hotel_room_typeUncheckedCreateNestedManyWithoutHotelInput
 }
 
@@ -1597,6 +1801,12 @@ export type hotelUpdateWithoutBookingsInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
   district?: Prisma.districtUpdateOneRequiredWithoutHotelsNestedInput
   room_types?: Prisma.hotel_room_typeUpdateManyWithoutHotelNestedInput
@@ -1634,6 +1844,12 @@ export type hotelUncheckedUpdateWithoutBookingsInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   room_types?: Prisma.hotel_room_typeUncheckedUpdateManyWithoutHotelNestedInput
 }
 
@@ -1668,6 +1884,12 @@ export type hotelCreateManyDistrictInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
 }
 
 export type hotelUpdateWithoutDistrictInput = {
@@ -1700,6 +1922,12 @@ export type hotelUpdateWithoutDistrictInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   hotelOwner?: Prisma.hotel_ownerUpdateOneRequiredWithoutHotelsNestedInput
   bookings?: Prisma.hotel_bookingUpdateManyWithoutHotelNestedInput
   room_types?: Prisma.hotel_room_typeUpdateManyWithoutHotelNestedInput
@@ -1736,6 +1964,12 @@ export type hotelUncheckedUpdateWithoutDistrictInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput
   room_types?: Prisma.hotel_room_typeUncheckedUpdateManyWithoutHotelNestedInput
 }
@@ -1771,6 +2005,12 @@ export type hotelUncheckedUpdateManyWithoutDistrictInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
 }
 
 export type hotelCreateManyHotelOwnerInput = {
@@ -1804,6 +2044,12 @@ export type hotelCreateManyHotelOwnerInput = {
   check_out_time?: string | null
   check_out_start_time?: string | null
   check_out_end_time?: string | null
+  property_type?: string
+  stay_category?: string | null
+  accommodation_rules?: string | null
+  cancellation_policy?: string | null
+  activities?: Prisma.hotelCreateactivitiesInput | string[]
+  facilities?: Prisma.hotelCreatefacilitiesInput | string[]
 }
 
 export type hotelUpdateWithoutHotelOwnerInput = {
@@ -1836,6 +2082,12 @@ export type hotelUpdateWithoutHotelOwnerInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   district?: Prisma.districtUpdateOneRequiredWithoutHotelsNestedInput
   bookings?: Prisma.hotel_bookingUpdateManyWithoutHotelNestedInput
   room_types?: Prisma.hotel_room_typeUpdateManyWithoutHotelNestedInput
@@ -1872,6 +2124,12 @@ export type hotelUncheckedUpdateWithoutHotelOwnerInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
   bookings?: Prisma.hotel_bookingUncheckedUpdateManyWithoutHotelNestedInput
   room_types?: Prisma.hotel_room_typeUncheckedUpdateManyWithoutHotelNestedInput
 }
@@ -1907,6 +2165,12 @@ export type hotelUncheckedUpdateManyWithoutHotelOwnerInput = {
   check_out_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_start_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   check_out_end_time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  property_type?: Prisma.StringFieldUpdateOperationsInput | string
+  stay_category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accommodation_rules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cancellation_policy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activities?: Prisma.hotelUpdateactivitiesInput | string[]
+  facilities?: Prisma.hotelUpdatefacilitiesInput | string[]
 }
 
 
@@ -1981,6 +2245,12 @@ export type hotelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   check_out_time?: boolean
   check_out_start_time?: boolean
   check_out_end_time?: boolean
+  property_type?: boolean
+  stay_category?: boolean
+  accommodation_rules?: boolean
+  cancellation_policy?: boolean
+  activities?: boolean
+  facilities?: boolean
   hotelOwner?: boolean | Prisma.hotel_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.hotel$bookingsArgs<ExtArgs>
@@ -2020,6 +2290,12 @@ export type hotelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   check_out_time?: boolean
   check_out_start_time?: boolean
   check_out_end_time?: boolean
+  property_type?: boolean
+  stay_category?: boolean
+  accommodation_rules?: boolean
+  cancellation_policy?: boolean
+  activities?: boolean
+  facilities?: boolean
   hotelOwner?: boolean | Prisma.hotel_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hotel"]>
@@ -2056,6 +2332,12 @@ export type hotelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   check_out_time?: boolean
   check_out_start_time?: boolean
   check_out_end_time?: boolean
+  property_type?: boolean
+  stay_category?: boolean
+  accommodation_rules?: boolean
+  cancellation_policy?: boolean
+  activities?: boolean
+  facilities?: boolean
   hotelOwner?: boolean | Prisma.hotel_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["hotel"]>
@@ -2092,9 +2374,15 @@ export type hotelSelectScalar = {
   check_out_time?: boolean
   check_out_start_time?: boolean
   check_out_end_time?: boolean
+  property_type?: boolean
+  stay_category?: boolean
+  accommodation_rules?: boolean
+  cancellation_policy?: boolean
+  activities?: boolean
+  facilities?: boolean
 }
 
-export type hotelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "profile_logo" | "districtId" | "description" | "rating" | "review" | "cost_per_night" | "images" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "hotelOwnerId" | "createdAt" | "updatedAt" | "star_rating" | "maps_url" | "check_in_time_type" | "check_in_time" | "check_in_start_time" | "check_in_end_time" | "check_out_time_type" | "check_out_time" | "check_out_start_time" | "check_out_end_time", ExtArgs["result"]["hotel"]>
+export type hotelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "profile_logo" | "districtId" | "description" | "rating" | "review" | "cost_per_night" | "images" | "latitude" | "longitude" | "phone_number" | "whatsapp_number" | "email" | "website" | "booking_enabled" | "status" | "hotelOwnerId" | "createdAt" | "updatedAt" | "star_rating" | "maps_url" | "check_in_time_type" | "check_in_time" | "check_in_start_time" | "check_in_end_time" | "check_out_time_type" | "check_out_time" | "check_out_start_time" | "check_out_end_time" | "property_type" | "stay_category" | "accommodation_rules" | "cancellation_policy" | "activities" | "facilities", ExtArgs["result"]["hotel"]>
 export type hotelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   hotelOwner?: boolean | Prisma.hotel_ownerDefaultArgs<ExtArgs>
   district?: boolean | Prisma.districtDefaultArgs<ExtArgs>
@@ -2151,6 +2439,12 @@ export type $hotelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     check_out_time: string | null
     check_out_start_time: string | null
     check_out_end_time: string | null
+    property_type: string
+    stay_category: string | null
+    accommodation_rules: string | null
+    cancellation_policy: string | null
+    activities: string[]
+    facilities: string[]
   }, ExtArgs["result"]["hotel"]>
   composites: {}
 }
@@ -2609,6 +2903,12 @@ export interface hotelFieldRefs {
   readonly check_out_time: Prisma.FieldRef<"hotel", 'String'>
   readonly check_out_start_time: Prisma.FieldRef<"hotel", 'String'>
   readonly check_out_end_time: Prisma.FieldRef<"hotel", 'String'>
+  readonly property_type: Prisma.FieldRef<"hotel", 'String'>
+  readonly stay_category: Prisma.FieldRef<"hotel", 'String'>
+  readonly accommodation_rules: Prisma.FieldRef<"hotel", 'String'>
+  readonly cancellation_policy: Prisma.FieldRef<"hotel", 'String'>
+  readonly activities: Prisma.FieldRef<"hotel", 'String[]'>
+  readonly facilities: Prisma.FieldRef<"hotel", 'String[]'>
 }
     
 

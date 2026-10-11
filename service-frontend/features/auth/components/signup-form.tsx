@@ -11,7 +11,10 @@ import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProviderKindPicker } from "@/features/auth/components/provider-kind-picker";
+import {
+  ProviderKindPicker,
+  type AccommodationPortal,
+} from "@/features/auth/components/provider-kind-picker";
 import {
   LanguageInput,
   PlacePicker,
@@ -27,6 +30,7 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   initialKind: ProviderKind | null;
+  initialPortal?: AccommodationPortal;
   error: string | null;
 };
 
@@ -54,8 +58,9 @@ const EMPTY: Form = {
   languages: [],
 };
 
-export function SignupForm({ initialKind, error }: Props) {
+export function SignupForm({ initialKind, initialPortal = "hotel", error }: Props) {
   const [kind, setKind] = React.useState<ProviderKind | null>(initialKind);
+  const [portal, setPortal] = React.useState<AccommodationPortal>(initialPortal);
   const [form, setForm] = React.useState<Form>(EMPTY);
   const [pending, setPending] = React.useState<"email" | "google" | null>(null);
   const [fields, setFields] = React.useState<Record<string, string>>({});
@@ -110,6 +115,11 @@ export function SignupForm({ initialKind, error }: Props) {
     setPending("email");
     setFields({});
 
+    const destination =
+      kind === "hotel" && portal === "stays"
+        ? "/stays/services/new"
+        : "/dashboard";
+
     const result = await registerWithEmail(
       {
         kind,
@@ -123,7 +133,7 @@ export function SignupForm({ initialKind, error }: Props) {
         cost: form.cost,
         languages: form.languages,
       },
-      "/dashboard",
+      destination,
       photoFile
     );
 
@@ -230,9 +240,13 @@ export function SignupForm({ initialKind, error }: Props) {
               Create a provider account
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {meta
-                ? `Register as a ${meta.label.toLowerCase()} to start managing your services.`
-                : "Choose the kind of account you are registering."}
+              {kind === "hotel"
+                ? portal === "stays"
+                  ? "Register as a stays & hostels host to list dorms, homestays, and community stays."
+                  : "Register as a hotel owner to start managing your hotel."
+                : meta
+                  ? `Register as a ${meta.label.toLowerCase()} to start managing your services.`
+                  : "Choose the kind of account you are registering."}
             </p>
           </div>
 
@@ -242,6 +256,8 @@ export function SignupForm({ initialKind, error }: Props) {
               setKind(next);
               setFields({});
             }}
+            accommodationPortal={portal}
+            onAccommodationPortalChange={setPortal}
           />
 
           {kind ? (
@@ -340,7 +356,7 @@ export function SignupForm({ initialKind, error }: Props) {
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Already registered?{" "}
           <Link
-            href={`/login?reauth=1${kind ? `&kind=${kind}` : ""}`}
+            href={`/login?reauth=1${kind ? `&kind=${kind}` : ""}${kind === "hotel" && portal === "stays" ? "&portal=stays" : ""}`}
             className="cursor-pointer font-semibold text-primary hover:underline"
           >
             Sign in

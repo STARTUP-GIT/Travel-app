@@ -15,20 +15,24 @@ const ERRORS: Record<string, string> = {
   default: "Sign up failed.",
 };
 
-type SearchParams = Promise<{ kind?: string; error?: string }>;
+type SearchParams = Promise<{ kind?: string; portal?: string; error?: string }>;
 
 export default async function SignupPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  if (await getProviderSession()) redirect("/dashboard");
-
   const params = await searchParams;
+  const isStays = params.portal === "stays";
+
+  if (await getProviderSession()) {
+    redirect(isStays ? "/stays/dashboard" : "/dashboard");
+  }
 
   return (
     <SignupForm
       initialKind={isProviderKind(params.kind) ? params.kind : null}
+      initialPortal={isStays ? "stays" : "hotel"}
       error={params.error ? (ERRORS[params.error] ?? ERRORS.default) : null}
     />
   );

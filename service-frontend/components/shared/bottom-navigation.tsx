@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { PRIMARY_NAV } from "@/components/shared/primary-nav";
+import { getPrimaryNav } from "@/components/shared/primary-nav";
 import { cn } from "@/lib/utils";
 
 /**
@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
  */
 export function BottomNavigation({ pending }: { pending: number }) {
   const pathname = usePathname();
+  const navItems = getPrimaryNav(pathname);
 
   return (
     <nav
@@ -32,7 +33,7 @@ export function BottomNavigation({ pending }: { pending: number }) {
       aria-label="Primary navigation"
     >
       <ul className="grid grid-cols-4">
-        {PRIMARY_NAV.map(({ href, label, icon: Icon, match }) => {
+        {navItems.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
           return (
             <li key={href}>

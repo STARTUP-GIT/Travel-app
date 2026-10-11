@@ -1,4 +1,4 @@
-import { Compass, Plus, Route, Store } from "lucide-react";
+import { BedSingle, Compass, Plus, Route, Store } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -77,12 +77,22 @@ export default async function ServicesPage() {
         }
         actions={
           meta.managesVenues ? (
-            <Button asChild className="rounded-full">
-              <Link href="/services/new">
-                <Plus className="size-4" />
-                Add a listing
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              {session.kind === "hotel" ? (
+                <Button asChild variant="outline" className="rounded-full border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
+                  <Link href="/stays/services">
+                    <BedSingle className="size-4 mr-1" />
+                    Stays Portal
+                  </Link>
+                </Button>
+              ) : null}
+              <Button asChild className="rounded-full">
+                <Link href="/services/new">
+                  <Plus className="size-4" />
+                  Add a listing
+                </Link>
+              </Button>
+            </div>
           ) : null
         }
       />

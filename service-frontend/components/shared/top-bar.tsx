@@ -1,11 +1,12 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/shared/logo";
-import { PRIMARY_NAV } from "@/components/shared/primary-nav";
+import { getPrimaryNav } from "@/components/shared/primary-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { useBranding } from "@/features/app-config/state/app-config-provider";
 import { signOutProvider } from "@/features/provider/api/provider.actions";
 import { providerMeta } from "@/features/provider/config";
 import type { ProviderKind } from "@/features/provider/types";
+import { cn } from "@/lib/utils";
 
 export type TopBarIdentity = {
   kind: ProviderKind;
@@ -31,6 +33,9 @@ export type TopBarIdentity = {
 };
 
 export function TopBar({ identity }: { identity: TopBarIdentity }) {
+  const pathname = usePathname();
+  const isStays = pathname.startsWith("/stays");
+  const navItems = getPrimaryNav(pathname);
   const { appName } = useBranding();
   const meta = providerMeta(identity.kind);
   const initial = (identity.name || identity.email).charAt(0).toUpperCase();
@@ -38,14 +43,59 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="flex h-14 w-full items-center justify-between gap-3 px-4 lg:h-16 lg:px-8">
-        <Link href="/dashboard" aria-label={`${appName} dashboard`} className="shrink-0">
+        <Link
+          href={isStays ? "/stays/dashboard" : "/dashboard"}
+          aria-label={`${appName} dashboard`}
+          className="shrink-0"
+        >
           <Logo />
         </Link>
 
         <div className="flex items-center gap-1.5 lg:gap-2">
-          <Badge variant="info" className="hidden sm:inline-flex">
-            {meta.label} portal
-          </Badge>
+          {identity.kind === "hotel" ? (
+            <div
+              role="group"
+              aria-label="Accommodation portal switcher"
+              className="flex items-center rounded-xl border border-border/70 bg-muted/50 p-0.5 text-xs font-semibold backdrop-blur-sm"
+            >
+              <Link
+                href="/dashboard"
+                className={cn(
+                  "rounded-lg px-2.5 py-1 transition-all text-xs",
+                  !isStays
+                    ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Hotels
+              </Link>
+              <Link
+                href="/stays/dashboard"
+                className={cn(
+                  "rounded-lg px-2.5 py-1 transition-all text-xs flex items-center gap-1",
+                  isStays
+                    ? "bg-emerald-600 text-white font-bold shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span>Stays</span>
+                <span
+                  className={cn(
+                    "rounded-full px-1 text-[0.6rem] font-bold uppercase",
+                    isStays
+                      ? "bg-white/20 text-white"
+                      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                  )}
+                >
+                  Hostels
+                </span>
+              </Link>
+            </div>
+          ) : (
+            <Badge variant="info" className="hidden sm:inline-flex">
+              {meta.label} portal
+            </Badge>
+          )}
 
           {identity.pendingRequests > 0 ? (
             <Badge
@@ -91,7 +141,7 @@ export function TopBar({ identity }: { identity: TopBarIdentity }) {
               */}
               <div className="hidden lg:block">
                 <DropdownMenuSeparator />
-                {PRIMARY_NAV.map((item) => (
+                {navItems.map((item) => (
                   <DropdownMenuItem key={item.href} asChild>
                     <Link href={item.href} className="flex cursor-pointer items-center gap-2">
                       <item.icon className="size-4" />

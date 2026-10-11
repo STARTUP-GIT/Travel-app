@@ -130,6 +130,12 @@ export const createHotel = async (req: Request, res: Response) => {
         check_out_time: data.check_out_time ?? null,
         check_out_start_time: data.check_out_start_time ?? null,
         check_out_end_time: data.check_out_end_time ?? null,
+        property_type: data.property_type ?? "HOTEL",
+        stay_category: data.stay_category ?? null,
+        accommodation_rules: data.accommodation_rules ?? null,
+        cancellation_policy: data.cancellation_policy ?? null,
+        activities: data.activities ?? [],
+        facilities: data.facilities ?? [],
         ...(data.roomTypes?.length
           ? {
               room_types: {
@@ -154,6 +160,11 @@ export const createHotel = async (req: Request, res: Response) => {
                   conditions: rt.conditions ?? null,
                   isActive: rt.isActive ?? true,
                   displayOrder: rt.displayOrder ?? idx,
+                  roomCategory: rt.roomCategory ?? "PRIVATE",
+                  bedType: rt.bedType ?? null,
+                  dormGender: rt.dormGender ?? null,
+                  bedCapacity: rt.bedCapacity ?? null,
+                  pricingUnit: rt.pricingUnit ?? "PER_ROOM",
                 })),
               },
             }
@@ -362,6 +373,11 @@ export const updateHotel = async (req: Request, res: Response) => {
               conditions: rt.conditions ?? null,
               isActive: rt.isActive ?? true,
               displayOrder: rt.displayOrder ?? idx,
+              roomCategory: rt.roomCategory ?? "PRIVATE",
+              bedType: rt.bedType ?? null,
+              dormGender: rt.dormGender ?? null,
+              bedCapacity: rt.bedCapacity ?? null,
+              pricingUnit: rt.pricingUnit ?? "PER_ROOM",
             },
           });
         } else {
@@ -388,6 +404,11 @@ export const updateHotel = async (req: Request, res: Response) => {
               conditions: rt.conditions ?? null,
               isActive: rt.isActive ?? true,
               displayOrder: rt.displayOrder ?? idx,
+              roomCategory: rt.roomCategory ?? "PRIVATE",
+              bedType: rt.bedType ?? null,
+              dormGender: rt.dormGender ?? null,
+              bedCapacity: rt.bedCapacity ?? null,
+              pricingUnit: rt.pricingUnit ?? "PER_ROOM",
             },
           });
         }
@@ -434,6 +455,12 @@ export const updateHotel = async (req: Request, res: Response) => {
         ...(data.check_out_time !== undefined ? { check_out_time: data.check_out_time } : {}),
         ...(data.check_out_start_time !== undefined ? { check_out_start_time: data.check_out_start_time } : {}),
         ...(data.check_out_end_time !== undefined ? { check_out_end_time: data.check_out_end_time } : {}),
+        ...(data.property_type !== undefined ? { property_type: data.property_type } : {}),
+        ...(data.stay_category !== undefined ? { stay_category: data.stay_category } : {}),
+        ...(data.accommodation_rules !== undefined ? { accommodation_rules: data.accommodation_rules } : {}),
+        ...(data.cancellation_policy !== undefined ? { cancellation_policy: data.cancellation_policy } : {}),
+        ...(data.activities !== undefined ? { activities: data.activities } : {}),
+        ...(data.facilities !== undefined ? { facilities: data.facilities } : {}),
       },
       include: districtHierarchyInclude,
     });

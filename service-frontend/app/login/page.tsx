@@ -17,6 +17,7 @@ const ERRORS: Record<string, string> = {
 
 type SearchParams = Promise<{
   kind?: string;
+  portal?: string;
   next?: string;
   error?: string;
   reauth?: string;
@@ -28,18 +29,22 @@ export default async function LoginPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
+  const isStays = params.portal === "stays";
+  const defaultDestination = isStays ? "/stays/dashboard" : "/dashboard";
+
   if (params.reauth !== "1" && (await getProviderSession())) {
-    redirect("/dashboard");
+    redirect(defaultDestination);
   }
 
   const next =
     params.next && params.next.startsWith("/") && !params.next.startsWith("//")
       ? params.next
-      : "/dashboard";
+      : defaultDestination;
 
   return (
     <LoginForm
       initialKind={isProviderKind(params.kind) ? params.kind : null}
+      initialPortal={isStays ? "stays" : "hotel"}
       next={next}
       error={params.error ? (ERRORS[params.error] ?? ERRORS.default) : null}
     />

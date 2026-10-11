@@ -38,6 +38,16 @@ function firstImage(images: unknown): string | null {
   return image?.trim() ?? null;
 }
 
+function toTitleCase(value?: string | null): string {
+  if (!value) return "";
+  const trimmed = value.trim();
+  const normalized =
+    trimmed === trimmed.toUpperCase() && trimmed.length > 2
+      ? trimmed.toLowerCase()
+      : trimmed;
+  return normalized.replace(/\b[a-z]/g, (char) => char.toUpperCase());
+}
+
 export default async function DistrictPage({ params }: DistrictPageProps) {
   const { stateSlug, districtSlug } = await params;
   const normalizedStateSlug = slugify(stateSlug);
@@ -58,6 +68,9 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
   );
 
   if (!district) notFound();
+
+  const cityName = toTitleCase(district.name);
+  const stateName = toTitleCase(state.name);
 
   const { places, hotels, restaurants, loadErrors } =
     await loadDistrictContent(district);
@@ -98,17 +111,17 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
   return (
     <div className="pb-6 pt-3 sm:pt-4">
       <DistrictHero
-        stateName={state.name}
+        stateName={stateName}
         stateSlug={state.slug}
-        districtName={district.name}
+        districtName={cityName}
         districtSlug={district.slug}
         stateImage={heroImage}
-        description={`Explore ${district.name}, ${state.name} — heritage, culture, places and experiences for your journey.`}
+        description={`Explore ${cityName}, ${stateName} — heritage, culture, places and experiences for your journey.`}
       />
 
       <div className="mx-auto mt-5 w-full max-w-5xl space-y-6 px-4 sm:mt-6 sm:px-0">
         <section aria-labelledby="services-heading">
-          <SectionHeader title="Explore & services" subtitle="What would you like to do?" />
+          <SectionHeader title="Explore & Services" subtitle="What would you like to do?" />
           <ServiceGrid items={services} />
         </section>
 
@@ -125,12 +138,12 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
         </section>
 
         <section aria-labelledby="places-heading" className="scroll-mt-28">
-          <SectionHeader title="Popular destinations" subtitle={`Pick a destination in ${district.name} to begin`} href={`${base}/places`} />
+          <SectionHeader title="Popular Destinations" subtitle={`Pick a destination in ${cityName} to begin`} href={`${base}/places`} />
           {places.length > 0 ? (
             <div className="scroll-row -mx-4 px-4 pb-1 sm:mx-0 sm:px-0">
               {places.slice(0, 8).map((place) => <PlaceCard key={place.id} place={place} districtSlug={district.slug} stateSlug={state.slug} horizontal showFavorite />)}
             </div>
-          ) : <p className="py-4 text-sm text-muted-foreground">No approved destinations are published for {district.name} yet.</p>}
+          ) : <p className="py-4 text-sm text-muted-foreground">No approved destinations are published for {cityName} yet.</p>}
         </section>
 
         {/*
@@ -148,12 +161,12 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
         </Suspense>
 
         <section aria-labelledby="stays-heading">
-          <SectionHeader title="Hotels & stays" subtitle={`Hotels in ${district.name}`} href={`${base}/hotels`} />
+          <SectionHeader title="Hotels & Stays" subtitle={`Hotels and Stays in ${cityName}`} href={`${base}/hotels`} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{hotels.slice(0, 6).map((hotel) => <HotelCard key={hotel.id} hotel={hotel} districtSlug={district.slug} stateSlug={state.slug} />)}</div>
         </section>
 
         <section aria-labelledby="dine-heading">
-          <SectionHeader title="Restaurants" subtitle={`Restaurants in ${district.name}`} href={`${base}/restaurants`} />
+          <SectionHeader title="Restaurants" subtitle={`Restaurants in ${cityName}`} href={`${base}/restaurants`} />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">{restaurants.slice(0, 6).map((restaurant) => <RestaurantCard key={restaurant.id} restaurant={restaurant} districtSlug={district.slug} stateSlug={state.slug} />)}</div>
         </section>
       </div>

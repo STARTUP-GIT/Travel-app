@@ -126,6 +126,11 @@ export const hotelRoomTypeSchema = z.object({
   conditions: z.string().trim().optional(),
   isActive: z.boolean().default(true),
   displayOrder: z.coerce.number().int().default(0),
+  roomCategory: z.enum(["PRIVATE", "DORMITORY"]).default("PRIVATE").optional(),
+  bedType: z.string().optional(),
+  dormGender: z.enum(["MIXED", "FEMALE", "MALE"]).optional(),
+  bedCapacity: z.coerce.number().int().optional(),
+  pricingUnit: z.enum(["PER_ROOM", "PER_BED"]).default("PER_ROOM").optional(),
 });
 
 export type HotelRoomTypeValues = z.infer<typeof hotelRoomTypeSchema>;
@@ -167,10 +172,205 @@ export const hotelFormSchema = z.object({
   checkOutTime: z.string().trim().optional(),
   checkOutStartTime: z.string().trim().optional(),
   checkOutEndTime: z.string().trim().optional(),
+  propertyType: z.enum(["HOTEL", "STAY"]).default("HOTEL").optional(),
+  stayCategory: z.string().optional(),
+  accommodationRules: z.string().optional(),
+  cancellationPolicy: z.string().optional(),
+  activities: z.array(z.string()).default([]),
+  facilities: z.array(z.string()).default([]),
   roomTypes: z.array(hotelRoomTypeSchema).min(1, "Add at least one room type"),
 });
 
 export type HotelFormValues = z.infer<typeof hotelFormSchema>;
+
+export const STAY_CATEGORIES = [
+  { value: "backpacker_hostel", label: "Backpacker Hostel", blurb: "Vibrant community hostel with dorms & shared spaces" },
+  { value: "hostel", label: "Youth Hostel", blurb: "Budget-friendly shared & private accommodation" },
+  { value: "homestay", label: "Homestay", blurb: "Authentic local host stay with homely comfort" },
+  { value: "guesthouse", label: "Guesthouse", blurb: "Cozy private rooms with personal hospitality" },
+  { value: "other", label: "Other Accommodation", blurb: "Cottages, camps, villas, and experiential stays" },
+] as const;
+
+export const STAY_FACILITIES = [
+  "Common room / Lounge",
+  "Free High-speed Wi-Fi",
+  "Guest kitchen / Microwave",
+  "Cafe / Bar / Eatery",
+  "Luggage storage",
+  "Personal lockers",
+  "Coworking desks",
+  "Rooftop terrace",
+  "Laundry service / Washer",
+  "Board games & Book swap",
+  "24/7 Reception",
+  "Guitar / Music instruments",
+  "Outdoor garden / Courtyard",
+  "Power backup",
+  "Hot showers",
+] as const;
+
+export const STAY_ACTIVITIES = [
+  "Guided walking tours",
+  "Evening bonfire sessions",
+  "Social game & movie nights",
+  "Morning yoga / meditation",
+  "Local cooking workshops",
+  "Weekend hiking & cycling",
+  "Pub crawls / Cafe hopping",
+  "Live music & acoustic jams",
+] as const;
+
+export const stayRoomTypeSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().trim().min(1, "Room title is required"),
+  description: z.string().trim().min(1, "Description is required"),
+  roomCategory: z.enum(["DORMITORY", "PRIVATE"]).default("DORMITORY"),
+  bedType: z.string().trim().default("Bunk bed"),
+  dormGender: z.enum(["MIXED", "FEMALE", "MALE"]).default("MIXED"),
+  bedCapacity: z.coerce.number().int().min(1, "Bed capacity must be at least 1"),
+  roomType: z.enum(["AC", "NON_AC"]).default("AC"),
+  maxOccupancy: z.coerce.number().int().min(1, "Max occupancy must be at least 1"),
+  availableRooms: z.coerce.number().int().min(0, "Available beds/rooms cannot be negative"),
+  pricePerNight: z.coerce.number().min(0, "Nightly rate cannot be negative"),
+  pricingUnit: z.enum(["PER_BED", "PER_ROOM"]).default("PER_BED"),
+  roomOverviewPhoto: z.string().trim().default(""),
+  bathroomPhoto: z.string().trim().default(""),
+  images: z.array(z.string()).default([]),
+  hasHotWater: z.boolean().default(true),
+  hasTv: z.boolean().default(false),
+  hasAttachedBathroom: z.boolean().default(true),
+  hasWifi: z.boolean().default(true),
+  facilities: z.array(z.string()).default([]),
+  additionalServices: z.array(hotelRoomTypeAdditionalServiceSchema).default([]),
+  conditions: z.string().trim().optional(),
+  isActive: z.boolean().default(true),
+  displayOrder: z.coerce.number().int().default(0),
+});
+
+export type StayRoomTypeValues = z.infer<typeof stayRoomTypeSchema>;
+
+export const stayFormSchema = z.object({
+  name: z.string().trim().min(1, "Stay name is required"),
+  address: z.string().trim().min(1, "Address is required"),
+  profileLogo: z.string().trim().min(1, "Cover photo is required"),
+  stateId: z.string().min(1, "Please select a state"),
+  districtId: z.string().min(1, "Please select an enabled district"),
+  stayCategory: z.string().min(1, "Select a stay category").default("backpacker_hostel"),
+  description: z.string().trim().max(2000, "Description must be under 2000 characters").default(""),
+  mapsUrl: z.string().trim().optional(),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[0-9+\-\s]{10,15}$/, "Enter a valid phone number")
+    .or(z.literal(""))
+    .default(""),
+  whatsapp: z
+    .string()
+    .trim()
+    .regex(/^[0-9+\-\s]{10,15}$/, "Enter a valid WhatsApp number")
+    .or(z.literal(""))
+    .default(""),
+  email: z.string().trim().email("Enter a valid email").or(z.literal("")).default(""),
+  website: z
+    .string()
+    .trim()
+    .url("Enter a valid website URL starting with https://")
+    .or(z.literal(""))
+    .default(""),
+  facilities: z.array(z.string()).default([]),
+  accommodationRules: z.string().trim().default(""),
+  cancellationPolicy: z.string().trim().default("Free cancellation up to 24 hours prior to check-in"),
+  activities: z.array(z.string()).default([]),
+  specifyTimes: z.boolean().default(true),
+  checkInTimeType: z.enum(["SPECIFIC", "RANGE"]).default("RANGE"),
+  checkInTime: z.string().trim().default("01:00 PM"),
+  checkInStartTime: z.string().trim().default("01:00 PM"),
+  checkInEndTime: z.string().trim().default("10:00 PM"),
+  checkOutTimeType: z.enum(["SPECIFIC", "RANGE"]).default("SPECIFIC"),
+  checkOutTime: z.string().trim().default("11:00 AM"),
+  checkOutStartTime: z.string().trim().default("08:00 AM"),
+  checkOutEndTime: z.string().trim().default("11:00 AM"),
+  roomTypes: z.array(stayRoomTypeSchema).min(1, "Add at least one dorm bed or private room"),
+});
+
+export type StayFormValues = z.infer<typeof stayFormSchema>;
+
+export function emptyStayRoomType(order = 0, isDorm = true): StayRoomTypeValues {
+  return {
+    title: isDorm ? "6-Bed Mixed Dormitory" : "Deluxe Private Room",
+    description: isDorm
+      ? "Spacious air-conditioned dorm with personal lockers, reading lights, power sockets and privacy curtains."
+      : "Cozy private room with attached bathroom, plush bed, and serene ambiance for couples or solo explorers.",
+    roomCategory: isDorm ? "DORMITORY" : "PRIVATE",
+    bedType: isDorm ? "Bunk bed" : "Double bed",
+    dormGender: "MIXED",
+    bedCapacity: isDorm ? 6 : 2,
+    roomType: "AC",
+    maxOccupancy: isDorm ? 1 : 2,
+    availableRooms: isDorm ? 6 : 2,
+    pricePerNight: isDorm ? 549 : 1799,
+    pricingUnit: isDorm ? "PER_BED" : "PER_ROOM",
+    roomOverviewPhoto: "",
+    bathroomPhoto: "",
+    images: [],
+    hasHotWater: true,
+    hasTv: !isDorm,
+    hasAttachedBathroom: true,
+    hasWifi: true,
+    facilities: isDorm
+      ? ["Attached Bathroom", "Hot Water", "High-speed Wi-Fi", "Personal Locker", "Reading Light & Plug Point", "Air Conditioning"]
+      : ["Attached Bathroom", "Hot Water", "High-speed Wi-Fi", "Air Conditioning", "Fresh Linen & Towels"],
+    additionalServices: [
+      { name: "Breakfast", type: "INCLUDED" },
+      { name: "Towel on rent", type: "EXTRA_CHARGE", price: 50, priceBasis: "PER_DAY" },
+    ],
+    conditions: "",
+    isActive: true,
+    displayOrder: order,
+  };
+}
+
+export function emptyStay(): StayFormValues {
+  return {
+    name: "",
+    address: "",
+    profileLogo: "",
+    stateId: "",
+    districtId: "",
+    stayCategory: "backpacker_hostel",
+    description: "",
+    mapsUrl: "",
+    phone: "",
+    whatsapp: "",
+    email: "",
+    website: "",
+    facilities: [
+      "Common room / Lounge",
+      "Free High-speed Wi-Fi",
+      "Guest kitchen / Microwave",
+      "Luggage storage",
+      "Personal lockers",
+      "Rooftop terrace",
+    ],
+    accommodationRules: "• Check-in from 1:00 PM. Valid government photo ID required.\n• Quiet hours from 11:00 PM to 7:00 AM.\n• Outside visitors not permitted in dorm rooms.\n• Non-smoking in all indoor areas.",
+    cancellationPolicy: "Free cancellation up to 24 hours prior to check-in. Non-refundable thereafter.",
+    activities: [
+      "Guided walking tours",
+      "Evening bonfire sessions",
+      "Social game & movie nights",
+    ],
+    specifyTimes: true,
+    checkInTimeType: "RANGE",
+    checkInTime: "01:00 PM",
+    checkInStartTime: "01:00 PM",
+    checkInEndTime: "10:00 PM",
+    checkOutTimeType: "SPECIFIC",
+    checkOutTime: "11:00 AM",
+    checkOutStartTime: "08:00 AM",
+    checkOutEndTime: "11:00 AM",
+    roomTypes: [emptyStayRoomType(0, true)],
+  };
+}
 
 export function emptyRoomType(order = 0): HotelRoomTypeValues {
   return {
@@ -223,6 +423,12 @@ export function emptyHotel(): HotelFormValues {
     checkOutTime: "11:00 AM",
     checkOutStartTime: "06:00 AM",
     checkOutEndTime: "11:00 AM",
+    propertyType: "HOTEL",
+    stayCategory: "",
+    accommodationRules: "",
+    cancellationPolicy: "",
+    activities: [],
+    facilities: [],
     roomTypes: [emptyRoomType(0)],
   };
 }

@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   ArrowDownUp,
+  BedSingle,
   Check,
   Filter,
   Hotel as HotelIcon,
@@ -25,9 +26,14 @@ import { HotelCard } from "@/features/hotels/ui/hotel-card";
 import { EmptyState } from "@/components/shared/states";
 import type { Hotel } from "@/features/hotels/types";
 
+type PropertyFilter = "ALL" | "HOTEL" | "STAY";
 type AcFilter = "ALL" | "AC" | "NON_AC";
 type SortOption = "DEFAULT" | "PRICE_ASC" | "PRICE_DESC" | "RATING_DESC";
 type StarFilter = "ALL" | "1" | "2" | "3" | "4" | "5";
+
+function isStayProperty(hotel: Hotel): boolean {
+  return hotel.property_type === "STAY" || Boolean(hotel.stay_category);
+}
 
 export function HotelListWithFilters({
   hotels,
@@ -40,14 +46,19 @@ export function HotelListWithFilters({
   stateSlug: string;
   districtName: string;
 }) {
+  const [propertyFilter, setPropertyFilter] = React.useState<PropertyFilter>("ALL");
   const [acFilter, setAcFilter] = React.useState<AcFilter>("ALL");
   const [sortOption, setSortOption] = React.useState<SortOption>("DEFAULT");
   const [starFilter, setStarFilter] = React.useState<StarFilter>("ALL");
 
   const hasActiveFilters =
-    acFilter !== "ALL" || sortOption !== "DEFAULT" || starFilter !== "ALL";
+    propertyFilter !== "ALL" ||
+    acFilter !== "ALL" ||
+    sortOption !== "DEFAULT" ||
+    starFilter !== "ALL";
 
   function resetFilters() {
+    setPropertyFilter("ALL");
     setAcFilter("ALL");
     setSortOption("DEFAULT");
     setStarFilter("ALL");
@@ -78,6 +89,14 @@ export function HotelListWithFilters({
   const filteredHotels = React.useMemo(() => {
     return hotels
       .filter((hotel) => {
+        // Accommodation type filter (Hotels vs Stays/Hostels)
+        if (propertyFilter === "HOTEL" && isStayProperty(hotel)) {
+          return false;
+        }
+        if (propertyFilter === "STAY" && !isStayProperty(hotel)) {
+          return false;
+        }
+
         // Star classification filter
         if (starFilter !== "ALL") {
           const requiredStars = Number(starFilter);
@@ -114,7 +133,7 @@ export function HotelListWithFilters({
         }
         return 0; // Default order
       });
-  }, [hotels, acFilter, sortOption, starFilter]);
+  }, [hotels, propertyFilter, acFilter, sortOption, starFilter]);
 
   return (
     <div className="space-y-6">
@@ -125,6 +144,43 @@ export function HotelListWithFilters({
             <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground mr-1">
               <Filter className="size-3.5" /> Filters:
             </span>
+
+            {/* Accommodation Type Filter Pills (Hotel vs Stays) */}
+            <div className="inline-flex rounded-xl border border-border bg-muted/40 p-0.5">
+              <button
+                type="button"
+                onClick={() => setPropertyFilter("ALL")}
+                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  propertyFilter === "ALL"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                All Places
+              </button>
+              <button
+                type="button"
+                onClick={() => setPropertyFilter("HOTEL")}
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  propertyFilter === "HOTEL"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <HotelIcon className="size-3" /> Hotels
+              </button>
+              <button
+                type="button"
+                onClick={() => setPropertyFilter("STAY")}
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  propertyFilter === "STAY"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <BedSingle className="size-3" /> Stays & Hostels
+              </button>
+            </div>
 
             {/* AC Filter Pills */}
             <div className="inline-flex rounded-xl border border-border bg-muted/40 p-0.5">
@@ -219,7 +275,7 @@ export function HotelListWithFilters({
         <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-2.5 text-xs text-muted-foreground">
           <span>
             Showing <strong className="text-foreground">{filteredHotels.length}</strong> of{" "}
-            {hotels.length} stays in {districtName}
+            {hotels.length} accommodations in {districtName}
           </span>
           {hasActiveFilters ? (
             <span className="text-[0.7rem] text-primary font-medium">
@@ -232,9 +288,15 @@ export function HotelListWithFilters({
       {/* HOTEL LIST */}
       {filteredHotels.length === 0 ? (
         <EmptyState
-          icon={HotelIcon}
-          title="No hotels match your filters"
-          description="Try broadening your criteria or resetting filters to view all available stays."
+          icon={propertyFilter === "STAY" ? BedSingle : HotelIcon}
+          title={
+            propertyFilter === "STAY"
+              ? "No hostels or stays match your filters"
+              : propertyFilter === "HOTEL"
+              ? "No hotels match your filters"
+              : "No accommodations match your filters"
+          }
+          description="Try broadening your criteria or resetting filters to view all available options."
           action={
             hasActiveFilters ? (
               <Button variant="outline" size="sm" onClick={resetFilters} className="rounded-xl mt-2">

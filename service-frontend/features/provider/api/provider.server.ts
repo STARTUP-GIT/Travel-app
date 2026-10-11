@@ -1293,6 +1293,12 @@ function listingPayload(
     if (input.checkOutStartTime !== undefined) payload.check_out_start_time = input.checkOutStartTime || null;
     if (input.checkOutEndTime !== undefined) payload.check_out_end_time = input.checkOutEndTime || null;
     if (input.roomTypes !== undefined) payload.roomTypes = input.roomTypes;
+    if (input.property_type !== undefined) payload.property_type = input.property_type;
+    if (input.stay_category !== undefined) payload.stay_category = input.stay_category || null;
+    if (input.accommodation_rules !== undefined) payload.accommodation_rules = input.accommodation_rules || null;
+    if (input.cancellation_policy !== undefined) payload.cancellation_policy = input.cancellation_policy || null;
+    if (input.activities !== undefined) payload.activities = input.activities;
+    if (input.facilities !== undefined) payload.facilities = input.facilities;
   } else {
     payload.menu = input.menu;
     payload.food_category = input.foodCategory as FoodCategory;

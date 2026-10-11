@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, BedSingle, MapPin } from "lucide-react";
 import Link from "next/link";
 
 import { AppImage } from "@/components/shared/app-image";
@@ -22,19 +22,25 @@ export function HotelCard({
   className?: string;
 }) {
   const districtBase = stateSlug ? `/${stateSlug}/${districtSlug}` : "/explore";
+  const isStay = hotel.property_type === "STAY" || Boolean(hotel.stay_category);
 
-  const minPrice = React.useMemo(() => {
+  const { minPrice, pricingUnit } = React.useMemo(() => {
     if (hotel.room_types && hotel.room_types.length > 0) {
-      const activePrices = hotel.room_types
-        .filter((rt) => rt.isActive !== false)
-        .map((rt) => rt.pricePerNight)
-        .filter((p) => p >= 0);
-      if (activePrices.length > 0) {
-        return Math.min(...activePrices);
+      const activeRooms = hotel.room_types.filter((rt) => rt.isActive !== false);
+      if (activeRooms.length > 0) {
+        const sorted = [...activeRooms].sort((a, b) => a.pricePerNight - b.pricePerNight);
+        const cheapest = sorted[0];
+        return {
+          minPrice: cheapest.pricePerNight,
+          pricingUnit: cheapest.pricingUnit === "PER_BED" ? "/bed" : "/night",
+        };
       }
     }
-    return hotel.cost_per_night;
-  }, [hotel]);
+    return {
+      minPrice: hotel.cost_per_night,
+      pricingUnit: isStay ? "/bed" : "/night",
+    };
+  }, [hotel, isStay]);
 
   const hasAc = hotel.room_types?.some((rt) => rt.roomType === "AC" && rt.isActive !== false);
   const hasNonAc = hotel.room_types?.some((rt) => rt.roomType === "NON_AC" && rt.isActive !== false);
@@ -53,8 +59,15 @@ export function HotelCard({
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
 
-          {/* Star classification badge */}
-          {hotel.star_rating ? (
+          {/* Star classification badge or Stays badge */}
+          {isStay ? (
+            <Badge className="absolute left-3 top-3 border-emerald-500/40 bg-emerald-600/95 text-white backdrop-blur-md flex items-center gap-1 font-semibold text-xs shadow-sm">
+              <BedSingle className="size-3.5" />
+              {hotel.stay_category
+                ? hotel.stay_category.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                : "Hostel / Stay"}
+            </Badge>
+          ) : hotel.star_rating ? (
             <Badge className="absolute left-3 top-3 border-amber-400/40 bg-amber-500/90 text-white backdrop-blur-md">
               {"★".repeat(hotel.star_rating)} {hotel.star_rating}-Star
             </Badge>
@@ -63,7 +76,7 @@ export function HotelCard({
           {/* Price badge */}
           <Badge className="absolute right-3 top-3 bg-white/90 text-primary backdrop-blur-md dark:bg-zinc-900/90 dark:text-primary">
             {formatCurrency(minPrice)}
-            <span className="font-normal text-muted-foreground">/night</span>
+            <span className="font-normal text-muted-foreground">{pricingUnit}</span>
           </Badge>
         </div>
 

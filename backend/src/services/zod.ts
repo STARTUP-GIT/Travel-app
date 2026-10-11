@@ -339,6 +339,11 @@ export const hotelRoomTypeInputSchema = z.object({
   conditions: z.string().nullable().optional(),
   isActive: z.boolean().optional(),
   displayOrder: z.number().int().optional(),
+  roomCategory: z.enum(["PRIVATE", "DORMITORY"]).default("PRIVATE").optional(),
+  bedType: z.string().nullable().optional(),
+  dormGender: z.enum(["MIXED", "FEMALE", "MALE"]).nullable().optional(),
+  bedCapacity: z.number().int().positive().nullable().optional(),
+  pricingUnit: z.enum(["PER_ROOM", "PER_BED"]).default("PER_ROOM").optional(),
 });
 
 export const hotelCreateSchema = z.object({
@@ -369,6 +374,12 @@ export const hotelCreateSchema = z.object({
   check_out_time: z.string().nullable().optional(),
   check_out_start_time: z.string().nullable().optional(),
   check_out_end_time: z.string().nullable().optional(),
+  property_type: z.enum(["HOTEL", "STAY"]).default("HOTEL").optional(),
+  stay_category: z.string().nullable().optional(),
+  accommodation_rules: z.string().nullable().optional(),
+  cancellation_policy: z.string().nullable().optional(),
+  activities: z.array(z.string()).optional(),
+  facilities: z.array(z.string()).optional(),
   roomTypes: z.array(hotelRoomTypeInputSchema).optional(),
 });
 
@@ -400,6 +411,12 @@ export const hotelUpdateSchema = z.object({
   check_out_time: z.string().nullable().optional(),
   check_out_start_time: z.string().nullable().optional(),
   check_out_end_time: z.string().nullable().optional(),
+  property_type: z.enum(["HOTEL", "STAY"]).optional(),
+  stay_category: z.string().nullable().optional(),
+  accommodation_rules: z.string().nullable().optional(),
+  cancellation_policy: z.string().nullable().optional(),
+  activities: z.array(z.string()).optional(),
+  facilities: z.array(z.string()).optional(),
   roomTypes: z.array(hotelRoomTypeInputSchema).optional(),
 });
 
