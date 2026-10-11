@@ -228,6 +228,14 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
       });
     }
 
+    if (data.requestTicketAssistance) {
+      if (!guide.canPurchaseEntryTickets) {
+        return res.status(400).json({
+          message: "Ticket purchasing assistance is not offered by this guide",
+        });
+      }
+    }
+
     const numberOfPeople = Math.max(1, data.numberOfPeople ?? 1);
     const totalPrice = guide.cost * numberOfPeople;
 
@@ -240,6 +248,7 @@ export const createSpecificGuideBooking = async (req: Request, res: Response) =>
         ...(data.bookingTime !== undefined ? { bookingTime: data.bookingTime } : {}),
         numberOfPeople,
         totalPrice,
+        requestTicketAssistance: Boolean(data.requestTicketAssistance),
         pickupName: data.pickupName ?? null,
         pickupAddress: data.pickupAddress ?? null,
         pickupMapsUrl: data.pickupMapsUrl ?? null,
@@ -378,12 +387,6 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         });
       }
 
-      if (typeof pkg.maxChildren === "number" && numberOfChildren > pkg.maxChildren) {
-        return res.status(400).json({
-          message: `Maximum ${pkg.maxChildren} children allowed for this tour package.`,
-        });
-      }
-
       if (typeof pkg.maxGroupSize === "number" && pkg.maxGroupSize > 0) {
         const countingPassengers = pkg.childrenCountTowardCapacity
           ? numberOfPeople
@@ -395,7 +398,11 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
         }
       }
 
-      if (pkg.transportService === "INCLUDED" && Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0) {
+      if (
+        (pkg.transportService === "INCLUDED" || pkg.transportService === "ON_REQUEST") &&
+        Array.isArray(pkg.transportVehicles) &&
+        pkg.transportVehicles.length > 0
+      ) {
         const maxCapacity = Math.max(
           ...pkg.transportVehicles.map((v: any) => (typeof v.capacity === "number" ? v.capacity : 4))
         );
@@ -440,15 +447,9 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
     let pricingUnit = pkg?.pricingUnit || "PER_TOUR";
     let calculatedTotalPrice = 0;
     const basePrice = pkg?.price && pkg.price > 0 ? pkg.price : guide.cost;
-    const childRate = typeof pkg?.childPrice === "number" ? pkg.childPrice : basePrice;
 
-    if (pricingMode === "WHOLE_TOUR") {
-      if (pricingUnit === "PER_PERSON") {
-        calculatedTotalPrice = (basePrice * numberOfAdults) + (childRate * numberOfChildren);
-      } else {
-        calculatedTotalPrice = basePrice;
-      }
-    } else {
+    let adultBaseRate = basePrice;
+    if (pricingMode !== "WHOLE_TOUR") {
       let placeSum = 0;
       if (pkg?.places?.length) {
         for (const pid of uniquePlaceIds) {
@@ -462,13 +463,33 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       } else {
         placeSum = guide.cost * uniquePlaceIds.length;
       }
+      adultBaseRate = placeSum;
+    }
 
-      if (pricingUnit === "PER_PERSON") {
-        const placeChildRate = typeof pkg?.childPrice === "number" ? pkg.childPrice : placeSum;
-        calculatedTotalPrice = (placeSum * numberOfAdults) + (placeChildRate * numberOfChildren);
-      } else {
-        calculatedTotalPrice = placeSum;
-      }
+    // Authoritative child discount calculation:
+    // 1. NO_DISCOUNT: child pays full adult price
+    // 2. PERCENTAGE: discount of 1% to 99% off adult price
+    // 3. FREE: 0 for eligible children
+    // Backward compatibility: legacy pkg.childPrice is honored if childDiscountType is not set.
+    const childDiscountType = pkg?.childDiscountType || (typeof pkg?.childPrice === "number" ? "LEGACY_PRICE" : "NO_DISCOUNT");
+    let childRate = adultBaseRate;
+    if (childDiscountType === "FREE") {
+      childRate = 0;
+    } else if (childDiscountType === "PERCENTAGE" && typeof pkg?.childDiscountPercent === "number") {
+      const pct = Math.min(99, Math.max(1, pkg.childDiscountPercent));
+      childRate = Math.round((adultBaseRate * (1 - pct / 100)) * 100) / 100;
+    } else if (childDiscountType === "LEGACY_PRICE" && typeof pkg?.childPrice === "number") {
+      childRate = pkg.childPrice;
+    } else {
+      // NO_DISCOUNT
+      childRate = adultBaseRate;
+    }
+
+    if (pricingUnit === "PER_PERSON") {
+      calculatedTotalPrice = (adultBaseRate * numberOfAdults) + (childRate * numberOfChildren);
+    } else {
+      // PER_TOUR: Group-based pricing, whole tour flat price
+      calculatedTotalPrice = adultBaseRate;
     }
 
     const assignedSpecificGuideId =
@@ -482,11 +503,24 @@ export const createCommonGuideBooking = async (req: Request, res: Response) => {
       maxGroupSize: pkg?.maxGroupSize ?? null,
       pricingMode,
       pricingUnit,
-      basePrice,
-      childRate,
+      basePrice: adultBaseRate,
+      adultRate: pricingUnit === "PER_PERSON" ? adultBaseRate : null,
+      childRate: pricingUnit === "PER_PERSON" ? childRate : null,
       adultsCount: numberOfAdults,
       childrenCount: numberOfChildren,
       totalTravellers: numberOfPeople,
+      childPolicy: {
+        childrenAllowed: pkg?.childrenAllowed ?? true,
+        childMaxAge: pkg?.childMaxAge ?? 11,
+        childrenCountTowardCapacity: pkg?.childrenCountTowardCapacity ?? true,
+        childDiscountType: pkg?.childDiscountType ?? "NO_DISCOUNT",
+        childDiscountPercent: pkg?.childDiscountPercent ?? null,
+        childRate: pricingUnit === "PER_PERSON" ? childRate : null,
+        adultRate: pricingUnit === "PER_PERSON" ? adultBaseRate : null,
+        breakdown: pricingUnit === "PER_PERSON"
+          ? `${numberOfAdults} adult(s) @ ${adultBaseRate} + ${numberOfChildren} child(ren) @ ${childRate}`
+          : `Group flat rate: ${adultBaseRate}`,
+      },
       cancellationPolicy: pkg?.cancellationPolicy ?? "Free cancellation up to 24h before trip start",
       tripStartTime: data.tripStartTime || pkg?.tripStartTime || data.bookingTime || null,
       pickupName: data.pickupName || pkg?.pickupName || null,

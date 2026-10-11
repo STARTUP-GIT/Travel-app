@@ -100,7 +100,6 @@ export function PackageBookingModal({
   const isPerPerson = (pkg.pricingUnit || "PER_TOUR") === "PER_PERSON";
 
   const childrenAllowed = pkg.childrenAllowed !== false;
-  const maxChildren = pkg.maxChildren ?? 10;
   const maxCapacity = pkg.maxGroupSize ?? 50;
   const countsTowardCap = pkg.childrenCountTowardCapacity !== false;
   const currentCapacityCount = countsTowardCap ? (adults + children) : adults;
@@ -110,9 +109,15 @@ export function PackageBookingModal({
     if (isWholeTour) {
       const base = pkg.price && pkg.price > 0 ? pkg.price : (pkg.guide.cost || 0);
       if (isPerPerson) {
-        const adultRate = base;
-        const childRate = pkg.childPrice !== null && pkg.childPrice !== undefined ? pkg.childPrice : base;
-        return (adultRate * adults) + (childRate * children);
+        let childRate = base;
+        if (pkg.childDiscountType === "FREE") {
+          childRate = 0;
+        } else if (pkg.childDiscountType === "PERCENTAGE" && pkg.childDiscountPercent) {
+          childRate = Math.max(0, Math.round(base * (1 - pkg.childDiscountPercent / 100)));
+        } else if (pkg.childPrice !== null && pkg.childPrice !== undefined && pkg.childPrice > 0) {
+          childRate = pkg.childPrice;
+        }
+        return (base * adults) + (childRate * children);
       }
       return base;
     } else {
@@ -122,14 +127,19 @@ export function PackageBookingModal({
         return sum + (pl?.price ?? 0);
       }, 0);
       if (isPerPerson) {
-        const childRate = pkg.childPrice !== null && pkg.childPrice !== undefined
-          ? (pkg.childPrice * selectedPlaceIds.length)
-          : placeSum;
+        let childRate = placeSum;
+        if (pkg.childDiscountType === "FREE") {
+          childRate = 0;
+        } else if (pkg.childDiscountType === "PERCENTAGE" && pkg.childDiscountPercent) {
+          childRate = Math.max(0, Math.round(placeSum * (1 - pkg.childDiscountPercent / 100)));
+        } else if (pkg.childPrice !== null && pkg.childPrice !== undefined && pkg.childPrice > 0) {
+          childRate = pkg.childPrice * selectedPlaceIds.length;
+        }
         return (placeSum * adults) + (childRate * children);
       }
       return placeSum;
     }
-  }, [isWholeTour, isPerPerson, pkg.price, pkg.guide.cost, pkg.childPrice, adults, children, selectedPlaceIds, pkg.places]);
+  }, [isWholeTour, isPerPerson, pkg.price, pkg.guide.cost, pkg.childPrice, pkg.childDiscountType, pkg.childDiscountPercent, adults, children, selectedPlaceIds, pkg.places]);
 
   const canDeselectPlaces = pkg.allowCustomerPlaceSelection !== false;
 
@@ -174,9 +184,22 @@ export function PackageBookingModal({
       return;
     }
 
-    if (childrenAllowed && pkg.maxChildren && children > pkg.maxChildren) {
-      toast.error(`Maximum ${pkg.maxChildren} children allowed per booking`);
-      return;
+    // Revalidate vehicle capacity when transport is included in package
+    if (
+      pkg.transportService === "INCLUDED" &&
+      Array.isArray(pkg.transportVehicles) &&
+      pkg.transportVehicles.length > 0
+    ) {
+      const totalVehicleCapacity = pkg.transportVehicles.reduce(
+        (sum, v) => sum + (v.capacity || 0),
+        0
+      );
+      if (totalVehicleCapacity > 0 && currentCapacityCount > totalVehicleCapacity) {
+        toast.error(
+          `Passenger count (${currentCapacityCount}) exceeds available vehicle capacity (${totalVehicleCapacity})`
+        );
+        return;
+      }
     }
 
     if (pkg.maxGroupSize && currentCapacityCount > pkg.maxGroupSize) {
@@ -427,7 +450,14 @@ export function PackageBookingModal({
                     <div>
                       <span className="text-sm font-semibold block">Children</span>
                       <span className="text-xs text-muted-foreground">
-                        Under {pkg.childMaxAge || 12} yrs {pkg.childPrice && pkg.childPrice > 0 ? `(₹${pkg.childPrice})` : ""}
+                        Under {Math.min(pkg.childMaxAge || 12, 12)} yrs{" "}
+                        {pkg.childDiscountType === "FREE"
+                          ? "(Free)"
+                          : pkg.childDiscountType === "PERCENTAGE"
+                          ? `(${pkg.childDiscountPercent}% off)`
+                          : pkg.childPrice && pkg.childPrice > 0
+                          ? `(₹${pkg.childPrice})`
+                          : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -447,7 +477,7 @@ export function PackageBookingModal({
                         variant="outline"
                         size="sm"
                         className="size-8 rounded-full p-0"
-                        disabled={children >= maxChildren || currentCapacityCount >= maxCapacity}
+                        disabled={currentCapacityCount >= maxCapacity}
                         onClick={() => setChildren(children + 1)}
                       >
                         +

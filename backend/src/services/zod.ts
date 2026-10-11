@@ -106,6 +106,8 @@ export const specificGuideProfileUpdateSchema = z.object({
   experience: z.number().int().nonnegative().optional(),
   cost: z.number().int().nonnegative().optional(),
   language: z.array(z.string().min(1)).optional(),
+  canPurchaseEntryTickets: z.boolean().optional(),
+  ticketPurchasingConditions: z.string().nullable().optional(),
   password: z.string().min(6).optional(),
 });
 
@@ -165,10 +167,12 @@ export const commonGuidePackageSchema = z.object({
   hasSpecificGuide: z.boolean().default(false),
   specificGuideId: z.string().nullish(),
   childrenAllowed: z.boolean().default(true),
-  childMaxAge: z.number().int().min(0).max(18).nullish().default(11),
+  childMaxAge: z.number().int().min(1, "Child maximum age must be at least 1 year").max(12, "Child maximum age cannot exceed 12 years").nullish().default(11),
   maxChildren: z.number().int().nonnegative().nullish(),
   childrenCountTowardCapacity: z.boolean().default(true),
   childPrice: z.number().nonnegative().nullish(),
+  childDiscountType: z.enum(["NO_DISCOUNT", "PERCENTAGE", "FREE"]).default("NO_DISCOUNT"),
+  childDiscountPercent: z.number().min(1, "Discount percentage must be at least 1%").max(99, "Discount percentage cannot exceed 99%").nullable().optional(),
   childConditions: z.string().nullable().optional(),
   tripStartTime: z.string().nullable().optional(),
   pickupName: z.string().nullable().optional(),
@@ -429,6 +433,7 @@ export const specificGuideBookingSchema = z.object({
   requestedPickupName: z.string().optional(),
   requestedPickupAddress: z.string().optional(),
   requestedPickupMapsUrl: z.string().optional(),
+  requestTicketAssistance: z.boolean().optional(),
 });
 
 export const commonGuideBookingSchema = z.object({

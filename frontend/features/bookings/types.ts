@@ -62,6 +62,7 @@ export type SpecificGuideBooking = {
   entryFeeDetails?: string | null;
   additionalCostsDetails?: string | null;
   paymentStatus?: string;
+  requestTicketAssistance?: boolean;
   status: BookingStatus;
   createdAt: string;
   updatedAt: string;
@@ -132,6 +133,7 @@ export type CreateSpecificGuideBookingInput = {
   requestedPickupName?: string;
   requestedPickupAddress?: string;
   requestedPickupMapsUrl?: string;
+  requestTicketAssistance?: boolean;
   totalPrice?: number;
 };
 

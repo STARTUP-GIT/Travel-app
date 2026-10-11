@@ -62,6 +62,8 @@ export type Specific_guideMinAggregateOutputType = {
   sharedLatitude: number | null
   sharedLongitude: number | null
   locationUpdatedAt: Date | null
+  canPurchaseEntryTickets: boolean | null
+  ticketPurchasingConditions: string | null
   createdAt: Date | null
   updatedAt: Date | null
   status: $Enums.placeSubmissionStatus | null
@@ -87,6 +89,8 @@ export type Specific_guideMaxAggregateOutputType = {
   sharedLatitude: number | null
   sharedLongitude: number | null
   locationUpdatedAt: Date | null
+  canPurchaseEntryTickets: boolean | null
+  ticketPurchasingConditions: string | null
   createdAt: Date | null
   updatedAt: Date | null
   status: $Enums.placeSubmissionStatus | null
@@ -114,6 +118,8 @@ export type Specific_guideCountAggregateOutputType = {
   sharedLatitude: number
   sharedLongitude: number
   locationUpdatedAt: number
+  canPurchaseEntryTickets: number
+  ticketPurchasingConditions: number
   createdAt: number
   updatedAt: number
   status: number
@@ -157,6 +163,8 @@ export type Specific_guideMinAggregateInputType = {
   sharedLatitude?: true
   sharedLongitude?: true
   locationUpdatedAt?: true
+  canPurchaseEntryTickets?: true
+  ticketPurchasingConditions?: true
   createdAt?: true
   updatedAt?: true
   status?: true
@@ -182,6 +190,8 @@ export type Specific_guideMaxAggregateInputType = {
   sharedLatitude?: true
   sharedLongitude?: true
   locationUpdatedAt?: true
+  canPurchaseEntryTickets?: true
+  ticketPurchasingConditions?: true
   createdAt?: true
   updatedAt?: true
   status?: true
@@ -209,6 +219,8 @@ export type Specific_guideCountAggregateInputType = {
   sharedLatitude?: true
   sharedLongitude?: true
   locationUpdatedAt?: true
+  canPurchaseEntryTickets?: true
+  ticketPurchasingConditions?: true
   createdAt?: true
   updatedAt?: true
   status?: true
@@ -323,6 +335,8 @@ export type Specific_guideGroupByOutputType = {
   sharedLatitude: number | null
   sharedLongitude: number | null
   locationUpdatedAt: Date | null
+  canPurchaseEntryTickets: boolean
+  ticketPurchasingConditions: string | null
   createdAt: Date
   updatedAt: Date
   status: $Enums.placeSubmissionStatus
@@ -373,6 +387,8 @@ export type specific_guideWhereInput = {
   sharedLatitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   sharedLongitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   locationUpdatedAt?: Prisma.DateTimeNullableFilter<"specific_guide"> | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFilter<"specific_guide"> | boolean
+  ticketPurchasingConditions?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFilter<"specific_guide"> | $Enums.placeSubmissionStatus
@@ -406,6 +422,8 @@ export type specific_guideOrderByWithRelationInput = {
   sharedLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
   sharedLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   locationUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  canPurchaseEntryTickets?: Prisma.SortOrder
+  ticketPurchasingConditions?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -442,6 +460,8 @@ export type specific_guideWhereUniqueInput = Prisma.AtLeast<{
   sharedLatitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   sharedLongitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   locationUpdatedAt?: Prisma.DateTimeNullableFilter<"specific_guide"> | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFilter<"specific_guide"> | boolean
+  ticketPurchasingConditions?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFilter<"specific_guide"> | $Enums.placeSubmissionStatus
@@ -475,6 +495,8 @@ export type specific_guideOrderByWithAggregationInput = {
   sharedLatitude?: Prisma.SortOrderInput | Prisma.SortOrder
   sharedLongitude?: Prisma.SortOrderInput | Prisma.SortOrder
   locationUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  canPurchaseEntryTickets?: Prisma.SortOrder
+  ticketPurchasingConditions?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -510,6 +532,8 @@ export type specific_guideScalarWhereWithAggregatesInput = {
   sharedLatitude?: Prisma.FloatNullableWithAggregatesFilter<"specific_guide"> | number | null
   sharedLongitude?: Prisma.FloatNullableWithAggregatesFilter<"specific_guide"> | number | null
   locationUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"specific_guide"> | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolWithAggregatesFilter<"specific_guide"> | boolean
+  ticketPurchasingConditions?: Prisma.StringNullableWithAggregatesFilter<"specific_guide"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusWithAggregatesFilter<"specific_guide"> | $Enums.placeSubmissionStatus
@@ -536,6 +560,8 @@ export type specific_guideCreateInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -569,6 +595,8 @@ export type specific_guideUncheckedCreateInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -600,6 +628,8 @@ export type specific_guideUpdateInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -633,6 +663,8 @@ export type specific_guideUncheckedUpdateInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -665,6 +697,8 @@ export type specific_guideCreateManyInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -691,6 +725,8 @@ export type specific_guideUpdateManyMutationInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -718,6 +754,8 @@ export type specific_guideUncheckedUpdateManyInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -760,6 +798,8 @@ export type specific_guideCountOrderByAggregateInput = {
   sharedLatitude?: Prisma.SortOrder
   sharedLongitude?: Prisma.SortOrder
   locationUpdatedAt?: Prisma.SortOrder
+  canPurchaseEntryTickets?: Prisma.SortOrder
+  ticketPurchasingConditions?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -793,6 +833,8 @@ export type specific_guideMaxOrderByAggregateInput = {
   sharedLatitude?: Prisma.SortOrder
   sharedLongitude?: Prisma.SortOrder
   locationUpdatedAt?: Prisma.SortOrder
+  canPurchaseEntryTickets?: Prisma.SortOrder
+  ticketPurchasingConditions?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -818,6 +860,8 @@ export type specific_guideMinOrderByAggregateInput = {
   sharedLatitude?: Prisma.SortOrder
   sharedLongitude?: Prisma.SortOrder
   locationUpdatedAt?: Prisma.SortOrder
+  canPurchaseEntryTickets?: Prisma.SortOrder
+  ticketPurchasingConditions?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1007,6 +1051,8 @@ export type specific_guideCreateWithoutTestimonialsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1039,6 +1085,8 @@ export type specific_guideUncheckedCreateWithoutTestimonialsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1085,6 +1133,8 @@ export type specific_guideUpdateWithoutTestimonialsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1117,6 +1167,8 @@ export type specific_guideUncheckedUpdateWithoutTestimonialsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1147,6 +1199,8 @@ export type specific_guideCreateWithoutPlaceInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1178,6 +1232,8 @@ export type specific_guideUncheckedCreateWithoutPlaceInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1239,6 +1295,8 @@ export type specific_guideScalarWhereInput = {
   sharedLatitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   sharedLongitude?: Prisma.FloatNullableFilter<"specific_guide"> | number | null
   locationUpdatedAt?: Prisma.DateTimeNullableFilter<"specific_guide"> | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFilter<"specific_guide"> | boolean
+  ticketPurchasingConditions?: Prisma.StringNullableFilter<"specific_guide"> | string | null
   createdAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"specific_guide"> | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFilter<"specific_guide"> | $Enums.placeSubmissionStatus
@@ -1265,6 +1323,8 @@ export type specific_guideCreateWithoutPlaceSubmissionsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1297,6 +1357,8 @@ export type specific_guideUncheckedCreateWithoutPlaceSubmissionsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1343,6 +1405,8 @@ export type specific_guideUpdateWithoutPlaceSubmissionsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1375,6 +1439,8 @@ export type specific_guideUncheckedUpdateWithoutPlaceSubmissionsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1405,6 +1471,8 @@ export type specific_guideCreateWithoutCommonGuidePackagesInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1437,6 +1505,8 @@ export type specific_guideUncheckedCreateWithoutCommonGuidePackagesInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1483,6 +1553,8 @@ export type specific_guideUpdateWithoutCommonGuidePackagesInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1515,6 +1587,8 @@ export type specific_guideUncheckedUpdateWithoutCommonGuidePackagesInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1545,6 +1619,8 @@ export type specific_guideCreateWithoutBookingsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1577,6 +1653,8 @@ export type specific_guideUncheckedCreateWithoutBookingsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1623,6 +1701,8 @@ export type specific_guideUpdateWithoutBookingsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1655,6 +1735,8 @@ export type specific_guideUncheckedUpdateWithoutBookingsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1685,6 +1767,8 @@ export type specific_guideCreateWithoutCommonGuideBookingsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1717,6 +1801,8 @@ export type specific_guideUncheckedCreateWithoutCommonGuideBookingsInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1763,6 +1849,8 @@ export type specific_guideUpdateWithoutCommonGuideBookingsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1795,6 +1883,8 @@ export type specific_guideUncheckedUpdateWithoutCommonGuideBookingsInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1825,6 +1915,8 @@ export type specific_guideCreateManyPlaceInput = {
   sharedLatitude?: number | null
   sharedLongitude?: number | null
   locationUpdatedAt?: Date | string | null
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   status?: $Enums.placeSubmissionStatus
@@ -1851,6 +1943,8 @@ export type specific_guideUpdateWithoutPlaceInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1882,6 +1976,8 @@ export type specific_guideUncheckedUpdateWithoutPlaceInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -1913,6 +2009,8 @@ export type specific_guideUncheckedUpdateManyWithoutPlaceInput = {
   sharedLatitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   sharedLongitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   locationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canPurchaseEntryTickets?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ticketPurchasingConditions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumplaceSubmissionStatusFieldUpdateOperationsInput | $Enums.placeSubmissionStatus
@@ -2007,6 +2105,8 @@ export type specific_guideSelect<ExtArgs extends runtime.Types.Extensions.Intern
   sharedLatitude?: boolean
   sharedLongitude?: boolean
   locationUpdatedAt?: boolean
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
@@ -2041,6 +2141,8 @@ export type specific_guideSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   sharedLatitude?: boolean
   sharedLongitude?: boolean
   locationUpdatedAt?: boolean
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
@@ -2069,6 +2171,8 @@ export type specific_guideSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   sharedLatitude?: boolean
   sharedLongitude?: boolean
   locationUpdatedAt?: boolean
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
@@ -2097,12 +2201,14 @@ export type specific_guideSelectScalar = {
   sharedLatitude?: boolean
   sharedLongitude?: boolean
   locationUpdatedAt?: boolean
+  canPurchaseEntryTickets?: boolean
+  ticketPurchasingConditions?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   status?: boolean
 }
 
-export type specific_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "placeid" | "isReported" | "experience" | "cost" | "language" | "isSharingLocation" | "sharedLatitude" | "sharedLongitude" | "locationUpdatedAt" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["specific_guide"]>
+export type specific_guideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "full_name" | "username" | "email" | "password" | "phonenumber" | "profile_pic" | "tagline" | "authprovider" | "review" | "rating" | "description" | "placeid" | "isReported" | "experience" | "cost" | "language" | "isSharingLocation" | "sharedLatitude" | "sharedLongitude" | "locationUpdatedAt" | "canPurchaseEntryTickets" | "ticketPurchasingConditions" | "createdAt" | "updatedAt" | "status", ExtArgs["result"]["specific_guide"]>
 export type specific_guideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   place?: boolean | Prisma.specific_guide$placeArgs<ExtArgs>
   testimonials?: boolean | Prisma.specific_guide$testimonialsArgs<ExtArgs>
@@ -2151,6 +2257,8 @@ export type $specific_guidePayload<ExtArgs extends runtime.Types.Extensions.Inte
     sharedLatitude: number | null
     sharedLongitude: number | null
     locationUpdatedAt: Date | null
+    canPurchaseEntryTickets: boolean
+    ticketPurchasingConditions: string | null
     createdAt: Date
     updatedAt: Date
     status: $Enums.placeSubmissionStatus
@@ -2604,6 +2712,8 @@ export interface specific_guideFieldRefs {
   readonly sharedLatitude: Prisma.FieldRef<"specific_guide", 'Float'>
   readonly sharedLongitude: Prisma.FieldRef<"specific_guide", 'Float'>
   readonly locationUpdatedAt: Prisma.FieldRef<"specific_guide", 'DateTime'>
+  readonly canPurchaseEntryTickets: Prisma.FieldRef<"specific_guide", 'Boolean'>
+  readonly ticketPurchasingConditions: Prisma.FieldRef<"specific_guide", 'String'>
   readonly createdAt: Prisma.FieldRef<"specific_guide", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"specific_guide", 'DateTime'>
   readonly status: Prisma.FieldRef<"specific_guide", 'placeSubmissionStatus'>

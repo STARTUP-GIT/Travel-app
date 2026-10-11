@@ -366,42 +366,92 @@ export function PackageDetail({
                 <div className="space-y-2">
                   <Badge variant="success">Included in package</Badge>
                   {Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0 ? (
-                    <div className="space-y-1.5">
-                      {pkg.transportVehicles.map((v, i) => (
-                        <div key={i} className="rounded-lg bg-muted/40 p-2 text-xs">
-                          <p className="font-semibold text-foreground">
-                            {v.type || (v as any).vehicleType} · {v.capacity} seats ({v.isPrivate !== false ? "Private" : "Shared"})
-                          </p>
-                          {v.chargesIncluded ? (
-                            <p className="text-[0.65rem] text-emerald-600 font-medium">
-                              ✓ {v.chargesIncluded}
+                    <div className="space-y-2">
+                      {pkg.transportVehicles.map((v, i) => {
+                        const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
+                        const inc = (v.includedChargeCategories && v.includedChargeCategories.length > 0)
+                          ? v.includedChargeCategories.join(", ")
+                          : v.chargesIncluded || "Fuel, Driver allowance";
+                        const exc = (v.excludedChargeCategories && v.excludedChargeCategories.length > 0)
+                          ? v.excludedChargeCategories.join(", ")
+                          : v.chargesExcluded || (v as any).additionalChargesExcluded || "Tolls, Parking";
+                        return (
+                          <div key={i} className="rounded-xl border border-border bg-muted/30 p-2.5 text-xs space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-foreground">
+                                {v.type || v.vehicleType || "Car"} · {v.capacity} seats
+                              </span>
+                              <Badge variant="outline" className="text-[0.65rem]">
+                                {isPriv ? "Private Vehicle (Tour Only)" : "Shared Transport"}
+                              </Badge>
+                            </div>
+                            <p className="text-[0.7rem] text-muted-foreground leading-relaxed italic">
+                              {isPriv
+                                ? "“The vehicle is reserved for this booking party for the agreed tour. Unrelated customers are not added to the same vehicle.”"
+                                : "“Passengers from different bookings may travel together. Available seats and passenger capacity must be checked before the booking is confirmed.”"}
                             </p>
-                          ) : null}
-                          {v.chargesExcluded || (v as any).additionalChargesExcluded ? (
-                            <p className="text-[0.65rem] text-muted-foreground">
-                              ✗ Excluded: {v.chargesExcluded || (v as any).additionalChargesExcluded}
-                            </p>
-                          ) : null}
-                        </div>
-                      ))}
+                            <div className="pt-1 border-t space-y-0.5 text-[0.7rem]">
+                              <p className="text-emerald-700 font-medium">
+                                <span className="font-semibold">✓ Included Charges:</span> {inc}
+                              </p>
+                              <p className="text-muted-foreground">
+                                <span className="font-semibold text-foreground">✗ Excluded Charges:</span> {exc}
+                              </p>
+                              {v.conditions ? (
+                                <p className="text-muted-foreground"><span className="font-semibold text-foreground">Notes:</span> {v.conditions}</p>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : null}
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    {pkg.transportDetails || "Dedicated transportation is provided for this package."}
+                    {pkg.transportDetails || "Dedicated transportation is provided and included in the advertised price."}
                   </p>
                 </div>
               ) : pkg.transportService === "ON_REQUEST" || (!pkg.transportService && pkg.transportStatus === "OPTIONAL") ? (
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <Badge variant="warning">Can be arranged if requested</Badge>
+                  {Array.isArray(pkg.transportVehicles) && pkg.transportVehicles.length > 0 ? (
+                    <div className="space-y-2">
+                      {pkg.transportVehicles.map((v, i) => {
+                        const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
+                        const inc = (v.includedChargeCategories && v.includedChargeCategories.length > 0)
+                          ? v.includedChargeCategories.join(", ")
+                          : v.chargesIncluded || "Fuel, Driver allowance";
+                        const exc = (v.excludedChargeCategories && v.excludedChargeCategories.length > 0)
+                          ? v.excludedChargeCategories.join(", ")
+                          : v.chargesExcluded || (v as any).additionalChargesExcluded || "Tolls, Parking";
+                        return (
+                          <div key={i} className="rounded-xl border border-border bg-muted/30 p-2.5 text-xs space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-foreground">
+                                {v.type || v.vehicleType || "Car"} · {v.capacity} seats
+                              </span>
+                              <Badge variant="outline" className="text-[0.65rem]">
+                                {isPriv ? "Private Vehicle" : "Shared Transport"}
+                              </Badge>
+                            </div>
+                            <div className="text-[0.7rem] space-y-0.5">
+                              {v.pricePerDay ? <p className="font-medium text-primary">Est. rate: ₹{v.pricePerDay}</p> : null}
+                              <p className="text-emerald-700 font-medium"><span className="font-semibold">✓ Included:</span> {inc}</p>
+                              <p className="text-muted-foreground"><span className="font-semibold text-foreground">✗ Excluded:</span> {exc}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    {pkg.transportDetails || "Not automatically included. Can be arranged upon request for an additional fee."}
+                    {pkg.transportDetails || "Transport is not included in the base tour package price. Available upon request with separate confirmation."}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <Badge variant="outline">No such service</Badge>
+                  <Badge variant="outline">No transport service</Badge>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Transport is not provided. Travellers meet at the pickup point or travel independently.
+                    Transport is not provided or arranged for this package. Travellers meet at the pickup point or travel independently.
                   </p>
                 </div>
               )}
@@ -509,31 +559,39 @@ export function PackageDetail({
           <div className="rounded-2xl border border-border bg-card p-4 space-y-2 text-xs">
             {pkg.childrenAllowed ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="success" className="gap-1">
                     <Baby className="size-3.5" /> Children Permitted
                   </Badge>
                   <span className="text-muted-foreground">
-                    Child age band: <strong>Up to {pkg.childMaxAge || 12} years</strong>
+                    Child age band: <strong>Up to {Math.min(pkg.childMaxAge || 12, 12)} years</strong>
                   </span>
-                  {pkg.maxChildren ? (
-                    <span className="text-muted-foreground">
-                      · Max <strong>{pkg.maxChildren} children</strong> per group
-                    </span>
-                  ) : null}
                 </div>
-                {pkg.childPrice && pkg.childPrice > 0 ? (
-                  <p className="text-foreground">
-                    Child Price: <strong>{formatCurrency(pkg.childPrice)}</strong> per child
+
+                <div className="rounded-xl bg-muted/40 p-3 space-y-1">
+                  <p className="font-semibold text-foreground">
+                    Child Pricing Policy:{" "}
+                    {pkg.childDiscountType === "FREE" ? (
+                      <span className="text-emerald-600 font-bold">Free for eligible children (100% off adult rate)</span>
+                    ) : pkg.childDiscountType === "PERCENTAGE" ? (
+                      <span className="text-primary font-bold">
+                        {pkg.childDiscountPercent ?? 50}% discount on adult rate (Per person)
+                      </span>
+                    ) : (
+                      <span>Standard adult price (No child discount)</span>
+                    )}
                   </p>
-                ) : (
-                  <p className="text-muted-foreground">
-                    Standard child pricing applies.
+                  <p className="text-[0.7rem] text-muted-foreground">
+                    {pkg.childrenCountTowardCapacity !== false
+                      ? "• Children count towards total passenger and vehicle capacity limits."
+                      : "• Children do not count towards overall capacity seating restrictions."}
                   </p>
-                )}
+                </div>
+
                 {pkg.childConditions ? (
                   <p className="text-muted-foreground leading-relaxed">
-                    Note: {pkg.childConditions}
+                    <span className="font-medium text-foreground">Conditions: </span>
+                    {pkg.childConditions}
                   </p>
                 ) : null}
               </div>

@@ -100,6 +100,8 @@ export type ProviderProfile = {
   agencyMapsUrl?: string | null;
   placeIds: string[];
   linkedPlace: ProviderLinkedPlace | null;
+  canPurchaseEntryTickets?: boolean;
+  ticketPurchasingConditions?: string | null;
   isReported: boolean;
   authProvider: string;
   createdAt: string;
@@ -121,6 +123,8 @@ export type ProviderProfileInput = {
   experience?: number;
   cost?: number;
   languages?: string[];
+  canPurchaseEntryTickets?: boolean;
+  ticketPurchasingConditions?: string | null;
   password?: string;
 };
 
@@ -155,18 +159,30 @@ export type SpecificGuideSummary = {
   agencyName?: string | null;
 };
 
+export type TransportArrangement = "PRIVATE" | "SHARED";
+
 export type TransportVehicleConfig = {
-  vehicleType: "Car" | "Minibus" | "Bus" | string;
+  vehicleType: "Car" | "Minibus" | "Bus" | "SUV" | "Van" | "Other" | string;
   type?: string;
   capacity: number;
+  arrangement?: TransportArrangement;
   isShared?: boolean;
   isPrivate?: boolean;
+  status?: "AVAILABLE" | "ON_REQUEST" | "UNAVAILABLE" | string;
+  requestStatus?: string;
+  includedChargeCategories?: string[];
+  otherIncludedDetails?: string;
+  otherIncludedChargeDetail?: string;
+  excludedChargeCategories?: string[];
+  otherExcludedDetails?: string;
+  otherExcludedChargeDetail?: string;
   routeScope?: string;
   chargesIncluded?: string;
   additionalChargesExcluded?: string;
   chargesExcluded?: string;
   conditions?: string;
   price?: number;
+  pricePerDay?: number;
 };
 
 export type PackagePlaceItineraryInput = {
@@ -233,6 +249,8 @@ export type TourPackage = {
   maxChildren: number | null;
   childrenCountTowardCapacity: boolean;
   childPrice: number | null;
+  childDiscountType?: "NO_DISCOUNT" | "PERCENTAGE" | "FREE" | string | null;
+  childDiscountPercent?: number | null;
   childConditions: string | null;
   tripStartTime: string | null;
   pickupName: string | null;
@@ -275,7 +293,9 @@ export type TourPackageInput = {
   maxChildren?: number | null;
   childrenCountTowardCapacity?: boolean;
   childPrice?: number | null;
-  childConditions?: string;
+  childDiscountType?: "NO_DISCOUNT" | "PERCENTAGE" | "FREE" | string | null;
+  childDiscountPercent?: number | null;
+  childConditions?: string | null;
   tripStartTime?: string;
   pickupName?: string;
   pickupAddress?: string;
@@ -321,11 +341,15 @@ export type PlacePricingBand = {
 export type ManageablePlace = {
   id: string;
   name: string;
+  description?: string;
   images: string[];
   category: string;
   entryfee: number | null;
+  latitude?: number;
+  longitude?: number;
   status: ListingStatus;
   district: { id: string; name: string } | null;
+  pricing?: PlacePricingBand[];
 };
 
 /** Everything the existing place form collects, plus the ticket bands. */
@@ -515,6 +539,7 @@ export type ProviderRequest = {
   rooms: number | null;
   amount: number | null;
   places: { id: string; name: string }[];
+  requestTicketAssistance?: boolean;
   createdAt: string;
 };
 

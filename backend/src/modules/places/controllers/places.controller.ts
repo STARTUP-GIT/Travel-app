@@ -148,6 +148,57 @@ export const addPlace = async (req: Request, res: Response) => {
  * these same responses.
  */
 /**
+ * The places a signed-in guide may view and manage across districts, or filtered by district.
+ */
+export const getManageablePlaces = async (req: Request, res: Response) => {
+  try {
+    const guideId = req.common_guide ?? req.specific_guide;
+
+    if (!guideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const isCommonGuide = Boolean(req.common_guide);
+    const districtId = req.query.districtId as string | undefined;
+
+    const places = await prisma.place.findMany({
+      where: {
+        ...(districtId ? { districtId } : {}),
+        OR: [
+          { status: "APPROVED" },
+          isCommonGuide
+            ? { placeSubmissions: { some: { commonGuideId: guideId } } }
+            : { specificguide: { some: { id: guideId } } },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        images: true,
+        category: true,
+        entryfee: true,
+        latitude: true,
+        longitude: true,
+        status: true,
+        districtId: true,
+        district: { select: { id: true, name: true } },
+        ...placePricingInclude,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return res.status(200).json(places);
+  } catch (error) {
+    console.error("Get manageable places error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+/**
  * The places a signed-in guide may put in a tour package, for one district.
  *
  * A guide needs the district's approved places, which is what the public
@@ -309,6 +360,8 @@ export const getPlaceById = async (req: Request, res: Response) => {
                           experience: true,
                           cost: true,
                           language: true,
+                          canPurchaseEntryTickets: true,
+                          ticketPurchasingConditions: true,
                         },
                       },
                       childrenAllowed: true,
@@ -316,6 +369,8 @@ export const getPlaceById = async (req: Request, res: Response) => {
                       maxChildren: true,
                       childrenCountTowardCapacity: true,
                       childPrice: true,
+                      childDiscountType: true,
+                      childDiscountPercent: true,
                       childConditions: true,
                       tripStartTime: true,
                       pickupName: true,
@@ -484,22 +539,26 @@ export const submitPlace = async (req: Request, res: Response) => {
       longitude,
     } = req.body;
 
-    if (
-      typeof name !== "string" ||
-      !name ||
-      typeof description !== "string" ||
-      !description ||
-      typeof districtId !== "string" ||
-      !districtId ||
-      !Array.isArray(images) ||
-      (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) ||
-      typeof category !== "string" ||
-      typeof latitude !== "number" ||
-      typeof longitude !== "number"
-    ) {
-      return res.status(400).json({
-        message: "All place fields are required",
-      });
+    if (typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ message: "Place name is required" });
+    }
+    if (typeof description !== "string" || !description.trim()) {
+      return res.status(400).json({ message: "Place description is required" });
+    }
+    if (typeof districtId !== "string" || !districtId.trim()) {
+      return res.status(400).json({ message: "District ID is required" });
+    }
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ message: "At least one image is required" });
+    }
+    if (entryfee !== undefined && entryfee !== null && (typeof entryfee !== "number" || !Number.isFinite(entryfee) || entryfee < 0)) {
+      return res.status(400).json({ message: "Entry fee must be a non-negative number or null" });
+    }
+    if (typeof category !== "string" || !category.trim()) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
+      return res.status(400).json({ message: "Valid coordinates (latitude and longitude) are required" });
     }
 
     const pricing = parsePlacePricing(pricingFromBody(req.body));
@@ -671,6 +730,26 @@ export const submitPlaceEdit = async (req: Request, res: Response) => {
       return res.status(404).json({
         message: "Place not found",
       });
+    }
+
+    const guideId = req.common_guide ?? req.specific_guide;
+    if (!guideId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const isCommonGuide = Boolean(req.common_guide);
+
+    if (place.status !== "APPROVED") {
+      const isAuthor = await prisma.place_submission.findFirst({
+        where: {
+          placeId: place.id,
+          ...(isCommonGuide ? { commonGuideId: guideId } : { specificGuideId: guideId }),
+        },
+      });
+      if (!isAuthor) {
+        return res.status(403).json({
+          message: "You do not have permission to edit this place",
+        });
+      }
     }
 
     // An edit is a partial update, so pricing is only touched when the guide

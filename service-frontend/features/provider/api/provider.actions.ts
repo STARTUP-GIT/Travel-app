@@ -27,6 +27,8 @@ import {
   deleteTourPackage,
   getProviderListings,
   getManageablePlaces,
+  getAllManageablePlaces,
+  editPlaceAsGuide,
   getProviderProfile,
   getProviderRequests,
   getTourPackages,
@@ -379,6 +381,31 @@ export async function loadManageablePlaces(
 ): Promise<{ places: ManageablePlace[]; error: string | null }> {
   const session = await requireProviderSession("/profile");
   return getManageablePlaces(session.token, districtId);
+}
+
+/**
+ * Loads all manageable places for the authenticated guide, optionally filtered by districtId.
+ */
+export async function loadAllManageablePlaces(
+  districtId?: string
+): Promise<{ places: ManageablePlace[]; error: string | null }> {
+  const session = await requireCommonGuide();
+  return getAllManageablePlaces(session.token, districtId);
+}
+
+/**
+ * Updates an existing place submitted by the authenticated guide.
+ */
+export async function editGuidePlace(
+  placeId: string,
+  input: Partial<PlaceSubmissionInput>
+): Promise<ActionResult<ManageablePlace>> {
+  return run(async () => {
+    const session = await requireCommonGuide();
+    const updated = await editPlaceAsGuide(session.token, placeId, input);
+    revalidatePath("/services");
+    return updated;
+  });
 }
 
 /**

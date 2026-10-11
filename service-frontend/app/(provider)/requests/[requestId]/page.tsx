@@ -1,4 +1,4 @@
-import { CalendarDays, Mail, MapPin, Phone, Users } from "lucide-react";
+import { CalendarDays, Mail, MapPin, Phone, Ticket, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -145,6 +145,22 @@ export default async function RequestDetailPage({
           </p>
         ) : null}
       </GlassCard>
+
+      {request.requestTicketAssistance ? (
+        <GlassCard className="mb-4 border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex items-start gap-3">
+            <Ticket className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Ticket Purchasing Assistance Requested
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                This traveller requested your assistance in purchasing monument or entry tickets. Ticket costs are separate from your guide fee and should be settled according to your configured payment policy.
+              </p>
+            </div>
+          </div>
+        </GlassCard>
+      ) : null}
 
       <GlassCard className="gap-3 p-4">
         <p className="text-sm font-semibold">What can I do next?</p>

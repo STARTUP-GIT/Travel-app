@@ -10,6 +10,8 @@ import {
   googleAuthPath,
   listingPath,
   manageablePlacesInDistrictPath,
+  allManageablePlacesPath,
+  editPlacePath,
   profilePath,
   providerMeta,
   ownerListingsPath,
@@ -26,6 +28,7 @@ import type {
   HotelRecord,
   ManagedRecord,
   ManageablePlace,
+  PlacePricingBand,
   PlaceSubmissionInput,
   ProviderKind,
   ProviderListing,
@@ -359,6 +362,8 @@ type RawGuideProfile = {
   experience: number;
   cost: number;
   language: string[];
+  canPurchaseEntryTickets?: boolean | null;
+  ticketPurchasingConditions?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -422,6 +427,8 @@ export function normalizeProfile(
     reviews: guide.review ?? [],
     placeIds: guide.placeid ? [guide.placeid] : [],
     linkedPlace: guide.place ?? null,
+    canPurchaseEntryTickets: Boolean(guide.canPurchaseEntryTickets),
+    ticketPurchasingConditions: guide.ticketPurchasingConditions ?? null,
     isReported: guide.isReported === true,
     authProvider: guide.authprovider ?? "EMAIL",
     createdAt: guide.createdAt,
@@ -489,6 +496,15 @@ export function profilePayload(
     if (input.agencyAddress !== undefined) payload.agency_address = input.agencyAddress;
     if (input.agencyMapsUrl !== undefined) payload.agency_maps_url = input.agencyMapsUrl;
     if (input.agencyBanner !== undefined) payload.agency_banner = input.agencyBanner;
+  }
+
+  if (kind === "specific_guide") {
+    if (input.canPurchaseEntryTickets !== undefined) {
+      payload.canPurchaseEntryTickets = input.canPurchaseEntryTickets;
+    }
+    if (input.ticketPurchasingConditions !== undefined) {
+      payload.ticketPurchasingConditions = input.ticketPurchasingConditions;
+    }
   }
 
   return payload;
@@ -606,6 +622,8 @@ type RawTourPackage = {
   maxChildren?: number | null;
   childrenCountTowardCapacity?: boolean;
   childPrice?: number | null;
+  childDiscountType?: string | null;
+  childDiscountPercent?: number | null;
   childConditions?: string | null;
   tripStartTime?: string | null;
   pickupName?: string | null;
@@ -629,11 +647,15 @@ type RawTourPackage = {
 type RawManageablePlace = {
   id: string;
   name: string;
+  description?: string | null;
   images: string[] | null;
   category: string | null;
   entryfee: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   status: ManageablePlace["status"];
   district: { id: string; name: string } | null;
+  pricing?: PlacePricingBand[];
 };
 
 export type { TourPackagesResult };
@@ -671,6 +693,8 @@ function normalizePackage(raw: RawTourPackage): TourPackage {
     maxChildren: raw.maxChildren ?? null,
     childrenCountTowardCapacity: raw.childrenCountTowardCapacity ?? true,
     childPrice: raw.childPrice ?? null,
+    childDiscountType: raw.childDiscountType ?? "NO_DISCOUNT",
+    childDiscountPercent: raw.childDiscountPercent ?? null,
     childConditions: raw.childConditions ?? null,
     tripStartTime: raw.tripStartTime ?? null,
     pickupName: raw.pickupName ?? null,
@@ -766,11 +790,15 @@ export async function getManageablePlaces(
       places: (rows ?? []).map((row) => ({
         id: row.id,
         name: row.name,
+        description: row.description ?? undefined,
         images: row.images ?? [],
         category: row.category ?? "",
         entryfee: row.entryfee ?? null,
+        latitude: row.latitude ?? undefined,
+        longitude: row.longitude ?? undefined,
         status: row.status,
         district: row.district ?? null,
+        pricing: row.pricing ?? undefined,
       })),
       error: null,
     };
@@ -781,6 +809,47 @@ export async function getManageablePlaces(
         error instanceof ProviderApiError
           ? error.message
           : "The places in this district could not be loaded.",
+    };
+  }
+}
+
+/**
+ * Loads all places manageable by the guide across all districts, optionally filtered by districtId.
+ */
+export async function getAllManageablePlaces(
+  token: string,
+  districtId?: string
+): Promise<{ places: ManageablePlace[]; error: string | null }> {
+  try {
+    const url = districtId
+      ? `${allManageablePlacesPath()}?districtId=${encodeURIComponent(districtId)}`
+      : allManageablePlacesPath();
+    const rows = await authorized<RawManageablePlace[]>(url, token, {
+      fallback: "Places could not be loaded.",
+    });
+    return {
+      places: (rows ?? []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        description: row.description ?? undefined,
+        images: row.images ?? [],
+        category: row.category ?? "",
+        entryfee: row.entryfee ?? null,
+        latitude: row.latitude ?? undefined,
+        longitude: row.longitude ?? undefined,
+        status: row.status,
+        district: row.district ?? null,
+        pricing: row.pricing ?? undefined,
+      })),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      places: [],
+      error:
+        error instanceof ProviderApiError
+          ? error.message
+          : "Places could not be loaded.",
     };
   }
 }
@@ -869,11 +938,62 @@ export async function submitPlaceAsGuide(
   return {
     id: data.place.id,
     name: data.place.name,
+    description: data.place.description ?? undefined,
     images: data.place.images ?? [],
     category: data.place.category ?? "",
     entryfee: data.place.entryfee ?? null,
+    latitude: data.place.latitude ?? undefined,
+    longitude: data.place.longitude ?? undefined,
     status: data.place.status,
     district: data.place.district ?? null,
+    pricing: data.place.pricing ?? undefined,
+  };
+}
+
+/**
+ * Updates an existing place as the author guide.
+ */
+export async function editPlaceAsGuide(
+  token: string,
+  placeId: string,
+  input: Partial<PlaceSubmissionInput>
+): Promise<ManageablePlace> {
+  const data = await authorized<{ place?: RawManageablePlace }>(
+    editPlacePath(placeId),
+    token,
+    {
+      method: "PATCH",
+      body: {
+        ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+        ...(input.description !== undefined ? { description: input.description.trim() } : {}),
+        ...(input.districtId !== undefined ? { districtId: input.districtId } : {}),
+        ...(input.images !== undefined ? { images: input.images } : {}),
+        ...(input.entryfee !== undefined ? { entryfee: input.entryfee } : {}),
+        ...(input.category !== undefined ? { category: input.category.trim() } : {}),
+        ...(input.latitude !== undefined ? { latitude: input.latitude } : {}),
+        ...(input.longitude !== undefined ? { longitude: input.longitude } : {}),
+        ...(input.pricing !== undefined ? { pricing: input.pricing } : {}),
+      },
+      fallback: "The place could not be updated.",
+    }
+  );
+
+  if (!data?.place) {
+    throw new ProviderApiError("The place could not be updated.", 502, {});
+  }
+
+  return {
+    id: data.place.id,
+    name: data.place.name,
+    description: data.place.description ?? undefined,
+    images: data.place.images ?? [],
+    category: data.place.category ?? "",
+    entryfee: data.place.entryfee ?? null,
+    latitude: data.place.latitude ?? undefined,
+    longitude: data.place.longitude ?? undefined,
+    status: data.place.status,
+    district: data.place.district ?? null,
+    pricing: data.place.pricing ?? undefined,
   };
 }
 
@@ -1264,6 +1384,7 @@ type RawSpecificGuideBooking = {
   tourGuideName?: string;
   agencyName?: string;
   specificGuideStatus?: string;
+  requestTicketAssistance?: boolean;
   createdAt: string;
   user: RawCustomer;
   place: RawPlace | null;
@@ -1366,6 +1487,7 @@ export async function getProviderRequests(
       rooms: null,
       amount: typeof row.totalPrice === "number" ? row.totalPrice : null,
       places: row.place ? [{ id: row.place.id, name: row.place.name }] : [],
+      requestTicketAssistance: Boolean(row.requestTicketAssistance),
       createdAt: row.createdAt,
     }));
   }

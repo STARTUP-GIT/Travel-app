@@ -5,11 +5,12 @@ import type { Metadata } from "next";
 import { NoticeState, EmptyState, ErrorState } from "@/components/shared/states";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { loadListings, loadTourPackages } from "@/features/provider/api/provider.actions";
+import { loadListings, loadTourPackages, loadAllManageablePlaces } from "@/features/provider/api/provider.actions";
+import { getDistricts } from "@/features/locations/api/locations.api";
 import { requireProviderSession } from "@/features/provider/state/provider-session";
 import { providerMeta } from "@/features/provider/config";
 import { ListingRow } from "@/features/provider/components/listing-row";
-import { TourPackageManager } from "@/features/provider/components/tour-package-manager";
+import { CommonGuideServices } from "@/features/provider/components/common-guide-services";
 
 export const metadata: Metadata = { title: "My services" };
 
@@ -18,26 +19,32 @@ export default async function ServicesPage() {
   const meta = providerMeta(session.kind);
 
   if (session.kind === "common_guide") {
-    const packagesResult = await loadTourPackages().catch((error: unknown) => ({
-      packages: [],
-      error:
-        error instanceof Error
-          ? error.message
-          : "Your tour packages could not be loaded. Please try again.",
-    }));
+    const [packagesResult, placesResult, districts] = await Promise.all([
+      loadTourPackages().catch((error: unknown) => ({
+        packages: [],
+        error:
+          error instanceof Error
+            ? error.message
+            : "Your tour packages could not be loaded. Please try again.",
+      })),
+      loadAllManageablePlaces().catch((error: unknown) => ({
+        places: [],
+        error:
+          error instanceof Error
+            ? error.message
+            : "Places could not be loaded. Please try again.",
+      })),
+      getDistricts().catch(() => []),
+    ]);
 
     return (
-      <div className="app-container">
-        <PageHeader
-          icon={<Route className="size-6 text-primary" />}
-          title="Tour Packages"
-          description="Create, configure, and manage all your tour packages, pricing rules, itineraries, meals, transport, and specific guide services."
-        />
-        <TourPackageManager
-          packages={packagesResult.packages}
-          error={packagesResult.error}
-        />
-      </div>
+      <CommonGuideServices
+        packages={packagesResult.packages}
+        packagesError={packagesResult.error}
+        places={placesResult.places}
+        placesError={placesResult.error}
+        districts={districts}
+      />
     );
   }
 

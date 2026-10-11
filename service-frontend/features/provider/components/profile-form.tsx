@@ -33,6 +33,8 @@ type Values = {
   cost: string;
   languages: string[];
   password: string;
+  canPurchaseEntryTickets: boolean;
+  ticketPurchasingConditions: string;
 };
 
 type Errors = Partial<Record<keyof Values, string>>;
@@ -92,6 +94,8 @@ function initialValues(profile: ProviderProfile): Values {
     cost: String(profile.cost ?? 0),
     languages: profile.languages,
     password: "",
+    canPurchaseEntryTickets: Boolean(profile.canPurchaseEntryTickets),
+    ticketPurchasingConditions: profile.ticketPurchasingConditions ?? "",
   };
 }
 
@@ -107,6 +111,7 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
   const [busy, setBusy] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const isGuide = profile.kind === "common_guide" || profile.kind === "specific_guide";
+  const isSpecificGuide = profile.kind === "specific_guide";
   // The agency is a Common Guide concept: a specific guide is tied to one place
   // rather than trading as a business, so the field is not shown at all and
   // never sent for them.
@@ -162,6 +167,13 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
     // goes back to being shown as an individual.
     if (!isCommonGuide) {
       for (const k of ["agencyName", "agencyAddress", "agencyMapsUrl", "agencyBanner"]) {
+        const index = changed.findIndex(([key]) => key === k);
+        if (index >= 0) changed.splice(index, 1);
+      }
+    }
+
+    if (!isSpecificGuide) {
+      for (const k of ["canPurchaseEntryTickets", "ticketPurchasingConditions"]) {
         const index = changed.findIndex(([key]) => key === k);
         if (index >= 0) changed.splice(index, 1);
       }
@@ -384,6 +396,49 @@ export function ProfileForm({ profile }: { profile: ProviderProfile }) {
             onChange={(languages) => set("languages", languages)}
             error={errors.languages}
           />
+        </section>
+      ) : null}
+
+      {isSpecificGuide ? (
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <h2 className="text-sm font-semibold">Entry Ticket Purchasing Service</h2>
+              <p className="text-xs text-muted-foreground">
+                Indicate whether you can purchase entry tickets on behalf of visitors for your designated monument or attraction.
+              </p>
+            </div>
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                checked={values.canPurchaseEntryTickets}
+                onChange={(e) => set("canPurchaseEntryTickets", e.target.checked)}
+                className="peer sr-only"
+              />
+              <div className="peer h-6 w-11 rounded-full bg-input peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full" />
+            </label>
+          </div>
+
+          {values.canPurchaseEntryTickets ? (
+            <div className="mt-2 flex flex-col gap-1.5 border-t border-border pt-3">
+              <Field
+                label="Ticket conditions & payment policy"
+                hint="Explain any conditions (e.g., ticket reimbursement due at entrance, advance cutoff, ID documents needed). Note: ticket costs are separate from your guide fee."
+                error={errors.ticketPurchasingConditions}
+              >
+                <Textarea
+                  value={values.ticketPurchasingConditions}
+                  onChange={(e) => set("ticketPurchasingConditions", e.target.value)}
+                  rows={3}
+                  placeholder="e.g. Please bring government ID for monument entry. Ticket costs must be reimbursed directly upon meeting."
+                />
+              </Field>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground italic">
+              Ticket purchasing is disabled. Customers will not see the assistance option when booking.
+            </p>
+          )}
         </section>
       ) : null}
 

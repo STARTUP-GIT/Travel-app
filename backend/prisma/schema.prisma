@@ -249,6 +249,10 @@ model specific_guide {
   sharedLongitude   Float?
   locationUpdatedAt DateTime?
 
+  // Entry ticket purchasing assistance capability
+  canPurchaseEntryTickets    Boolean   @default(false)
+  ticketPurchasingConditions String?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -335,6 +339,8 @@ model common_guide_package {
   maxChildren       Int?
   childrenCountTowardCapacity Boolean @default(true)
   childPrice        Float?
+  childDiscountType String?  @default("NO_DISCOUNT")
+  childDiscountPercent Float?
   childConditions   String?
   tripStartTime String?
   pickupName    String?
@@ -388,6 +394,7 @@ model specific_guide_booking {
   requestedPickupName String?
   requestedPickupAddress String?
   requestedPickupMapsUrl String?
+  requestTicketAssistance Boolean @default(false)
   cancellationPolicy String?
   paymentStatus   String   @default("NOT_VERIFIED")
   rescheduleStatus String  @default("NONE")

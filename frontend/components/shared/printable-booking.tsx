@@ -48,6 +48,7 @@ export type PrintableBookingData = {
   entryFeeStatus?: string | null;
   entryFeeDetails?: string | null;
   additionalCostsDetails?: string | null;
+  requestTicketAssistance?: boolean;
   paymentStatus?: string;
 };
 
@@ -309,6 +310,17 @@ export function PrintableBookingModal({
               <p className="text-xs text-muted-foreground rounded-xl border p-2.5 bg-muted/20">
                 <span className="font-semibold text-foreground">Cancellation Policy:</span> {booking.cancellationPolicy}
               </p>
+            ) : null}
+            {booking.requestTicketAssistance ? (
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+                <Ticket className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-foreground">Ticket Purchasing Assistance Requested</p>
+                  <p className="text-muted-foreground">
+                    You have requested the guide to purchase entry tickets on your behalf. Ticket costs are separate from the guide's service fee and must be reimbursed directly according to the agreed policy.
+                  </p>
+                </div>
+              </div>
             ) : null}
           </div>
 

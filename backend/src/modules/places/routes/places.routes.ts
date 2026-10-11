@@ -11,6 +11,7 @@ import { resolvePlaceLocation } from "../../../app_config/controllers/admin.cont
 
 import {
   getPlacesByDistrict,
+  getManageablePlaces,
   getManageablePlacesByDistrict,
   addPlace,
   getPlaceById,
@@ -25,6 +26,12 @@ import {
 const router = express.Router();
 
 router.get("/api/places/district/:districtId", districtServiceMiddleware, getPlacesByDistrict);
+
+router.get(
+  "/api/places/manageable",
+  guideAuthMiddleware,
+  getManageablePlaces
+);
 
 // Must be declared before `/api/places/:placeId`, otherwise "manageable" is read
 // as a place id and every request for this list 404s on a place lookup.

@@ -179,9 +179,17 @@ export function manageablePlacesInDistrictPath(districtId: string): string {
   return `/${SCOPE}/services/api/places/manageable/${districtId}`;
 }
 
+export function allManageablePlacesPath(): string {
+  return `/${SCOPE}/services/api/places/manageable`;
+}
+
 /** Create a place as the signed-in guide, honouring the existing approval flow. */
 export function submitPlacePath(): string {
   return `/${SCOPE}/services/api/places/submit`;
+}
+
+export function editPlacePath(placeId: string): string {
+  return `/${SCOPE}/services/api/places/submit/${placeId}`;
 }
 
 /**

@@ -7,7 +7,24 @@ export const districtServiceMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const districtId = req.params.districtId ?? req.body.districtId;
+    let districtId = req.params.districtId ?? req.body.districtId;
+
+    const placeIdParam =
+      typeof req.params.placeId === "string"
+        ? req.params.placeId
+        : Array.isArray(req.params.placeId)
+        ? req.params.placeId[0]
+        : undefined;
+
+    if (!districtId && placeIdParam) {
+      const place = await prisma.place.findUnique({
+        where: { id: placeIdParam },
+        select: { districtId: true },
+      });
+      if (place) {
+        districtId = place.districtId;
+      }
+    }
 
     if (!districtId) {
       return res.status(400).json({

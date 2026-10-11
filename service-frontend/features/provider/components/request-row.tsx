@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronRight, Loader2, MapPin, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, Loader2, MapPin, Ticket, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -133,6 +133,12 @@ export function RequestRow({ request }: { request: ProviderRequest }) {
           <span className="flex items-center gap-1.5">
             <MapPin className="size-3.5" />
             {request.places.map((place) => place.name).join(", ")}
+          </span>
+        ) : null}
+        {request.requestTicketAssistance ? (
+          <span className="flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 font-medium text-amber-700 dark:text-amber-300">
+            <Ticket className="size-3.5" />
+            Ticket assistance requested
           </span>
         ) : null}
       </div>

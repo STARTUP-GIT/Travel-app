@@ -34,6 +34,8 @@ const specificGuideSafeSelect = {
   experience: true,
   cost: true,
   language: true,
+  canPurchaseEntryTickets: true,
+  ticketPurchasingConditions: true,
   createdAt: true,
   updatedAt: true,
   /*
@@ -164,6 +166,8 @@ export const editProfile = async (req: Request, res: Response) => {
         ...(data.experience !== undefined ? { experience: data.experience } : {}),
         ...(data.cost !== undefined ? { cost: data.cost } : {}),
         ...(data.language !== undefined ? { language: data.language } : {}),
+        ...(data.canPurchaseEntryTickets !== undefined ? { canPurchaseEntryTickets: data.canPurchaseEntryTickets } : {}),
+        ...(data.ticketPurchasingConditions !== undefined ? { ticketPurchasingConditions: data.ticketPurchasingConditions } : {}),
         ...(hashedPassword !== undefined ? { password: hashedPassword } : {}),
       },
       select: specificGuideSafeSelect,

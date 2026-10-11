@@ -207,15 +207,35 @@ export function CreatePlaceDialog({
   onOpenChange,
   districtId,
   districtName,
+  districts,
   onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Pre-selected and not editable: a package's place is picked per district. */
-  districtId: string;
-  districtName: string;
+  /** Optional pre-selected district (e.g. from a package form). */
+  districtId?: string;
+  districtName?: string;
+  /** List of districts when the guide can choose which district to add the place to. */
+  districts?: { id: string; name: string }[];
   onCreated: (place: ManageablePlace) => void;
 }) {
+  const [selectedDistrictId, setSelectedDistrictId] = React.useState<string>(
+    districtId || (districts?.[0]?.id ?? "")
+  );
+
+  React.useEffect(() => {
+    if (districtId) {
+      setSelectedDistrictId(districtId);
+    } else if (districts?.length && !selectedDistrictId) {
+      setSelectedDistrictId(districts[0].id);
+    }
+  }, [districtId, districts, selectedDistrictId]);
+
+  const currentDistrictName =
+    districtName ||
+    districts?.find((d) => d.id === selectedDistrictId)?.name ||
+    "selected district";
+
   const [state, setState] = React.useState<FormState>(initialState);
   const [customCategory, setCustomCategory] = React.useState(false);
   const [errors, setErrors] = React.useState<Errors>({});
@@ -392,10 +412,16 @@ export function CreatePlaceDialog({
         }
       }
 
+      if (!selectedDistrictId) {
+        setFormError("Please select a district for this place");
+        toast.error("Please select a district for this place");
+        return;
+      }
+
       const result = await submitGuidePlace({
         name: state.name.trim(),
         description: state.description.trim(),
-        districtId,
+        districtId: selectedDistrictId,
         images,
         entryfee: hasBands
           ? null
@@ -425,8 +451,8 @@ export function CreatePlaceDialog({
       onOpenChange(false);
       toast.success(
         created.status === "APPROVED"
-          ? "Place added to this package"
-          : "Place saved — it is awaiting review, and you can use it in this package now"
+          ? "Place created successfully"
+          : "Place saved — awaiting review"
       );
     } finally {
       setUploading(false);
@@ -440,13 +466,33 @@ export function CreatePlaceDialog({
         <DialogHeader>
           <DialogTitle>Add a new place</DialogTitle>
           <DialogDescription>
-            This creates a real place travellers can open, in {districtName}. It
-            is added to your package straight away; if your district reviews new
-            places, it becomes publicly visible once approved.
+            This creates a reusable place record in {currentDistrictName}. It is saved
+            independently and can be selected across your tour packages.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
+          {districts && districts.length > 0 && !districtId ? (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="place-district">District</Label>
+              <Select
+                value={selectedDistrictId}
+                onValueChange={setSelectedDistrictId}
+              >
+                <SelectTrigger id="place-district">
+                  <SelectValue placeholder="Select district" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {districts.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="place-name">Place name</Label>
             <Input

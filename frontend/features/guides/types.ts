@@ -16,6 +16,8 @@ export type SpecificGuide = {
   experience: number;
   cost: number;
   language: string[];
+  canPurchaseEntryTickets?: boolean;
+  ticketPurchasingConditions?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -84,11 +86,20 @@ export type TourPackageSummary = {
   transportService?: "INCLUDED" | "ON_REQUEST" | "NO_SERVICE" | string | null;
   transportVehicles?: {
     type: string;
+    vehicleType?: string;
     capacity: number;
-    isPrivate: boolean;
+    arrangement?: "PRIVATE" | "SHARED";
+    isPrivate?: boolean;
+    isShared?: boolean;
+    includedChargeCategories?: string[];
+    excludedChargeCategories?: string[];
     chargesIncluded?: string;
     chargesExcluded?: string;
     conditions?: string;
+    pricePerDay?: number;
+    status?: "AVAILABLE" | "ON_REQUEST" | string;
+    otherIncludedChargeDetail?: string;
+    otherExcludedChargeDetail?: string;
   }[] | null;
   entryFeeStatus?: string | null;
   entryFeeDetails?: string | null;
@@ -113,6 +124,8 @@ export type TourPackageSummary = {
   maxChildren?: number | null;
   childrenCountTowardCapacity?: boolean;
   childPrice?: number | null;
+  childDiscountType?: "NO_DISCOUNT" | "PERCENTAGE" | "FREE" | string | null;
+  childDiscountPercent?: number | null;
   childConditions?: string | null;
   tripStartTime?: string | null;
   pickupName?: string | null;

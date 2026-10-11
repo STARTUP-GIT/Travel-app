@@ -348,7 +348,14 @@ export function GuideBookingSheet({
   const [requestedPickupName, setRequestedPickupName] = React.useState("");
   const [requestedPickupAddress, setRequestedPickupAddress] = React.useState("");
   const [requestedPickupMapsUrl, setRequestedPickupMapsUrl] = React.useState("");
+  const [requestTicketAssistance, setRequestTicketAssistance] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open) {
+      setRequestTicketAssistance(false);
+    }
+  }, [open]);
 
   React.useEffect(() => {
     if (open && isCommon) {
@@ -415,6 +422,10 @@ export function GuideBookingSheet({
           bookingDate,
           bookingTime,
           numberOfPeople,
+          requestTicketAssistance:
+            !isCommon && Boolean((guide.guide as any).canPurchaseEntryTickets)
+              ? requestTicketAssistance
+              : false,
           requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
           requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
           requestedPickupMapsUrl: isRequestingPickup ? requestedPickupMapsUrl : undefined,
@@ -431,6 +442,7 @@ export function GuideBookingSheet({
       setRequestedPickupName("");
       setRequestedPickupAddress("");
       setRequestedPickupMapsUrl("");
+      setRequestTicketAssistance(false);
     } catch (err) {
       toast.error("Couldn't create booking", {
         description: err instanceof Error ? err.message : "Please try again later.",
@@ -448,6 +460,9 @@ export function GuideBookingSheet({
     { label: "Guide", value: guide.guide.full_name },
     { label: "Type", value: isCommon ? "Tour Guide" : "Specific Guide" },
     { label: "Number of Travellers", value: `${numberOfPeople} person${numberOfPeople > 1 ? "s" : ""}` },
+    ...(!isCommon && (guide.guide as any).canPurchaseEntryTickets && requestTicketAssistance
+      ? [{ label: "Ticket Assistance", value: "Requested (reimburse guide directly)" }]
+      : []),
     ...(isCommon
       ? [
           {
@@ -625,6 +640,36 @@ export function GuideBookingSheet({
               </div>
             ) : null}
           </div>
+
+          {!isCommon && Boolean((guide.guide as any).canPurchaseEntryTickets) ? (
+            <div className="space-y-2 rounded-2xl border border-border bg-muted/20 p-4">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="request-ticket-assistance"
+                  checked={requestTicketAssistance}
+                  onCheckedChange={(c) => setRequestTicketAssistance(Boolean(c))}
+                  className="mt-0.5"
+                />
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="request-ticket-assistance"
+                    className="text-sm font-semibold cursor-pointer"
+                  >
+                    Request ticket purchasing assistance
+                  </Label>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    The guide can purchase monument or entry tickets on your behalf. Ticket costs are separate from the guide's service fee and must be reimbursed directly.
+                  </p>
+                  {(guide.guide as any).ticketPurchasingConditions ? (
+                    <div className="mt-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-xs text-amber-900 dark:text-amber-200">
+                      <span className="font-semibold">Guide policy: </span>
+                      {(guide.guide as any).ticketPurchasingConditions}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <BookingSummary
             title="Booking summary"

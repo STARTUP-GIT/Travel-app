@@ -75,6 +75,9 @@ import { useAsync } from "@/lib/hooks/use-async";
 const NAME_LIMIT = 80;
 const DESCRIPTION_LIMIT = 1000;
 
+const TRANSPORT_INCLUDED_CATEGORIES = ["Fuel", "Driver allowance", "Vehicle hire", "Other"];
+const TRANSPORT_EXCLUDED_CATEGORIES = ["Tolls", "Parking", "Extra distance", "Waiting charges", "Other"];
+
 type EditorTab = "basic" | "itinerary" | "meals" | "transport" | "guide" | "children";
 
 type ItineraryPlaceConfig = {
@@ -129,6 +132,8 @@ type Draft = {
   maxChildren: number;
   childrenCountTowardCapacity: boolean;
   childPrice: number;
+  childDiscountType: "NO_DISCOUNT" | "PERCENTAGE" | "FREE";
+  childDiscountPercent: number;
   childConditions: string;
 };
 
@@ -170,6 +175,8 @@ function emptyDraft(): Draft {
     maxChildren: 4,
     childrenCountTowardCapacity: true,
     childPrice: 0,
+    childDiscountType: "NO_DISCOUNT",
+    childDiscountPercent: 50,
     childConditions: "Children under 12 must be accompanied by an adult.",
   };
 }
@@ -241,17 +248,47 @@ function draftFrom(pkg: TourPackage): Draft {
     mealDetails: pkg.mealDetails ?? pkg.foodDetails ?? "",
 
     transportService: pkg.transportService ?? (pkg.transportStatus === "INCLUDED" ? "INCLUDED" : pkg.transportStatus === "OPTIONAL" ? "ON_REQUEST" : "NO_SERVICE"),
-    transportVehicles: Array.isArray(pkg.transportVehicles) ? pkg.transportVehicles : [],
+    transportVehicles: Array.isArray(pkg.transportVehicles)
+      ? pkg.transportVehicles.map((v) => {
+          const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
+          let incCats = Array.isArray(v.includedChargeCategories) ? v.includedChargeCategories : [];
+          if (!incCats.length && v.chargesIncluded) {
+            incCats = v.chargesIncluded.split(",").map((s) => s.trim()).filter(Boolean);
+          }
+          let excCats = Array.isArray(v.excludedChargeCategories) ? v.excludedChargeCategories : [];
+          if (!excCats.length && v.chargesExcluded) {
+            excCats = v.chargesExcluded.split(",").map((s) => s.trim()).filter(Boolean);
+          }
+          return {
+            ...v,
+            type: v.type || v.vehicleType || "Car",
+            vehicleType: v.vehicleType || v.type || "Car",
+            capacity: v.capacity || 4,
+            arrangement: isPriv ? ("PRIVATE" as const) : ("SHARED" as const),
+            isPrivate: isPriv,
+            isShared: !isPriv,
+            status: v.status || ("AVAILABLE" as const),
+            includedChargeCategories: incCats.length ? incCats : ["Fuel", "Driver allowance"],
+            excludedChargeCategories: excCats.length ? excCats : ["Tolls", "Parking"],
+            chargesIncluded: v.chargesIncluded || incCats.join(", "),
+            chargesExcluded: v.chargesExcluded || excCats.join(", "),
+          };
+        })
+      : [],
     transportDetails: pkg.transportDetails ?? "",
 
     hasSpecificGuide: Boolean(pkg.hasSpecificGuide),
     specificGuideId: pkg.specificGuideId ?? null,
 
     childrenAllowed: pkg.childrenAllowed ?? true,
-    childMaxAge: pkg.childMaxAge ?? 12,
+    childMaxAge: Math.min(pkg.childMaxAge ?? 12, 12),
     maxChildren: pkg.maxChildren ?? 4,
     childrenCountTowardCapacity: pkg.childrenCountTowardCapacity ?? true,
     childPrice: pkg.childPrice ?? 0,
+    childDiscountType:
+      (pkg.childDiscountType as any) ||
+      (pkg.childPrice === 0 ? "FREE" : "NO_DISCOUNT"),
+    childDiscountPercent: pkg.childDiscountPercent ?? 50,
     childConditions: pkg.childConditions ?? "",
   };
 }
@@ -266,7 +303,26 @@ function validate(draft: Draft): string | null {
     return "Please select a Specific Guide or choose 'No Specific Guide included'.";
   }
   if (draft.transportService === "INCLUDED" && draft.transportVehicles.length === 0) {
-    return "Please configure at least one vehicle for the included transport service.";
+    return "Please configure at least one vehicle option for the included transport service.";
+  }
+  if (draft.childrenAllowed) {
+    if (
+      !Number.isInteger(draft.childMaxAge) ||
+      draft.childMaxAge < 1 ||
+      draft.childMaxAge > 12
+    ) {
+      return "Maximum child age must be a whole number between 1 and 12 years.";
+    }
+    if (draft.childDiscountType === "PERCENTAGE") {
+      if (
+        draft.childDiscountPercent === undefined ||
+        draft.childDiscountPercent === null ||
+        draft.childDiscountPercent < 1 ||
+        draft.childDiscountPercent > 99
+      ) {
+        return "Child discount percentage must be a valid percentage between 1% and 99%.";
+      }
+    }
   }
   return null;
 }
@@ -377,7 +433,7 @@ export function TourPackageManager({
       mealDetails: draft.mealDetails,
 
       transportService: draft.transportService,
-      transportVehicles: draft.transportService === "INCLUDED" ? draft.transportVehicles : [],
+      transportVehicles: draft.transportService !== "NO_SERVICE" ? draft.transportVehicles : [],
       transportDetails: draft.transportDetails,
 
       hasSpecificGuide: draft.hasSpecificGuide,
@@ -385,9 +441,14 @@ export function TourPackageManager({
 
       childrenAllowed: draft.childrenAllowed,
       childMaxAge: draft.childrenAllowed ? Number(draft.childMaxAge) : null,
-      maxChildren: draft.childrenAllowed ? Number(draft.maxChildren) : null,
+      maxChildren: null,
       childrenCountTowardCapacity: draft.childrenCountTowardCapacity,
-      childPrice: draft.childrenAllowed ? Number(draft.childPrice) : null,
+      childPrice: null,
+      childDiscountType: draft.childrenAllowed ? draft.childDiscountType : null,
+      childDiscountPercent:
+        draft.childrenAllowed && draft.childDiscountType === "PERCENTAGE"
+          ? Number(draft.childDiscountPercent)
+          : null,
       childConditions: draft.childConditions,
 
       placeIds: draft.placeIds,
@@ -471,16 +532,56 @@ export function TourPackageManager({
       vehicleType: "Car",
       type: "Car",
       capacity: 4,
+      arrangement: "PRIVATE",
       isShared: false,
       isPrivate: true,
-      chargesIncluded: "Fuel and driver allowance included",
-      chargesExcluded: "Tolls & parking paid separately",
-      additionalChargesExcluded: "Tolls & parking paid separately",
-      conditions: "Air-conditioned sedan",
+      status: "AVAILABLE",
+      includedChargeCategories: ["Fuel", "Driver allowance"],
+      excludedChargeCategories: ["Tolls", "Parking"],
+      chargesIncluded: "Fuel, Driver allowance",
+      chargesExcluded: "Tolls, Parking",
+      conditions: "",
+      otherIncludedChargeDetail: "",
+      otherExcludedChargeDetail: "",
+      pricePerDay: 0,
     };
     setDraft({
       ...draft,
       transportVehicles: [...draft.transportVehicles, newVehicle],
+    });
+  }
+
+  function toggleVehicleIncludedCharge(vIndex: number, category: string) {
+    if (!draft) return;
+    const vehicle = draft.transportVehicles[vIndex];
+    if (!vehicle) return;
+    const current = new Set(vehicle.includedChargeCategories || []);
+    if (current.has(category)) {
+      current.delete(category);
+    } else {
+      current.add(category);
+    }
+    const arr = Array.from(current);
+    updateVehicle(vIndex, {
+      includedChargeCategories: arr,
+      chargesIncluded: arr.join(", "),
+    });
+  }
+
+  function toggleVehicleExcludedCharge(vIndex: number, category: string) {
+    if (!draft) return;
+    const vehicle = draft.transportVehicles[vIndex];
+    if (!vehicle) return;
+    const current = new Set(vehicle.excludedChargeCategories || []);
+    if (current.has(category)) {
+      current.delete(category);
+    } else {
+      current.add(category);
+    }
+    const arr = Array.from(current);
+    updateVehicle(vIndex, {
+      excludedChargeCategories: arr,
+      chargesExcluded: arr.join(", "),
     });
   }
 
@@ -1154,7 +1255,7 @@ export function TourPackageManager({
                   },
                   {
                     id: "NO_SERVICE",
-                    label: "No such service",
+                    label: "No transport service",
                     desc: "Transport is not provided. Customers travel independently.",
                   },
                 ].map((opt) => (
@@ -1177,124 +1278,253 @@ export function TourPackageManager({
                 ))}
               </div>
 
-              {draft.transportService === "INCLUDED" && (
+              {(draft.transportService === "INCLUDED" || draft.transportService === "ON_REQUEST") && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h5 className="text-xs font-bold text-foreground">Configured Vehicles</h5>
+                      <h5 className="text-xs font-bold text-foreground">
+                        {draft.transportService === "INCLUDED"
+                          ? "Configured Included Vehicles"
+                          : "Available On-Request Vehicles"}
+                      </h5>
                       <p className="text-[0.7rem] text-muted-foreground">
-                        Define vehicle types and capacities provided for this package.
+                        {draft.transportService === "INCLUDED"
+                          ? "Transport is part of the package price. Configure vehicles offered."
+                          : "Configure vehicle options that can be requested, with applicable prices and conditions."}
                       </p>
                     </div>
                     <Button type="button" size="sm" variant="outline" onClick={addVehicle} className="h-8 text-xs">
-                      <Plus className="size-3.5 mr-1" /> Add Vehicle
+                      <Plus className="size-3.5 mr-1" /> Add Vehicle Option
                     </Button>
                   </div>
 
                   {draft.transportVehicles.length === 0 ? (
                     <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
-                      No vehicles configured. Click &ldquo;Add Vehicle&rdquo; to add a Car, Minibus, or Bus.
+                      No vehicles configured. Click &ldquo;Add Vehicle Option&rdquo; to add a Car, Minibus, Van, or Bus.
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-3">
-                      {draft.transportVehicles.map((vehicle, vIndex) => (
-                        <div
-                          key={vIndex}
-                          className="rounded-xl border border-border bg-card p-3 shadow-xs flex flex-col gap-2.5"
-                        >
-                          <div className="flex items-center justify-between border-b pb-2">
-                            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                              <Car className="size-3.5 text-primary" /> Vehicle #{vIndex + 1}
-                            </span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="size-6 text-destructive"
-                              onClick={() => removeVehicle(vIndex)}
-                            >
-                              <X className="size-3.5" />
-                            </Button>
-                          </div>
-
-                          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                            <div className="flex flex-col gap-1">
-                              <Label className="text-[0.7rem] font-semibold">Vehicle Type</Label>
-                              <Select
-                                value={vehicle.type}
-                                onValueChange={(val: any) => updateVehicle(vIndex, { type: val })}
+                    <div className="flex flex-col gap-4">
+                      {draft.transportVehicles.map((vehicle, vIndex) => {
+                        const isPrivate = vehicle.arrangement ? vehicle.arrangement === "PRIVATE" : vehicle.isPrivate !== false;
+                        return (
+                          <div
+                            key={vIndex}
+                            className="rounded-xl border border-border bg-card p-4 shadow-xs flex flex-col gap-3"
+                          >
+                            <div className="flex items-center justify-between border-b pb-2">
+                              <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                <Car className="size-3.5 text-primary" /> Vehicle #{vIndex + 1}
+                              </span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-6 text-destructive"
+                                onClick={() => removeVehicle(vIndex)}
                               >
-                                <SelectTrigger className="h-8 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Car">Car / Sedan</SelectItem>
-                                  <SelectItem value="Minibus">Minibus / Tempo</SelectItem>
-                                  <SelectItem value="Bus">Coach / Bus</SelectItem>
-                                  <SelectItem value="Van">Van / SUV</SelectItem>
-                                  <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
+                                <X className="size-3.5" />
+                              </Button>
                             </div>
 
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                              <div className="flex flex-col gap-1">
+                                <Label className="text-[0.7rem] font-semibold">Vehicle Type</Label>
+                                <Select
+                                  value={vehicle.type || vehicle.vehicleType || "Car"}
+                                  onValueChange={(val: any) =>
+                                    updateVehicle(vIndex, { type: val, vehicleType: val })
+                                  }
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Car">Car / Sedan</SelectItem>
+                                    <SelectItem value="Minibus">Minibus / Tempo</SelectItem>
+                                    <SelectItem value="Bus">Coach / Bus</SelectItem>
+                                    <SelectItem value="Van">Van / SUV</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="flex flex-col gap-1">
+                                <Label className="text-[0.7rem] font-semibold">Max Passenger Capacity</Label>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  value={vehicle.capacity || 4}
+                                  onChange={(e) =>
+                                    updateVehicle(vIndex, { capacity: Math.max(1, Number(e.target.value) || 1) })
+                                  }
+                                  className="h-8 text-xs"
+                                />
+                              </div>
+
+                              <div className="flex flex-col gap-1">
+                                <Label className="text-[0.7rem] font-semibold">Vehicle Arrangement</Label>
+                                <Select
+                                  value={isPrivate ? "PRIVATE" : "SHARED"}
+                                  onValueChange={(val) =>
+                                    updateVehicle(vIndex, {
+                                      arrangement: val as "PRIVATE" | "SHARED",
+                                      isPrivate: val === "PRIVATE",
+                                      isShared: val === "SHARED",
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="PRIVATE">Private Vehicle (Tour Only)</SelectItem>
+                                    <SelectItem value="SHARED">Shared Transport</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+
+                            {/* Vehicle Arrangement Descriptions */}
+                            <div className="rounded-lg bg-muted/40 p-2.5 text-[0.7rem]">
+                              {isPrivate ? (
+                                <p className="text-muted-foreground">
+                                  <strong className="text-foreground">Private Vehicle (Tour Only):</strong> “The vehicle is reserved for this booking party for the agreed tour. Unrelated customers are not added to the same vehicle.”
+                                </p>
+                              ) : (
+                                <p className="text-muted-foreground">
+                                  <strong className="text-foreground">Shared Transport:</strong> “Passengers from different bookings may travel together. Available seats and passenger capacity must be checked before the booking is confirmed.”
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <div className="flex flex-col gap-1">
+                                <Label className="text-[0.7rem] font-semibold">Availability / Request Status</Label>
+                                <Select
+                                  value={vehicle.status || "AVAILABLE"}
+                                  onValueChange={(val: any) => updateVehicle(vIndex, { status: val })}
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="AVAILABLE">Available / Guaranteed</SelectItem>
+                                    <SelectItem value="ON_REQUEST">On Request / Subject to Confirmation</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {draft.transportService === "ON_REQUEST" && (
+                                <div className="flex flex-col gap-1">
+                                  <Label className="text-[0.7rem] font-semibold">Estimated Price (₹)</Label>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    placeholder="e.g. 2500"
+                                    value={vehicle.pricePerDay ?? ""}
+                                    onChange={(e) =>
+                                      updateVehicle(vIndex, { pricePerDay: Number(e.target.value) || 0 })
+                                    }
+                                    className="h-8 text-xs"
+                                  />
+                                  <span className="text-[0.65rem] text-muted-foreground">
+                                    Additional charge arranged upon request; not in base package price.
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Included Charges Checkbox Group */}
+                            <div className="flex flex-col gap-1.5 rounded-lg border p-2.5 bg-background">
+                              <Label className="text-[0.7rem] font-semibold text-foreground">
+                                Included Transport Charges
+                              </Label>
+                              <p className="text-[0.65rem] text-muted-foreground">
+                                Select all charges covered under this vehicle configuration.
+                              </p>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                                {TRANSPORT_INCLUDED_CATEGORIES.map((cat) => {
+                                  const checked = (vehicle.includedChargeCategories || []).includes(cat);
+                                  return (
+                                    <label
+                                      key={cat}
+                                      className="flex items-center gap-2 text-xs text-foreground cursor-pointer"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => toggleVehicleIncludedCharge(vIndex, cat)}
+                                        className="size-3.5 rounded border-border text-primary focus:ring-ring"
+                                      />
+                                      <span>{cat}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {(vehicle.includedChargeCategories || []).includes("Other") && (
+                                <Input
+                                  value={vehicle.otherIncludedChargeDetail || ""}
+                                  onChange={(e) =>
+                                    updateVehicle(vIndex, { otherIncludedChargeDetail: e.target.value })
+                                  }
+                                  placeholder="Specify other included charges (e.g. Ferry tickets, special permits)"
+                                  className="h-7 text-xs mt-1"
+                                />
+                              )}
+                            </div>
+
+                            {/* Excluded Charges Checkbox Group */}
+                            <div className="flex flex-col gap-1.5 rounded-lg border p-2.5 bg-background">
+                              <Label className="text-[0.7rem] font-semibold text-foreground">
+                                Excluded Transport Charges
+                              </Label>
+                              <p className="text-[0.65rem] text-muted-foreground">
+                                Disclosed charges customer must settle separately (cannot be added to base price).
+                              </p>
+                              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                                {TRANSPORT_EXCLUDED_CATEGORIES.map((cat) => {
+                                  const checked = (vehicle.excludedChargeCategories || []).includes(cat);
+                                  return (
+                                    <label
+                                      key={cat}
+                                      className="flex items-center gap-2 text-xs text-foreground cursor-pointer"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => toggleVehicleExcludedCharge(vIndex, cat)}
+                                        className="size-3.5 rounded border-border text-primary focus:ring-ring"
+                                      />
+                                      <span>{cat}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                              {(vehicle.excludedChargeCategories || []).includes("Other") && (
+                                <Input
+                                  value={vehicle.otherExcludedChargeDetail || ""}
+                                  onChange={(e) =>
+                                    updateVehicle(vIndex, { otherExcludedChargeDetail: e.target.value })
+                                  }
+                                  placeholder="Specify other excluded charges (e.g. State border tax, waiting fee)"
+                                  className="h-7 text-xs mt-1"
+                                />
+                              )}
+                            </div>
+
+                            {/* Conditions */}
                             <div className="flex flex-col gap-1">
-                              <Label className="text-[0.7rem] font-semibold">Max Passenger Capacity</Label>
+                              <Label className="text-[0.7rem] font-semibold">Conditions & Notes</Label>
                               <Input
-                                type="number"
-                                min={1}
-                                value={vehicle.capacity}
-                                onChange={(e) =>
-                                  updateVehicle(vIndex, { capacity: Number(e.target.value) || 1 })
-                                }
+                                value={vehicle.conditions || ""}
+                                onChange={(e) => updateVehicle(vIndex, { conditions: e.target.value })}
+                                placeholder="e.g. AC vehicle, luggage space up to 3 bags, pickup from designated hotel"
                                 className="h-8 text-xs"
                               />
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                              <Label className="text-[0.7rem] font-semibold">Vehicle Arrangement</Label>
-                              <Select
-                                value={vehicle.isPrivate ? "private" : "shared"}
-                                onValueChange={(val) =>
-                                  updateVehicle(vIndex, { isPrivate: val === "private" })
-                                }
-                              >
-                                <SelectTrigger className="h-8 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="private">Private Vehicle (Tour only)</SelectItem>
-                                  <SelectItem value="shared">Shared Transport</SelectItem>
-                                </SelectContent>
-                              </Select>
                             </div>
                           </div>
-
-                          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                            <div className="flex flex-col gap-1">
-                              <Label className="text-[0.7rem] font-semibold">Included Transport Charges</Label>
-                              <Input
-                                value={vehicle.chargesIncluded || ""}
-                                onChange={(e) =>
-                                  updateVehicle(vIndex, { chargesIncluded: e.target.value })
-                                }
-                                placeholder="e.g. Fuel, Driver allowance, AC"
-                                className="h-8 text-xs"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <Label className="text-[0.7rem] font-semibold">Excluded Transport Charges</Label>
-                              <Input
-                                value={vehicle.chargesExcluded || ""}
-                                onChange={(e) =>
-                                  updateVehicle(vIndex, { chargesExcluded: e.target.value })
-                                }
-                                placeholder="e.g. Interstate toll permits, parking fee"
-                                className="h-8 text-xs"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1303,14 +1533,14 @@ export function TourPackageManager({
               {draft.transportService === "ON_REQUEST" && (
                 <div className="rounded-xl border p-4 bg-muted/20 flex flex-col gap-2">
                   <Label htmlFor="transport-details-request" className="text-xs font-semibold">
-                    Request Details & Pricing
+                    General Request Terms & Notice
                   </Label>
                   <Textarea
                     id="transport-details-request"
                     rows={2}
                     value={draft.transportDetails}
                     onChange={(e) => setDraft({ ...draft, transportDetails: e.target.value })}
-                    placeholder="Specify available vehicle options, rates (e.g. ₹2000 for AC sedan), and confirmation policy."
+                    placeholder="Specify booking lead time, driver contact policy, or extra guidelines for transport on request."
                     className="text-xs"
                   />
                   <p className="text-[0.7rem] text-muted-foreground">
@@ -1320,8 +1550,8 @@ export function TourPackageManager({
               )}
 
               {draft.transportService === "NO_SERVICE" && (
-                <div className="rounded-xl border border-dashed p-4 text-center text-xs text-muted-foreground">
-                  Transport is not provided or arranged through this package. Travellers meet at the pickup point or travel independently.
+                <div className="rounded-xl border border-dashed p-6 text-center text-xs text-muted-foreground">
+                  Transport is not provided or arranged through this package. Travellers meet at the pickup point or travel independently. Any vehicle options will be cleared on save.
                 </div>
               )}
             </div>
@@ -1468,66 +1698,104 @@ export function TourPackageManager({
               </div>
 
               {draft.childrenAllowed ? (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col gap-3">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="child-max-age" className="text-xs font-semibold">
-                        Maximum Child Age (Years)
-                      </Label>
-                      <Input
-                        id="child-max-age"
-                        type="number"
-                        min={1}
-                        max={17}
-                        value={draft.childMaxAge}
-                        onChange={(e) =>
-                          setDraft({ ...draft, childMaxAge: Number(e.target.value) || 12 })
-                        }
-                        className="h-8 text-xs bg-card"
-                      />
-                      <span className="text-[0.65rem] text-muted-foreground">
-                        Travellers above this age count as adults.
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="max-children" className="text-xs font-semibold">
-                        Max Children Allowed per Booking
-                      </Label>
-                      <Input
-                        id="max-children"
-                        type="number"
-                        min={1}
-                        value={draft.maxChildren}
-                        onChange={(e) =>
-                          setDraft({ ...draft, maxChildren: Number(e.target.value) || 4 })
-                        }
-                        className="h-8 text-xs bg-card"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="child-price" className="text-xs font-semibold">
-                        Child Price (₹ per child)
-                      </Label>
-                      <Input
-                        id="child-price"
-                        type="number"
-                        min={0}
-                        value={draft.childPrice}
-                        onChange={(e) =>
-                          setDraft({ ...draft, childPrice: Number(e.target.value) || 0 })
-                        }
-                        placeholder="0 (Free or discount)"
-                        className="h-8 text-xs bg-card"
-                      />
-                      <span className="text-[0.65rem] text-muted-foreground">
-                        Applies when pricing unit is Per Person.
-                      </span>
-                    </div>
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col gap-4">
+                  <div className="flex flex-col gap-1 max-w-xs">
+                    <Label htmlFor="child-max-age" className="text-xs font-semibold">
+                      Maximum Child Age (Years, Max 12) *
+                    </Label>
+                    <Input
+                      id="child-max-age"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={draft.childMaxAge}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          childMaxAge: Math.min(12, Math.max(1, Number(e.target.value) || 1)),
+                        })
+                      }
+                      className="h-8 text-xs bg-card"
+                    />
+                    <span className="text-[0.65rem] text-muted-foreground">
+                      Maximum configurable limit is 12 years. Travellers above this age pay adult rate.
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2.5 pt-1">
+                  {/* Explicit Child Discount Policy */}
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs font-semibold">Child Pricing Policy</Label>
+                    <p className="text-[0.7rem] text-muted-foreground">
+                      Choose how children under the maximum age are charged on per-person packages.
+                    </p>
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                      {[
+                        {
+                          id: "NO_DISCOUNT" as const,
+                          label: "No child discount",
+                          desc: "Child pays the applicable adult price.",
+                        },
+                        {
+                          id: "PERCENTAGE" as const,
+                          label: "Percentage discount",
+                          desc: "Guide configures a percentage discount (1%–99%).",
+                        },
+                        {
+                          id: "FREE" as const,
+                          label: "Free for eligible children",
+                          desc: "Eligible children travel free of charge.",
+                        },
+                      ].map((policy) => (
+                        <button
+                          key={policy.id}
+                          type="button"
+                          onClick={() => setDraft({ ...draft, childDiscountType: policy.id })}
+                          className={cn(
+                            "flex flex-col gap-1 rounded-xl border p-3 text-left transition-all",
+                            draft.childDiscountType === policy.id
+                              ? "border-primary bg-primary/10 ring-1 ring-primary"
+                              : "border-border bg-card hover:bg-muted/40"
+                          )}
+                        >
+                          <span className="text-xs font-bold text-foreground">{policy.label}</span>
+                          <span className="text-[0.7rem] text-muted-foreground">{policy.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {draft.childDiscountType === "PERCENTAGE" && (
+                      <div className="mt-2 flex flex-col gap-1 rounded-lg border p-3 bg-card max-w-sm">
+                        <Label htmlFor="child-discount-percent" className="text-xs font-semibold">
+                          Discount Percentage (1% - 99%) *
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="child-discount-percent"
+                            type="number"
+                            min={1}
+                            max={99}
+                            value={draft.childDiscountPercent}
+                            onChange={(e) =>
+                              setDraft({
+                                ...draft,
+                                childDiscountPercent: Math.min(
+                                  99,
+                                  Math.max(1, Number(e.target.value) || 1)
+                                ),
+                              })
+                            }
+                            className="h-8 text-xs w-28"
+                          />
+                          <span className="text-xs font-bold text-muted-foreground">% off adult rate</span>
+                        </div>
+                        <span className="text-[0.65rem] text-muted-foreground">
+                          Discount applies strictly to per-person pricing basis; whole-tour prices are not affected.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2.5 pt-1 border-t">
                     <input
                       type="checkbox"
                       id="child-capacity"
@@ -1537,9 +1805,14 @@ export function TourPackageManager({
                       }
                       className="size-4 rounded border-border text-primary focus:ring-ring"
                     />
-                    <Label htmlFor="child-capacity" className="text-xs font-medium cursor-pointer">
-                      Children count towards total passenger & vehicle capacity
-                    </Label>
+                    <div className="flex flex-col">
+                      <Label htmlFor="child-capacity" className="text-xs font-medium cursor-pointer">
+                        Children count towards total passenger & vehicle capacity
+                      </Label>
+                      <span className="text-[0.65rem] text-muted-foreground">
+                        Enforces vehicle and tour seating limits considering children as passengers.
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1 pt-1">
@@ -1846,15 +2119,82 @@ export function TourPackageManager({
                       : "No transport service provided"}
                   </p>
                   {Array.isArray(viewingPackage.transportVehicles) && viewingPackage.transportVehicles.length > 0 && (
-                    <div className="text-[0.7rem] text-muted-foreground flex flex-col gap-0.5">
-                      {viewingPackage.transportVehicles.map((v, i) => (
-                        <span key={i}>
-                          • {v.type} ({v.capacity} seats, {v.isPrivate ? "Private" : "Shared"})
-                        </span>
-                      ))}
+                    <div className="text-[0.7rem] text-muted-foreground flex flex-col gap-2 mt-1">
+                      {viewingPackage.transportVehicles.map((v, i) => {
+                        const isPriv = v.arrangement ? v.arrangement === "PRIVATE" : v.isPrivate !== false;
+                        const inc = (v.includedChargeCategories && v.includedChargeCategories.length > 0)
+                          ? v.includedChargeCategories.join(", ")
+                          : v.chargesIncluded || "Fuel, Driver allowance";
+                        const exc = (v.excludedChargeCategories && v.excludedChargeCategories.length > 0)
+                          ? v.excludedChargeCategories.join(", ")
+                          : v.chargesExcluded || "Tolls, Parking";
+                        return (
+                          <div key={i} className="rounded-md border p-2 bg-background flex flex-col gap-1">
+                            <div className="flex items-center justify-between font-semibold text-foreground">
+                              <span>{v.type || v.vehicleType || "Car"} ({v.capacity} seats)</span>
+                              <Badge variant="outline" className="text-[0.65rem]">
+                                {isPriv ? "Private (Tour Only)" : "Shared Transport"}
+                              </Badge>
+                            </div>
+                            <p className="text-[0.65rem] text-muted-foreground italic">
+                              {isPriv
+                                ? "Reserved for this booking party for the agreed tour."
+                                : "Passengers from different bookings may travel together."}
+                            </p>
+                            <div className="text-[0.65rem] flex flex-col gap-0.5 pt-1 border-t">
+                              <div><span className="font-medium text-foreground">Included:</span> {inc}</div>
+                              <div><span className="font-medium text-foreground">Excluded:</span> {exc}</div>
+                              {v.pricePerDay ? <div><span className="font-medium text-foreground">Est. price:</span> ₹{v.pricePerDay}</div> : null}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Children Policy breakdown */}
+              <div className="rounded-xl border p-3 flex flex-col gap-1.5 bg-card">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Baby className="size-3.5 text-primary" /> Child Policy & Pricing
+                </h4>
+                {viewingPackage.childrenAllowed ? (
+                  <div className="flex flex-col gap-1 text-[0.7rem]">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">Eligibility:</span>
+                      <span>Children up to {viewingPackage.childMaxAge || 12} years</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">Child Rate:</span>
+                      <span>
+                        {viewingPackage.childDiscountType === "FREE"
+                          ? "Free for eligible children"
+                          : viewingPackage.childDiscountType === "PERCENTAGE"
+                          ? `${viewingPackage.childDiscountPercent ?? 50}% discount on adult rate (Per Person)`
+                          : "Standard adult rate (No discount)"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">Capacity:</span>
+                      <span>
+                        {viewingPackage.childrenCountTowardCapacity
+                          ? "Children count towards passenger and vehicle capacity"
+                          : "Children do not count towards capacity limits"}
+                      </span>
+                    </div>
+                    {viewingPackage.childConditions && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground">Conditions:</span>
+                        <span className="text-muted-foreground">{viewingPackage.childConditions}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[0.7rem] text-destructive">
+                    Adults-only tour: Children are not permitted to participate in this package.
+                  </p>
+                )}
               </div>
 
               {/* Specific Guide Details */}

@@ -224,6 +224,7 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
         image={booking.specificGuide?.profile_pic}
         title={booking.specificGuide?.full_name ?? "Specific guide"}
         subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
+        meta={booking.requestTicketAssistance ? "Ticket purchasing assistance requested" : undefined}
         status={booking.status}
         href={href}
       />
@@ -294,6 +295,7 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
           entryFeeStatus: booking.entryFeeStatus,
           entryFeeDetails: booking.entryFeeDetails,
           additionalCostsDetails: booking.additionalCostsDetails,
+          requestTicketAssistance: booking.requestTicketAssistance,
           paymentStatus: booking.paymentStatus,
         }}
       />
