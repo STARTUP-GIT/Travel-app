@@ -29,6 +29,7 @@ export type BrandConfig = {
 
 export type AppConfig = {
   app_name: string;
+  appName?: string;
   webTitle: string;
   icon: string;
   imageBanners: string[];

@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -31,10 +34,11 @@ const FALLBACK_DESCRIPTION =
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAppConfig().catch(() => null);
   const brandName = config?.brandName || "ATLASWANDERS";
-  const defaultTitle = `${brandName} | Provider Portal`;
-  const titleFormat = config?.titleFormat || `%s | ${brandName}`;
-  const description = config?.defaultMetaDescription || config?.app_description || FALLBACK_DESCRIPTION;
-  const favicon = config?.faviconUrl || config?.icon || "/brand/atlaswanders-favicon.svg";
+  const appName = config?.app_name || `${brandName} Provider`;
+  const defaultTitle = config?.webTitle || `${brandName} | Provider Portal`;
+  const titleFormat = config?.titleFormat || `%s | ${appName}`;
+  const description = config?.app_description || config?.defaultMetaDescription || FALLBACK_DESCRIPTION;
+  const favicon = config?.icon || config?.faviconUrl || "/brand/atlaswanders-favicon.svg";
   const ogImage = config?.openGraphImageUrl || "/brand/atlaswanders_og_banner.jpg";
 
   return {
@@ -43,10 +47,10 @@ export async function generateMetadata(): Promise<Metadata> {
       template: titleFormat,
     },
     description,
-    applicationName: `${brandName} Provider`,
+    applicationName: appName,
     appleWebApp: {
       capable: true,
-      title: `${brandName} Providers`,
+      title: appName,
       statusBarStyle: "default",
     },
     icons: {

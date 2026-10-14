@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -31,11 +34,11 @@ const FALLBACK_DESCRIPTION =
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAppConfig().catch(() => null);
-  const appName = config?.brandName || config?.app_name || FALLBACK_CONFIG.brandName;
-  const defaultTitle = config?.defaultTitle || `${appName} | Discover Places. Experience Local.`;
+  const appName = config?.app_name || config?.brandName || FALLBACK_CONFIG.brandName;
+  const defaultTitle = config?.webTitle || config?.defaultTitle || `${appName} | Discover Places. Experience Local.`;
   const titleFormat = config?.titleFormat || `%s | ${appName}`;
-  const description = config?.defaultMetaDescription || config?.app_description || FALLBACK_DESCRIPTION;
-  const favicon = config?.faviconUrl || config?.icon || "/brand/atlaswanders-favicon.svg";
+  const description = config?.app_description || config?.defaultMetaDescription || FALLBACK_DESCRIPTION;
+  const favicon = config?.icon || config?.faviconUrl || "/brand/atlaswanders-favicon.svg";
   const ogImage = config?.openGraphImageUrl || "/brand/atlaswanders_og_banner.jpg";
 
   return {

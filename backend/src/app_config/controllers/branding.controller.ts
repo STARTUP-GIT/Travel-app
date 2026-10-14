@@ -116,36 +116,42 @@ export const getClientSettings = async (_req: Request, res: Response) => {
       getOrCreateConfig("CLIENT"),
     ]);
 
+    const clientAppName = config.app_name?.trim() || published.brandName || "ATLASWANDERS";
+    const clientTitle = config.webTitle?.trim() || published.defaultTitle || "ATLASWANDERS | Discover Places. Experience Local.";
+    const clientTagline = config.text?.trim() || published.tagline || "Discover Places. Experience Local.";
+    const clientIcon = config.icon?.trim() || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
+    const clientDesc = config.app_description?.trim() || published.brandDescription || "Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.";
+
     return res.status(200).json({
-      app_name: published.brandName,
-      webTitle: published.defaultTitle,
-      tagline: published.tagline,
-      icon: published.faviconUrl || published.symbolLogoUrl || config.icon,
+      app_name: clientAppName,
+      webTitle: clientTitle,
+      tagline: clientTagline,
+      icon: clientIcon,
       imageBanners: config.imageBanners ?? [],
-      text: config.text,
-      app_description: published.brandDescription || config.app_description,
-      contacts: config.contacts,
-      termsandconditions: config.termsandconditions,
-      privacy: config.privacy,
+      text: clientTagline,
+      app_description: clientDesc,
+      contacts: config.contacts ?? "",
+      termsandconditions: config.termsandconditions ?? "",
+      privacy: config.privacy ?? "",
       // Attached brand system metadata
-      brandName: published.brandName,
-      primaryColor: published.primaryColor,
-      secondaryColor: published.secondaryColor,
-      accentColor: published.accentColor,
-      primaryLogoUrl: published.primaryLogoUrl,
-      symbolLogoUrl: published.symbolLogoUrl,
-      lightLogoUrl: published.lightLogoUrl,
-      darkLogoUrl: published.darkLogoUrl,
-      faviconUrl: published.faviconUrl,
-      defaultTitle: published.defaultTitle,
-      titleFormat: published.titleFormat,
-      defaultMetaDescription: published.defaultMetaDescription,
-      openGraphTitle: published.openGraphTitle,
-      openGraphDescription: published.openGraphDescription,
-      openGraphImageUrl: published.openGraphImageUrl,
-      canonicalUrl: published.canonicalUrl,
-      brandDescription: published.brandDescription,
-      themePreference: published.themePreference,
+      brandName: clientAppName,
+      primaryColor: published.primaryColor || "#0B2545",
+      secondaryColor: published.secondaryColor || "#087E8B",
+      accentColor: published.accentColor || "#D9A441",
+      primaryLogoUrl: clientIcon || published.primaryLogoUrl || "/brand/atlaswanders-primary.svg",
+      symbolLogoUrl: clientIcon || published.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
+      lightLogoUrl: published.lightLogoUrl || "/brand/atlaswanders-light.svg",
+      darkLogoUrl: published.darkLogoUrl || "/brand/atlaswanders-dark.svg",
+      faviconUrl: clientIcon || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      defaultTitle: clientTitle,
+      titleFormat: published.titleFormat || `%s | ${clientAppName}`,
+      defaultMetaDescription: clientDesc,
+      openGraphTitle: clientTitle,
+      openGraphDescription: clientDesc,
+      openGraphImageUrl: (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
+      canonicalUrl: published.canonicalUrl ?? "",
+      brandDescription: clientDesc,
+      themePreference: published.themePreference ?? "light",
       updatedAt: published.updatedAt,
       publishedAt: published.publishedAt,
     });
@@ -157,7 +163,8 @@ export const getClientSettings = async (_req: Request, res: Response) => {
       webTitle: DEFAULT_BRAND_CONFIG.defaultTitle,
       icon: DEFAULT_BRAND_CONFIG.faviconUrl,
       imageBanners: [],
-      text: "",
+      text: DEFAULT_BRAND_CONFIG.tagline,
+      tagline: DEFAULT_BRAND_CONFIG.tagline,
       contacts: "",
       termsandconditions: "",
       privacy: "",
@@ -168,8 +175,8 @@ export const getClientSettings = async (_req: Request, res: Response) => {
 };
 
 /**
- * GET /api/service-settings — Backward-compatible endpoint for service provider apps.
- * Merges service app_config with published ATLASWANDERS brand values.
+ * GET /api/service-settings — Scoped endpoint for service provider web and mobile apps.
+ * Preserves Service App settings independently from Client App.
  */
 export const getServiceSettings = async (_req: Request, res: Response) => {
   try {
@@ -178,48 +185,61 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
       getOrCreateConfig("SERVICE"),
     ]);
 
+    const serviceDefaultName = `${published.brandName} Provider`;
+    const serviceDefaultTitle = `${published.brandName} | Provider Portal`;
+    const serviceDefaultTagline = "Partner & Service Provider Portal";
+    const serviceDefaultDesc = "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.";
+
+    const serviceAppName = config.app_name?.trim() || serviceDefaultName;
+    const serviceTitle = config.webTitle?.trim() || serviceDefaultTitle;
+    const serviceTagline = config.text?.trim() || serviceDefaultTagline;
+    const serviceIcon = config.icon?.trim() || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
+    const serviceDesc = config.app_description?.trim() || serviceDefaultDesc;
+
     return res.status(200).json({
-      app_name: `${published.brandName} Provider`,
-      webTitle: `${published.brandName} | Provider Portal`,
-      tagline: published.tagline,
-      icon: published.faviconUrl || published.symbolLogoUrl || config.icon,
+      app_name: serviceAppName,
+      webTitle: serviceTitle,
+      tagline: serviceTagline,
+      icon: serviceIcon,
       imageBanners: config.imageBanners ?? [],
-      text: config.text,
-      app_description: published.brandDescription || config.app_description,
-      contacts: config.contacts,
-      termsandconditions: config.termsandconditions,
-      privacy: config.privacy,
+      text: serviceTagline,
+      app_description: serviceDesc,
+      contacts: config.contacts ?? "",
+      termsandconditions: config.termsandconditions ?? "",
+      privacy: config.privacy ?? "",
       // Attached brand system metadata
-      brandName: published.brandName,
-      primaryColor: published.primaryColor,
-      secondaryColor: published.secondaryColor,
-      accentColor: published.accentColor,
-      primaryLogoUrl: published.primaryLogoUrl,
-      symbolLogoUrl: published.symbolLogoUrl,
-      lightLogoUrl: published.lightLogoUrl,
-      darkLogoUrl: published.darkLogoUrl,
-      faviconUrl: published.faviconUrl,
-      defaultTitle: `${published.brandName} | Provider Portal`,
-      titleFormat: published.titleFormat,
-      defaultMetaDescription: published.defaultMetaDescription,
-      openGraphTitle: published.openGraphTitle,
-      openGraphDescription: published.openGraphDescription,
-      openGraphImageUrl: published.openGraphImageUrl,
-      canonicalUrl: published.canonicalUrl,
-      brandDescription: published.brandDescription,
-      themePreference: published.themePreference,
+      brandName: serviceAppName,
+      primaryColor: published.primaryColor || "#0B2545",
+      secondaryColor: published.secondaryColor || "#087E8B",
+      accentColor: published.accentColor || "#D9A441",
+      primaryLogoUrl: serviceIcon || published.primaryLogoUrl || "/brand/atlaswanders-primary.svg",
+      symbolLogoUrl: serviceIcon || published.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
+      lightLogoUrl: published.lightLogoUrl || "/brand/atlaswanders-light.svg",
+      darkLogoUrl: published.darkLogoUrl || "/brand/atlaswanders-dark.svg",
+      faviconUrl: serviceIcon || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      defaultTitle: serviceTitle,
+      titleFormat: published.titleFormat || `%s | ${serviceAppName}`,
+      defaultMetaDescription: serviceDesc,
+      openGraphTitle: serviceTitle,
+      openGraphDescription: serviceDesc,
+      openGraphImageUrl: (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
+      canonicalUrl: published.canonicalUrl ?? "",
+      brandDescription: serviceDesc,
+      themePreference: published.themePreference ?? "light",
       updatedAt: published.updatedAt,
       publishedAt: published.publishedAt,
     });
   } catch (error) {
     console.error("Get service settings error:", error);
+    const serviceDefaultName = `${DEFAULT_BRAND_CONFIG.brandName} Provider`;
     return res.status(200).json({
       ...DEFAULT_BRAND_CONFIG,
-      app_name: `${DEFAULT_BRAND_CONFIG.brandName} Provider`,
+      app_name: serviceDefaultName,
       webTitle: `${DEFAULT_BRAND_CONFIG.brandName} | Provider Portal`,
+      tagline: "Partner & Service Provider Portal",
+      text: "Partner & Service Provider Portal",
       icon: DEFAULT_BRAND_CONFIG.faviconUrl,
       imageBanners: [],
-      text: "",
       contacts: "",
       termsandconditions: "",
       privacy: "",
@@ -403,26 +423,10 @@ export const publishBranding = async (_req: Request, res: Response) => {
       create: { id: "published", ...publishData },
     });
 
-    // Also synchronize app_config rows for backwards-compatibility
+    // Also ensure baseline app_config records exist without stomping custom scoped settings
     await Promise.all([
-      prisma.app_config.updateMany({
-        where: { scope: "CLIENT" },
-        data: {
-          app_name: draft.brandName,
-          webTitle: draft.defaultTitle,
-          icon: draft.faviconUrl || draft.symbolLogoUrl,
-          app_description: draft.brandDescription,
-        },
-      }),
-      prisma.app_config.updateMany({
-        where: { scope: "SERVICE" },
-        data: {
-          app_name: `${draft.brandName} Provider`,
-          webTitle: `${draft.brandName} | Provider Portal`,
-          icon: draft.faviconUrl || draft.symbolLogoUrl,
-          app_description: draft.brandDescription,
-        },
-      }),
+      getOrCreateConfig("CLIENT"),
+      getOrCreateConfig("SERVICE"),
     ]);
 
     return res.status(200).json({
@@ -532,22 +536,24 @@ function buildUpdateData(body: Record<string, unknown>): Record<string, unknown>
     icon,
     imageBanners,
     text,
+    tagline,
     app_description,
     contacts,
     termsandconditions,
     privacy,
   } = body;
 
-  if (typeof app_name === "string") data.app_name = app_name;
-  if (typeof webTitle === "string") data.webTitle = webTitle;
-  if (typeof icon === "string") data.icon = icon;
-  if (typeof text === "string") data.text = text;
-  if (typeof app_description === "string") data.app_description = app_description;
-  if (typeof contacts === "string") data.contacts = contacts;
-  if (typeof termsandconditions === "string") data.termsandconditions = termsandconditions;
-  if (typeof privacy === "string") data.privacy = privacy;
-  if (Array.isArray(imageBanners) && imageBanners.every((i) => typeof i === "string")) {
-    data.imageBanners = imageBanners;
+  if (typeof app_name === "string") data.app_name = app_name.trim();
+  if (typeof webTitle === "string") data.webTitle = webTitle.trim();
+  if (typeof icon === "string") data.icon = icon.trim();
+  if (typeof text === "string") data.text = text.trim();
+  else if (typeof tagline === "string") data.text = tagline.trim();
+  if (typeof app_description === "string") data.app_description = app_description.trim();
+  if (typeof contacts === "string") data.contacts = contacts.trim();
+  if (typeof termsandconditions === "string") data.termsandconditions = termsandconditions.trim();
+  if (typeof privacy === "string") data.privacy = privacy.trim();
+  if (Array.isArray(imageBanners)) {
+    data.imageBanners = imageBanners.filter((i) => typeof i === "string" && i.trim().length > 0);
   }
   return data;
 }

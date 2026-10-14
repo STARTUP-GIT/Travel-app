@@ -13,9 +13,9 @@ export class ApiError extends Error {
 export function getApiBaseUrl(): string {
   const configured = (
     typeof window === "undefined"
-      ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
+      ? process.env.INTERNAL_API_URL ?? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
-  )?.trim() || "https://travel-app-t75b.onrender.com";
+  )?.trim() || "http://localhost:8080";
 
   return configured.replace(/\/+$/, "");
 }

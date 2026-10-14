@@ -43,7 +43,7 @@ export default function HomePage() {
       <div className="home-hero-inner relative z-10 flex flex-1 flex-col justify-between py-2 sm:py-4">
         <div className="my-auto flex flex-col items-center justify-center text-center">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-amber-200 sm:text-xs">
-            {tagline || "Explore • Experience • Belong"}
+            {tagline || "Discover Places. Experience Local."}
           </p>
           <h1 className="mt-1.5 max-w-2xl text-2xl font-bold leading-tight tracking-tight sm:mt-3 sm:text-5xl lg:text-6xl">
             Welcome to {appName}

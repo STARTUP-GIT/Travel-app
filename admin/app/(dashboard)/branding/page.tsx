@@ -161,8 +161,9 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
       });
       toast.success(`${scope === "client" ? "Client" : "Service"} app settings saved successfully`);
       refetch();
-    } catch {
-      toast.error("Unable to save settings right now. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unable to save settings right now. Please try again.";
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -204,6 +205,53 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         </div>
         <h4 className="mt-1 text-sm font-semibold text-foreground">{scopeInfo[scope].subtitle}</h4>
         <p className="mt-0.5 text-xs text-muted-foreground">{scopeInfo[scope].description}</p>
+      </div>
+
+      {/* Live Scope Header Preview */}
+      <div className="mono-card overflow-hidden border border-border bg-card p-4">
+        <div className="flex items-center justify-between pb-3 border-b border-border/60">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Live {scope === "client" ? "Customer" : "Service Provider"} Header Preview
+            </span>
+          </div>
+          <a
+            href={scope === "client" ? "http://localhost:3000" : "http://localhost:3001"}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+          >
+            Open Live App ↗
+          </a>
+        </div>
+        <div className="mt-4 rounded-xl border border-border/80 bg-background/95 p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/20 flex items-center justify-center p-1.5 shrink-0">
+                <img
+                  src={form.icon || "/brand/atlaswanders-symbol.svg"}
+                  alt="Icon Preview"
+                  className="size-full object-contain"
+                />
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="text-base sm:text-lg font-black tracking-tight text-foreground">
+                  {form.app_name || (scope === "client" ? "ATLASWANDERS" : "ATLASWANDERS Provider")}
+                </span>
+                <span className="text-[0.62rem] sm:text-[0.72rem] font-bold tracking-[0.14em] uppercase mt-1 text-amber-600 dark:text-amber-400">
+                  {form.text || (scope === "client" ? "Discover Places. Experience Local." : "Partner & Service Provider Portal")}
+                </span>
+              </div>
+            </div>
+            <span className="hidden sm:inline-flex rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              Active Scope
+            </span>
+          </div>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {form.text ? `Tagline length: ${form.text.length} chars (rendered without truncation)` : "Using default tagline"}
+        </p>
       </div>
 
       <form onSubmit={save} className="mono-card space-y-5 p-6">

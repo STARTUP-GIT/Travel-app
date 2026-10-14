@@ -75,17 +75,17 @@ export function AppConfigProvider({
   const value = React.useMemo<BrandingContextValue>(
     () => ({
       config,
-      appName: config.app_name || `${FALLBACK_CONFIG.brandName} Provider`,
-      brandName: config.brandName || FALLBACK_CONFIG.brandName,
-      tagline: config.tagline || FALLBACK_CONFIG.tagline,
+      appName: config.app_name || `${config.brandName || FALLBACK_CONFIG.brandName} Provider`,
+      brandName: config.brandName || config.app_name || FALLBACK_CONFIG.brandName,
+      tagline: config.tagline || config.text || "Partner & Service Provider Portal",
       primaryColor: config.primaryColor || FALLBACK_CONFIG.primaryColor,
       secondaryColor: config.secondaryColor || FALLBACK_CONFIG.secondaryColor,
       accentColor: config.accentColor || FALLBACK_CONFIG.accentColor,
-      primaryLogoUrl: config.primaryLogoUrl || FALLBACK_CONFIG.primaryLogoUrl,
-      symbolLogoUrl: config.symbolLogoUrl || FALLBACK_CONFIG.symbolLogoUrl,
+      primaryLogoUrl: config.icon || config.primaryLogoUrl || FALLBACK_CONFIG.primaryLogoUrl,
+      symbolLogoUrl: config.icon || config.symbolLogoUrl || FALLBACK_CONFIG.symbolLogoUrl,
       lightLogoUrl: config.lightLogoUrl || FALLBACK_CONFIG.lightLogoUrl,
       darkLogoUrl: config.darkLogoUrl || FALLBACK_CONFIG.darkLogoUrl,
-      faviconUrl: config.faviconUrl || FALLBACK_CONFIG.faviconUrl,
+      faviconUrl: config.icon || config.faviconUrl || FALLBACK_CONFIG.faviconUrl,
     }),
     [config]
   );

@@ -13,15 +13,9 @@ export class ApiError extends Error {
 export function getApiBaseUrl(): string {
   const configured = (
     typeof window === "undefined"
-      ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
+      ? process.env.INTERNAL_API_URL ?? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
-  )?.trim() ?? "";
-
-  if (!configured || !/^https?:\/\/[^\s/]+/i.test(configured)) {
-    throw new Error(
-      "BACKEND_URL or NEXT_PUBLIC_API_URL is not configured for the service frontend. Set the deployed backend URL for this Vercel project."
-    );
-  }
+  )?.trim() || "http://localhost:8080";
 
   return configured.replace(/\/+$/, "");
 }
