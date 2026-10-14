@@ -214,3 +214,8 @@ export type coupon = Prisma.couponModel
  * 
  */
 export type admin_session = Prisma.admin_sessionModel
+/**
+ * Model brand_config
+ * 
+ */
+export type brand_config = Prisma.brand_configModel

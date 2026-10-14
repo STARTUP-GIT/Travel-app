@@ -28,6 +28,7 @@ import type {
   SpecificGuideBooking,
 } from "@/features/bookings/types";
 import { getSpecificGuideLocation, type AllBookings } from "@/features/bookings/api/bookings.api";
+import { formatBookingDate } from "@/lib/utils";
 
 export default function BookingsScreen() {
   const { data, isLoading, refetch } = useBookings();
@@ -188,13 +189,7 @@ function HotelRow({ booking }: { booking: HotelBooking }) {
 }
 
 function ReservationRow({ booking }: { booking: RestaurantReservation }) {
-  const formattedDate = booking.reservationDate
-    ? new Date(booking.reservationDate).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "";
+  const formattedDate = formatBookingDate(booking.reservationDate);
   const timePart = booking.reservationTime ? ` at ${booking.reservationTime}` : "";
   const guestsPart = `${booking.guests ?? 1} guest${(booking.guests ?? 1) === 1 ? "" : "s"}`;
   const addressPart =
@@ -259,7 +254,7 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
       <RowShell
         image={booking.specificGuide?.profile_pic}
         title={booking.specificGuide?.full_name ?? "Specific guide"}
-        subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
+        subtitle={`${booking.place?.name ?? "Place"}${booking.bookingDate ? ` · ${formatBookingDate(booking.bookingDate)}` : ""}`}
         meta={booking.requestTicketAssistance ? "Ticket purchasing assistance requested" : undefined}
         status={booking.status}
         href={`/bookings/${booking.id}`}
@@ -295,7 +290,6 @@ function SpecificRow({ booking }: { booking: SpecificGuideBooking }) {
           onClick={(e) => {
             e.stopPropagation();
             setOpenPrint(true);
-            setTimeout(() => window.print(), 200);
           }}
         >
           <Printer className="size-3.5 text-primary" /> Print Confirmation
@@ -401,7 +395,7 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
       <RowShell
         image={booking.commonGuide?.profile_pic}
         title={booking.commonGuide?.agencyName || booking.commonGuide?.full_name || "Tour guide"}
-        subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${booking.bookingDate}` : ""}`}
+        subtitle={`${booking.selectedPlaces?.length ?? 0} place(s)${booking.bookingDate ? ` · ${formatBookingDate(booking.bookingDate)}` : ""}`}
         meta={booking.selectedPlaces?.map((p) => p.place?.name).filter(Boolean).join(", ")}
         status={booking.status}
         href={`/bookings/${booking.id}`}
@@ -437,7 +431,6 @@ function CommonRow({ booking }: { booking: CommonGuideBooking }) {
           onClick={(e) => {
             e.stopPropagation();
             setOpenPrint(true);
-            setTimeout(() => window.print(), 200);
           }}
         >
           <Printer className="size-3.5 text-primary" /> Print Confirmation

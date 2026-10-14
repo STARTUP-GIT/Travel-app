@@ -27,17 +27,21 @@ export const viewport: Viewport = {
 };
 
 const FALLBACK_DESCRIPTION =
-  "Explore • Experience • Belong. Discover palaces, heritage, hills and beaches. Book guides, hotels, restaurants and plan your path.";
+  "Global travel discovery and local-services marketplace connecting travellers with authentic experiences across Karnataka and beyond.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAppConfig().catch(() => null);
-  const appName = config?.app_name || FALLBACK_CONFIG.app_name;
-  const description = config?.app_description || FALLBACK_DESCRIPTION;
+  const appName = config?.brandName || config?.app_name || FALLBACK_CONFIG.brandName;
+  const defaultTitle = config?.defaultTitle || `${appName} | Discover Places. Experience Local.`;
+  const titleFormat = config?.titleFormat || `%s | ${appName}`;
+  const description = config?.defaultMetaDescription || config?.app_description || FALLBACK_DESCRIPTION;
+  const favicon = config?.faviconUrl || config?.icon || "/brand/atlaswanders-favicon.svg";
+  const ogImage = config?.openGraphImageUrl || "/brand/atlaswanders_og_banner.jpg";
 
   return {
     title: {
-      default: appName,
-      template: `%s · ${appName}`,
+      default: defaultTitle,
+      template: titleFormat,
     },
     description,
     applicationName: appName,
@@ -46,7 +50,19 @@ export async function generateMetadata(): Promise<Metadata> {
       title: appName,
       statusBarStyle: "default",
     },
-    ...(config?.icon ? { icons: { icon: config.icon } } : {}),
+    icons: {
+      icon: [
+        { url: favicon, type: "image/svg+xml" },
+        { url: "/brand/atlaswanders-favicon.svg", sizes: "32x32" },
+      ],
+      apple: favicon,
+    },
+    openGraph: {
+      title: config?.openGraphTitle || defaultTitle,
+      description: config?.openGraphDescription || description,
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: appName }] : [],
+      siteName: appName,
+    },
     formatDetection: { telephone: false },
   };
 }

@@ -72,6 +72,10 @@ import {
   getAdminServiceSettings,
   updateClientSettings,
   updateServiceSettings,
+  getAdminBranding,
+  updateDraftBranding,
+  publishBranding,
+  discardDraftBranding,
 } from "../controllers/branding.controller.js";
 
 import {
@@ -132,11 +136,17 @@ router.get("/stats", getDashboardStats);
 router.get("/settings", getAppSettings);
 router.patch("/settings", updateAppSettings);
 
-// ── SCOPED BRANDING ──
+// ── SCOPED BRANDING (LEGACY) ──
 router.get("/settings/client", getAdminClientSettings);
 router.patch("/settings/client", updateClientSettings);
 router.get("/settings/service", getAdminServiceSettings);
 router.patch("/settings/service", updateServiceSettings);
+
+// ── ATLASWANDERS CENTRAL BRANDING SYSTEM ──
+router.get("/branding", getAdminBranding);
+router.patch("/branding", updateDraftBranding);
+router.post("/branding/publish", publishBranding);
+router.post("/branding/discard", discardDraftBranding);
 
 // ── AUTO-APPROVAL ──
 router.get("/auto-approval", getAutoApproval);

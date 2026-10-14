@@ -44,6 +44,37 @@ export type AppSettings = {
   app_description: string;
 };
 
+export type BrandConfig = {
+  id?: string;
+  brandName: string;
+  tagline: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  primaryLogoUrl: string;
+  symbolLogoUrl: string;
+  lightLogoUrl: string;
+  darkLogoUrl: string;
+  faviconUrl: string;
+  defaultTitle: string;
+  titleFormat: string;
+  defaultMetaDescription: string;
+  openGraphTitle: string;
+  openGraphDescription: string;
+  openGraphImageUrl: string;
+  canonicalUrl: string;
+  brandDescription: string;
+  themePreference: string;
+  updatedAt?: string;
+  publishedAt?: string | null;
+};
+
+export type BrandAdminResponse = {
+  draft: BrandConfig;
+  published: BrandConfig;
+  hasUnpublishedChanges: boolean;
+};
+
 export type StateAdmin = {
   id: string;
   name: string;

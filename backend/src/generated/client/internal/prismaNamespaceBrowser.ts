@@ -83,7 +83,8 @@ export const ModelName = {
   support_ticket: 'support_ticket',
   admin_notification: 'admin_notification',
   coupon: 'coupon',
-  admin_session: 'admin_session'
+  admin_session: 'admin_session',
+  brand_config: 'brand_config'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -798,6 +799,34 @@ export const Admin_sessionScalarFieldEnum = {
 } as const
 
 export type Admin_sessionScalarFieldEnum = (typeof Admin_sessionScalarFieldEnum)[keyof typeof Admin_sessionScalarFieldEnum]
+
+
+export const Brand_configScalarFieldEnum = {
+  id: 'id',
+  brandName: 'brandName',
+  tagline: 'tagline',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  primaryLogoUrl: 'primaryLogoUrl',
+  symbolLogoUrl: 'symbolLogoUrl',
+  lightLogoUrl: 'lightLogoUrl',
+  darkLogoUrl: 'darkLogoUrl',
+  faviconUrl: 'faviconUrl',
+  defaultTitle: 'defaultTitle',
+  titleFormat: 'titleFormat',
+  defaultMetaDescription: 'defaultMetaDescription',
+  openGraphTitle: 'openGraphTitle',
+  openGraphDescription: 'openGraphDescription',
+  openGraphImageUrl: 'openGraphImageUrl',
+  canonicalUrl: 'canonicalUrl',
+  brandDescription: 'brandDescription',
+  themePreference: 'themePreference',
+  updatedAt: 'updatedAt',
+  publishedAt: 'publishedAt'
+} as const
+
+export type Brand_configScalarFieldEnum = (typeof Brand_configScalarFieldEnum)[keyof typeof Brand_configScalarFieldEnum]
 
 
 export const SortOrder = {

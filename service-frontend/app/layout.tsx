@@ -30,22 +30,38 @@ const FALLBACK_DESCRIPTION =
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAppConfig().catch(() => null);
-  const appName = config?.app_name || FALLBACK_CONFIG.app_name;
-  const description = config?.app_description || FALLBACK_DESCRIPTION;
+  const brandName = config?.brandName || "ATLASWANDERS";
+  const defaultTitle = `${brandName} | Provider Portal`;
+  const titleFormat = config?.titleFormat || `%s | ${brandName}`;
+  const description = config?.defaultMetaDescription || config?.app_description || FALLBACK_DESCRIPTION;
+  const favicon = config?.faviconUrl || config?.icon || "/brand/atlaswanders-favicon.svg";
+  const ogImage = config?.openGraphImageUrl || "/brand/atlaswanders_og_banner.jpg";
 
   return {
     title: {
-      default: `${appName} · Provider Portal`,
-      template: `%s · ${appName}`,
+      default: defaultTitle,
+      template: titleFormat,
     },
     description,
-    applicationName: appName,
+    applicationName: `${brandName} Provider`,
     appleWebApp: {
       capable: true,
-      title: `${appName} Providers`,
+      title: `${brandName} Providers`,
       statusBarStyle: "default",
     },
-    ...(config?.icon ? { icons: { icon: config.icon } } : {}),
+    icons: {
+      icon: [
+        { url: favicon, type: "image/svg+xml" },
+        { url: "/brand/atlaswanders-favicon.svg", sizes: "32x32" },
+      ],
+      apple: favicon,
+    },
+    openGraph: {
+      title: defaultTitle,
+      description,
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: brandName }] : [],
+      siteName: `${brandName} Provider Portal`,
+    },
     formatDetection: { telephone: false },
   };
 }

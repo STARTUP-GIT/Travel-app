@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" fill="none">
+  <defs>
+    <radialGradient id="pGlobeGrad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#0E3A6C"/>
+      <stop offset="50%" stop-color="#0B2545"/>
+      <stop offset="100%" stop-color="#061527"/>
+    </radialGradient>
+    <linearGradient id="pGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="45%" stop-color="#D9A441"/>
+      <stop offset="100%" stop-color="#996D19"/>
+    </linearGradient>
+    <linearGradient id="pTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#087E8B"/>
+    </linearGradient>
+    <linearGradient id="pOrbitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D9A441" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#FACC15" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Emblem Icon Scaled to 100x100 at x=10, y=10 -->
+  <g transform="translate(10, 10) scale(0.5)">
+    <!-- Outer Rings -->
+    <circle cx="100" cy="100" r="92" stroke="url(#pGoldGrad)" stroke-width="1.8" opacity="0.45" stroke-dasharray="3 5"/>
+    <circle cx="100" cy="100" r="86" stroke="url(#pGoldGrad)" stroke-width="2.2" opacity="0.8"/>
+    <!-- Compass Points -->
+    <polygon points="100,6 94,22 100,18 106,22" fill="url(#pGoldGrad)"/>
+    <polygon points="100,194 94,178 100,182 106,178" fill="url(#pGoldGrad)"/>
+    <polygon points="194,100 178,94 182,100 178,106" fill="url(#pGoldGrad)"/>
+    <polygon points="6,100 22,94 18,100 22,106" fill="url(#pGoldGrad)"/>
+    <!-- Globe -->
+    <circle cx="100" cy="100" r="70" fill="url(#pGlobeGrad)" stroke="url(#pTealGrad)" stroke-width="2.5"/>
+    <!-- Grids -->
+    <ellipse cx="100" cy="100" rx="68" ry="24" stroke="#087E8B" stroke-width="0.9" opacity="0.45" fill="none"/>
+    <ellipse cx="100" cy="100" rx="68" ry="48" stroke="#087E8B" stroke-width="0.9" opacity="0.35" fill="none"/>
+    <ellipse cx="100" cy="100" rx="24" ry="68" stroke="#087E8B" stroke-width="0.9" opacity="0.45" fill="none"/>
+    <!-- India Map -->
+    <path d="M96,54 L104,55 L108,61 L106,66 L98,68 L92,71 L86,77 L83,84 L88,90 L91,96 L93,105 L96,116 L98,126 L99,128 L101,124 L103,115 L107,106 L112,98 L114,92 L116,86 L114,83 L118,80 L123,78 L127,82 L125,87 L120,88 L117,86 L115,88 L113,92 L109,95 L106,88 L103,82 L100,74 L98,66 Z" 
+          fill="#087E8B" stroke="url(#pGoldGrad)" stroke-width="2" stroke-linejoin="round"/>
+    <ellipse cx="103" cy="133" rx="2.5" ry="3.5" fill="#087E8B" stroke="url(#pGoldGrad)" stroke-width="1"/>
+    <circle cx="127" cy="116" r="1.3" fill="url(#pGoldGrad)"/>
+    <circle cx="128" cy="121" r="1.2" fill="url(#pGoldGrad)"/>
+    <circle cx="90" cy="118" r="1.1" fill="url(#pGoldGrad)"/>
+    <!-- Markers -->
+    <circle cx="98" cy="71" r="2.2" fill="#FFFFFF"/>
+    <circle cx="96" cy="114" r="2.6" fill="#FDE047"/>
+    <!-- Orbit -->
+    <path d="M28,142 C42,168 88,162 136,134 C168,114 186,84 174,58" 
+          stroke="url(#pOrbitGrad)" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <!-- Airplane -->
+    <g transform="translate(164, 62) rotate(-38)">
+      <path d="M0,-14 C2,-14 3.5,-10 3.5,6 L3.5,14 L1.5,17 L-1.5,17 L-3.5,14 L-3.5,6 Z" fill="#FFFFFF"/>
+      <path d="M0,-2 L18,7 L17,10 L0,4 L-17,10 L-18,7 Z" fill="#F8FAFC"/>
+      <path d="M0,8 L7,16 L5,17 L0,14 L-5,17 L-7,16 Z" fill="url(#pGoldGrad)"/>
+    </g>
+  </g>
+
+  <!-- Wordmark: ATLASWANDERS -->
+  <text x="126" y="65" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Outfit', 'Inter', sans-serif" font-weight="900" font-size="38" letter-spacing="2">
+    <tspan fill="#0B2545">ATLAS</tspan>
+    <tspan fill="#087E8B">WANDERS</tspan>
+  </text>
+
+  <!-- Tagline: Discover Places. Experience Local. -->
+  <text x="128" y="92" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Outfit', 'Inter', sans-serif" font-weight="700" font-size="12.5" letter-spacing="3.2" fill="#D9A441">
+    DISCOVER PLACES <tspan fill="#087E8B">•</tspan> EXPERIENCE LOCAL
+  </text>
+</svg>

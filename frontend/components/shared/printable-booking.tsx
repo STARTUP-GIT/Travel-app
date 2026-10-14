@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Printer, X, Compass, MapPin, Calendar, Clock, Users, Building2, Ticket, ExternalLink } from "lucide-react";
+import { Printer, Compass, MapPin, Calendar, Clock, Users, Building2, Ticket, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatCurrency } from "@/lib/utils";
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { formatCurrency, formatBookingDate } from "@/lib/utils";
+
+export { formatBookingDate };
 
 export type PrintableBookingData = {
   id: string;
@@ -52,6 +54,8 @@ export type PrintableBookingData = {
   paymentStatus?: string;
 };
 
+
+
 export function PrintableBookingModal({
   open,
   onOpenChange,
@@ -68,290 +72,365 @@ export function PrintableBookingModal({
   };
 
   const refCode = `KTG-${booking.id.slice(0, 8).toUpperCase()}`;
+  const formattedBookingDate = formatBookingDate(booking.bookingDate);
+  const formattedCreatedAt = formatBookingDate(booking.createdAt);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 sm:rounded-3xl">
-        {/* Screen Header Controls (Hidden on Print) */}
-        <div className="flex items-center justify-between border-b p-4 print:hidden bg-muted/30">
-          <DialogTitle className="text-base font-semibold">
+      {/*
+        Layout strategy:
+        - DialogContent is flex-col with a fixed max-height so the modal never
+          exceeds the viewport.
+        - The sticky header sits at the top and never scrolls away.
+        - The body below is the only scrollable region, preventing the scrollbar
+          from sitting under the header.
+        - p-0 removes default padding so we can control padding per region.
+      */}
+      <DialogContent
+        showCloseButton={false}
+        className="
+          flex flex-col
+          w-[calc(100vw-2rem)] sm:max-w-3xl lg:max-w-[820px]
+          max-h-[92dvh]
+          p-0
+          rounded-2xl sm:rounded-3xl
+          overflow-hidden
+          gap-0
+          border border-border/80
+          shadow-2xl
+        "
+      >
+        {/* ── Sticky header (hidden when printing) ── */}
+        <div className="
+          flex-none
+          flex flex-wrap items-center justify-between gap-3
+          border-b px-5 sm:px-6 py-3.5 sm:py-4
+          bg-muted/40 backdrop-blur-sm
+          print:hidden
+        ">
+          <DialogTitle className="text-sm sm:text-base font-semibold leading-tight text-foreground">
             Booking Confirmation Details
           </DialogTitle>
-          <div className="flex items-center gap-2">
-            <Button variant="action" size="sm" onClick={handlePrint} className="gap-1.5 rounded-xl">
-              <Printer className="size-4" /> Print Booking
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handlePrint}
+              className="gap-1.5 rounded-xl shrink-0 text-xs font-semibold shadow-sm"
+            >
+              <Printer className="size-3.5" /> Print Booking
             </Button>
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground shrink-0 cursor-pointer"
+                aria-label="Close booking confirmation"
+              >
+                <X className="size-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </DialogClose>
           </div>
         </div>
 
-        {/* Printable Document Container */}
-        <div className="p-6 sm:p-8 space-y-6 print:p-0 print:space-y-4" id="printable-booking-content">
-          {/* Header & Branding */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-5 gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-primary font-bold text-xl">
-                <Compass className="size-6 text-primary" />
-                <span>Karnataka Tourism Guide</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Official Tour Booking Confirmation & Cost Breakdown
-              </p>
-            </div>
-            <div className="text-left sm:text-right space-y-1">
-              <p className="font-mono text-sm font-bold text-foreground">{refCode}</p>
-              <p className="text-xs text-muted-foreground">
-                Booked: {new Date(booking.createdAt).toLocaleDateString()}
-              </p>
-              <span className="inline-block rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary">
-                Status: {booking.status}
-              </span>
-            </div>
-          </div>
-
-          {/* Agency Banner if present */}
-          {booking.agencyBanner ? (
-            <div className="relative h-32 w-full overflow-hidden rounded-2xl border bg-muted">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={booking.agencyBanner}
-                alt={booking.agencyName ?? "Agency Banner"}
-                className="size-full object-cover"
-              />
-            </div>
-          ) : null}
-
-          {/* Guide & Agency Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border p-4 bg-card/50">
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                Service Provider
-              </p>
-              {booking.agencyName ? (
-                <p className="font-bold text-base flex items-center gap-1.5">
-                  <Building2 className="size-4 text-primary" />
-                  {booking.agencyName}
-                </p>
-              ) : null}
-              <p className="text-sm font-semibold text-foreground">
-                Guide: {booking.guideName || booking.guideOrAgencyName}
-              </p>
-              {booking.agencyAddress ? (
-                <p className="text-xs text-muted-foreground">{booking.agencyAddress}</p>
-              ) : null}
-              {booking.guidePhone ? (
-                <p className="text-xs text-muted-foreground">Phone: {booking.guidePhone}</p>
-              ) : null}
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                Traveller Details
-              </p>
-              <p className="text-sm font-semibold text-foreground">
-                {booking.customerName || "Customer"}
-              </p>
-              {booking.customerPhone ? (
-                <p className="text-xs text-muted-foreground">Phone: {booking.customerPhone}</p>
-              ) : null}
-              {booking.customerEmail ? (
-                <p className="text-xs text-muted-foreground">Email: {booking.customerEmail}</p>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Tour Details */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold border-b pb-1">Tour & Itinerary Details</h3>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="rounded-xl border p-3 bg-muted/20">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Date</p>
-                <p className="text-sm font-bold flex items-center gap-1 mt-0.5">
-                  <Calendar className="size-3.5 text-primary" />
-                  {booking.bookingDate}
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div
+            className="p-5 sm:p-7 pr-6 sm:pr-8 space-y-6 print:p-0 print:space-y-4"
+            id="printable-booking-content"
+          >
+            {/* ── Header & Branding ── */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-5 gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-primary font-bold text-xl">
+                  <Compass className="size-6 text-primary" />
+                  <span>Karnataka Tourism Guide</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Official Tour Booking Confirmation &amp; Cost Breakdown
                 </p>
               </div>
-
-              <div className="rounded-xl border p-3 bg-muted/20">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Start Time</p>
-                <p className="text-sm font-bold flex items-center gap-1 mt-0.5">
-                  <Clock className="size-3.5 text-primary" />
-                  {booking.bookingTime || "09:00 AM"}
+              <div className="text-left sm:text-right space-y-1">
+                <p className="font-mono text-sm font-bold text-foreground">{refCode}</p>
+                <p className="text-xs text-muted-foreground">
+                  Booked: {formattedCreatedAt}
                 </p>
+                <span className="inline-block rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary">
+                  Status: {booking.status}
+                </span>
               </div>
+            </div>
 
-              <div className="rounded-xl border p-3 bg-muted/20">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Travellers</p>
-                <p className="text-sm font-bold flex items-center gap-1 mt-0.5">
-                  <Users className="size-3.5 text-primary" />
-                  {booking.numberOfPeople} person{booking.numberOfPeople > 1 ? "s" : ""}
+            {/* ── Agency Banner ── */}
+            {booking.agencyBanner ? (
+              <div className="relative h-32 w-full overflow-hidden rounded-2xl border bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={booking.agencyBanner}
+                  alt={booking.agencyName ?? "Agency Banner"}
+                  className="size-full object-cover"
+                />
+              </div>
+            ) : null}
+
+            {/* ── Guide & Customer Info ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border p-4 bg-card/50">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Service Provider
                 </p>
-                {(booking.numberOfAdults !== undefined || booking.numberOfChildren !== undefined) && (
-                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
-                    {booking.numberOfAdults ?? booking.numberOfPeople} Adult{((booking.numberOfAdults ?? booking.numberOfPeople) > 1) ? "s" : ""}
-                    {booking.numberOfChildren ? ` · ${booking.numberOfChildren} Child${booking.numberOfChildren > 1 ? "ren" : ""}` : ""}
+                {booking.agencyName ? (
+                  <p className="font-bold text-base flex items-center gap-1.5">
+                    <Building2 className="size-4 text-primary shrink-0" />
+                    {booking.agencyName}
                   </p>
-                )}
+                ) : null}
+                <p className="text-sm font-semibold text-foreground">
+                  Guide: {booking.guideName || booking.guideOrAgencyName}
+                </p>
+                {booking.agencyAddress ? (
+                  <p className="text-xs text-muted-foreground">{booking.agencyAddress}</p>
+                ) : null}
+                {booking.guidePhone ? (
+                  <p className="text-xs text-muted-foreground">Phone: {booking.guidePhone}</p>
+                ) : null}
               </div>
 
-              <div className="rounded-xl border p-3 bg-muted/20">
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground">Pricing Mode</p>
-                <p className="text-sm font-bold flex items-center gap-1 mt-0.5">
-                  <Ticket className="size-3.5 text-primary" />
-                  {booking.pricingMode === "PLACE_BASED" ? "Place Based" : "Whole Tour"}
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Traveller Details
                 </p>
+                <p className="text-sm font-semibold text-foreground">
+                  {booking.customerName || "Customer"}
+                </p>
+                {booking.customerPhone ? (
+                  <p className="text-xs text-muted-foreground">Phone: {booking.customerPhone}</p>
+                ) : null}
+                {booking.customerEmail ? (
+                  <p className="text-xs text-muted-foreground break-all">Email: {booking.customerEmail}</p>
+                ) : null}
               </div>
             </div>
 
-            {/* Specific Guide if included */}
-            {booking.specificGuideName ? (
-              <div className="rounded-xl border p-3.5 bg-card flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Compass className="size-4 text-primary shrink-0" />
-                  <div>
-                    <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold block">
-                      Dedicated Specific Guide
+            {/* ── Tour & Itinerary ── */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold border-b pb-1">Tour &amp; Itinerary Details</h3>
+
+              {/*
+                Info cards: responsive grid:
+                - 4 columns on large/desktop screens (md and above)
+                - 2 columns on medium screens (min-[440px] to md)
+                - 1 column on narrow screens (<440px)
+                Consistent alignment and heights with flex-col justify-between.
+                Long values wrap cleanly without overflowing or overlapping icons.
+              */}
+              <div className="grid grid-cols-1 min-[440px]:grid-cols-2 md:grid-cols-4 gap-3">
+                {/* Date */}
+                <div className="rounded-xl border p-3 bg-muted/20 min-w-0 flex flex-col justify-between gap-1.5">
+                  <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-semibold">Date</p>
+                  <div className="flex items-start gap-1.5 min-w-0">
+                    <Calendar className="size-3.5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm font-bold text-foreground break-words leading-tight min-w-0 flex-1">
+                      {formattedBookingDate}
                     </span>
-                    <p className="font-semibold text-xs text-foreground">{booking.specificGuideName}</p>
-                    {booking.specificGuidePhone ? (
-                      <p className="text-[0.65rem] text-muted-foreground">Contact: {booking.specificGuidePhone}</p>
-                    ) : null}
                   </div>
                 </div>
-                {booking.specificGuideStatus ? (
-                  <span className="text-[0.65rem] rounded-md bg-muted px-2 py-0.5 font-semibold text-foreground shrink-0">
-                    Status: {booking.specificGuideStatus}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
 
-            {/* Pickup Point */}
-            {(booking.pickupName || booking.requestedPickupName || booking.pickupMapsUrl || booking.requestedPickupMapsUrl) ? (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border p-3.5 bg-card">
-                <div className="space-y-0.5 min-w-0 flex-1">
-                  <p className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
-                    <MapPin className="size-3.5 text-primary shrink-0" /> Meeting / Pickup Point
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {booking.requestedPickupName
-                      ? `Requested: ${booking.requestedPickupName} (${booking.requestedPickupAddress || ""})`
-                      : `${booking.pickupName || "Agreed Pickup"} ${booking.pickupAddress ? `— ${booking.pickupAddress}` : ""}`}
-                  </p>
+                {/* Start Time */}
+                <div className="rounded-xl border p-3 bg-muted/20 min-w-0 flex flex-col justify-between gap-1.5">
+                  <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-semibold">Start Time</p>
+                  <div className="flex items-start gap-1.5 min-w-0">
+                    <Clock className="size-3.5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm font-bold text-foreground break-words leading-tight min-w-0 flex-1">
+                      {booking.bookingTime || "09:00 AM"}
+                    </span>
+                  </div>
                 </div>
-                {(booking.requestedPickupMapsUrl || booking.pickupMapsUrl) ? (
-                  <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
-                    <a
-                      href={(booking.requestedPickupMapsUrl || booking.pickupMapsUrl)!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
-                    </a>
-                  </Button>
-                ) : (booking.requestedPickupName || booking.pickupName || booking.pickupAddress) ? (
-                  <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                        ((booking.requestedPickupName || booking.pickupName || "") + " " + (booking.requestedPickupAddress || booking.pickupAddress || "")).trim()
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
-                    </a>
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
 
-            {/* Places Included */}
-            {booking.places.length > 0 ? (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground">Places Included in Tour:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {booking.places.map((place) => (
-                    <div key={place.id} className="flex items-center gap-2 rounded-xl border p-2.5 text-xs bg-muted/30">
-                      <MapPin className="size-3.5 text-primary shrink-0" />
-                      <span className="font-semibold text-foreground truncate">{place.name}</span>
-                      {place.districtName ? (
-                        <span className="text-muted-foreground text-[0.65rem] ml-auto">{place.districtName}</span>
+                {/* Travellers */}
+                <div className="rounded-xl border p-3 bg-muted/20 min-w-0 flex flex-col justify-between gap-1.5">
+                  <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-semibold">Travellers</p>
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="flex items-start gap-1.5 min-w-0">
+                      <Users className="size-3.5 text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm font-bold text-foreground break-words leading-tight min-w-0 flex-1">
+                        {booking.numberOfPeople} person{booking.numberOfPeople > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    {(booking.numberOfAdults !== undefined || booking.numberOfChildren !== undefined) && (
+                      <p className="text-[0.65rem] text-muted-foreground leading-tight pl-5 break-words">
+                        {booking.numberOfAdults ?? booking.numberOfPeople} Adult
+                        {((booking.numberOfAdults ?? booking.numberOfPeople) > 1) ? "s" : ""}
+                        {booking.numberOfChildren ? ` · ${booking.numberOfChildren} Child${booking.numberOfChildren > 1 ? "ren" : ""}` : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Pricing Mode */}
+                <div className="rounded-xl border p-3 bg-muted/20 min-w-0 flex flex-col justify-between gap-1.5">
+                  <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-semibold">Pricing Mode</p>
+                  <div className="flex items-start gap-1.5 min-w-0">
+                    <Ticket className="size-3.5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm font-bold text-foreground break-words leading-tight min-w-0 flex-1">
+                      {booking.pricingMode === "PLACE_BASED" ? "Place Based" : "Whole Tour"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Specific Guide if included */}
+              {booking.specificGuideName ? (
+                <div className="rounded-xl border p-3.5 bg-card flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Compass className="size-4 text-primary shrink-0" />
+                    <div>
+                      <span className="text-[0.65rem] uppercase tracking-wider text-muted-foreground font-bold block">
+                        Dedicated Specific Guide
+                      </span>
+                      <p className="font-semibold text-xs text-foreground">{booking.specificGuideName}</p>
+                      {booking.specificGuidePhone ? (
+                        <p className="text-[0.65rem] text-muted-foreground">Contact: {booking.specificGuidePhone}</p>
                       ) : null}
                     </div>
-                  ))}
+                  </div>
+                  {booking.specificGuideStatus ? (
+                    <span className="text-[0.65rem] rounded-md bg-muted px-2 py-0.5 font-semibold text-foreground shrink-0">
+                      Status: {booking.specificGuideStatus}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {/* Pickup Point */}
+              {(booking.pickupName || booking.requestedPickupName || booking.pickupMapsUrl || booking.requestedPickupMapsUrl) ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border p-3.5 bg-card">
+                  <div className="space-y-0.5 min-w-0 flex-1">
+                    <p className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
+                      <MapPin className="size-3.5 text-primary shrink-0" /> Meeting / Pickup Point
+                    </p>
+                    <p className="text-xs text-muted-foreground break-words">
+                      {booking.requestedPickupName
+                        ? `Requested: ${booking.requestedPickupName}${booking.requestedPickupAddress ? ` (${booking.requestedPickupAddress})` : ""}`
+                        : `${booking.pickupName || "Agreed Pickup"}${booking.pickupAddress ? ` — ${booking.pickupAddress}` : ""}`}
+                    </p>
+                  </div>
+                  {(booking.requestedPickupMapsUrl || booking.pickupMapsUrl) ? (
+                    <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
+                      <a
+                        href={(booking.requestedPickupMapsUrl || booking.pickupMapsUrl)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
+                      </a>
+                    </Button>
+                  ) : (booking.requestedPickupName || booking.pickupName || booking.pickupAddress) ? (
+                    <Button asChild size="sm" variant="outline" className="h-8 rounded-xl text-xs gap-1.5 shrink-0 print:hidden">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          ((booking.requestedPickupName || booking.pickupName || "") + " " + (booking.requestedPickupAddress || booking.pickupAddress || "")).trim()
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-3.5 text-primary" /> Open Pickup Location
+                      </a>
+                    </Button>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {/* Places Included */}
+              {booking.places.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">Places Included in Tour:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {booking.places.map((place) => (
+                      <div key={place.id} className="flex items-center gap-2 rounded-xl border p-2.5 text-xs bg-muted/30">
+                        <MapPin className="size-3.5 text-primary shrink-0" />
+                        <span className="font-semibold text-foreground min-w-0 truncate">{place.name}</span>
+                        {place.districtName ? (
+                          <span className="text-muted-foreground text-[0.65rem] ml-auto shrink-0">{place.districtName}</span>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* ── Facilities & Disclosures ── */}
+            <div className="space-y-3 border-t pt-4">
+              <h3 className="text-sm font-bold">Included &amp; Excluded Facilities</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="rounded-xl border p-3 bg-card">
+                  <p className="font-semibold text-foreground">Food &amp; Meals</p>
+                  <p className="text-muted-foreground capitalize mt-0.5">{booking.foodStatus || "Excluded"}</p>
+                  {booking.foodDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.foodDetails}</p> : null}
+                </div>
+
+                <div className="rounded-xl border p-3 bg-card">
+                  <p className="font-semibold text-foreground">Transport</p>
+                  <p className="text-muted-foreground capitalize mt-0.5">{booking.transportStatus || "Excluded"}</p>
+                  {booking.transportDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.transportDetails}</p> : null}
+                </div>
+
+                <div className="rounded-xl border p-3 bg-card">
+                  <p className="font-semibold text-foreground">Entry Fees</p>
+                  <p className="text-muted-foreground capitalize mt-0.5">{booking.entryFeeStatus || "Excluded"}</p>
+                  {booking.entryFeeDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.entryFeeDetails}</p> : null}
                 </div>
               </div>
-            ) : null}
-          </div>
 
-          {/* Facilities & Disclosures */}
-          <div className="space-y-3 border-t pt-4">
-            <h3 className="text-sm font-bold">Included & Excluded Facilities</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-xl border p-3 bg-card">
-                <p className="font-semibold text-foreground">Food & Meals</p>
-                <p className="text-muted-foreground capitalize mt-0.5">{booking.foodStatus || "Excluded"}</p>
-                {booking.foodDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.foodDetails}</p> : null}
-              </div>
+              {booking.cancellationPolicy ? (
+                <p className="text-xs text-muted-foreground rounded-xl border p-2.5 bg-muted/20">
+                  <span className="font-semibold text-foreground">Cancellation Policy:</span> {booking.cancellationPolicy}
+                </p>
+              ) : null}
 
-              <div className="rounded-xl border p-3 bg-card">
-                <p className="font-semibold text-foreground">Transport</p>
-                <p className="text-muted-foreground capitalize mt-0.5">{booking.transportStatus || "Excluded"}</p>
-                {booking.transportDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.transportDetails}</p> : null}
-              </div>
-
-              <div className="rounded-xl border p-3 bg-card">
-                <p className="font-semibold text-foreground">Entry Fees</p>
-                <p className="text-muted-foreground capitalize mt-0.5">{booking.entryFeeStatus || "Excluded"}</p>
-                {booking.entryFeeDetails ? <p className="text-[0.7rem] text-muted-foreground/80 mt-1">{booking.entryFeeDetails}</p> : null}
-              </div>
+              {booking.requestTicketAssistance ? (
+                <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+                  <Ticket className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="font-semibold text-foreground">Ticket Purchasing Assistance Requested</p>
+                    <p className="text-muted-foreground">
+                      You have requested the guide to purchase entry tickets on your behalf. Ticket costs are separate from the guide&apos;s service fee and must be reimbursed directly according to the agreed policy.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
-            {booking.cancellationPolicy ? (
-              <p className="text-xs text-muted-foreground rounded-xl border p-2.5 bg-muted/20">
-                <span className="font-semibold text-foreground">Cancellation Policy:</span> {booking.cancellationPolicy}
-              </p>
-            ) : null}
-            {booking.requestTicketAssistance ? (
-              <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
-                <Ticket className="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+
+            {/* ── Pricing & Total ── */}
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex items-center justify-between text-base font-bold">
+                <span>Total Estimated Amount</span>
+                <span className="text-xl text-primary">{formatCurrency(booking.totalPrice)}</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border p-3.5 bg-muted/40 text-xs">
                 <div className="space-y-0.5">
-                  <p className="font-semibold text-foreground">Ticket Purchasing Assistance Requested</p>
+                  <p className="font-semibold text-foreground">Payment Status</p>
                   <p className="text-muted-foreground">
-                    You have requested the guide to purchase entry tickets on your behalf. Ticket costs are separate from the guide's service fee and must be reimbursed directly according to the agreed policy.
+                    {booking.paymentStatus === "PRIVATELY_ARRANGED"
+                      ? "Payment arranged privately with guide"
+                      : "Payment status not verified"}
                   </p>
                 </div>
+                <Button disabled variant="secondary" className="rounded-xl text-xs gap-1.5 cursor-not-allowed print:hidden">
+                  Pay Online — Coming Soon
+                </Button>
               </div>
-            ) : null}
-          </div>
-
-          {/* Pricing & Total */}
-          <div className="border-t pt-4 space-y-3">
-            <div className="flex items-center justify-between text-base font-bold">
-              <span>Total Estimated Amount</span>
-              <span className="text-xl text-primary">{formatCurrency(booking.totalPrice)}</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border p-3.5 bg-muted/40 text-xs">
-              <div className="space-y-0.5">
-                <p className="font-semibold text-foreground">Payment Status</p>
-                <p className="text-muted-foreground">
-                  {booking.paymentStatus === "PRIVATELY_ARRANGED"
-                    ? "Payment arranged privately with guide"
-                    : "Payment status not verified"}
-                </p>
-              </div>
-
-              {/* Online Payment Placeholder */}
-              <Button disabled variant="secondary" className="rounded-xl text-xs gap-1.5 cursor-not-allowed">
-                Pay Online — Coming Soon
-              </Button>
+            {/* ── Footer ── */}
+            <div className="border-t pt-4 text-center text-[0.7rem] text-muted-foreground space-y-1">
+              <p>Thank you for choosing Karnataka Tourism Guide platform!</p>
+              <p>Please present this document to your guide at the meeting point.</p>
             </div>
-          </div>
-
-          {/* Footer Terms */}
-          <div className="border-t pt-4 text-center text-[0.7rem] text-muted-foreground space-y-1">
-            <p>Thank you for choosing Karnataka Tourism Guide platform!</p>
-            <p>Please present this document to your guide at the meeting point.</p>
           </div>
         </div>
       </DialogContent>

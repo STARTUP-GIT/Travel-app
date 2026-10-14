@@ -5,10 +5,13 @@ import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: {
-    default: "Admin Panel",
-    template: "%s · Admin",
+    default: "ATLASWANDERS | Admin Control Panel",
+    template: "%s · ATLASWANDERS Admin",
   },
-  description: "Admin panel for the tourism application.",
+  description: "Central administration panel for ATLASWANDERS travel discovery and provider platform.",
+  icons: {
+    icon: "/brand/atlaswanders-favicon.svg",
+  },
 };
 
 export default function RootLayout({

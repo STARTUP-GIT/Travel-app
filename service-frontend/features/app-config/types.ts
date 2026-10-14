@@ -1,8 +1,32 @@
 /**
- * Application branding/configuration consumed from the backend app_config
- * table. One source of truth for the app name, icon and legal text, shared
- * with the customer frontend so both surfaces carry the same identity.
+ * Centrally Managed Branding Configuration for ATLASWANDERS
+ * Single source of truth consumed from the backend /api/branding and /api/service-settings.
  */
+
+export type BrandConfig = {
+  brandName: string;
+  tagline: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  primaryLogoUrl: string;
+  symbolLogoUrl: string;
+  lightLogoUrl: string;
+  darkLogoUrl: string;
+  faviconUrl: string;
+  defaultTitle: string;
+  titleFormat: string;
+  defaultMetaDescription: string;
+  openGraphTitle: string;
+  openGraphDescription: string;
+  openGraphImageUrl: string;
+  canonicalUrl: string;
+  brandDescription: string;
+  themePreference: string;
+  updatedAt?: string;
+  publishedAt?: string | null;
+};
+
 export type AppConfig = {
   app_name: string;
   webTitle: string;
@@ -13,16 +37,65 @@ export type AppConfig = {
   contacts: string;
   termsandconditions: string;
   privacy: string;
+  // Centrally synced brand identity fields
+  brandName: string;
+  tagline: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  primaryLogoUrl: string;
+  symbolLogoUrl: string;
+  lightLogoUrl: string;
+  darkLogoUrl: string;
+  faviconUrl: string;
+  defaultTitle: string;
+  titleFormat: string;
+  defaultMetaDescription: string;
+  openGraphTitle: string;
+  openGraphDescription: string;
+  openGraphImageUrl: string;
+  canonicalUrl: string;
+  brandDescription: string;
+  themePreference: string;
+  updatedAt?: string;
+  publishedAt?: string | null;
+};
+
+export const FALLBACK_BRAND: BrandConfig = {
+  brandName: "ATLASWANDERS",
+  tagline: "Discover Places. Experience Local.",
+  primaryColor: "#0B2545",
+  secondaryColor: "#087E8B",
+  accentColor: "#D9A441",
+  primaryLogoUrl: "/brand/atlaswanders-primary.svg",
+  symbolLogoUrl: "/brand/atlaswanders-symbol.svg",
+  lightLogoUrl: "/brand/atlaswanders-light.svg",
+  darkLogoUrl: "/brand/atlaswanders-dark.svg",
+  faviconUrl: "/brand/atlaswanders-favicon.svg",
+  defaultTitle: "ATLASWANDERS | Provider Portal",
+  titleFormat: "%s | ATLASWANDERS",
+  defaultMetaDescription:
+    "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
+  openGraphTitle: "ATLASWANDERS — Discover Places. Experience Local.",
+  openGraphDescription:
+    "Global travel discovery and local-services marketplace connecting travellers with authentic experiences.",
+  openGraphImageUrl: "/brand/atlaswanders_og_banner.jpg",
+  canonicalUrl: "https://service.atlaswanders.com",
+  brandDescription:
+    "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
+  themePreference: "light",
 };
 
 export const FALLBACK_CONFIG: AppConfig = {
-  app_name: "Karnataka Tourism Guide",
-  webTitle: "Explore • Experience • Belong",
-  icon: "",
+  app_name: "ATLASWANDERS Provider",
+  webTitle: "ATLASWANDERS | Provider Portal",
+  icon: "/brand/atlaswanders-favicon.svg",
   imageBanners: [],
   text: "",
-  app_description: "",
+  app_description:
+    "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
   contacts: "",
   termsandconditions: "",
   privacy: "",
+  ...FALLBACK_BRAND,
 };

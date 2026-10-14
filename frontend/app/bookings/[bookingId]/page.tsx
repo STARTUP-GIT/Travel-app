@@ -35,7 +35,7 @@ import { ErrorState } from "@/components/shared/states";
 import { PrintableBookingModal, type PrintableBookingData } from "@/components/shared/printable-booking";
 import { getBookingById } from "@/features/bookings/api/bookings.api";
 import type { BookingDetailResponse } from "@/features/bookings/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatBookingDate } from "@/lib/utils";
 
 export default function BookingDetailPage({
   params,
@@ -126,16 +126,11 @@ export default function BookingDetailPage({
   // Extract snapshot priority data when available
   const snapshot = (booking as any).bookingSnapshot;
   const tourDateFormatted = (booking as any).bookingDate
-    ? new Date((booking as any).bookingDate).toLocaleDateString("en-IN", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+    ? formatBookingDate((booking as any).bookingDate)
     : (booking as any).reservationDate
-    ? new Date((booking as any).reservationDate).toLocaleDateString("en-IN")
+    ? formatBookingDate((booking as any).reservationDate)
     : (booking as any).checkIn
-    ? `${(booking as any).checkIn} → ${(booking as any).checkOut}`
+    ? `${formatBookingDate((booking as any).checkIn)} → ${formatBookingDate((booking as any).checkOut)}`
     : "—";
 
   const tourTimeFormatted =
@@ -294,9 +289,6 @@ export default function BookingDetailPage({
 
   const handlePrint = () => {
     setOpenConfirmation(true);
-    setTimeout(() => {
-      window.print();
-    }, 250);
   };
 
   return (

@@ -429,7 +429,8 @@ export const ModelName = {
   support_ticket: 'support_ticket',
   admin_notification: 'admin_notification',
   coupon: 'coupon',
-  admin_session: 'admin_session'
+  admin_session: 'admin_session',
+  brand_config: 'brand_config'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -445,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_pricing" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "hotel_room_type" | "restaurent" | "restaurant_dish" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation" | "app_version_config" | "audit_log" | "support_ticket" | "admin_notification" | "coupon" | "admin_session"
+    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_pricing" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "hotel_room_type" | "restaurent" | "restaurant_dish" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation" | "app_version_config" | "audit_log" | "support_ticket" | "admin_notification" | "coupon" | "admin_session" | "brand_config"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2891,6 +2892,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    brand_config: {
+      payload: Prisma.$brand_configPayload<ExtArgs>
+      fields: Prisma.brand_configFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.brand_configFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.brand_configFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        findFirst: {
+          args: Prisma.brand_configFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.brand_configFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        findMany: {
+          args: Prisma.brand_configFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>[]
+        }
+        create: {
+          args: Prisma.brand_configCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        createMany: {
+          args: Prisma.brand_configCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.brand_configCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>[]
+        }
+        delete: {
+          args: Prisma.brand_configDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        update: {
+          args: Prisma.brand_configUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        deleteMany: {
+          args: Prisma.brand_configDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.brand_configUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.brand_configUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>[]
+        }
+        upsert: {
+          args: Prisma.brand_configUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$brand_configPayload>
+        }
+        aggregate: {
+          args: Prisma.Brand_configAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrand_config>
+        }
+        groupBy: {
+          args: Prisma.brand_configGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Brand_configGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.brand_configCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Brand_configCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3628,6 +3703,34 @@ export const Admin_sessionScalarFieldEnum = {
 export type Admin_sessionScalarFieldEnum = (typeof Admin_sessionScalarFieldEnum)[keyof typeof Admin_sessionScalarFieldEnum]
 
 
+export const Brand_configScalarFieldEnum = {
+  id: 'id',
+  brandName: 'brandName',
+  tagline: 'tagline',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  primaryLogoUrl: 'primaryLogoUrl',
+  symbolLogoUrl: 'symbolLogoUrl',
+  lightLogoUrl: 'lightLogoUrl',
+  darkLogoUrl: 'darkLogoUrl',
+  faviconUrl: 'faviconUrl',
+  defaultTitle: 'defaultTitle',
+  titleFormat: 'titleFormat',
+  defaultMetaDescription: 'defaultMetaDescription',
+  openGraphTitle: 'openGraphTitle',
+  openGraphDescription: 'openGraphDescription',
+  openGraphImageUrl: 'openGraphImageUrl',
+  canonicalUrl: 'canonicalUrl',
+  brandDescription: 'brandDescription',
+  themePreference: 'themePreference',
+  updatedAt: 'updatedAt',
+  publishedAt: 'publishedAt'
+} as const
+
+export type Brand_configScalarFieldEnum = (typeof Brand_configScalarFieldEnum)[keyof typeof Brand_configScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4061,6 +4164,7 @@ export type GlobalOmitConfig = {
   admin_notification?: Prisma.admin_notificationOmit
   coupon?: Prisma.couponOmit
   admin_session?: Prisma.admin_sessionOmit
+  brand_config?: Prisma.brand_configOmit
 }
 
 /* Types for Logging */

@@ -892,3 +892,30 @@ model admin_session {
   @@index([adminId])
   @@index([isRevoked])
 }
+
+// Centrally managed branding model for ATLASWANDERS
+// Contains 'published' and 'draft' records for live production and admin preview
+model brand_config {
+  id                     String    @id
+  brandName              String    @default("ATLASWANDERS")
+  tagline                String    @default("Discover Places. Experience Local.")
+  primaryColor           String    @default("#0B2545")
+  secondaryColor         String    @default("#087E8B")
+  accentColor            String    @default("#D9A441")
+  primaryLogoUrl         String    @default("")
+  symbolLogoUrl          String    @default("")
+  lightLogoUrl           String    @default("")
+  darkLogoUrl            String    @default("")
+  faviconUrl             String    @default("")
+  defaultTitle           String    @default("ATLASWANDERS | Discover Places. Experience Local.")
+  titleFormat            String    @default("%s | ATLASWANDERS")
+  defaultMetaDescription String    @default("Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.")
+  openGraphTitle         String    @default("ATLASWANDERS — Discover Places. Experience Local.")
+  openGraphDescription   String    @default("Global travel discovery and local-services marketplace connecting travellers with authentic experiences.")
+  openGraphImageUrl      String    @default("")
+  canonicalUrl           String    @default("")
+  brandDescription       String    @default("Global travel discovery, local tourism marketplace, and travel-services platform.")
+  themePreference        String    @default("light")
+  updatedAt              DateTime  @updatedAt
+  publishedAt            DateTime?
+}

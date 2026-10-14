@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getClientSettings,
   getServiceSettings,
+  getPublicBranding,
 } from "../controllers/branding.controller.js";
 
 const router = Router();
@@ -9,16 +10,12 @@ const router = Router();
 /**
  * Public branding endpoints — no auth required.
  *
- * GET /api/settings          → CLIENT branding (backwards-compatible)
- * GET /api/service-settings  → SERVICE branding (new; service web + mobile)
- *
- * The original /api/settings route in appSettings.routes.ts is kept for
- * compatibility. This file serves as the scoped replacements.
+ * GET /api/branding          → Approved published ATLASWANDERS brand configuration
+ * GET /api/settings          → CLIENT branding (backwards-compatible customer endpoint)
+ * GET /api/service-settings  → SERVICE branding (service web & mobile endpoint)
  */
+router.get("/branding", getPublicBranding);
 router.get("/service-settings", getServiceSettings);
-
-// Also register /api/client-settings for symmetry (used by nothing yet but
-// allows future explicit client-scoped calls from the customer apps).
 router.get("/client-settings", getClientSettings);
 
 export default router;
