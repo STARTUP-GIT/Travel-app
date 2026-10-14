@@ -270,7 +270,7 @@ export const signIn = async (req: Request, res: Response) => {
     }
 
     const token = generateSessionToken(specific_guide_exists.id, "specific_guide");
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: 'strict' });
+    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' });
 
     return res.status(200).json({ message: "User signed in successfully", token });
 
@@ -326,8 +326,8 @@ export const googleSignIn = async (req: Request, res: Response) => {
     // Store JWT in cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
     });
 
     return res.status(200).json({
@@ -360,8 +360,8 @@ export const signOut = async (req: Request,res: Response) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
     });
 
     return res.status(200).json({

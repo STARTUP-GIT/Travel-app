@@ -15,7 +15,7 @@ export function getApiBaseUrl(): string {
     typeof window === "undefined"
       ? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL ?? process.env.BACKEND_URL
-  )?.trim() || "https://travel-app-backend-ashen.vercel.app";
+  )?.trim() || "https://travel-app-t75b.onrender.com";
 
   return configured.replace(/\/+$/, "");
 }
