@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { saveReport } from "@/features/reports/api/reports.api";
 import type { ReportTopic } from "@/features/reports/types";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 const TOPICS: { value: ReportTopic; label: string }[] = [
   { value: "place", label: "A place" },
@@ -23,6 +24,8 @@ const TOPICS: { value: ReportTopic; label: string }[] = [
 ];
 
 export default function ReportScreen() {
+  const { appName, brandName } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
   const searchParams = useSearchParams();
   const prefilledType = searchParams.get("type");
   const prefilledId = searchParams.get("id");
@@ -67,8 +70,7 @@ export default function ReportScreen() {
             <h1 className="text-lg font-bold">Thanks — we got it</h1>
             <p className="text-sm text-muted-foreground">
               Reports are recorded on this device for now. Once the backend report
-              channel is connected, your report will reach the Karnataka Tourism
-              Guide team directly.
+              channel is connected, your report will reach the {platformName} team directly.
             </p>
             <Button variant="outline" className="rounded-xl" onClick={() => setSubmitted(false)}>
               Report another issue

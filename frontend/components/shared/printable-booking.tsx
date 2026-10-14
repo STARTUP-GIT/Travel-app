@@ -5,6 +5,7 @@ import { Printer, Compass, MapPin, Calendar, Clock, Users, Building2, Ticket, Ex
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { formatCurrency, formatBookingDate } from "@/lib/utils";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 export { formatBookingDate };
 
@@ -71,7 +72,12 @@ export function PrintableBookingModal({
     window.print();
   };
 
-  const refCode = `KTG-${booking.id.slice(0, 8).toUpperCase()}`;
+  const { appName, brandName, tagline, symbolLogoUrl } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
+  const platformTagline = tagline || "Official Tour Booking Confirmation & Cost Breakdown";
+  const platformPrefix = (platformName.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4) || "AW").toUpperCase();
+
+  const refCode = `${platformPrefix}-${booking.id.slice(0, 8).toUpperCase()}`;
   const formattedBookingDate = formatBookingDate(booking.bookingDate);
   const formattedCreatedAt = formatBookingDate(booking.createdAt);
 
@@ -145,12 +151,26 @@ export function PrintableBookingModal({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-5 gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-primary font-bold text-xl">
-                  <Compass className="size-6 text-primary" />
-                  <span>Karnataka Tourism Guide</span>
+                  {symbolLogoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={symbolLogoUrl}
+                      alt={platformName}
+                      className="size-6 object-contain shrink-0"
+                    />
+                  ) : (
+                    <Compass className="size-6 text-primary shrink-0" />
+                  )}
+                  <span>{platformName}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Official Tour Booking Confirmation &amp; Cost Breakdown
                 </p>
+                {platformTagline && (
+                  <p className="text-[11px] text-muted-foreground/80 italic">
+                    {platformTagline}
+                  </p>
+                )}
               </div>
               <div className="text-left sm:text-right space-y-1">
                 <p className="font-mono text-sm font-bold text-foreground">{refCode}</p>
@@ -428,7 +448,7 @@ export function PrintableBookingModal({
 
             {/* ── Footer ── */}
             <div className="border-t pt-4 text-center text-[0.7rem] text-muted-foreground space-y-1">
-              <p>Thank you for choosing Karnataka Tourism Guide platform!</p>
+              <p>Thank you for choosing the {platformName} platform!</p>
               <p>Please present this document to your guide at the meeting point.</p>
             </div>
           </div>

@@ -3,18 +3,19 @@ import type { AppConfig, BrandConfig } from "../types";
 import { FALLBACK_CONFIG } from "../types";
 
 /**
- * Fetches the centrally managed ATLASWANDERS brand configuration.
- * Reads published branding from backend /api/branding or /api/service-settings.
- * Gracefully falls back to official in-app defaults on network failure.
- * Always fetches fresh to immediately reflect admin changes without stale caching.
+ * Fetches the authoritative ATLASWANDERS brand configuration from the backend.
+ * Reads published branding from backend /api/service-settings or /api/branding.
+ *
+ * Returns null on failure so existing active branding is preserved without
+ * being silently overwritten by hardcoded defaults.
  */
-export async function getAppConfig(): Promise<AppConfig> {
+export async function getAppConfig(): Promise<AppConfig | null> {
   try {
-    // 1. Primary: Published Service App settings (app name, web title, tagline, banners, icon, description, legal)
+    // 1. Primary: Published Service App settings from /api/service-settings
     const settings = await api.get<Partial<AppConfig>>("/api/service-settings").catch(() => null);
     if (settings && (settings.app_name || settings.brandName)) {
       const canonicalName = (settings.app_name || settings.brandName || FALLBACK_CONFIG.brandName).trim();
-      const canonicalTagline = (settings.tagline || settings.text || "Partner & Service Provider Portal").trim();
+      const canonicalTagline = (settings.tagline || settings.text || FALLBACK_CONFIG.tagline).trim();
       return {
         ...FALLBACK_CONFIG,
         ...settings,
@@ -23,7 +24,7 @@ export async function getAppConfig(): Promise<AppConfig> {
         brandName: canonicalName,
         tagline: canonicalTagline,
         text: canonicalTagline,
-        webTitle: settings.webTitle || `${canonicalName} | Provider Portal`,
+        webTitle: settings.webTitle || `${canonicalName} | Partner & Service Provider Portal`,
         icon: settings.icon || settings.faviconUrl || settings.symbolLogoUrl || FALLBACK_CONFIG.icon,
         symbolLogoUrl: settings.symbolLogoUrl || settings.icon || FALLBACK_CONFIG.symbolLogoUrl,
         primaryLogoUrl: settings.primaryLogoUrl || settings.icon || FALLBACK_CONFIG.primaryLogoUrl,
@@ -33,21 +34,24 @@ export async function getAppConfig(): Promise<AppConfig> {
       };
     }
 
-    // 2. Secondary: Global published brand config
+    // 2. Secondary: Global published brand config from /api/branding
     const brand = await api.get<BrandConfig>("/api/branding").catch(() => null);
     if (brand && brand.brandName) {
       return {
         ...FALLBACK_CONFIG,
         ...brand,
         app_name: brand.brandName,
-        webTitle: `${brand.brandName} | Provider Portal`,
-        icon: brand.faviconUrl || brand.symbolLogoUrl,
+        appName: brand.brandName,
+        brandName: brand.brandName,
+        webTitle: brand.defaultTitle || `${brand.brandName} | Partner & Service Provider Portal`,
+        icon: brand.faviconUrl || brand.symbolLogoUrl || FALLBACK_CONFIG.icon,
         app_description: brand.brandDescription || FALLBACK_CONFIG.app_description,
       };
     }
 
-    return { ...(FALLBACK_CONFIG as AppConfig) };
-  } catch {
-    return { ...(FALLBACK_CONFIG as AppConfig) };
+    return null;
+  } catch (error) {
+    console.error("[getAppConfig] Error fetching branding:", error);
+    return null;
   }
 }

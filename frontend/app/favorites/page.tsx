@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Saved · Karnataka Tourism Guide",
+  title: "Saved",
   description: "Places and guides you saved for later.",
 };
 

@@ -42,6 +42,7 @@ import { useCurrentDistrict } from "@/features/locations/state/current-district-
 import type { DistrictSummary } from "@/features/locations/types";
 import { slugify } from "@/features/locations/utils/slug";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 const NAV_RESOURCES = [
   { label: "Places", icon: Mountain, segment: "places" },
@@ -51,6 +52,8 @@ const NAV_RESOURCES = [
 ] as const;
 
 export function Navbar({ districts }: { districts: DistrictSummary[] }) {
+  const { appName, brandName } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
   const pathname = usePathname();
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const { slug: districtSlug, stateSlug, setSlug, setDestination } = useCurrentDistrict();
@@ -79,7 +82,7 @@ export function Navbar({ districts }: { districts: DistrictSummary[] }) {
         className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8"
         aria-label="Main navigation"
       >
-        <Link href="/" className="shrink-0" aria-label="Karnataka Tourism home">
+        <Link href="/" className="shrink-0" aria-label={`${platformName} home`}>
           <Logo />
         </Link>
 

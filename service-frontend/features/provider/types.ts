@@ -717,6 +717,8 @@ export type BookingSnapshotData = {
   packageId?: string | null;
   packageName?: string | null;
   packageDescription?: string | null;
+  agencyName?: string | null;
+  tourGuideName?: string | null;
   duration?: string | null;
   maxGroupSize?: number | null;
   pricingMode?: string | null;

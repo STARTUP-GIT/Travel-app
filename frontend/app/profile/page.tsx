@@ -25,8 +25,11 @@ import { EditProfileDialog } from "@/features/profile/components/edit-profile-di
 import { getProfile } from "@/features/profile/api/profile.api";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import type { CustomerProfile } from "@/features/profile/types";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 export default function ProfileScreen() {
+  const { appName, brandName } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
   const { user, logout } = useAuth();
   const { update: updateSession } = useSession();
   const { slug, stateSlug, clearDestination } = useCurrentDistrict();
@@ -62,7 +65,7 @@ export default function ProfileScreen() {
     }
   }
 
-  const displayName = profile?.name ?? user?.name ?? "Karnataka traveller";
+  const displayName = profile?.name ?? user?.name ?? "Traveller";
   const username = profile?.username ?? "";
   const displayEmail = profile?.email ?? user?.email ?? "Signed in";
   const displayPhone = profile?.phonenumber ? profile.phonenumber : "Not provided";
@@ -78,7 +81,7 @@ export default function ProfileScreen() {
   return (
     <AuthGate title="Sign in to see your profile" description="Your saved list, bookings and report options live here.">
       <div className="pb-6">
-        <ScreenHeader title="Profile" subtitle="Your Karnataka Tourism Guide account" />
+        <ScreenHeader title="Profile" subtitle={`Your ${platformName} account`} />
 
         <div className="app-container">
           {/* User card with loading support */}

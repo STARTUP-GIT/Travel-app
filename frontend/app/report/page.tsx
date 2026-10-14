@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Report a problem · Karnataka Tourism Guide",
+  title: "Report a Problem",
   description: "Tell us about a problem with a place, guide, hotel or restaurant.",
 };
 

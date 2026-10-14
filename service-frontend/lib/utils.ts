@@ -120,10 +120,11 @@ export function formatBookingTime(value: string | Date | null | undefined): stri
   return "—";
 }
 
-/** Consistent authoritative booking reference code, e.g. KTG-ABCD1234 */
-export function formatBookingRef(id: string | null | undefined): string {
-  if (!id) return "KTG-UNKNOWN";
-  return `KTG-${id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}`;
+/** Consistent authoritative booking reference code, e.g. ATLS-ABCD1234 */
+export function formatBookingRef(id: string | null | undefined, prefix?: string): string {
+  const p = (prefix ? prefix.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4) : "AW").toUpperCase() || "AW";
+  if (!id) return `${p}-UNKNOWN`;
+  return `${p}-${id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}`;
 }
 
 export function pluralize(count: number, singular: string, plural?: string): string {

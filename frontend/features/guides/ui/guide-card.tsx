@@ -121,7 +121,7 @@ export function GuideCard({
         </div>
 
         <p className="line-clamp-2 text-sm text-muted-foreground">
-          {person.description ?? "Local expert guide for a memorable Karnataka trip."}
+          {person.description ?? "Local expert guide for an authentic travel experience."}
         </p>
 
         <div className="flex flex-wrap items-center gap-1.5">

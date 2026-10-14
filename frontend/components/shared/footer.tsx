@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import { Logo } from "@/components/shared/logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { slugify } from "@/features/locations/utils/slug";
 import type { DistrictSummary } from "@/features/locations/types";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 export function Footer({
   districts,
@@ -11,6 +14,8 @@ export function Footer({
   districts: DistrictSummary[];
 }) {
   const currentYear = new Date().getFullYear();
+  const { appName, brandName, tagline } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
 
   return (
     <footer className="mt-16 border-t border-white/10 bg-black/20 backdrop-blur-xl">
@@ -19,8 +24,7 @@ export function Footer({
           <div className="sm:col-span-2 lg:col-span-1">
             <Logo />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Discover the land of palaces, beaches, hills and heritage with a
-              curated travel experience across Karnataka.
+              {tagline || "Discover Places. Experience Local. Curated travel and verified local guide platform."}
             </p>
           </div>
 
@@ -85,7 +89,7 @@ export function Footer({
               </SelectContent>
             </Select>
             <p className="mt-3 text-xs text-muted-foreground">
-              Karnataka Tourism · {currentYear}
+              {platformName} · {currentYear}
             </p>
           </div>
         </div>

@@ -17,7 +17,9 @@ import {
   FileText,
   AlertCircle,
   X,
+  Building2,
 } from "lucide-react";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,7 +51,11 @@ export function PrintBookingButton({
     window.print();
   };
 
-  const refCode = formatBookingRef(request.id);
+  const { appName, brandName, tagline, symbolLogoUrl } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
+  const platformTagline = tagline || "Official Booking Confirmation & Workspace Snapshot";
+
+  const refCode = formatBookingRef(request.id, platformName);
   const tourDateFormatted = formatBookingDate(request.date);
   const createdDateFormatted = formatBookingDate(request.createdAt);
   const tourTimeFormatted = formatBookingTime(request.tripStartTime || request.time);
@@ -94,6 +100,28 @@ export function PrintBookingButton({
     request.bookingSnapshot?.pricingMode ||
     (request.pricingUnit ? `Per ${request.pricingUnit}` : "Agreed Tour Rate");
 
+  const providerAgencyName =
+    request.agencyName ||
+    request.bookingSnapshot?.agencyName ||
+    (request.kind === "hotel_booking" ? request.listingName : null) ||
+    (request.kind === "restaurant_reservation" ? request.listingName : null) ||
+    "Official Registered Provider";
+
+  const assignedGuideName =
+    request.tourGuideName ||
+    request.specificGuide?.name ||
+    request.bookingSnapshot?.specificGuide?.name ||
+    "Licensed Tour Guide";
+
+  const guideKindLabel =
+    request.kind === "common_guide_booking"
+      ? "Common Tour Guide Agency"
+      : request.kind === "specific_guide_booking"
+      ? "Dedicated Place Guide"
+      : request.kind === "hotel_booking"
+      ? "Accommodation Provider"
+      : "Dining & Reservation Provider";
+
   return (
     <>
       <div className="flex items-center gap-2 print:hidden">
@@ -125,8 +153,17 @@ export function PrintBookingButton({
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-primary font-bold text-lg min-w-0">
-                <Compass className="size-5 shrink-0" />
-                <span className="truncate">Karnataka Tourism Guide</span>
+                {symbolLogoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={symbolLogoUrl}
+                    alt={platformName}
+                    className="size-5 object-contain shrink-0"
+                  />
+                ) : (
+                  <Compass className="size-5 shrink-0" />
+                )}
+                <span className="truncate">{platformName}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge variant="outline" className="font-mono text-xs px-2.5 py-0.5 font-bold">
@@ -280,6 +317,38 @@ export function PrintBookingButton({
               )}
             </div>
 
+            {/* Service Provider & Assigned Guide Details */}
+            <div className="rounded-2xl border p-4 bg-card space-y-3">
+              <div className="flex items-center justify-between border-b pb-2">
+                <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
+                  <Building2 className="size-3.5 text-primary" /> Service Provider &amp; Guide Information
+                </span>
+                {guideKindLabel && (
+                  <Badge variant="outline" className="text-[0.65rem] border-primary/20 text-primary font-medium">
+                    {guideKindLabel}
+                  </Badge>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="min-w-0 space-y-1">
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block font-bold">
+                    Provider / Business Entity
+                  </span>
+                  <p className="font-bold text-sm text-foreground break-words [overflow-wrap:anywhere]">
+                    {providerAgencyName}
+                  </p>
+                </div>
+                <div className="min-w-0 space-y-1">
+                  <span className="text-[0.65rem] uppercase tracking-wide text-muted-foreground block font-bold">
+                    Assigned Tour Guide
+                  </span>
+                  <p className="font-semibold text-sm text-foreground break-words [overflow-wrap:anywhere]">
+                    {assignedGuideName}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Selected Package Details */}
             <div className="rounded-2xl border p-4 bg-card space-y-3">
               <div className="flex items-center justify-between border-b pb-2">
@@ -426,7 +495,11 @@ export function PrintBookingButton({
  * Rendered strictly for window.print / PDF export without background page noise.
  */
 export function OfficialBookingDocument({ request }: { request: ProviderRequest }) {
-  const refCode = formatBookingRef(request.id);
+  const { appName, brandName, tagline, symbolLogoUrl } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
+  const platformTagline = tagline || "Official Service Provider Booking Confirmation";
+
+  const refCode = formatBookingRef(request.id, platformName);
   const tourDateFormatted = formatBookingDate(request.date);
   const createdDateFormatted = formatBookingDate(request.createdAt);
   const tourTimeFormatted = formatBookingTime(request.tripStartTime || request.time);
@@ -470,19 +543,41 @@ export function OfficialBookingDocument({ request }: { request: ProviderRequest 
     request.bookingSnapshot?.pricingMode ||
     (request.pricingUnit ? `Per ${request.pricingUnit}` : "Agreed Tour Rate");
 
+  const providerAgencyName =
+    request.agencyName ||
+    request.bookingSnapshot?.agencyName ||
+    (request.kind === "hotel_booking" ? request.listingName : null) ||
+    (request.kind === "restaurant_reservation" ? request.listingName : null) ||
+    "Official Registered Provider";
+
+  const assignedGuideName =
+    request.tourGuideName ||
+    request.specificGuide?.name ||
+    request.bookingSnapshot?.specificGuide?.name ||
+    "Licensed Tour Guide";
+
   return (
     <div className="hidden print:block official-print-document font-sans text-black">
       {/* Printable Header */}
       <div className="border-b-2 border-gray-900 pb-4 mb-5 flex justify-between items-start print-avoid-break">
         <div>
           <div className="flex items-center gap-2">
-            <Compass className="size-7 text-black stroke-[2.5]" />
-            <h1 className="text-2xl font-black tracking-tight text-black">Karnataka Tourism Guide</h1>
+            {symbolLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={symbolLogoUrl}
+                alt={platformName}
+                className="size-7 object-contain shrink-0"
+              />
+            ) : (
+              <Compass className="size-7 text-black stroke-[2.5]" />
+            )}
+            <h1 className="text-2xl font-black tracking-tight text-black">{platformName}</h1>
           </div>
           <p className="text-xs text-gray-700 font-semibold tracking-wide uppercase mt-1">
             Official Service Provider Booking Confirmation
           </p>
-          <p className="text-[10px] text-gray-500">Government Registered Guide & Tour Booking Platform</p>
+          <p className="text-[10px] text-gray-500">{platformTagline}</p>
         </div>
         <div className="text-right">
           <div className="inline-block border-2 border-gray-900 px-3 py-1 font-mono font-bold text-sm bg-gray-50">
@@ -530,6 +625,23 @@ export function OfficialBookingDocument({ request }: { request: ProviderRequest 
         </div>
       </div>
 
+      {/* Service Provider & Guide Information */}
+      <div className="border border-gray-300 p-4 rounded-md mb-5 bg-gray-50/50 print-avoid-break">
+        <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 border-b pb-1">
+          Service Provider &amp; Guide Information
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <p className="text-gray-500 text-[10px] uppercase font-bold">Service Provider / Agency</p>
+            <p className="text-sm font-bold text-black mt-0.5">{providerAgencyName}</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-[10px] uppercase font-bold">Tour Guide / Representative</p>
+            <p className="text-sm font-semibold text-black mt-0.5">{assignedGuideName}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Service Package & Details */}
       <div className="border border-gray-300 p-4 rounded-md mb-5 print-avoid-break">
         <h2 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 border-b pb-1">
@@ -540,10 +652,10 @@ export function OfficialBookingDocument({ request }: { request: ProviderRequest 
             <p className="text-base font-bold text-black">{request.listingName}</p>
             <p className="text-xs text-gray-600">Pricing Basis: {pricingModeDisplay}</p>
           </div>
-          {request.tourGuideName && (
+          {assignedGuideName && (
             <div className="text-right text-xs">
               <span className="text-gray-500 block">Assigned Guide:</span>
-              <span className="font-semibold text-black">{request.tourGuideName}</span>
+              <span className="font-semibold text-black">{assignedGuideName}</span>
             </div>
           )}
         </div>
@@ -636,10 +748,10 @@ export function OfficialBookingDocument({ request }: { request: ProviderRequest 
       {/* Official Document Footer */}
       <div className="pt-3 border-t border-gray-300 text-center text-[10px] text-gray-500 print-avoid-break">
         <p>
-          This official confirmation was generated via Karnataka Tourism Guide for booking reference {refCode}.
+          This official confirmation was generated via {platformName} for booking reference {refCode}.
         </p>
         <p className="mt-0.5">
-          Tour services are rendered in accordance with Karnataka Tourism standards and verified guide guidelines.
+          Tour services are rendered in accordance with {platformName} standards and verified guide guidelines.
         </p>
       </div>
     </div>

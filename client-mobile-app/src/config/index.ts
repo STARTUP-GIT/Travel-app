@@ -154,8 +154,8 @@ export const APP_SCHEME: string =
  * Brand shown while the real, admin-controlled branding is still loading.
  * `GET /api/settings` replaces this on every launch.
  */
-export const FALLBACK_APP_NAME = "Karnataka Tourism Guide";
-export const FALLBACK_TAGLINE = "Explore • Experience • Belong";
+export const FALLBACK_APP_NAME = "ATLASWANDERS";
+export const FALLBACK_TAGLINE = "Discover Places. Experience Local.";
 
 /* -------------------------------------------------------------------------- */
 /* Networking                                                                 */

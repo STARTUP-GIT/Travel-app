@@ -25,6 +25,7 @@ import { saveTransportPlan } from "@/features/transport/api/transport.api";
 import { usePlace } from "@/features/places/hooks/usePlaces";
 import type { Place } from "@/features/places/types";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 const MODES: {
   id: TransportMode;
@@ -45,6 +46,9 @@ export default function TransportPage() {
   const districtSlug = params.districtSlug;
   const placeId = params.placeId;
   const districtBase = `/${stateSlug}/${districtSlug}`;
+
+  const { appName, brandName } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
 
   const place = usePlace(placeId ? districtSlug : undefined, placeId);
   const { supported, status, position, start, error } = useGeolocation();
@@ -170,7 +174,7 @@ export default function TransportPage() {
                 </span>
                 <h2 className="text-lg font-bold">Trip plan ready</h2>
                 <p className="max-w-xs text-sm text-muted-foreground">
-                  Share this route with your driver. Pay the driver directly — Karnataka Tourism Guide never takes payment.
+                  Share this route with your driver. Pay the driver directly — {platformName} never takes payment.
                 </p>
               </div>
 

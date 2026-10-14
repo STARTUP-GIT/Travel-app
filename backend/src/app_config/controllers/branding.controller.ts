@@ -231,11 +231,11 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Get service settings error:", error);
-    const serviceDefaultName = `${DEFAULT_BRAND_CONFIG.brandName} Provider`;
+    const serviceDefaultName = DEFAULT_BRAND_CONFIG.brandName || "ATLASWANDERS";
     return res.status(200).json({
       ...DEFAULT_BRAND_CONFIG,
       app_name: serviceDefaultName,
-      webTitle: `${DEFAULT_BRAND_CONFIG.brandName} | Provider Portal`,
+      webTitle: `${serviceDefaultName} | Partner & Service Provider Portal`,
       tagline: "Partner & Service Provider Portal",
       text: "Partner & Service Provider Portal",
       icon: DEFAULT_BRAND_CONFIG.faviconUrl,
@@ -423,11 +423,36 @@ export const publishBranding = async (_req: Request, res: Response) => {
       create: { id: "published", ...publishData },
     });
 
-    // Also ensure baseline app_config records exist without stomping custom scoped settings
+    // Also ensure baseline app_config records exist
     await Promise.all([
       getOrCreateConfig("CLIENT"),
       getOrCreateConfig("SERVICE"),
     ]);
+
+    // Synchronize published brand identity to app_config for live website endpoints
+    const syncData: Record<string, any> = {};
+    if (draft.brandName) {
+      syncData.app_name = draft.brandName;
+    }
+    if (draft.tagline) {
+      syncData.text = draft.tagline;
+    }
+    if (draft.defaultTitle) {
+      syncData.webTitle = draft.defaultTitle;
+    }
+    if (draft.brandDescription) {
+      syncData.app_description = draft.brandDescription;
+    }
+    if (draft.faviconUrl || draft.symbolLogoUrl) {
+      syncData.icon = draft.faviconUrl || draft.symbolLogoUrl;
+    }
+
+    if (Object.keys(syncData).length > 0) {
+      await prisma.app_config.updateMany({
+        where: { scope: { in: ["CLIENT", "SERVICE"] } },
+        data: syncData,
+      });
+    }
 
     return res.status(200).json({
       message: "Branding published successfully to live websites",

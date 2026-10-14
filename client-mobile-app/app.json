@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Karnataka Tourism Guide",
+    "name": "ATLASWANDERS",
     "slug": "karnataka-tourism-guide",
     "version": "1.0.0",
     "scheme": "karnatakatourism",
@@ -61,7 +61,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Karnataka Tourism Guide to record your trip in the background with Path Tracker.",
+          "locationAlwaysAndWhenInUsePermission": "Allow ATLASWANDERS to record your trip in the background with Path Tracker.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }

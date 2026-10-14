@@ -330,7 +330,7 @@ export const updateAppSettings = async (req: Request, res: Response) => {
       config = await prisma.app_config.create({
         data: {
           ...data,
-          app_name: (data.app_name as string) ?? "Karnataka Tourism Guide",
+          app_name: (data.app_name as string) ?? "ATLASWANDERS",
           icon: (data.icon as string) ?? "",
           webTitle: (data.webTitle as string) ?? "",
           text: (data.text as string) ?? "",

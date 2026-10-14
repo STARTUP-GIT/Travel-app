@@ -11,7 +11,16 @@ import { FALLBACK_CONFIG } from "../types";
 export async function getAppConfig(): Promise<AppConfig> {
   try {
     // 1. Primary: Published Client App settings (app name, web title, tagline, banners, icon, description, legal)
-    const settings = await api.get<Partial<AppConfig>>("/api/settings").catch(() => null);
+    let settings: Partial<AppConfig> | null = null;
+    if (typeof window !== "undefined") {
+      settings = await fetch("/api/settings", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+    }
+    if (!settings) {
+      settings = await api.get<Partial<AppConfig>>("/api/settings").catch(() => null);
+    }
+
     if (settings && (settings.app_name || settings.brandName)) {
       return {
         ...FALLBACK_CONFIG,
@@ -31,7 +40,15 @@ export async function getAppConfig(): Promise<AppConfig> {
     }
 
     // 2. Secondary: Global published brand config
-    const brand = await api.get<BrandConfig>("/api/branding").catch(() => null);
+    let brand: BrandConfig | null = null;
+    if (typeof window !== "undefined") {
+      brand = await fetch("/api/branding", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+    }
+    if (!brand) {
+      brand = await api.get<BrandConfig>("/api/branding").catch(() => null);
+    }
     if (brand && brand.brandName) {
       return {
         ...FALLBACK_CONFIG,

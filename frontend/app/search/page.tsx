@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Search · Karnataka Tourism Guide",
+  title: "Search",
   description: "Search places, guides, hotels and restaurants.",
 };
 

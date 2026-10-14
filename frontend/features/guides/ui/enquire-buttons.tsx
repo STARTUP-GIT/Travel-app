@@ -6,6 +6,7 @@ import * as React from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useBranding } from "@/features/app-config/state/app-config-provider";
 
 export type EnquireContact = {
   email?: string | null;
@@ -36,22 +37,23 @@ function normalizeRecipient(email?: string | null): string | null {
   return cleaned;
 }
 
-export function buildEnquiryMailto(contact: EnquireContact): string | null {
+export function buildEnquiryMailto(contact: EnquireContact, appName: string = "ATLASWANDERS"): string | null {
   const recipient = normalizeRecipient(contact.email);
   if (!recipient) return null;
 
+  const platform = appName || "ATLASWANDERS";
   const providerName = normalizeProviderName(contact.name);
   const subject = providerName
-    ? `Enquiry about ${providerName} \u2013 Karnataka Tourism Guide`
-    : "Enquiry \u2013 Karnataka Tourism Guide";
+    ? `Enquiry about ${providerName} \u2013 ${platform}`
+    : `Enquiry \u2013 ${platform}`;
   const greeting = providerName ? `Hi ${providerName},` : "Hi,";
   const body = [
     greeting,
     "",
-    "I'm interested in your services on Karnataka Tourism Guide. Please get back to me.",
+    `I'm interested in your services on ${platform}. Please get back to me.`,
     "",
     "Thanks,",
-    "Karnataka Tourism Guide user",
+    `${platform} user`,
   ].join("\n");
 
   return `mailto:${recipient}?subject=${encodeQueryValue(subject)}&body=${encodeQueryValue(body)}`;
@@ -62,8 +64,10 @@ export function buildEnquiryMailto(contact: EnquireContact): string | null {
  * clients — no plain text links.
  */
 export function EnquireButtons({ contact }: { contact: EnquireContact }) {
+  const { appName, brandName } = useBranding();
+  const platformName = appName || brandName || "ATLASWANDERS";
   const emailAddress = normalizeRecipient(contact.email);
-  const emailHref = buildEnquiryMailto(contact);
+  const emailHref = buildEnquiryMailto(contact, platformName);
   const telHref = contact.phone ? `tel:${contact.phone.replace(/[^\d+]/g, "")}` : null;
 
   const providerName = normalizeProviderName(contact.name);

@@ -661,7 +661,7 @@ export function PackageBookingModal({
                 <div>
                   <span className="text-[10px] text-muted-foreground block">Customer Name</span>
                   <span className="font-semibold text-foreground">
-                    {profile?.name || user?.name || "Karnataka traveller"}
+                    {profile?.name || user?.name || "Traveller"}
                   </span>
                 </div>
                 <div>
