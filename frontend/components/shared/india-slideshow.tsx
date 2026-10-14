@@ -127,7 +127,7 @@ export function IndiaSlideshow({
       {label ? (
         <p
           aria-live="polite"
-          className="absolute bottom-10 left-4 right-16 z-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/85 sm:left-6"
+          className="absolute bottom-11 left-4 z-10 hidden sm:flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-white/80"
         >
           <span className="inline-block size-1.5 rounded-full bg-amber-300" />
           {label}
@@ -136,7 +136,7 @@ export function IndiaSlideshow({
 
       {/* Slideshow controls */}
       {showControls ? (
-        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5">
+        <div className="absolute bottom-10 sm:bottom-11 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 pointer-events-auto">
           {slides.map((slide, i) => (
             <button
               key={slide.src + i}
@@ -147,7 +147,7 @@ export function IndiaSlideshow({
               aria-current={i === index ? "true" : undefined}
               onClick={() => setIndex(i)}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+                "h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer",
                 i === index
                   ? "w-6 bg-white/90"
                   : "w-1.5 bg-white/40 hover:bg-white/70"

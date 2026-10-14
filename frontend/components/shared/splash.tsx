@@ -59,9 +59,9 @@ export function Splash({ show }: { show: boolean }) {
               transition={{ delay: 0.25, duration: 0.6, ease: "easeOut" }}
               className="flex flex-col items-center gap-2"
             >
-              <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">
+              <p className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">
                 {appName}
-              </h1>
+              </p>
               <p className="text-sm font-medium tracking-[0.18em] text-amber-200/95 uppercase">
                 {tagline}
               </p>

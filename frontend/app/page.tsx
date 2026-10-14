@@ -23,80 +23,116 @@ const FALLBACK_INTRO =
   "Discover heritage, nature, culture and unforgettable destinations across India — then book guides, stays and experiences.";
 
 /**
- * Full-screen tourism landing hero. A common India destination slideshow fills the
- * viewport beneath the top header; the primary action is CHOOSE DESTINATION,
- * which opens the separate destination-selection screen.
+ * Full-screen tourism landing hero for ATLASWANDERS.
+ * Uses published Client App branding from Admin:
+ * - 3-Line Centered Heading: WELCOME / TO / {publishedBrandName}
+ * - Centered Tagline & Supporting Description
+ * - Dedicated Dark Overlay (45-55% opacity) to subdue background photography for maximum text readability
+ * - Centered CHOOSE DESTINATION action button & quick destination links
  */
 export default function HomePage() {
   const router = useRouter();
-  const { appName, tagline, config } = useBranding();
+  const { appName, brandName, tagline, config } = useBranding();
 
-  const intro = config.app_description || FALLBACK_INTRO;
+  const displayBrandName = (appName || brandName || "ATLASWANDERS").trim();
+  const displayTagline = (tagline || config.text || "Discover Places. Experience Local.").trim();
+  const intro = (config.app_description || FALLBACK_INTRO).trim();
 
   return (
     <section
-      aria-label={`Tourism landing for ${appName}`}
-      className="relative -mx-4 flex h-[calc(100dvh-3.5rem)] min-h-[500px] flex-col overflow-hidden px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-2 text-white sm:mx-0 sm:h-[calc(100dvh-3.5rem)] sm:min-h-[560px] sm:px-6 sm:pb-6 sm:pt-4 lg:h-[calc(100dvh-4rem)] lg:min-h-[600px]"
+      aria-label={`Tourism landing for ${displayBrandName}`}
+      className="relative -mx-4 flex h-[calc(100dvh-3.5rem)] min-h-[540px] flex-col justify-between overflow-hidden px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-2 text-white sm:mx-0 sm:h-[calc(100dvh-3.5rem)] sm:min-h-[600px] sm:px-6 sm:pb-4 sm:pt-4 lg:h-[calc(100dvh-4rem)] lg:min-h-[640px]"
     >
-      <IndiaSlideshow overlayClassName="bg-gradient-to-b from-black/35 via-black/10 to-black/80" />
+      {/* 1. Background photography layer (slideshow with admin banner fallback) */}
+      <IndiaSlideshow
+        className="absolute inset-0"
+        overlayClassName="bg-transparent"
+      />
 
-      <div className="home-hero-inner relative z-10 flex flex-1 flex-col justify-between py-2 sm:py-4">
-        <div className="my-auto flex flex-col items-center justify-center text-center">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-amber-200 sm:text-xs">
-            {tagline || "Discover Places. Experience Local."}
-          </p>
-          <h1 className="mt-1.5 max-w-2xl text-2xl font-bold leading-tight tracking-tight sm:mt-3 sm:text-5xl lg:text-6xl">
-            Welcome to {appName}
-          </h1>
-          <p className="mx-auto mt-2 max-w-xl text-xs leading-relaxed text-white/90 sm:mt-3 sm:text-base">
-            {intro}
-          </p>
+      {/* 2. Dedicated dark navy / black overlay (45-55% visual attenuation with subtle vertical gradient) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] bg-black/45 bg-gradient-to-b from-[#0B2545]/75 via-black/55 to-[#0B2545]/85 backdrop-contrast-[1.05]"
+      />
 
-          <div className="mt-5 flex w-full flex-col items-center gap-3 sm:mt-7 sm:gap-4">
-            <Button
-              variant="action"
-              size="lg"
-              className="w-full max-w-xs rounded-2xl text-sm sm:max-w-sm sm:text-base"
-              onClick={() => router.push("/explore")}
-            >
-              <MapPinned className="size-4 sm:size-5" />
-              CHOOSE DESTINATION
-            </Button>
+      {/* Top spacer to vertically balance the footer and guarantee perfect vertical center */}
+      <div className="relative z-10 h-6 shrink-0 sm:h-8" aria-hidden="true" />
 
-            <div
-              aria-hidden
-              className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 px-2 text-[0.68rem] font-medium text-white/70 sm:text-xs"
-            >
-              {DESTINATION_HINTS.map((name, i) => (
-                <span key={name} className="inline-flex items-center gap-1.5">
-                  {i > 0 ? (
-                    <span className="text-white/40">•</span>
-                  ) : null}
+      {/* 3. Hero content layer — Centered horizontally & vertically */}
+      <div className="home-hero-inner relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center justify-center text-center my-auto px-2">
+        {/* Eyebrow / Tagline */}
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-amber-200 sm:text-xs md:text-sm drop-shadow-sm">
+          {displayTagline}
+        </p>
+
+        {/* 3-Line Heading: Exactly WELCOME / TO / {displayBrandName} */}
+        <h1 className="mt-2.5 sm:mt-3.5 flex flex-col items-center justify-center font-black tracking-tight leading-none select-none">
+          <span className="text-base font-extrabold uppercase tracking-[0.28em] text-white/95 sm:text-2xl md:text-3xl lg:text-4xl drop-shadow-sm">
+            WELCOME
+          </span>
+          <span className="my-1 sm:my-1.5 text-xs font-bold uppercase tracking-[0.38em] text-amber-300 sm:text-base md:text-lg drop-shadow-sm">
+            TO
+          </span>
+          <span className="max-w-4xl text-3xl font-black uppercase tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] sm:text-5xl md:text-6xl lg:text-7xl break-normal">
+            {displayBrandName}
+          </span>
+        </h1>
+
+        {/* Supporting Description */}
+        <p className="mx-auto mt-3.5 max-w-xl text-xs sm:text-sm md:text-base leading-relaxed text-white/90 drop-shadow-xs px-2 sm:mt-4">
+          {intro}
+        </p>
+
+        {/* CTA Destination Button & Quick Destination Links */}
+        <div className="mt-6 flex w-full flex-col items-center gap-3 sm:mt-7 sm:gap-4">
+          <Button
+            variant="action"
+            size="lg"
+            className="w-full max-w-xs rounded-2xl text-sm font-bold shadow-xl shadow-black/35 sm:max-w-sm sm:text-base transition-all hover:scale-[1.02] active:scale-[0.99] cursor-pointer"
+            onClick={() => router.push("/explore")}
+          >
+            <MapPinned className="size-4 sm:size-5" />
+            CHOOSE DESTINATION
+          </Button>
+
+          <div
+            aria-label="Popular destinations"
+            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 text-[0.7rem] font-medium text-white/80 sm:text-xs"
+          >
+            {DESTINATION_HINTS.map((name, i) => (
+              <span key={name} className="inline-flex items-center gap-2">
+                {i > 0 && <span className="text-white/40">•</span>}
+                <button
+                  type="button"
+                  onClick={() => router.push(`/explore?q=${encodeURIComponent(name)}`)}
+                  className="transition-colors hover:text-white underline-offset-2 hover:underline cursor-pointer"
+                >
                   {name}
-                </span>
-              ))}
-            </div>
+                </button>
+              </span>
+            ))}
           </div>
         </div>
-
-        <footer className="mt-4 flex items-center justify-center gap-4 text-[0.7rem] font-medium text-white/80 sm:mt-6 sm:gap-6 sm:text-xs">
-          <Link
-            href="/about"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
-          >
-            <Smartphone className="size-3.5" />
-            About App
-          </Link>
-          <span aria-hidden className="size-1 rounded-full bg-white/40" />
-          <Link
-            href="/report"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
-          >
-            <FilePen className="size-3.5" />
-            Report Issue
-          </Link>
-        </footer>
       </div>
+
+      {/* 4. Footer navigation links */}
+      <footer className="relative z-10 flex shrink-0 items-center justify-center gap-4 text-[0.7rem] font-medium text-white/80 sm:gap-6 sm:text-xs pb-1 sm:pb-2">
+        <Link
+          href="/about"
+          className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
+        >
+          <Smartphone className="size-3.5" />
+          About App
+        </Link>
+        <span aria-hidden className="size-1 rounded-full bg-white/40" />
+        <Link
+          href="/report"
+          className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
+        >
+          <FilePen className="size-3.5" />
+          Report Issue
+        </Link>
+      </footer>
     </section>
   );
 }
