@@ -11,7 +11,6 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
     tagline,
     symbolLogoUrl,
     primaryColor,
-    secondaryColor,
     accentColor,
   } = useBranding();
 
@@ -19,10 +18,8 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
     return <LogoMark className={className} />;
   }
 
-  const displayName = appName || (brandName ? `${brandName} Provider` : "ATLASWANDERS Provider");
-  const displayTagline = tagline || "Partner & Service Provider Portal";
-
-  const isAtlasWanders = /^atlas\s*wanders(\s+provider|\s+service)?$/i.test(displayName.trim());
+  const displayName = (appName || brandName || "ATLASWANDERS").trim();
+  const displayTagline = (tagline || "Partner & Service Provider Portal").trim();
 
   return (
     <span
@@ -37,22 +34,12 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
         className="size-9 sm:size-10 shrink-0 object-contain drop-shadow-xs"
       />
       <span className="flex flex-col leading-none">
-        {isAtlasWanders ? (
-          <span className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight flex items-center">
-            <span style={{ color: primaryColor || "#0B2545" }}>ATLAS</span>
-            <span style={{ color: secondaryColor || "#087E8B" }}>WANDERS</span>
-            <span className="ml-1.5 text-xs sm:text-sm font-semibold uppercase text-muted-foreground">
-              {displayName.toLowerCase().includes("service") ? "Service" : "Provider"}
-            </span>
-          </span>
-        ) : (
-          <span
-            className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight"
-            style={{ color: primaryColor || "#0B2545" }}
-          >
-            {displayName}
-          </span>
-        )}
+        <span
+          className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight"
+          style={{ color: primaryColor || "#0B2545" }}
+        >
+          {displayName}
+        </span>
         <span
           className="text-[0.62rem] sm:text-[0.72rem] font-bold tracking-[0.14em] uppercase mt-0.5 whitespace-nowrap"
           style={{ color: accentColor || "#D9A441" }}

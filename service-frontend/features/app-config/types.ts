@@ -64,7 +64,7 @@ export type AppConfig = {
 
 export const FALLBACK_BRAND: BrandConfig = {
   brandName: "ATLASWANDERS",
-  tagline: "Discover Places. Experience Local.",
+  tagline: "Partner & Service Provider Portal",
   primaryColor: "#0B2545",
   secondaryColor: "#087E8B",
   accentColor: "#D9A441",
@@ -73,11 +73,11 @@ export const FALLBACK_BRAND: BrandConfig = {
   lightLogoUrl: "/brand/atlaswanders-light.svg",
   darkLogoUrl: "/brand/atlaswanders-dark.svg",
   faviconUrl: "/brand/atlaswanders-favicon.svg",
-  defaultTitle: "ATLASWANDERS | Provider Portal",
+  defaultTitle: "ATLASWANDERS | Partner & Service Provider Portal",
   titleFormat: "%s | ATLASWANDERS",
   defaultMetaDescription:
     "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
-  openGraphTitle: "ATLASWANDERS — Discover Places. Experience Local.",
+  openGraphTitle: "ATLASWANDERS — Partner & Service Provider Portal",
   openGraphDescription:
     "Global travel discovery and local-services marketplace connecting travellers with authentic experiences.",
   openGraphImageUrl: "/brand/atlaswanders_og_banner.jpg",
@@ -88,15 +88,16 @@ export const FALLBACK_BRAND: BrandConfig = {
 };
 
 export const FALLBACK_CONFIG: AppConfig = {
-  app_name: "ATLASWANDERS Provider",
-  webTitle: "ATLASWANDERS | Provider Portal",
+  ...FALLBACK_BRAND,
+  app_name: "ATLASWANDERS",
+  webTitle: "ATLASWANDERS | Partner & Service Provider Portal",
   icon: "/brand/atlaswanders-favicon.svg",
   imageBanners: [],
-  text: "",
+  tagline: "Partner & Service Provider Portal",
+  text: "Partner & Service Provider Portal",
   app_description:
     "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
   contacts: "",
   termsandconditions: "",
   privacy: "",
-  ...FALLBACK_BRAND,
 };

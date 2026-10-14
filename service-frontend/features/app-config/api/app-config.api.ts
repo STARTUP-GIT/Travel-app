@@ -13,15 +13,17 @@ export async function getAppConfig(): Promise<AppConfig> {
     // 1. Primary: Published Service App settings (app name, web title, tagline, banners, icon, description, legal)
     const settings = await api.get<Partial<AppConfig>>("/api/service-settings").catch(() => null);
     if (settings && (settings.app_name || settings.brandName)) {
+      const canonicalName = (settings.app_name || settings.brandName || FALLBACK_CONFIG.brandName).trim();
+      const canonicalTagline = (settings.tagline || settings.text || "Partner & Service Provider Portal").trim();
       return {
         ...FALLBACK_CONFIG,
         ...settings,
-        appName: settings.app_name || `${FALLBACK_CONFIG.brandName} Provider`,
-        app_name: settings.app_name || `${FALLBACK_CONFIG.brandName} Provider`,
-        brandName: settings.brandName || settings.app_name || FALLBACK_CONFIG.brandName,
-        tagline: settings.tagline || settings.text || "Partner & Service Provider Portal",
-        text: settings.text || settings.tagline || "Partner & Service Provider Portal",
-        webTitle: settings.webTitle || `${FALLBACK_CONFIG.brandName} | Provider Portal`,
+        appName: canonicalName,
+        app_name: canonicalName,
+        brandName: canonicalName,
+        tagline: canonicalTagline,
+        text: canonicalTagline,
+        webTitle: settings.webTitle || `${canonicalName} | Provider Portal`,
         icon: settings.icon || settings.faviconUrl || settings.symbolLogoUrl || FALLBACK_CONFIG.icon,
         symbolLogoUrl: settings.symbolLogoUrl || settings.icon || FALLBACK_CONFIG.symbolLogoUrl,
         primaryLogoUrl: settings.primaryLogoUrl || settings.icon || FALLBACK_CONFIG.primaryLogoUrl,
@@ -37,7 +39,7 @@ export async function getAppConfig(): Promise<AppConfig> {
       return {
         ...FALLBACK_CONFIG,
         ...brand,
-        app_name: `${brand.brandName} Provider`,
+        app_name: brand.brandName,
         webTitle: `${brand.brandName} | Provider Portal`,
         icon: brand.faviconUrl || brand.symbolLogoUrl,
         app_description: brand.brandDescription || FALLBACK_CONFIG.app_description,

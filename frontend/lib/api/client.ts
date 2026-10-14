@@ -11,6 +11,14 @@ export class ApiError extends Error {
 }
 
 export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+    const pub = process.env.NEXT_PUBLIC_API_URL;
+    if (pub && !pub.includes("onrender.com") && !pub.includes("vercel.app")) {
+      return pub.replace(/\/+$/, "");
+    }
+    return "http://localhost:8080";
+  }
+
   const configured = (
     typeof window === "undefined"
       ? process.env.INTERNAL_API_URL ?? process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL

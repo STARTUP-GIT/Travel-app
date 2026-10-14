@@ -185,8 +185,8 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
       getOrCreateConfig("SERVICE"),
     ]);
 
-    const serviceDefaultName = `${published.brandName} Provider`;
-    const serviceDefaultTitle = `${published.brandName} | Provider Portal`;
+    const serviceDefaultName = published.brandName || "ATLASWANDERS";
+    const serviceDefaultTitle = `${serviceDefaultName} | Provider Portal`;
     const serviceDefaultTagline = "Partner & Service Provider Portal";
     const serviceDefaultDesc = "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.";
 
@@ -504,14 +504,14 @@ const DEFAULT_CLIENT = {
 };
 
 const DEFAULT_SERVICE = {
-  app_name: "ATLASWANDERS Provider",
+  app_name: "ATLASWANDERS",
   icon: "/brand/atlaswanders-favicon.svg",
   webTitle: "ATLASWANDERS | Provider Portal",
-  text: "",
+  text: "Partner & Service Provider Portal",
   contacts: "",
   termsandconditions: "",
   privacy: "",
-  app_description: "Global travel discovery, local tourism marketplace, and travel-services platform.",
+  app_description: "Provider portal for hotels, restaurants and tour guides: manage your listings, review stay and reservation requests, and keep your profile up to date.",
   imageBanners: [] as string[],
 };
 

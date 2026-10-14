@@ -72,12 +72,14 @@ export function AppConfigProvider({
     }
   }, [config.primaryColor, config.secondaryColor, config.accentColor]);
 
-  const value = React.useMemo<BrandingContextValue>(
-    () => ({
+  const value = React.useMemo<BrandingContextValue>(() => {
+    const canonicalName = (config.app_name || config.brandName || FALLBACK_CONFIG.brandName).trim();
+    const canonicalTagline = (config.tagline || config.text || "Partner & Service Provider Portal").trim();
+    return {
       config,
-      appName: config.app_name || `${config.brandName || FALLBACK_CONFIG.brandName} Provider`,
-      brandName: config.brandName || config.app_name || FALLBACK_CONFIG.brandName,
-      tagline: config.tagline || config.text || "Partner & Service Provider Portal",
+      appName: canonicalName,
+      brandName: canonicalName,
+      tagline: canonicalTagline,
       primaryColor: config.primaryColor || FALLBACK_CONFIG.primaryColor,
       secondaryColor: config.secondaryColor || FALLBACK_CONFIG.secondaryColor,
       accentColor: config.accentColor || FALLBACK_CONFIG.accentColor,
@@ -86,9 +88,8 @@ export function AppConfigProvider({
       lightLogoUrl: config.lightLogoUrl || FALLBACK_CONFIG.lightLogoUrl,
       darkLogoUrl: config.darkLogoUrl || FALLBACK_CONFIG.darkLogoUrl,
       faviconUrl: config.icon || config.faviconUrl || FALLBACK_CONFIG.faviconUrl,
-    }),
-    [config]
-  );
+    };
+  }, [config]);
 
   return (
     <BrandingContext.Provider value={value}>{children}</BrandingContext.Provider>

@@ -11,7 +11,6 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
     tagline,
     symbolLogoUrl,
     primaryColor,
-    secondaryColor,
     accentColor,
   } = useBranding();
 
@@ -19,11 +18,8 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
     return <LogoMark className={className} />;
   }
 
-  const displayName = appName || brandName || "ATLASWANDERS";
-  const displayTagline = tagline || "Discover Places. Experience Local.";
-
-  // Clean split for "ATLASWANDERS" or "ATLAS WANDERS"
-  const isAtlasWanders = /^atlas\s*wanders$/i.test(displayName.trim());
+  const displayName = (appName || brandName || "ATLASWANDERS").trim();
+  const displayTagline = (tagline || "Discover Places. Experience Local.").trim();
 
   return (
     <span
@@ -38,19 +34,12 @@ function Logo({ className, compact = false }: { className?: string; compact?: bo
         className="size-9 sm:size-10 shrink-0 object-contain drop-shadow-xs"
       />
       <span className="flex flex-col leading-none">
-        {isAtlasWanders ? (
-          <span className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight flex items-center">
-            <span style={{ color: primaryColor || "#0B2545" }}>ATLAS</span>
-            <span style={{ color: secondaryColor || "#087E8B" }}>WANDERS</span>
-          </span>
-        ) : (
-          <span
-            className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight"
-            style={{ color: primaryColor || "#0B2545" }}
-          >
-            {displayName}
-          </span>
-        )}
+        <span
+          className="text-[1.15rem] sm:text-[1.3rem] font-black tracking-tight"
+          style={{ color: primaryColor || "#0B2545" }}
+        >
+          {displayName}
+        </span>
         <span
           className="text-[0.62rem] sm:text-[0.72rem] font-bold tracking-[0.14em] uppercase mt-0.5 whitespace-nowrap"
           style={{ color: accentColor || "#D9A441" }}

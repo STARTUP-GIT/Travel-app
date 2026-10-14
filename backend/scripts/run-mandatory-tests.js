@@ -249,7 +249,7 @@ async function run() {
     const officialIcon = "/brand/atlaswanders-favicon.svg";
     const officialClientName = "ATLASWANDERS";
     const officialClientTagline = "Discover Places. Experience Local.";
-    const officialServiceName = "ATLASWANDERS Service";
+    const officialServiceName = "ATLASWANDERS";
     const officialServiceTagline = "Partner & Service Provider Portal";
 
     await fetch(`${BASE_URL}/api/admin/settings/client`, {
@@ -268,7 +268,7 @@ async function run() {
       headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         app_name: officialServiceName,
-        webTitle: "Atlas Wanders | Service Portal",
+        webTitle: "ATLASWANDERS | Partner & Service Provider Portal",
         text: officialServiceTagline,
         icon: officialIcon,
       }),

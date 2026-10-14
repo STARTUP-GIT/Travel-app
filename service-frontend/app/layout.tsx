@@ -34,8 +34,8 @@ const FALLBACK_DESCRIPTION =
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getAppConfig().catch(() => null);
   const brandName = config?.brandName || "ATLASWANDERS";
-  const appName = config?.app_name || `${brandName} Provider`;
-  const defaultTitle = config?.webTitle || `${brandName} | Provider Portal`;
+  const appName = config?.app_name || brandName;
+  const defaultTitle = config?.webTitle || `${appName} | Partner & Service Provider Portal`;
   const titleFormat = config?.titleFormat || `%s | ${appName}`;
   const description = config?.app_description || config?.defaultMetaDescription || FALLBACK_DESCRIPTION;
   const favicon = config?.icon || config?.faviconUrl || "/brand/atlaswanders-favicon.svg";
@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: defaultTitle,
       description,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: brandName }] : [],
-      siteName: `${brandName} Provider Portal`,
+      siteName: appName,
     },
     formatDetection: { telephone: false },
   };
