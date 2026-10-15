@@ -350,6 +350,11 @@ export const updateDraftBranding = async (req: Request, res: Response) => {
           });
         }
         const trimmed = body[key].trim();
+        if (key === "brandName" && !trimmed) {
+          return res.status(400).json({
+            message: "Validation error: brandName cannot be empty.",
+          });
+        }
         if (["primaryColor", "secondaryColor", "accentColor"].includes(key) && trimmed) {
           if (!hexColorRegex.test(trimmed)) {
             return res.status(400).json({
@@ -429,28 +434,30 @@ export const publishBranding = async (_req: Request, res: Response) => {
       getOrCreateConfig("SERVICE"),
     ]);
 
-    // Synchronize published brand identity to app_config for live website endpoints
-    const syncData: Record<string, any> = {};
+    // Synchronize published brand identity to app_config ONLY for CLIENT scope.
+    // NEVER overwrite SERVICE scope with client/brand tagline, title, or description.
+    // Service App scope maintains its own independent partner portal configuration.
+    const clientSyncData: Record<string, any> = {};
     if (draft.brandName) {
-      syncData.app_name = draft.brandName;
+      clientSyncData.app_name = draft.brandName;
     }
     if (draft.tagline) {
-      syncData.text = draft.tagline;
+      clientSyncData.text = draft.tagline;
     }
     if (draft.defaultTitle) {
-      syncData.webTitle = draft.defaultTitle;
+      clientSyncData.webTitle = draft.defaultTitle;
     }
     if (draft.brandDescription) {
-      syncData.app_description = draft.brandDescription;
+      clientSyncData.app_description = draft.brandDescription;
     }
     if (draft.faviconUrl || draft.symbolLogoUrl) {
-      syncData.icon = draft.faviconUrl || draft.symbolLogoUrl;
+      clientSyncData.icon = draft.faviconUrl || draft.symbolLogoUrl;
     }
 
-    if (Object.keys(syncData).length > 0) {
+    if (Object.keys(clientSyncData).length > 0) {
       await prisma.app_config.updateMany({
-        where: { scope: { in: ["CLIENT", "SERVICE"] } },
-        data: syncData,
+        where: { scope: "CLIENT" },
+        data: clientSyncData,
       });
     }
 

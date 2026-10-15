@@ -35,6 +35,8 @@ export default function PlatformLivePreviewPage() {
   const {
     draft,
     published,
+    draftForm: preview,
+    isDirty: isTweaked,
     hasUnpublishedChanges,
     loading,
     error,
@@ -47,50 +49,14 @@ export default function PlatformLivePreviewPage() {
     discarding,
   } = useBrandSettings();
 
-  // Working preview state (allows live tweaking directly on this preview canvas)
-  const [preview, setPreview] = React.useState<Partial<BrandConfig>>({});
-  const [isTweaked, setIsTweaked] = React.useState(false);
   const [previewMode, setPreviewMode] = React.useState<"light" | "dark">("light");
 
-  React.useEffect(() => {
-    if (draft) {
-      setPreview({
-        brandName: draft.brandName || "ATLASWANDERS",
-        tagline: draft.tagline || "Discover Places. Experience Local.",
-        primaryColor: draft.primaryColor || "#0B2545",
-        secondaryColor: draft.secondaryColor || "#087E8B",
-        accentColor: draft.accentColor || "#D9A441",
-        primaryLogoUrl: draft.primaryLogoUrl || "/brand/atlaswanders-primary.svg",
-        symbolLogoUrl: draft.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
-        lightLogoUrl: draft.lightLogoUrl || "/brand/atlaswanders-light.svg",
-        darkLogoUrl: draft.darkLogoUrl || "/brand/atlaswanders-dark.svg",
-        faviconUrl: draft.faviconUrl || "/brand/atlaswanders-favicon.svg",
-        defaultTitle: draft.defaultTitle || "ATLASWANDERS | Discover Places. Experience Local.",
-        titleFormat: draft.titleFormat || "%s | ATLASWANDERS",
-      });
-      setIsTweaked(false);
-    }
-  }, [draft]);
-
-  const updatePreviewField = (field: keyof BrandConfig, value: string) => {
-    setPreview((prev) => ({ ...prev, [field]: value }));
-    setIsTweaked(true);
-  };
-
   const handleSaveDraft = async () => {
-    const success = await saveDraft(preview);
-    if (success) {
-      setIsTweaked(false);
-    }
+    await saveDraft();
   };
 
   const handlePublish = async () => {
-    if (isTweaked) {
-      const saved = await saveDraft(preview);
-      if (!saved) return;
-    }
     await publish();
-    setIsTweaked(false);
   };
 
   if (loading && !draft) {
@@ -115,13 +81,10 @@ export default function PlatformLivePreviewPage() {
       />
 
       <BrandActionBar
-        hasUnpublishedChanges={hasUnpublishedChanges || isTweaked}
+        hasUnpublishedChanges={hasUnpublishedChanges}
         onSave={handleSaveDraft}
         onPublish={handlePublish}
-        onDiscard={() => {
-          discard();
-          setIsTweaked(false);
-        }}
+        onDiscard={discard}
         saving={saving}
         publishing={publishing}
         discarding={discarding}

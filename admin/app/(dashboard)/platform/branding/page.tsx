@@ -24,10 +24,14 @@ export default function PlatformBrandingPage() {
   const {
     draft,
     published,
+    draftForm: form,
+    isDirty,
     hasUnpublishedChanges,
     loading,
     error,
     refetch,
+    updateField,
+    resetToDefaults,
     saveDraft,
     publish,
     discard,
@@ -36,42 +40,16 @@ export default function PlatformBrandingPage() {
     discarding,
   } = useBrandSettings();
 
-  const [form, setForm] = React.useState<Partial<BrandConfig>>({});
-  const [isDirty, setIsDirty] = React.useState(false);
-
-  React.useEffect(() => {
-    if (draft) {
-      setForm({
-        brandName: draft.brandName || "ATLASWANDERS",
-        tagline: draft.tagline || "Discover Places. Experience Local.",
-        primaryColor: draft.primaryColor || "#0B2545",
-        secondaryColor: draft.secondaryColor || "#087E8B",
-        accentColor: draft.accentColor || "#D9A441",
-        brandDescription: draft.brandDescription || "",
-        themePreference: draft.themePreference || "light",
-      });
-      setIsDirty(false);
-    }
-  }, [draft]);
-
-  const updateField = (field: keyof BrandConfig, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setIsDirty(true);
-  };
-
   const handleSave = async () => {
     if (!form.brandName?.trim()) {
       toast.error("Validation error", { description: "Brand name cannot be empty." });
       return;
     }
-    const success = await saveDraft(form);
-    if (success) {
-      setIsDirty(false);
-    }
+    await saveDraft();
   };
 
   const handleResetToOfficialDefaults = () => {
-    setForm({
+    resetToDefaults({
       brandName: "ATLASWANDERS",
       tagline: "Discover Places. Experience Local.",
       primaryColor: "#0B2545",
@@ -81,7 +59,6 @@ export default function PlatformBrandingPage() {
         "Global travel discovery, local tourism marketplace, and travel-services platform connecting travellers with authentic experiences.",
       themePreference: "light",
     });
-    setIsDirty(true);
     toast.info("Reset to official ATLASWANDERS defaults", {
       description: "Click 'Save Changes' to apply these values to your draft.",
     });

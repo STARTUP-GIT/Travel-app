@@ -24,10 +24,13 @@ export default function PlatformIconPage() {
   const {
     draft,
     published,
+    draftForm,
+    isDirty,
     hasUnpublishedChanges,
     loading,
     error,
     refetch,
+    updateField,
     saveDraft,
     publish,
     discard,
@@ -36,17 +39,9 @@ export default function PlatformIconPage() {
     discarding,
   } = useBrandSettings();
 
-  const [faviconUrl, setFaviconUrl] = React.useState<string>("");
-  const [isDirty, setIsDirty] = React.useState(false);
+  const faviconUrl = draftForm.faviconUrl;
   const [uploading, setUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (draft) {
-      setFaviconUrl(draft.faviconUrl || "/brand/atlaswanders-favicon.svg");
-      setIsDirty(false);
-    }
-  }, [draft]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,8 +57,7 @@ export default function PlatformIconPage() {
     setUploading(true);
     try {
       const { url } = await uploadImage(file, "branding/icons");
-      setFaviconUrl(url);
-      setIsDirty(true);
+      updateField("faviconUrl", url);
       toast.success("Icon uploaded successfully", {
         description: "Click 'Save Changes' to update your draft.",
       });
@@ -75,18 +69,14 @@ export default function PlatformIconPage() {
   };
 
   const handleResetToDefault = () => {
-    setFaviconUrl("/brand/atlaswanders-favicon.svg");
-    setIsDirty(true);
+    updateField("faviconUrl", "/brand/atlaswanders-favicon.svg");
     toast.info("Reset to official vector favicon", {
       description: "Click 'Save Changes' to apply this icon to your draft.",
     });
   };
 
   const handleSave = async () => {
-    const success = await saveDraft({ faviconUrl });
-    if (success) {
-      setIsDirty(false);
-    }
+    await saveDraft();
   };
 
   if (loading && !draft) {

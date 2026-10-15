@@ -18,10 +18,14 @@ export default function PlatformSeoPage() {
   const {
     draft,
     published,
+    draftForm: form,
+    isDirty,
     hasUnpublishedChanges,
     loading,
     error,
     refetch,
+    updateField,
+    resetToDefaults,
     saveDraft,
     publish,
     discard,
@@ -30,33 +34,8 @@ export default function PlatformSeoPage() {
     discarding,
   } = useBrandSettings();
 
-  const [form, setForm] = React.useState<Partial<BrandConfig>>({});
-  const [isDirty, setIsDirty] = React.useState(false);
   const [uploadingOg, setUploadingOg] = React.useState(false);
   const ogFileInputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (draft) {
-      setForm({
-        defaultTitle: draft.defaultTitle || "ATLASWANDERS | Discover Places. Experience Local.",
-        defaultMetaDescription:
-          draft.defaultMetaDescription ||
-          "Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.",
-        canonicalUrl: draft.canonicalUrl || "https://www.atlaswanders.com",
-        openGraphTitle: draft.openGraphTitle || "ATLASWANDERS — Discover Places. Experience Local.",
-        openGraphDescription:
-          draft.openGraphDescription ||
-          "Global travel discovery and local-services marketplace connecting travellers with authentic experiences.",
-        openGraphImageUrl: draft.openGraphImageUrl || "/brand/atlaswanders_og_banner.jpg",
-      });
-      setIsDirty(false);
-    }
-  }, [draft]);
-
-  const updateField = (field: keyof BrandConfig, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setIsDirty(true);
-  };
 
   const handleOgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,7 +63,7 @@ export default function PlatformSeoPage() {
   };
 
   const handleResetToDefaults = () => {
-    setForm({
+    resetToDefaults({
       defaultTitle: "ATLASWANDERS | Discover Places. Experience Local.",
       defaultMetaDescription:
         "Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.",
@@ -94,15 +73,13 @@ export default function PlatformSeoPage() {
         "Global travel discovery and local-services marketplace connecting travellers with authentic experiences.",
       openGraphImageUrl: "/brand/atlaswanders_og_banner.jpg",
     });
-    setIsDirty(true);
-    toast.info("Reset SEO settings to official ATLASWANDERS defaults");
+    toast.info("Reset SEO settings to official ATLASWANDERS defaults", {
+      description: "Click 'Save Changes' to apply these values to your draft.",
+    });
   };
 
   const handleSave = async () => {
-    const success = await saveDraft(form);
-    if (success) {
-      setIsDirty(false);
-    }
+    await saveDraft();
   };
 
   if (loading && !draft) {

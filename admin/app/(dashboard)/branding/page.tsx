@@ -46,7 +46,12 @@ export default function BrandingPage() {
         </TabsList>
       </Tabs>
 
-      <BrandingFormScope key={scope} scope={scope} />
+      <div className={scope === "client" ? "block" : "hidden"}>
+        <BrandingFormScope scope="client" />
+      </div>
+      <div className={scope === "service" ? "block" : "hidden"}>
+        <BrandingFormScope scope="service" />
+      </div>
     </div>
   );
 }
@@ -60,6 +65,8 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
   };
 
   const [form, setForm] = React.useState<FormState>({ imageBanners: [] });
+  const [isDirty, setIsDirty] = React.useState(false);
+  const isDirtyRef = React.useRef(false);
   const [saving, setSaving] = React.useState(false);
   const [uploadingIcon, setUploadingIcon] = React.useState(false);
   const [uploadingBanners, setUploadingBanners] = React.useState(false);
@@ -67,24 +74,27 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
   const bannersInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (data?.settings) {
+    if (data?.settings && !isDirtyRef.current) {
       const s = data.settings;
       setForm({
-        app_name: s.app_name,
-        webTitle: s.webTitle,
-        icon: s.icon,
-        text: s.text,
-        app_description: s.app_description,
-        contacts: s.contacts,
-        termsandconditions: s.termsandconditions,
-        privacy: s.privacy,
+        app_name: s.app_name ?? "",
+        webTitle: s.webTitle ?? "",
+        icon: s.icon ?? "",
+        text: s.text ?? "",
+        app_description: s.app_description ?? "",
+        contacts: s.contacts ?? "",
+        termsandconditions: s.termsandconditions ?? "",
+        privacy: s.privacy ?? "",
         imageBanners: s.imageBanners ?? [],
       });
     }
   }, [data]);
 
-  const set = (key: keyof FormState, value: string) =>
+  const set = (key: keyof FormState, value: string) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setForm((f) => ({ ...f, [key]: value }));
+  };
 
   async function handleIconFile(event: React.ChangeEvent<HTMLInputElement>) {
     const chosen = event.target.files?.[0];
@@ -129,6 +139,8 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         const { url } = await uploadImage(file, "branding");
         uploaded.push(url);
       }
+      isDirtyRef.current = true;
+      setIsDirty(true);
       setForm((f) => ({ ...f, imageBanners: [...f.imageBanners, ...uploaded] }));
       toast.success(`${uploaded.length} banner image(s) uploaded`, {
         description: "Click 'Save settings' to apply them.",
@@ -141,6 +153,8 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
   }
 
   function removeBanner(url: string) {
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setForm((f) => ({ ...f, imageBanners: f.imageBanners.filter((b) => b !== url) }));
   }
 
@@ -160,6 +174,8 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         imageBanners: form.imageBanners,
       });
       toast.success(`${scope === "client" ? "Client" : "Service"} app settings saved successfully`);
+      isDirtyRef.current = false;
+      setIsDirty(false);
       refetch();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unable to save settings right now. Please try again.";
@@ -169,8 +185,8 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
     }
   }
 
-  if (loading) return <LoadingState rows={6} />;
-  if (error || !data?.settings) {
+  if (loading && !data) return <LoadingState rows={6} />;
+  if (error && !data?.settings) {
     return (
       <ErrorState
         message="Unable to load branding settings right now. Please try again."
@@ -242,7 +258,7 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
                 </span>
               </div>
             </div>
-            {data?.settings && (form.app_name !== data.settings.app_name || form.text !== data.settings.text || form.icon !== data.settings.icon) ? (
+            {data?.settings && isDirty ? (
               <span className="inline-flex rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
                 Unsaved Draft Preview
               </span>
@@ -391,7 +407,7 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
 
         <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
           <Button type="submit" disabled={saving}>
-            {saving ? "Saving…" : `Save ${scope === "client" ? "Client" : "Service"} Settings`}
+            {saving ? "Saving…" : isDirty ? `Save ${scope === "client" ? "Client" : "Service"} Settings*` : `Save ${scope === "client" ? "Client" : "Service"} Settings`}
           </Button>
         </div>
       </form>

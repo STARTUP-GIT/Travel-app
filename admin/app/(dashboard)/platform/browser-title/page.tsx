@@ -16,10 +16,14 @@ export default function PlatformBrowserTitlePage() {
   const {
     draft,
     published,
+    draftForm: form,
+    isDirty,
     hasUnpublishedChanges,
     loading,
     error,
     refetch,
+    updateField,
+    resetToDefaults,
     saveDraft,
     publish,
     discard,
@@ -28,31 +32,14 @@ export default function PlatformBrowserTitlePage() {
     discarding,
   } = useBrandSettings();
 
-  const [form, setForm] = React.useState<Partial<BrandConfig>>({});
-  const [isDirty, setIsDirty] = React.useState(false);
-
-  React.useEffect(() => {
-    if (draft) {
-      setForm({
-        defaultTitle: draft.defaultTitle || "ATLASWANDERS | Discover Places. Experience Local.",
-        titleFormat: draft.titleFormat || "%s | ATLASWANDERS",
-      });
-      setIsDirty(false);
-    }
-  }, [draft]);
-
-  const updateField = (field: keyof BrandConfig, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setIsDirty(true);
-  };
-
   const handleResetToDefaults = () => {
-    setForm({
+    resetToDefaults({
       defaultTitle: "ATLASWANDERS | Discover Places. Experience Local.",
       titleFormat: "%s | ATLASWANDERS",
     });
-    setIsDirty(true);
-    toast.info("Reset to default title conventions");
+    toast.info("Reset to default title conventions", {
+      description: "Click 'Save Changes' to apply these values to your draft.",
+    });
   };
 
   const handleSave = async () => {
@@ -60,10 +47,7 @@ export default function PlatformBrowserTitlePage() {
       toast.error("Validation error", { description: "Default browser title cannot be empty." });
       return;
     }
-    const success = await saveDraft(form);
-    if (success) {
-      setIsDirty(false);
-    }
+    await saveDraft();
   };
 
   // Helper to format simulated title

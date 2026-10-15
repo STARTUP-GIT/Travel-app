@@ -274,7 +274,7 @@ export const getDashboardStats = async (_req: Request, res: Response) => {
 };
 
 const getConfig = async () =>
-  prisma.app_config.findFirst({ orderBy: { id: "asc" } });
+  prisma.app_config.findFirst({ where: { scope: "CLIENT" }, orderBy: { id: "asc" } });
 
 export const getAppSettings = async (_req: Request, res: Response) => {
   try {
@@ -329,6 +329,7 @@ export const updateAppSettings = async (req: Request, res: Response) => {
     if (!config) {
       config = await prisma.app_config.create({
         data: {
+          scope: "CLIENT",
           ...data,
           app_name: (data.app_name as string) ?? "ATLASWANDERS",
           icon: (data.icon as string) ?? "",

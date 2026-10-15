@@ -73,10 +73,13 @@ export default function PlatformLogoPage() {
   const {
     draft,
     published,
+    draftForm: form,
+    isDirty,
     hasUnpublishedChanges,
     loading,
     error,
     refetch,
+    updateField,
     saveDraft,
     publish,
     discard,
@@ -85,8 +88,6 @@ export default function PlatformLogoPage() {
     discarding,
   } = useBrandSettings();
 
-  const [form, setForm] = React.useState<Partial<BrandConfig>>({});
-  const [isDirty, setIsDirty] = React.useState(false);
   const [uploadingVariant, setUploadingVariant] = React.useState<LogoVariantKey | null>(null);
 
   const fileInputRefs = {
@@ -95,18 +96,6 @@ export default function PlatformLogoPage() {
     lightLogoUrl: React.useRef<HTMLInputElement>(null),
     darkLogoUrl: React.useRef<HTMLInputElement>(null),
   };
-
-  React.useEffect(() => {
-    if (draft) {
-      setForm({
-        primaryLogoUrl: draft.primaryLogoUrl || "/brand/atlaswanders-primary.svg",
-        symbolLogoUrl: draft.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
-        lightLogoUrl: draft.lightLogoUrl || "/brand/atlaswanders-light.svg",
-        darkLogoUrl: draft.darkLogoUrl || "/brand/atlaswanders-dark.svg",
-      });
-      setIsDirty(false);
-    }
-  }, [draft]);
 
   const handleFileUpload = async (variant: LogoVariantKey, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,8 +111,7 @@ export default function PlatformLogoPage() {
     setUploadingVariant(variant);
     try {
       const { url } = await uploadImage(file, "branding/logos");
-      setForm((prev) => ({ ...prev, [variant]: url }));
-      setIsDirty(true);
+      updateField(variant, url);
       toast.success("Logo uploaded successfully", {
         description: "Click 'Save Changes' to update your draft.",
       });
@@ -135,26 +123,21 @@ export default function PlatformLogoPage() {
   };
 
   const handleResetToDefault = (variant: LogoVariantKey, defaultPath: string) => {
-    setForm((prev) => ({ ...prev, [variant]: defaultPath }));
-    setIsDirty(true);
+    updateField(variant, defaultPath);
     toast.info("Reset to official vector asset", {
       description: "Click 'Save Changes' to apply this asset to your draft.",
     });
   };
 
   const handleRemoveAsset = (variant: LogoVariantKey) => {
-    setForm((prev) => ({ ...prev, [variant]: "" }));
-    setIsDirty(true);
+    updateField(variant, "");
     toast.warning("Logo asset cleared", {
       description: "Click 'Save Changes' to update your draft.",
     });
   };
 
   const handleSave = async () => {
-    const success = await saveDraft(form);
-    if (success) {
-      setIsDirty(false);
-    }
+    await saveDraft();
   };
 
   if (loading && !draft) {

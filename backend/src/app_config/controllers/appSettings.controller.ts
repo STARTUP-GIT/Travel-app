@@ -8,6 +8,7 @@ import prisma from "../../db/prisma.js";
 export const getPublicAppSettings = async (_req: Request, res: Response) => {
   try {
     const config = await prisma.app_config.findFirst({
+      where: { scope: "CLIENT" },
       orderBy: { id: "asc" },
     });
 
