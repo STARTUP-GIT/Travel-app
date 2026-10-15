@@ -42,6 +42,9 @@ export type AppSettings = {
   termsandconditions: string;
   privacy: string;
   app_description: string;
+  heroImageUrl?: string | null;
+  defaultDistrictHeroImageUrl?: string | null;
+  showDistrictHeadingByDefault?: boolean;
 };
 
 export type BrandConfig = {
@@ -56,6 +59,13 @@ export type BrandConfig = {
   lightLogoUrl: string;
   darkLogoUrl: string;
   faviconUrl: string;
+  clientFaviconUrl?: string;
+  serviceFaviconUrl?: string;
+  adminFaviconUrl?: string;
+  clientHeroImageUrl?: string;
+  serviceHeroImageUrl?: string;
+  defaultDistrictHeroImageUrl?: string;
+  showDistrictHeadingByDefault?: boolean;
   defaultTitle: string;
   titleFormat: string;
   defaultMetaDescription: string;
@@ -95,6 +105,13 @@ export type DistrictAdmin = {
   stateId: string;
   isServiceAvailable: boolean;
   autoApprovePlaces?: boolean;
+  heroImageUrl?: string | null;
+  useCustomHeroImage?: boolean;
+  showWelcomeHeading?: string | null;
+  globalDefaultHeroImage?: string;
+  globalShowHeading?: boolean;
+  effectiveHeroImageUrl?: string;
+  effectiveShowHeading?: boolean;
   createdAt?: string;
   state: StateAdmin & {
     country: Country;

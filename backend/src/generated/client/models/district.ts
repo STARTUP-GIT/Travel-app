@@ -30,6 +30,9 @@ export type DistrictMinAggregateOutputType = {
   stateId: string | null
   isServiceAvailable: boolean | null
   autoApprovePlaces: boolean | null
+  heroImageUrl: string | null
+  useCustomHeroImage: boolean | null
+  showWelcomeHeading: string | null
 }
 
 export type DistrictMaxAggregateOutputType = {
@@ -38,6 +41,9 @@ export type DistrictMaxAggregateOutputType = {
   stateId: string | null
   isServiceAvailable: boolean | null
   autoApprovePlaces: boolean | null
+  heroImageUrl: string | null
+  useCustomHeroImage: boolean | null
+  showWelcomeHeading: string | null
 }
 
 export type DistrictCountAggregateOutputType = {
@@ -46,6 +52,9 @@ export type DistrictCountAggregateOutputType = {
   stateId: number
   isServiceAvailable: number
   autoApprovePlaces: number
+  heroImageUrl: number
+  useCustomHeroImage: number
+  showWelcomeHeading: number
   _all: number
 }
 
@@ -56,6 +65,9 @@ export type DistrictMinAggregateInputType = {
   stateId?: true
   isServiceAvailable?: true
   autoApprovePlaces?: true
+  heroImageUrl?: true
+  useCustomHeroImage?: true
+  showWelcomeHeading?: true
 }
 
 export type DistrictMaxAggregateInputType = {
@@ -64,6 +76,9 @@ export type DistrictMaxAggregateInputType = {
   stateId?: true
   isServiceAvailable?: true
   autoApprovePlaces?: true
+  heroImageUrl?: true
+  useCustomHeroImage?: true
+  showWelcomeHeading?: true
 }
 
 export type DistrictCountAggregateInputType = {
@@ -72,6 +87,9 @@ export type DistrictCountAggregateInputType = {
   stateId?: true
   isServiceAvailable?: true
   autoApprovePlaces?: true
+  heroImageUrl?: true
+  useCustomHeroImage?: true
+  showWelcomeHeading?: true
   _all?: true
 }
 
@@ -153,6 +171,9 @@ export type DistrictGroupByOutputType = {
   stateId: string
   isServiceAvailable: boolean
   autoApprovePlaces: boolean
+  heroImageUrl: string | null
+  useCustomHeroImage: boolean
+  showWelcomeHeading: string | null
   _count: DistrictCountAggregateOutputType | null
   _min: DistrictMinAggregateOutputType | null
   _max: DistrictMaxAggregateOutputType | null
@@ -182,6 +203,9 @@ export type districtWhereInput = {
   stateId?: Prisma.StringFilter<"district"> | string
   isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
   autoApprovePlaces?: Prisma.BoolFilter<"district"> | boolean
+  heroImageUrl?: Prisma.StringNullableFilter<"district"> | string | null
+  useCustomHeroImage?: Prisma.BoolFilter<"district"> | boolean
+  showWelcomeHeading?: Prisma.StringNullableFilter<"district"> | string | null
   state?: Prisma.XOR<Prisma.StateScalarRelationFilter, Prisma.stateWhereInput>
   places?: Prisma.PlaceListRelationFilter
   hotels?: Prisma.HotelListRelationFilter
@@ -195,6 +219,9 @@ export type districtOrderByWithRelationInput = {
   stateId?: Prisma.SortOrder
   isServiceAvailable?: Prisma.SortOrder
   autoApprovePlaces?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  useCustomHeroImage?: Prisma.SortOrder
+  showWelcomeHeading?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.stateOrderByWithRelationInput
   places?: Prisma.placeOrderByRelationAggregateInput
   hotels?: Prisma.hotelOrderByRelationAggregateInput
@@ -211,6 +238,9 @@ export type districtWhereUniqueInput = Prisma.AtLeast<{
   stateId?: Prisma.StringFilter<"district"> | string
   isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
   autoApprovePlaces?: Prisma.BoolFilter<"district"> | boolean
+  heroImageUrl?: Prisma.StringNullableFilter<"district"> | string | null
+  useCustomHeroImage?: Prisma.BoolFilter<"district"> | boolean
+  showWelcomeHeading?: Prisma.StringNullableFilter<"district"> | string | null
   state?: Prisma.XOR<Prisma.StateScalarRelationFilter, Prisma.stateWhereInput>
   places?: Prisma.PlaceListRelationFilter
   hotels?: Prisma.HotelListRelationFilter
@@ -224,6 +254,9 @@ export type districtOrderByWithAggregationInput = {
   stateId?: Prisma.SortOrder
   isServiceAvailable?: Prisma.SortOrder
   autoApprovePlaces?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  useCustomHeroImage?: Prisma.SortOrder
+  showWelcomeHeading?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.districtCountOrderByAggregateInput
   _max?: Prisma.districtMaxOrderByAggregateInput
   _min?: Prisma.districtMinOrderByAggregateInput
@@ -238,6 +271,9 @@ export type districtScalarWhereWithAggregatesInput = {
   stateId?: Prisma.StringWithAggregatesFilter<"district"> | string
   isServiceAvailable?: Prisma.BoolWithAggregatesFilter<"district"> | boolean
   autoApprovePlaces?: Prisma.BoolWithAggregatesFilter<"district"> | boolean
+  heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"district"> | string | null
+  useCustomHeroImage?: Prisma.BoolWithAggregatesFilter<"district"> | boolean
+  showWelcomeHeading?: Prisma.StringNullableWithAggregatesFilter<"district"> | string | null
 }
 
 export type districtCreateInput = {
@@ -245,6 +281,9 @@ export type districtCreateInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
@@ -258,6 +297,9 @@ export type districtUncheckedCreateInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
@@ -269,6 +311,9 @@ export type districtUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
@@ -282,6 +327,9 @@ export type districtUncheckedUpdateInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
@@ -294,6 +342,9 @@ export type districtCreateManyInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
 }
 
 export type districtUpdateManyMutationInput = {
@@ -301,6 +352,9 @@ export type districtUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type districtUncheckedUpdateManyInput = {
@@ -309,6 +363,9 @@ export type districtUncheckedUpdateManyInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DistrictListRelationFilter = {
@@ -327,6 +384,9 @@ export type districtCountOrderByAggregateInput = {
   stateId?: Prisma.SortOrder
   isServiceAvailable?: Prisma.SortOrder
   autoApprovePlaces?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  useCustomHeroImage?: Prisma.SortOrder
+  showWelcomeHeading?: Prisma.SortOrder
 }
 
 export type districtMaxOrderByAggregateInput = {
@@ -335,6 +395,9 @@ export type districtMaxOrderByAggregateInput = {
   stateId?: Prisma.SortOrder
   isServiceAvailable?: Prisma.SortOrder
   autoApprovePlaces?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  useCustomHeroImage?: Prisma.SortOrder
+  showWelcomeHeading?: Prisma.SortOrder
 }
 
 export type districtMinOrderByAggregateInput = {
@@ -343,6 +406,9 @@ export type districtMinOrderByAggregateInput = {
   stateId?: Prisma.SortOrder
   isServiceAvailable?: Prisma.SortOrder
   autoApprovePlaces?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  useCustomHeroImage?: Prisma.SortOrder
+  showWelcomeHeading?: Prisma.SortOrder
 }
 
 export type DistrictScalarRelationFilter = {
@@ -453,6 +519,9 @@ export type districtCreateWithoutStateInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -464,6 +533,9 @@ export type districtUncheckedCreateWithoutStateInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
@@ -505,6 +577,9 @@ export type districtScalarWhereInput = {
   stateId?: Prisma.StringFilter<"district"> | string
   isServiceAvailable?: Prisma.BoolFilter<"district"> | boolean
   autoApprovePlaces?: Prisma.BoolFilter<"district"> | boolean
+  heroImageUrl?: Prisma.StringNullableFilter<"district"> | string | null
+  useCustomHeroImage?: Prisma.BoolFilter<"district"> | boolean
+  showWelcomeHeading?: Prisma.StringNullableFilter<"district"> | string | null
 }
 
 export type districtCreateWithoutPlacesInput = {
@@ -512,6 +587,9 @@ export type districtCreateWithoutPlacesInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -524,6 +602,9 @@ export type districtUncheckedCreateWithoutPlacesInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutDistrictInput
@@ -550,6 +631,9 @@ export type districtUpdateWithoutPlacesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -562,6 +646,9 @@ export type districtUncheckedUpdateWithoutPlacesInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutDistrictNestedInput
@@ -572,6 +659,9 @@ export type districtCreateWithoutPlaceSubmissionsInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
@@ -584,6 +674,9 @@ export type districtUncheckedCreateWithoutPlaceSubmissionsInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
@@ -610,6 +703,9 @@ export type districtUpdateWithoutPlaceSubmissionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
@@ -622,6 +718,9 @@ export type districtUncheckedUpdateWithoutPlaceSubmissionsInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
@@ -632,6 +731,9 @@ export type districtCreateWithoutHotelsInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentCreateNestedManyWithoutDistrictInput
@@ -644,6 +746,9 @@ export type districtUncheckedCreateWithoutHotelsInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   restaurent?: Prisma.restaurentUncheckedCreateNestedManyWithoutDistrictInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutDistrictInput
@@ -670,6 +775,9 @@ export type districtUpdateWithoutHotelsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -682,6 +790,9 @@ export type districtUncheckedUpdateWithoutHotelsInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutDistrictNestedInput
@@ -692,6 +803,9 @@ export type districtCreateWithoutRestaurentInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   state: Prisma.stateCreateNestedOneWithoutDistrictsInput
   places?: Prisma.placeCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelCreateNestedManyWithoutDistrictInput
@@ -704,6 +818,9 @@ export type districtUncheckedCreateWithoutRestaurentInput = {
   stateId: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
   places?: Prisma.placeUncheckedCreateNestedManyWithoutDistrictInput
   hotels?: Prisma.hotelUncheckedCreateNestedManyWithoutDistrictInput
   placeSubmissions?: Prisma.place_submissionUncheckedCreateNestedManyWithoutDistrictInput
@@ -730,6 +847,9 @@ export type districtUpdateWithoutRestaurentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.stateUpdateOneRequiredWithoutDistrictsNestedInput
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
@@ -742,6 +862,9 @@ export type districtUncheckedUpdateWithoutRestaurentInput = {
   stateId?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   placeSubmissions?: Prisma.place_submissionUncheckedUpdateManyWithoutDistrictNestedInput
@@ -752,6 +875,9 @@ export type districtCreateManyStateInput = {
   name: string
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: string | null
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: string | null
 }
 
 export type districtUpdateWithoutStateInput = {
@@ -759,6 +885,9 @@ export type districtUpdateWithoutStateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUpdateManyWithoutDistrictNestedInput
@@ -770,6 +899,9 @@ export type districtUncheckedUpdateWithoutStateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   places?: Prisma.placeUncheckedUpdateManyWithoutDistrictNestedInput
   hotels?: Prisma.hotelUncheckedUpdateManyWithoutDistrictNestedInput
   restaurent?: Prisma.restaurentUncheckedUpdateManyWithoutDistrictNestedInput
@@ -781,6 +913,9 @@ export type districtUncheckedUpdateManyWithoutStateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isServiceAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autoApprovePlaces?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useCustomHeroImage?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showWelcomeHeading?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -847,6 +982,9 @@ export type districtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   stateId?: boolean
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: boolean
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
   places?: boolean | Prisma.district$placesArgs<ExtArgs>
   hotels?: boolean | Prisma.district$hotelsArgs<ExtArgs>
@@ -861,6 +999,9 @@ export type districtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   stateId?: boolean
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: boolean
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["district"]>
 
@@ -870,6 +1011,9 @@ export type districtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   stateId?: boolean
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: boolean
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: boolean
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["district"]>
 
@@ -879,9 +1023,12 @@ export type districtSelectScalar = {
   stateId?: boolean
   isServiceAvailable?: boolean
   autoApprovePlaces?: boolean
+  heroImageUrl?: boolean
+  useCustomHeroImage?: boolean
+  showWelcomeHeading?: boolean
 }
 
-export type districtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "stateId" | "isServiceAvailable" | "autoApprovePlaces", ExtArgs["result"]["district"]>
+export type districtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "stateId" | "isServiceAvailable" | "autoApprovePlaces" | "heroImageUrl" | "useCustomHeroImage" | "showWelcomeHeading", ExtArgs["result"]["district"]>
 export type districtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   state?: boolean | Prisma.stateDefaultArgs<ExtArgs>
   places?: boolean | Prisma.district$placesArgs<ExtArgs>
@@ -912,6 +1059,9 @@ export type $districtPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     stateId: string
     isServiceAvailable: boolean
     autoApprovePlaces: boolean
+    heroImageUrl: string | null
+    useCustomHeroImage: boolean
+    showWelcomeHeading: string | null
   }, ExtArgs["result"]["district"]>
   composites: {}
 }
@@ -1345,6 +1495,9 @@ export interface districtFieldRefs {
   readonly stateId: Prisma.FieldRef<"district", 'String'>
   readonly isServiceAvailable: Prisma.FieldRef<"district", 'Boolean'>
   readonly autoApprovePlaces: Prisma.FieldRef<"district", 'Boolean'>
+  readonly heroImageUrl: Prisma.FieldRef<"district", 'String'>
+  readonly useCustomHeroImage: Prisma.FieldRef<"district", 'Boolean'>
+  readonly showWelcomeHeading: Prisma.FieldRef<"district", 'String'>
 }
     
 

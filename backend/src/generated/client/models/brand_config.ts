@@ -36,6 +36,13 @@ export type Brand_configMinAggregateOutputType = {
   lightLogoUrl: string | null
   darkLogoUrl: string | null
   faviconUrl: string | null
+  clientFaviconUrl: string | null
+  serviceFaviconUrl: string | null
+  adminFaviconUrl: string | null
+  clientHeroImageUrl: string | null
+  serviceHeroImageUrl: string | null
+  defaultDistrictHeroImageUrl: string | null
+  showDistrictHeadingByDefault: boolean | null
   defaultTitle: string | null
   titleFormat: string | null
   defaultMetaDescription: string | null
@@ -61,6 +68,13 @@ export type Brand_configMaxAggregateOutputType = {
   lightLogoUrl: string | null
   darkLogoUrl: string | null
   faviconUrl: string | null
+  clientFaviconUrl: string | null
+  serviceFaviconUrl: string | null
+  adminFaviconUrl: string | null
+  clientHeroImageUrl: string | null
+  serviceHeroImageUrl: string | null
+  defaultDistrictHeroImageUrl: string | null
+  showDistrictHeadingByDefault: boolean | null
   defaultTitle: string | null
   titleFormat: string | null
   defaultMetaDescription: string | null
@@ -86,6 +100,13 @@ export type Brand_configCountAggregateOutputType = {
   lightLogoUrl: number
   darkLogoUrl: number
   faviconUrl: number
+  clientFaviconUrl: number
+  serviceFaviconUrl: number
+  adminFaviconUrl: number
+  clientHeroImageUrl: number
+  serviceHeroImageUrl: number
+  defaultDistrictHeroImageUrl: number
+  showDistrictHeadingByDefault: number
   defaultTitle: number
   titleFormat: number
   defaultMetaDescription: number
@@ -113,6 +134,13 @@ export type Brand_configMinAggregateInputType = {
   lightLogoUrl?: true
   darkLogoUrl?: true
   faviconUrl?: true
+  clientFaviconUrl?: true
+  serviceFaviconUrl?: true
+  adminFaviconUrl?: true
+  clientHeroImageUrl?: true
+  serviceHeroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   defaultTitle?: true
   titleFormat?: true
   defaultMetaDescription?: true
@@ -138,6 +166,13 @@ export type Brand_configMaxAggregateInputType = {
   lightLogoUrl?: true
   darkLogoUrl?: true
   faviconUrl?: true
+  clientFaviconUrl?: true
+  serviceFaviconUrl?: true
+  adminFaviconUrl?: true
+  clientHeroImageUrl?: true
+  serviceHeroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   defaultTitle?: true
   titleFormat?: true
   defaultMetaDescription?: true
@@ -163,6 +198,13 @@ export type Brand_configCountAggregateInputType = {
   lightLogoUrl?: true
   darkLogoUrl?: true
   faviconUrl?: true
+  clientFaviconUrl?: true
+  serviceFaviconUrl?: true
+  adminFaviconUrl?: true
+  clientHeroImageUrl?: true
+  serviceHeroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   defaultTitle?: true
   titleFormat?: true
   defaultMetaDescription?: true
@@ -261,6 +303,13 @@ export type Brand_configGroupByOutputType = {
   lightLogoUrl: string
   darkLogoUrl: string
   faviconUrl: string
+  clientFaviconUrl: string
+  serviceFaviconUrl: string
+  adminFaviconUrl: string
+  clientHeroImageUrl: string
+  serviceHeroImageUrl: string
+  defaultDistrictHeroImageUrl: string
+  showDistrictHeadingByDefault: boolean
   defaultTitle: string
   titleFormat: string
   defaultMetaDescription: string
@@ -307,6 +356,13 @@ export type brand_configWhereInput = {
   lightLogoUrl?: Prisma.StringFilter<"brand_config"> | string
   darkLogoUrl?: Prisma.StringFilter<"brand_config"> | string
   faviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  clientFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  serviceFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  adminFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  clientHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  serviceHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  showDistrictHeadingByDefault?: Prisma.BoolFilter<"brand_config"> | boolean
   defaultTitle?: Prisma.StringFilter<"brand_config"> | string
   titleFormat?: Prisma.StringFilter<"brand_config"> | string
   defaultMetaDescription?: Prisma.StringFilter<"brand_config"> | string
@@ -332,6 +388,13 @@ export type brand_configOrderByWithRelationInput = {
   lightLogoUrl?: Prisma.SortOrder
   darkLogoUrl?: Prisma.SortOrder
   faviconUrl?: Prisma.SortOrder
+  clientFaviconUrl?: Prisma.SortOrder
+  serviceFaviconUrl?: Prisma.SortOrder
+  adminFaviconUrl?: Prisma.SortOrder
+  clientHeroImageUrl?: Prisma.SortOrder
+  serviceHeroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   defaultTitle?: Prisma.SortOrder
   titleFormat?: Prisma.SortOrder
   defaultMetaDescription?: Prisma.SortOrder
@@ -360,6 +423,13 @@ export type brand_configWhereUniqueInput = Prisma.AtLeast<{
   lightLogoUrl?: Prisma.StringFilter<"brand_config"> | string
   darkLogoUrl?: Prisma.StringFilter<"brand_config"> | string
   faviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  clientFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  serviceFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  adminFaviconUrl?: Prisma.StringFilter<"brand_config"> | string
+  clientHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  serviceHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFilter<"brand_config"> | string
+  showDistrictHeadingByDefault?: Prisma.BoolFilter<"brand_config"> | boolean
   defaultTitle?: Prisma.StringFilter<"brand_config"> | string
   titleFormat?: Prisma.StringFilter<"brand_config"> | string
   defaultMetaDescription?: Prisma.StringFilter<"brand_config"> | string
@@ -385,6 +455,13 @@ export type brand_configOrderByWithAggregationInput = {
   lightLogoUrl?: Prisma.SortOrder
   darkLogoUrl?: Prisma.SortOrder
   faviconUrl?: Prisma.SortOrder
+  clientFaviconUrl?: Prisma.SortOrder
+  serviceFaviconUrl?: Prisma.SortOrder
+  adminFaviconUrl?: Prisma.SortOrder
+  clientHeroImageUrl?: Prisma.SortOrder
+  serviceHeroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   defaultTitle?: Prisma.SortOrder
   titleFormat?: Prisma.SortOrder
   defaultMetaDescription?: Prisma.SortOrder
@@ -416,6 +493,13 @@ export type brand_configScalarWhereWithAggregatesInput = {
   lightLogoUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
   darkLogoUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
   faviconUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  clientFaviconUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  serviceFaviconUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  adminFaviconUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  clientHeroImageUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  serviceHeroImageUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  defaultDistrictHeroImageUrl?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
+  showDistrictHeadingByDefault?: Prisma.BoolWithAggregatesFilter<"brand_config"> | boolean
   defaultTitle?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
   titleFormat?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
   defaultMetaDescription?: Prisma.StringWithAggregatesFilter<"brand_config"> | string
@@ -441,6 +525,13 @@ export type brand_configCreateInput = {
   lightLogoUrl?: string
   darkLogoUrl?: string
   faviconUrl?: string
+  clientFaviconUrl?: string
+  serviceFaviconUrl?: string
+  adminFaviconUrl?: string
+  clientHeroImageUrl?: string
+  serviceHeroImageUrl?: string
+  defaultDistrictHeroImageUrl?: string
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: string
   titleFormat?: string
   defaultMetaDescription?: string
@@ -466,6 +557,13 @@ export type brand_configUncheckedCreateInput = {
   lightLogoUrl?: string
   darkLogoUrl?: string
   faviconUrl?: string
+  clientFaviconUrl?: string
+  serviceFaviconUrl?: string
+  adminFaviconUrl?: string
+  clientHeroImageUrl?: string
+  serviceHeroImageUrl?: string
+  defaultDistrictHeroImageUrl?: string
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: string
   titleFormat?: string
   defaultMetaDescription?: string
@@ -491,6 +589,13 @@ export type brand_configUpdateInput = {
   lightLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   darkLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   faviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  adminFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTitle?: Prisma.StringFieldUpdateOperationsInput | string
   titleFormat?: Prisma.StringFieldUpdateOperationsInput | string
   defaultMetaDescription?: Prisma.StringFieldUpdateOperationsInput | string
@@ -516,6 +621,13 @@ export type brand_configUncheckedUpdateInput = {
   lightLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   darkLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   faviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  adminFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTitle?: Prisma.StringFieldUpdateOperationsInput | string
   titleFormat?: Prisma.StringFieldUpdateOperationsInput | string
   defaultMetaDescription?: Prisma.StringFieldUpdateOperationsInput | string
@@ -541,6 +653,13 @@ export type brand_configCreateManyInput = {
   lightLogoUrl?: string
   darkLogoUrl?: string
   faviconUrl?: string
+  clientFaviconUrl?: string
+  serviceFaviconUrl?: string
+  adminFaviconUrl?: string
+  clientHeroImageUrl?: string
+  serviceHeroImageUrl?: string
+  defaultDistrictHeroImageUrl?: string
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: string
   titleFormat?: string
   defaultMetaDescription?: string
@@ -566,6 +685,13 @@ export type brand_configUpdateManyMutationInput = {
   lightLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   darkLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   faviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  adminFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTitle?: Prisma.StringFieldUpdateOperationsInput | string
   titleFormat?: Prisma.StringFieldUpdateOperationsInput | string
   defaultMetaDescription?: Prisma.StringFieldUpdateOperationsInput | string
@@ -591,6 +717,13 @@ export type brand_configUncheckedUpdateManyInput = {
   lightLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   darkLogoUrl?: Prisma.StringFieldUpdateOperationsInput | string
   faviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  adminFaviconUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  clientHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultDistrictHeroImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTitle?: Prisma.StringFieldUpdateOperationsInput | string
   titleFormat?: Prisma.StringFieldUpdateOperationsInput | string
   defaultMetaDescription?: Prisma.StringFieldUpdateOperationsInput | string
@@ -616,6 +749,13 @@ export type brand_configCountOrderByAggregateInput = {
   lightLogoUrl?: Prisma.SortOrder
   darkLogoUrl?: Prisma.SortOrder
   faviconUrl?: Prisma.SortOrder
+  clientFaviconUrl?: Prisma.SortOrder
+  serviceFaviconUrl?: Prisma.SortOrder
+  adminFaviconUrl?: Prisma.SortOrder
+  clientHeroImageUrl?: Prisma.SortOrder
+  serviceHeroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   defaultTitle?: Prisma.SortOrder
   titleFormat?: Prisma.SortOrder
   defaultMetaDescription?: Prisma.SortOrder
@@ -641,6 +781,13 @@ export type brand_configMaxOrderByAggregateInput = {
   lightLogoUrl?: Prisma.SortOrder
   darkLogoUrl?: Prisma.SortOrder
   faviconUrl?: Prisma.SortOrder
+  clientFaviconUrl?: Prisma.SortOrder
+  serviceFaviconUrl?: Prisma.SortOrder
+  adminFaviconUrl?: Prisma.SortOrder
+  clientHeroImageUrl?: Prisma.SortOrder
+  serviceHeroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   defaultTitle?: Prisma.SortOrder
   titleFormat?: Prisma.SortOrder
   defaultMetaDescription?: Prisma.SortOrder
@@ -666,6 +813,13 @@ export type brand_configMinOrderByAggregateInput = {
   lightLogoUrl?: Prisma.SortOrder
   darkLogoUrl?: Prisma.SortOrder
   faviconUrl?: Prisma.SortOrder
+  clientFaviconUrl?: Prisma.SortOrder
+  serviceFaviconUrl?: Prisma.SortOrder
+  adminFaviconUrl?: Prisma.SortOrder
+  clientHeroImageUrl?: Prisma.SortOrder
+  serviceHeroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   defaultTitle?: Prisma.SortOrder
   titleFormat?: Prisma.SortOrder
   defaultMetaDescription?: Prisma.SortOrder
@@ -693,6 +847,13 @@ export type brand_configSelect<ExtArgs extends runtime.Types.Extensions.Internal
   lightLogoUrl?: boolean
   darkLogoUrl?: boolean
   faviconUrl?: boolean
+  clientFaviconUrl?: boolean
+  serviceFaviconUrl?: boolean
+  adminFaviconUrl?: boolean
+  clientHeroImageUrl?: boolean
+  serviceHeroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: boolean
   titleFormat?: boolean
   defaultMetaDescription?: boolean
@@ -718,6 +879,13 @@ export type brand_configSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   lightLogoUrl?: boolean
   darkLogoUrl?: boolean
   faviconUrl?: boolean
+  clientFaviconUrl?: boolean
+  serviceFaviconUrl?: boolean
+  adminFaviconUrl?: boolean
+  clientHeroImageUrl?: boolean
+  serviceHeroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: boolean
   titleFormat?: boolean
   defaultMetaDescription?: boolean
@@ -743,6 +911,13 @@ export type brand_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   lightLogoUrl?: boolean
   darkLogoUrl?: boolean
   faviconUrl?: boolean
+  clientFaviconUrl?: boolean
+  serviceFaviconUrl?: boolean
+  adminFaviconUrl?: boolean
+  clientHeroImageUrl?: boolean
+  serviceHeroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: boolean
   titleFormat?: boolean
   defaultMetaDescription?: boolean
@@ -768,6 +943,13 @@ export type brand_configSelectScalar = {
   lightLogoUrl?: boolean
   darkLogoUrl?: boolean
   faviconUrl?: boolean
+  clientFaviconUrl?: boolean
+  serviceFaviconUrl?: boolean
+  adminFaviconUrl?: boolean
+  clientHeroImageUrl?: boolean
+  serviceHeroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   defaultTitle?: boolean
   titleFormat?: boolean
   defaultMetaDescription?: boolean
@@ -781,7 +963,7 @@ export type brand_configSelectScalar = {
   publishedAt?: boolean
 }
 
-export type brand_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandName" | "tagline" | "primaryColor" | "secondaryColor" | "accentColor" | "primaryLogoUrl" | "symbolLogoUrl" | "lightLogoUrl" | "darkLogoUrl" | "faviconUrl" | "defaultTitle" | "titleFormat" | "defaultMetaDescription" | "openGraphTitle" | "openGraphDescription" | "openGraphImageUrl" | "canonicalUrl" | "brandDescription" | "themePreference" | "updatedAt" | "publishedAt", ExtArgs["result"]["brand_config"]>
+export type brand_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brandName" | "tagline" | "primaryColor" | "secondaryColor" | "accentColor" | "primaryLogoUrl" | "symbolLogoUrl" | "lightLogoUrl" | "darkLogoUrl" | "faviconUrl" | "clientFaviconUrl" | "serviceFaviconUrl" | "adminFaviconUrl" | "clientHeroImageUrl" | "serviceHeroImageUrl" | "defaultDistrictHeroImageUrl" | "showDistrictHeadingByDefault" | "defaultTitle" | "titleFormat" | "defaultMetaDescription" | "openGraphTitle" | "openGraphDescription" | "openGraphImageUrl" | "canonicalUrl" | "brandDescription" | "themePreference" | "updatedAt" | "publishedAt", ExtArgs["result"]["brand_config"]>
 
 export type $brand_configPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "brand_config"
@@ -798,6 +980,13 @@ export type $brand_configPayload<ExtArgs extends runtime.Types.Extensions.Intern
     lightLogoUrl: string
     darkLogoUrl: string
     faviconUrl: string
+    clientFaviconUrl: string
+    serviceFaviconUrl: string
+    adminFaviconUrl: string
+    clientHeroImageUrl: string
+    serviceHeroImageUrl: string
+    defaultDistrictHeroImageUrl: string
+    showDistrictHeadingByDefault: boolean
     defaultTitle: string
     titleFormat: string
     defaultMetaDescription: string
@@ -1243,6 +1432,13 @@ export interface brand_configFieldRefs {
   readonly lightLogoUrl: Prisma.FieldRef<"brand_config", 'String'>
   readonly darkLogoUrl: Prisma.FieldRef<"brand_config", 'String'>
   readonly faviconUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly clientFaviconUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly serviceFaviconUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly adminFaviconUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly clientHeroImageUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly serviceHeroImageUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly defaultDistrictHeroImageUrl: Prisma.FieldRef<"brand_config", 'String'>
+  readonly showDistrictHeadingByDefault: Prisma.FieldRef<"brand_config", 'Boolean'>
   readonly defaultTitle: Prisma.FieldRef<"brand_config", 'String'>
   readonly titleFormat: Prisma.FieldRef<"brand_config", 'String'>
   readonly defaultMetaDescription: Prisma.FieldRef<"brand_config", 'String'>

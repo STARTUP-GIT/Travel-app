@@ -54,11 +54,9 @@ export async function generateMetadata(): Promise<Metadata> {
       statusBarStyle: "default",
     },
     icons: {
-      icon: [
-        { url: favicon, type: "image/svg+xml" },
-        { url: "/brand/atlaswanders-favicon.svg", sizes: "32x32" },
-      ],
-      apple: favicon,
+      icon: [{ url: favicon }],
+      shortcut: [favicon],
+      apple: [favicon],
     },
     openGraph: {
       title: defaultTitle,

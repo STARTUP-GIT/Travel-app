@@ -32,7 +32,7 @@ const FALLBACK_INTRO =
  */
 export default function HomePage() {
   const router = useRouter();
-  const { appName, brandName, tagline, config } = useBranding();
+  const { appName, brandName, tagline, config, heroImageUrl } = useBranding();
 
   const displayBrandName = (appName || brandName || "ATLASWANDERS").trim();
   const displayTagline = (tagline || config.text || "Discover Places. Experience Local.").trim();
@@ -47,6 +47,7 @@ export default function HomePage() {
       <IndiaSlideshow
         className="absolute inset-0"
         overlayClassName="bg-transparent"
+        heroImage={heroImageUrl}
       />
 
       {/* 2. Dedicated dark navy / black overlay (45-55% visual attenuation with subtle vertical gradient) */}

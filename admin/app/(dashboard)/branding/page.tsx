@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Store, Upload, User, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Image as ImageIcon, Loader2, RotateCcw, Sparkles, Store, Upload, User, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/admin/page-header";
@@ -12,6 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { patchJSON } from "@/lib/api/mutate";
 import { useAdminData } from "@/lib/hooks/use-admin-data";
 import {
@@ -62,15 +73,19 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
 
   type FormState = Omit<Partial<AppSettings>, "imageBanners"> & {
     imageBanners: string[];
+    heroImageUrl: string;
   };
 
-  const [form, setForm] = React.useState<FormState>({ imageBanners: [] });
+  const [form, setForm] = React.useState<FormState>({ imageBanners: [], heroImageUrl: "" });
   const [isDirty, setIsDirty] = React.useState(false);
   const isDirtyRef = React.useRef(false);
   const [saving, setSaving] = React.useState(false);
   const [uploadingIcon, setUploadingIcon] = React.useState(false);
+  const [uploadingHero, setUploadingHero] = React.useState(false);
   const [uploadingBanners, setUploadingBanners] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
   const iconInputRef = React.useRef<HTMLInputElement>(null);
+  const heroInputRef = React.useRef<HTMLInputElement>(null);
   const bannersInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -86,6 +101,7 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         termsandconditions: s.termsandconditions ?? "",
         privacy: s.privacy ?? "",
         imageBanners: s.imageBanners ?? [],
+        heroImageUrl: s.heroImageUrl ?? "",
       });
     }
   }, [data]);
@@ -117,6 +133,49 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
     } finally {
       setUploadingIcon(false);
     }
+  }
+
+  async function handleHeroFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const chosen = event.target.files?.[0];
+    event.target.value = "";
+    setUploadError(null);
+    if (!chosen) return;
+
+    const invalid = validateImageFile(chosen);
+    if (invalid) {
+      setUploadError(invalid);
+      toast.error("Invalid hero background image", { description: invalid });
+      return;
+    }
+
+    setUploadingHero(true);
+    try {
+      const { url } = await uploadImage(
+        chosen,
+        scope === "client" ? "branding/client-hero" : "branding/service-hero"
+      );
+      set("heroImageUrl", url);
+      toast.success("Hero background uploaded successfully", {
+        description: "Click 'Save settings' below to apply it.",
+      });
+    } catch (err) {
+      const msg = describeUploadError(err);
+      setUploadError(msg);
+      toast.error("Hero upload failed", { description: msg });
+    } finally {
+      setUploadingHero(false);
+    }
+  }
+
+  function handleResetHero() {
+    set("heroImageUrl", "");
+    setUploadError(null);
+    toast.info(
+      scope === "client"
+        ? "Hero background reset to system default slideshow"
+        : "Hero background reset to default atmosphere",
+      { description: "Click 'Save settings' to persist this change." }
+    );
   }
 
   async function handleBannerFiles(event: React.ChangeEvent<HTMLInputElement>) {
@@ -172,6 +231,7 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         termsandconditions: form.termsandconditions,
         privacy: form.privacy,
         imageBanners: form.imageBanners,
+        heroImageUrl: form.heroImageUrl,
       });
       toast.success(`${scope === "client" ? "Client" : "Service"} app settings saved successfully`);
       isDirtyRef.current = false;
@@ -209,7 +269,7 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
   };
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-3xl space-y-5">
       <div className="mono-card border-l-4 border-l-primary bg-muted/20 p-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-primary">
@@ -221,6 +281,189 @@ function BrandingFormScope({ scope }: { scope: Scope }) {
         </div>
         <h4 className="mt-1 text-sm font-semibold text-foreground">{scopeInfo[scope].subtitle}</h4>
         <p className="mt-0.5 text-xs text-muted-foreground">{scopeInfo[scope].description}</p>
+      </div>
+
+      {/* Hero Background Control Section */}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-xs space-y-5">
+        <div className="flex items-start justify-between gap-4 border-b border-border/70 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                {scope === "client" ? "Client App → Landing Page → Hero Background" : "Service App → Landing Page → Hero Background"}
+              </span>
+              {form.heroImageUrl ? (
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  Custom Image Active
+                </span>
+              ) : (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {scope === "client" ? "System Default Slideshow" : "Default Atmosphere FX"}
+                </span>
+              )}
+            </div>
+            <h3 className="text-base font-semibold text-foreground mt-1">
+              {scope === "client" ? "Customer Landing-Page Hero Background" : "Service Provider Portal Hero Background"}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {scope === "client"
+                ? "Controls the prominent hero background photograph displayed behind the search bar and welcome heading on the customer homepage (http://localhost:3000)."
+                : "Controls the branded background photograph displayed on the service provider login and registration portal (http://localhost:3001/login & /signup)."}
+            </p>
+          </div>
+          <a
+            href={scope === "client" ? "http://localhost:3000" : "http://localhost:3001/login"}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+          >
+            Open Live Page ↗
+          </a>
+        </div>
+
+        {/* Hero Preview Box */}
+        <div className="space-y-3">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-900 shadow-inner group">
+            {form.heroImageUrl ? (
+              <img
+                src={form.heroImageUrl}
+                alt={scope === "client" ? "Customer Landing Hero" : "Service Provider Hero"}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-102"
+              />
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-950">
+                <ImageIcon className="size-12 text-zinc-600 mb-2" />
+                <p className="text-sm font-medium text-zinc-300">
+                  {scope === "client"
+                    ? "Currently Using Default Rotating Slideshow"
+                    : "Currently Using Default Particle / Atmosphere Backdrop"}
+                </p>
+                <p className="text-xs text-zinc-500 max-w-md mt-1">
+                  {scope === "client"
+                    ? "Upload a custom hero image below to take precedence over the built-in landmark rotation."
+                    : "Upload a custom hero image below to replace the dark particle backdrop on login/signup screens."}
+                </p>
+              </div>
+            )}
+
+            {/* Readability & Overlay Simulation Banner */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 flex items-end justify-between">
+              <div className="text-white space-y-0.5">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-amber-400">
+                  Live Contrast Simulation
+                </span>
+                <p className="text-xs font-medium">
+                  {scope === "client"
+                    ? "Search, destination badges, and welcome heading render with automatic dark overlay"
+                    : "Authentication card renders with glassmorphism over this background"}
+                </p>
+              </div>
+              {form.heroImageUrl ? (
+                <span className="text-[11px] font-mono text-zinc-300 truncate max-w-[260px] bg-black/50 px-2 py-0.5 rounded">
+                  {form.heroImageUrl}
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          {uploadError ? (
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <AlertCircle className="size-4 shrink-0" />
+                <span>{uploadError}</span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={() => setUploadError(null)}
+              >
+                Clear
+              </Button>
+            </div>
+          ) : null}
+
+          {/* Controls: Upload, Replace, Reset */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <input
+              ref={heroInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleHeroFile}
+              disabled={uploadingHero}
+            />
+
+            <Button
+              type="button"
+              onClick={() => heroInputRef.current?.click()}
+              disabled={uploadingHero}
+              className="gap-2"
+            >
+              {uploadingHero ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Uploading Hero Image…</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="size-4" />
+                  <span>{form.heroImageUrl ? "Replace Hero Image" : "Upload Hero Image"}</span>
+                </>
+              )}
+            </Button>
+
+            {form.heroImageUrl ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-1.5 text-muted-foreground hover:text-destructive"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    <span>Reset to Default</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset Hero Background?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {scope === "client"
+                        ? "This will remove the custom hero image and restore the default curated landmark slideshow on the customer homepage. You must click 'Save settings' to apply this change."
+                        : "This will remove the custom hero image and restore the default atmosphere backdrop on the service provider login/signup screens. You must click 'Save settings' to apply this change."}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetHero}>
+                      Confirm Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : null}
+          </div>
+
+          {/* Technical Requirements Specification Box */}
+          <div className="rounded-lg bg-muted/40 border border-border p-3.5 text-xs space-y-1.5 text-muted-foreground">
+            <p className="font-semibold text-foreground flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5 text-primary" />
+              <span>Recommended Image Specifications</span>
+            </p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 list-disc list-inside">
+              <li>Dimensions: <strong>1920 × 1080 px</strong> (16:9 widescreen)</li>
+              <li>Accepted Formats: <strong>WEBP, JPG, or PNG</strong></li>
+              <li>Maximum File Size: <strong>5 MB</strong></li>
+              <li>Focal Point: <strong>Center-weighted</strong> with good horizontal bleed</li>
+            </ul>
+            <p className="text-[11px] pt-1 text-muted-foreground">
+              {scope === "client"
+                ? "The customer landing page applies a 45% dark gradient overlay automatically to preserve text contrast for the welcome headline and search input across desktop, tablet, and mobile viewports."
+                : "The service provider portal applies responsive positioning and backdrop blur behind the credentials panel so text remains crisp and readable."}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Live Scope Header Preview */}

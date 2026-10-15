@@ -18,6 +18,9 @@ type BrandingContextValue = {
   lightLogoUrl: string;
   darkLogoUrl: string;
   faviconUrl: string;
+  heroImageUrl: string | null;
+  defaultDistrictHeroImageUrl: string;
+  showDistrictHeadingByDefault: boolean;
   bannerImages: string[];
 };
 
@@ -34,13 +37,17 @@ const BrandingContext = React.createContext<BrandingContextValue>({
   lightLogoUrl: FALLBACK_CONFIG.lightLogoUrl,
   darkLogoUrl: FALLBACK_CONFIG.darkLogoUrl,
   faviconUrl: FALLBACK_CONFIG.faviconUrl,
+  heroImageUrl: null,
+  defaultDistrictHeroImageUrl: "",
+  showDistrictHeadingByDefault: true,
   bannerImages: [],
 });
 
 /**
  * Single source of truth for admin-controlled ATLASWANDERS branding.
  * Accepts server-fetched config to prevent flash-of-unstyled/wrong logo,
- * then revalidates in the background. Synchronizes CSS custom properties.
+ * then revalidates in the background. Synchronizes CSS custom properties and
+ * browser tab favicon dynamically.
  */
 export function AppConfigProvider({
   initialConfig,
@@ -73,6 +80,31 @@ export function AppConfigProvider({
     }
   }, [config.primaryColor, config.secondaryColor, config.accentColor]);
 
+  // Dynamically synchronize browser tab icon / favicon
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const iconUrl = (config.icon || config.faviconUrl)?.trim();
+    if (!iconUrl) return;
+
+    const existingIcons = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
+    existingIcons.forEach((el) => el.remove());
+
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = iconUrl;
+    if (iconUrl.endsWith(".svg")) link.type = "image/svg+xml";
+    else if (iconUrl.endsWith(".png")) link.type = "image/png";
+    else if (iconUrl.endsWith(".webp")) link.type = "image/webp";
+    document.head.appendChild(link);
+
+    const appleLink =
+      document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']") ||
+      document.createElement("link");
+    appleLink.rel = "apple-touch-icon";
+    appleLink.href = iconUrl;
+    if (!appleLink.parentNode) document.head.appendChild(appleLink);
+  }, [config.icon, config.faviconUrl]);
+
   const value = React.useMemo<BrandingContextValue>(
     () => ({
       config,
@@ -87,6 +119,9 @@ export function AppConfigProvider({
       lightLogoUrl: config.lightLogoUrl || FALLBACK_CONFIG.lightLogoUrl,
       darkLogoUrl: config.darkLogoUrl || FALLBACK_CONFIG.darkLogoUrl,
       faviconUrl: config.icon || config.faviconUrl || FALLBACK_CONFIG.faviconUrl,
+      heroImageUrl: config.heroImageUrl || config.clientHeroImageUrl || null,
+      defaultDistrictHeroImageUrl: config.defaultDistrictHeroImageUrl || "",
+      showDistrictHeadingByDefault: config.showDistrictHeadingByDefault ?? true,
       bannerImages: config.imageBanners ?? [],
     }),
     [config]

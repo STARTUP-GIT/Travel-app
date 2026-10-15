@@ -48,39 +48,68 @@ export const getCustomerDistricts = async (req: Request, res: Response) => {
   try {
     const stateId = typeof req.query.stateId === "string" ? req.query.stateId : undefined;
     const includeAll = req.query.all === "true" || req.query.all === "1";
-    const districts = await prisma.district.findMany({
-      where: {
-        ...(stateId ? { stateId } : {}),
-        ...(includeAll
-          ? {}
-          : {
-              isServiceAvailable: true,
-              state: {
+
+    const [districts, publishedBrand] = await Promise.all([
+      prisma.district.findMany({
+        where: {
+          ...(stateId ? { stateId } : {}),
+          ...(includeAll
+            ? {}
+            : {
                 isServiceAvailable: true,
-                country: {
+                state: {
                   isServiceAvailable: true,
+                  country: {
+                    isServiceAvailable: true,
+                  },
                 },
-              },
-            }),
-      },
-      include: {
-        state: {
-          include: {
-            country: true,
+              }),
+        },
+        include: {
+          state: {
+            include: {
+              country: true,
+            },
+          },
+          _count: {
+            select: {
+              places: { where: { status: "APPROVED" } },
+              hotels: { where: { status: "APPROVED" } },
+              restaurent: { where: { status: "APPROVED" } },
+            },
           },
         },
-        _count: {
-          select: {
-            places: { where: { status: "APPROVED" } },
-            hotels: { where: { status: "APPROVED" } },
-            restaurent: { where: { status: "APPROVED" } },
-          },
-        },
-      },
-      orderBy: { name: "asc" },
+        orderBy: { name: "asc" },
+      }),
+      prisma.brand_config.findUnique({ where: { id: "published" } }).catch(() => null),
+    ]);
+
+    const globalDefaultHeroImage = publishedBrand?.defaultDistrictHeroImageUrl || "";
+    const globalShowHeading = publishedBrand?.showDistrictHeadingByDefault ?? true;
+
+    const enrichedDistricts = districts.map((d) => {
+      const effectiveHeroImageUrl =
+        d.useCustomHeroImage && d.heroImageUrl ? d.heroImageUrl : globalDefaultHeroImage;
+      const effectiveShowWelcomeHeading =
+        d.showWelcomeHeading === "SHOW"
+          ? true
+          : d.showWelcomeHeading === "HIDE"
+          ? false
+          : globalShowHeading;
+      return {
+        ...d,
+        effectiveHeroImageUrl,
+        effectiveShowWelcomeHeading,
+      };
     });
 
-    return res.status(200).json({ districts });
+    return res.status(200).json({
+      districts: enrichedDistricts,
+      globalSettings: {
+        defaultDistrictHeroImageUrl: globalDefaultHeroImage,
+        showDistrictHeadingByDefault: globalShowHeading,
+      },
+    });
   } catch (error) {
     console.error("Get customer districts error:", error);
     return res.status(500).json({ message: "Internal Server Error" });

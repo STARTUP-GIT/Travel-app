@@ -23,6 +23,7 @@ import {
   DistrictCommonGuidesFallback,
 } from "@/features/guides/ui/district-common-guides";
 
+import { getAppConfig } from "@/features/app-config/api/app-config.api";
 import { DistrictHero } from "./district-hero";
 
 type DistrictPageProps = {
@@ -55,7 +56,11 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
 
   if (!normalizedStateSlug || !normalizedDistrictSlug) notFound();
 
-  const [states, districts] = await Promise.all([getStates(), getDistricts()]);
+  const [states, districts, config] = await Promise.all([
+    getStates(),
+    getDistricts(),
+    getAppConfig().catch(() => null),
+  ]);
   const state = states.find((item) => item.slug === normalizedStateSlug);
 
   if (!state || !state.isServiceAvailable) notFound();
@@ -75,12 +80,45 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
   const { places, hotels, restaurants, loadErrors } =
     await loadDistrictContent(district);
   const base = `/${state.slug}/${district.slug}`;
-  const heroImage =
+
+  // Resolving Hero Image with full Admin precedence:
+  // 1) District custom image override (when toggle is enabled)
+  // 2) Global default district hero image
+  // 3) Safe content fallback (place/hotel/restaurant image, or state primaryImage)
+  const customHeroImage =
+    district.useCustomHeroImage && district.heroImageUrl
+      ? district.heroImageUrl.trim()
+      : null;
+
+  const globalDefaultHeroImage =
+    (district.effectiveHeroImageUrl && !district.useCustomHeroImage
+      ? district.effectiveHeroImageUrl
+      : config?.defaultDistrictHeroImageUrl)?.trim() || null;
+
+  const safeContentFallback =
     firstImage(places.flatMap((place) => place.images)) ||
     firstImage(hotels.flatMap((hotel) => hotel.images)) ||
     firstImage(restaurants.flatMap((restaurant) => restaurant.images)) ||
     (typeof state.primaryImage === "string" && state.primaryImage.trim()) ||
     null;
+
+  const heroImage = customHeroImage || globalDefaultHeroImage || safeContentFallback;
+
+  // Resolving Welcome Heading visibility:
+  // 1) District-level explicit override (SHOW or HIDE)
+  // 2) District effectiveShowWelcomeHeading from API
+  // 3) Global default from config (showDistrictHeadingByDefault)
+  let showHeading = true;
+  if (district.showWelcomeHeading === "SHOW") {
+    showHeading = true;
+  } else if (district.showWelcomeHeading === "HIDE") {
+    showHeading = false;
+  } else if (district.effectiveShowWelcomeHeading !== undefined) {
+    showHeading = district.effectiveShowWelcomeHeading;
+  } else if (config?.showDistrictHeadingByDefault !== undefined) {
+    showHeading = config.showDistrictHeadingByDefault;
+  }
+
   const services: ServiceItem[] = [
     {
       id: "path-tracker",
@@ -116,6 +154,7 @@ export default async function DistrictPage({ params }: DistrictPageProps) {
         districtName={cityName}
         districtSlug={district.slug}
         stateImage={heroImage}
+        showWelcomeHeading={showHeading}
         description={`Explore ${cityName}, ${stateName} — heritage, culture, places and experiences for your journey.`}
       />
 

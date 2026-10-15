@@ -35,6 +35,9 @@ export type App_configMinAggregateOutputType = {
   termsandconditions: string | null
   privacy: string | null
   app_description: string | null
+  heroImageUrl: string | null
+  defaultDistrictHeroImageUrl: string | null
+  showDistrictHeadingByDefault: boolean | null
   placesAutoApproval: boolean | null
   guidesAutoApproval: boolean | null
   hotelsAutoApproval: boolean | null
@@ -52,6 +55,9 @@ export type App_configMaxAggregateOutputType = {
   termsandconditions: string | null
   privacy: string | null
   app_description: string | null
+  heroImageUrl: string | null
+  defaultDistrictHeroImageUrl: string | null
+  showDistrictHeadingByDefault: boolean | null
   placesAutoApproval: boolean | null
   guidesAutoApproval: boolean | null
   hotelsAutoApproval: boolean | null
@@ -70,6 +76,9 @@ export type App_configCountAggregateOutputType = {
   termsandconditions: number
   privacy: number
   app_description: number
+  heroImageUrl: number
+  defaultDistrictHeroImageUrl: number
+  showDistrictHeadingByDefault: number
   placesAutoApproval: number
   guidesAutoApproval: number
   hotelsAutoApproval: number
@@ -89,6 +98,9 @@ export type App_configMinAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  heroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   placesAutoApproval?: true
   guidesAutoApproval?: true
   hotelsAutoApproval?: true
@@ -106,6 +118,9 @@ export type App_configMaxAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  heroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   placesAutoApproval?: true
   guidesAutoApproval?: true
   hotelsAutoApproval?: true
@@ -124,6 +139,9 @@ export type App_configCountAggregateInputType = {
   termsandconditions?: true
   privacy?: true
   app_description?: true
+  heroImageUrl?: true
+  defaultDistrictHeroImageUrl?: true
+  showDistrictHeadingByDefault?: true
   placesAutoApproval?: true
   guidesAutoApproval?: true
   hotelsAutoApproval?: true
@@ -215,6 +233,9 @@ export type App_configGroupByOutputType = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl: string | null
+  defaultDistrictHeroImageUrl: string | null
+  showDistrictHeadingByDefault: boolean
   placesAutoApproval: boolean
   guidesAutoApproval: boolean
   hotelsAutoApproval: boolean
@@ -254,6 +275,9 @@ export type app_configWhereInput = {
   termsandconditions?: Prisma.StringFilter<"app_config"> | string
   privacy?: Prisma.StringFilter<"app_config"> | string
   app_description?: Prisma.StringFilter<"app_config"> | string
+  heroImageUrl?: Prisma.StringNullableFilter<"app_config"> | string | null
+  defaultDistrictHeroImageUrl?: Prisma.StringNullableFilter<"app_config"> | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFilter<"app_config"> | boolean
   placesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   guidesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   hotelsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
@@ -274,6 +298,9 @@ export type app_configOrderByWithRelationInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   placesAutoApproval?: Prisma.SortOrder
   guidesAutoApproval?: Prisma.SortOrder
   hotelsAutoApproval?: Prisma.SortOrder
@@ -297,6 +324,9 @@ export type app_configWhereUniqueInput = Prisma.AtLeast<{
   termsandconditions?: Prisma.StringFilter<"app_config"> | string
   privacy?: Prisma.StringFilter<"app_config"> | string
   app_description?: Prisma.StringFilter<"app_config"> | string
+  heroImageUrl?: Prisma.StringNullableFilter<"app_config"> | string | null
+  defaultDistrictHeroImageUrl?: Prisma.StringNullableFilter<"app_config"> | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFilter<"app_config"> | boolean
   placesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   guidesAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
   hotelsAutoApproval?: Prisma.BoolFilter<"app_config"> | boolean
@@ -317,6 +347,9 @@ export type app_configOrderByWithAggregationInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   placesAutoApproval?: Prisma.SortOrder
   guidesAutoApproval?: Prisma.SortOrder
   hotelsAutoApproval?: Prisma.SortOrder
@@ -341,6 +374,9 @@ export type app_configScalarWhereWithAggregatesInput = {
   termsandconditions?: Prisma.StringWithAggregatesFilter<"app_config"> | string
   privacy?: Prisma.StringWithAggregatesFilter<"app_config"> | string
   app_description?: Prisma.StringWithAggregatesFilter<"app_config"> | string
+  heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"app_config"> | string | null
+  defaultDistrictHeroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"app_config"> | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
   placesAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
   guidesAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
   hotelsAutoApproval?: Prisma.BoolWithAggregatesFilter<"app_config"> | boolean
@@ -359,6 +395,9 @@ export type app_configCreateInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -379,6 +418,9 @@ export type app_configUncheckedCreateInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -399,6 +441,9 @@ export type app_configUpdateInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -419,6 +464,9 @@ export type app_configUncheckedUpdateInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -439,6 +487,9 @@ export type app_configCreateManyInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -457,6 +508,9 @@ export type app_configUpdateManyMutationInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -475,6 +529,9 @@ export type app_configUncheckedUpdateManyInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -501,6 +558,9 @@ export type app_configCountOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   placesAutoApproval?: Prisma.SortOrder
   guidesAutoApproval?: Prisma.SortOrder
   hotelsAutoApproval?: Prisma.SortOrder
@@ -518,6 +578,9 @@ export type app_configMaxOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   placesAutoApproval?: Prisma.SortOrder
   guidesAutoApproval?: Prisma.SortOrder
   hotelsAutoApproval?: Prisma.SortOrder
@@ -535,6 +598,9 @@ export type app_configMinOrderByAggregateInput = {
   termsandconditions?: Prisma.SortOrder
   privacy?: Prisma.SortOrder
   app_description?: Prisma.SortOrder
+  heroImageUrl?: Prisma.SortOrder
+  defaultDistrictHeroImageUrl?: Prisma.SortOrder
+  showDistrictHeadingByDefault?: Prisma.SortOrder
   placesAutoApproval?: Prisma.SortOrder
   guidesAutoApproval?: Prisma.SortOrder
   hotelsAutoApproval?: Prisma.SortOrder
@@ -561,6 +627,10 @@ export type EnumBrandingScopeFieldUpdateOperationsInput = {
 export type app_configUpdateimageBannersInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -611,6 +681,9 @@ export type app_configCreateWithoutTestimonialsInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -630,6 +703,9 @@ export type app_configUncheckedCreateWithoutTestimonialsInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -665,6 +741,9 @@ export type app_configUpdateWithoutTestimonialsInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -684,6 +763,9 @@ export type app_configUncheckedUpdateWithoutTestimonialsInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -703,6 +785,9 @@ export type app_configCreateWithoutAdminInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -722,6 +807,9 @@ export type app_configUncheckedCreateWithoutAdminInput = {
   termsandconditions: string
   privacy: string
   app_description: string
+  heroImageUrl?: string | null
+  defaultDistrictHeroImageUrl?: string | null
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -757,6 +845,9 @@ export type app_configUpdateWithoutAdminInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -776,6 +867,9 @@ export type app_configUncheckedUpdateWithoutAdminInput = {
   termsandconditions?: Prisma.StringFieldUpdateOperationsInput | string
   privacy?: Prisma.StringFieldUpdateOperationsInput | string
   app_description?: Prisma.StringFieldUpdateOperationsInput | string
+  heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultDistrictHeroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  showDistrictHeadingByDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   placesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   guidesAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hotelsAutoApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -835,6 +929,9 @@ export type app_configSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  heroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -856,6 +953,9 @@ export type app_configSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  heroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -874,6 +974,9 @@ export type app_configSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  heroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
@@ -892,13 +995,16 @@ export type app_configSelectScalar = {
   termsandconditions?: boolean
   privacy?: boolean
   app_description?: boolean
+  heroImageUrl?: boolean
+  defaultDistrictHeroImageUrl?: boolean
+  showDistrictHeadingByDefault?: boolean
   placesAutoApproval?: boolean
   guidesAutoApproval?: boolean
   hotelsAutoApproval?: boolean
   restaurantsAutoApproval?: boolean
 }
 
-export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description" | "placesAutoApproval" | "guidesAutoApproval" | "hotelsAutoApproval" | "restaurantsAutoApproval", ExtArgs["result"]["app_config"]>
+export type app_configOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "scope" | "app_name" | "imageBanners" | "icon" | "webTitle" | "text" | "contacts" | "termsandconditions" | "privacy" | "app_description" | "heroImageUrl" | "defaultDistrictHeroImageUrl" | "showDistrictHeadingByDefault" | "placesAutoApproval" | "guidesAutoApproval" | "hotelsAutoApproval" | "restaurantsAutoApproval", ExtArgs["result"]["app_config"]>
 export type app_configInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   testimonials?: boolean | Prisma.app_config$testimonialsArgs<ExtArgs>
   admin?: boolean | Prisma.app_config$adminArgs<ExtArgs>
@@ -925,6 +1031,9 @@ export type $app_configPayload<ExtArgs extends runtime.Types.Extensions.Internal
     termsandconditions: string
     privacy: string
     app_description: string
+    heroImageUrl: string | null
+    defaultDistrictHeroImageUrl: string | null
+    showDistrictHeadingByDefault: boolean
     placesAutoApproval: boolean
     guidesAutoApproval: boolean
     hotelsAutoApproval: boolean
@@ -1365,6 +1474,9 @@ export interface app_configFieldRefs {
   readonly termsandconditions: Prisma.FieldRef<"app_config", 'String'>
   readonly privacy: Prisma.FieldRef<"app_config", 'String'>
   readonly app_description: Prisma.FieldRef<"app_config", 'String'>
+  readonly heroImageUrl: Prisma.FieldRef<"app_config", 'String'>
+  readonly defaultDistrictHeroImageUrl: Prisma.FieldRef<"app_config", 'String'>
+  readonly showDistrictHeadingByDefault: Prisma.FieldRef<"app_config", 'Boolean'>
   readonly placesAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
   readonly guidesAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>
   readonly hotelsAutoApproval: Prisma.FieldRef<"app_config", 'Boolean'>

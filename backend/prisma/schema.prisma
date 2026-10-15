@@ -29,6 +29,10 @@ model app_config{
   testimonials        testimonials[]
   admin               admin[]
 
+  heroImageUrl                  String?
+  defaultDistrictHeroImageUrl   String?
+  showDistrictHeadingByDefault  Boolean       @default(true)
+
   // Global approval policy, toggled by the admin panel. When a flag is on, a
   // new record of that type is created APPROVED instead of PENDING. The backend
   // reads these on every creation flow, so the setting cannot be bypassed by a
@@ -130,6 +134,9 @@ model district {
   isServiceAvailable Boolean  @default(false)
   autoApprovePlaces   Boolean  @default(false)
   placeSubmissions place_submission[]
+  heroImageUrl        String?
+  useCustomHeroImage  Boolean  @default(false)
+  showWelcomeHeading  String?
 }
 
 model place {
@@ -907,6 +914,13 @@ model brand_config {
   lightLogoUrl           String    @default("")
   darkLogoUrl            String    @default("")
   faviconUrl             String    @default("")
+  clientFaviconUrl       String    @default("")
+  serviceFaviconUrl      String    @default("")
+  adminFaviconUrl        String    @default("")
+  clientHeroImageUrl     String    @default("")
+  serviceHeroImageUrl    String    @default("")
+  defaultDistrictHeroImageUrl  String @default("")
+  showDistrictHeadingByDefault Boolean @default(true)
   defaultTitle           String    @default("ATLASWANDERS | Discover Places. Experience Local.")
   titleFormat            String    @default("%s | ATLASWANDERS")
   defaultMetaDescription String    @default("Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.")

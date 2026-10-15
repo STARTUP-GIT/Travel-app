@@ -402,7 +402,14 @@ export const updateState = async (req: Request, res: Response) => {
 export const updateDistrict = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { name, isServiceAvailable, autoApprovePlaces } = req.body ?? {};
+    const {
+      name,
+      isServiceAvailable,
+      autoApprovePlaces,
+      heroImageUrl,
+      useCustomHeroImage,
+      showWelcomeHeading,
+    } = req.body ?? {};
 
     const data: Record<string, unknown> = {};
     if (name !== undefined) {
@@ -422,6 +429,35 @@ export const updateDistrict = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "autoApprovePlaces must be a boolean" });
       }
       data.autoApprovePlaces = autoApprovePlaces;
+    }
+    if (heroImageUrl !== undefined) {
+      data.heroImageUrl =
+        heroImageUrl === null || typeof heroImageUrl !== "string"
+          ? null
+          : heroImageUrl.trim().length > 0
+          ? heroImageUrl.trim()
+          : null;
+    }
+    if (useCustomHeroImage !== undefined) {
+      if (typeof useCustomHeroImage !== "boolean") {
+        return res.status(400).json({ message: "useCustomHeroImage must be a boolean" });
+      }
+      data.useCustomHeroImage = useCustomHeroImage;
+    }
+    if (showWelcomeHeading !== undefined) {
+      const normalized =
+        typeof showWelcomeHeading === "string"
+          ? showWelcomeHeading.toUpperCase().trim()
+          : null;
+      if (!normalized || normalized === "INHERIT") {
+        data.showWelcomeHeading = null;
+      } else if (normalized === "SHOW" || normalized === "HIDE") {
+        data.showWelcomeHeading = normalized;
+      } else {
+        return res.status(400).json({
+          message: "showWelcomeHeading must be 'INHERIT', 'SHOW', 'HIDE', or null",
+        });
+      }
     }
 
     if (Object.keys(data).length === 0) {
@@ -521,15 +557,43 @@ export const resolvePlaceLocation = async (req: Request, res: Response) => {
 export const getDistrictById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const district = await prisma.district.findUnique({
-      where: { id },
-      include: {
-        state: { include: { country: true } },
-        _count: { select: { places: true, hotels: true, restaurent: true } },
+    const [district, publishedBrand] = await Promise.all([
+      prisma.district.findUnique({
+        where: { id },
+        include: {
+          state: { include: { country: true } },
+          _count: { select: { places: true, hotels: true, restaurent: true } },
+        },
+      }),
+      prisma.brand_config.findUnique({ where: { id: "published" } }),
+    ]);
+
+    if (!district) return res.status(404).json({ message: "District not found" });
+
+    const globalDefaultHeroImage = publishedBrand?.defaultDistrictHeroImageUrl || "";
+    const globalShowHeading = publishedBrand?.showDistrictHeadingByDefault ?? true;
+
+    const effectiveHeroImageUrl =
+      district.useCustomHeroImage && district.heroImageUrl
+        ? district.heroImageUrl
+        : globalDefaultHeroImage;
+
+    const effectiveShowHeading =
+      district.showWelcomeHeading === "SHOW"
+        ? true
+        : district.showWelcomeHeading === "HIDE"
+        ? false
+        : globalShowHeading;
+
+    return res.status(200).json({
+      district: {
+        ...district,
+        globalDefaultHeroImage,
+        globalShowHeading,
+        effectiveHeroImageUrl,
+        effectiveShowHeading,
       },
     });
-    if (!district) return res.status(404).json({ message: "District not found" });
-    return res.status(200).json({ district });
   } catch (error) {
     return handleError(res, error);
   }

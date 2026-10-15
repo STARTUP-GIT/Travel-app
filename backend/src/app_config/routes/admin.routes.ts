@@ -76,6 +76,8 @@ import {
   updateDraftBranding,
   publishBranding,
   discardDraftBranding,
+  getDistrictHeroSettings,
+  updateDistrictHeroSettings,
 } from "../controllers/branding.controller.js";
 
 import {
@@ -163,6 +165,8 @@ router.post("/states", createState);
 router.patch("/states/:id", updateState);
 router.delete("/states/:id", deleteState);
 
+router.get("/districts/settings", getDistrictHeroSettings);
+router.patch("/districts/settings", updateDistrictHeroSettings);
 router.get("/districts", listDistricts);
 router.get("/districts/:id", getDistrictById);
 router.post("/districts", createDistrict);

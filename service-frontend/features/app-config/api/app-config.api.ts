@@ -25,10 +25,13 @@ export async function getAppConfig(): Promise<AppConfig | null> {
         tagline: canonicalTagline,
         text: canonicalTagline,
         webTitle: settings.webTitle || `${canonicalName} | Partner & Service Provider Portal`,
-        icon: settings.icon || settings.faviconUrl || settings.symbolLogoUrl || FALLBACK_CONFIG.icon,
+        icon: settings.icon || settings.serviceFaviconUrl || settings.faviconUrl || settings.symbolLogoUrl || FALLBACK_CONFIG.icon,
         symbolLogoUrl: settings.symbolLogoUrl || settings.icon || FALLBACK_CONFIG.symbolLogoUrl,
         primaryLogoUrl: settings.primaryLogoUrl || settings.icon || FALLBACK_CONFIG.primaryLogoUrl,
-        faviconUrl: settings.faviconUrl || settings.icon || FALLBACK_CONFIG.faviconUrl,
+        faviconUrl: settings.faviconUrl || settings.serviceFaviconUrl || settings.icon || FALLBACK_CONFIG.faviconUrl,
+        serviceFaviconUrl: settings.serviceFaviconUrl || settings.icon || settings.faviconUrl || FALLBACK_CONFIG.faviconUrl,
+        heroImageUrl: settings.heroImageUrl || settings.serviceHeroImageUrl || (Array.isArray(settings.imageBanners) && settings.imageBanners.length > 0 ? settings.imageBanners[0] : "") || "",
+        serviceHeroImageUrl: settings.serviceHeroImageUrl || settings.heroImageUrl || "",
         imageBanners: Array.isArray(settings.imageBanners) ? settings.imageBanners : [],
         app_description: settings.app_description || FALLBACK_CONFIG.app_description,
       };
@@ -44,7 +47,11 @@ export async function getAppConfig(): Promise<AppConfig | null> {
         appName: brand.brandName,
         brandName: brand.brandName,
         webTitle: brand.defaultTitle || `${brand.brandName} | Partner & Service Provider Portal`,
-        icon: brand.faviconUrl || brand.symbolLogoUrl || FALLBACK_CONFIG.icon,
+        icon: brand.serviceFaviconUrl || brand.faviconUrl || brand.symbolLogoUrl || FALLBACK_CONFIG.icon,
+        faviconUrl: brand.serviceFaviconUrl || brand.faviconUrl || brand.symbolLogoUrl || FALLBACK_CONFIG.icon,
+        serviceFaviconUrl: brand.serviceFaviconUrl || brand.faviconUrl || brand.symbolLogoUrl || FALLBACK_CONFIG.icon,
+        heroImageUrl: brand.serviceHeroImageUrl || "",
+        serviceHeroImageUrl: brand.serviceHeroImageUrl || "",
         app_description: brand.brandDescription || FALLBACK_CONFIG.app_description,
       };
     }

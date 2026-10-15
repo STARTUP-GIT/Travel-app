@@ -18,6 +18,7 @@ type DistrictHeroProps = {
   districtSlug: string;
   stateImage?: string | null;
   description?: string;
+  showWelcomeHeading?: boolean;
 };
 
 export function DistrictHero({
@@ -27,6 +28,7 @@ export function DistrictHero({
   districtSlug,
   stateImage,
   description,
+  showWelcomeHeading = true,
 }: DistrictHeroProps) {
   const router = useRouter();
   const { tagline } = useBranding();
@@ -62,9 +64,11 @@ export function DistrictHero({
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-200">
             {tagline || "Explore • Experience • Belong"}
           </p>
-          <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
-            Welcome to {districtName}
-          </h1>
+          {showWelcomeHeading ? (
+            <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
+              Welcome to {districtName}
+            </h1>
+          ) : null}
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/90 sm:text-base">
             {description || `Discover the heritage, culture and experiences of ${districtName}, ${stateName}.`}
           </p>

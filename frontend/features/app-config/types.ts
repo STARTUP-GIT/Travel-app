@@ -14,6 +14,11 @@ export type BrandConfig = {
   lightLogoUrl: string;
   darkLogoUrl: string;
   faviconUrl: string;
+  clientFaviconUrl?: string;
+  clientHeroImageUrl?: string;
+  heroImageUrl?: string;
+  defaultDistrictHeroImageUrl?: string;
+  showDistrictHeadingByDefault?: boolean;
   defaultTitle: string;
   titleFormat: string;
   defaultMetaDescription: string;
@@ -33,6 +38,10 @@ export type AppConfig = {
   webTitle: string;
   icon: string;
   imageBanners: string[];
+  heroImageUrl?: string;
+  clientHeroImageUrl?: string;
+  defaultDistrictHeroImageUrl?: string;
+  showDistrictHeadingByDefault?: boolean;
   text: string;
   app_description: string;
   contacts: string;
@@ -49,6 +58,7 @@ export type AppConfig = {
   lightLogoUrl: string;
   darkLogoUrl: string;
   faviconUrl: string;
+  clientFaviconUrl?: string;
   defaultTitle: string;
   titleFormat: string;
   defaultMetaDescription: string;

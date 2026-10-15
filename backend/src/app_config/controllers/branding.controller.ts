@@ -30,6 +30,13 @@ export const DEFAULT_BRAND_CONFIG = {
   lightLogoUrl: "/brand/atlaswanders-light.svg",
   darkLogoUrl: "/brand/atlaswanders-dark.svg",
   faviconUrl: "/brand/atlaswanders-favicon.svg",
+  clientFaviconUrl: "/brand/atlaswanders-favicon.svg",
+  serviceFaviconUrl: "/brand/atlaswanders-favicon.svg",
+  adminFaviconUrl: "/brand/atlaswanders-favicon.svg",
+  clientHeroImageUrl: "",
+  serviceHeroImageUrl: "",
+  defaultDistrictHeroImageUrl: "",
+  showDistrictHeadingByDefault: true,
   defaultTitle: "ATLASWANDERS | Discover Places. Experience Local.",
   titleFormat: "%s | ATLASWANDERS",
   defaultMetaDescription:
@@ -82,6 +89,13 @@ export const getPublicBranding = async (_req: Request, res: Response) => {
       lightLogoUrl: published.lightLogoUrl,
       darkLogoUrl: published.darkLogoUrl,
       faviconUrl: published.faviconUrl,
+      clientFaviconUrl: published.clientFaviconUrl || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      serviceFaviconUrl: published.serviceFaviconUrl || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      adminFaviconUrl: published.adminFaviconUrl || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      clientHeroImageUrl: published.clientHeroImageUrl || "",
+      serviceHeroImageUrl: published.serviceHeroImageUrl || "",
+      defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl || "",
+      showDistrictHeadingByDefault: published.showDistrictHeadingByDefault ?? true,
       defaultTitle: published.defaultTitle,
       titleFormat: published.titleFormat,
       defaultMetaDescription: published.defaultMetaDescription,
@@ -119,8 +133,9 @@ export const getClientSettings = async (_req: Request, res: Response) => {
     const clientAppName = config.app_name?.trim() || published.brandName || "ATLASWANDERS";
     const clientTitle = config.webTitle?.trim() || published.defaultTitle || "ATLASWANDERS | Discover Places. Experience Local.";
     const clientTagline = config.text?.trim() || published.tagline || "Discover Places. Experience Local.";
-    const clientIcon = config.icon?.trim() || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
+    const clientIcon = config.icon?.trim() || published.clientFaviconUrl || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
     const clientDesc = config.app_description?.trim() || published.brandDescription || "Discover tourist destinations, verified local guides, tour packages, stays and dining across Karnataka and beyond with ATLASWANDERS.";
+    const clientHero = config.heroImageUrl?.trim() || published.clientHeroImageUrl?.trim() || (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : "") || "";
 
     return res.status(200).json({
       app_name: clientAppName,
@@ -128,6 +143,10 @@ export const getClientSettings = async (_req: Request, res: Response) => {
       tagline: clientTagline,
       icon: clientIcon,
       imageBanners: config.imageBanners ?? [],
+      heroImageUrl: clientHero,
+      clientHeroImageUrl: clientHero,
+      defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl || config.defaultDistrictHeroImageUrl || "",
+      showDistrictHeadingByDefault: published.showDistrictHeadingByDefault ?? config.showDistrictHeadingByDefault ?? true,
       text: clientTagline,
       app_description: clientDesc,
       contacts: config.contacts ?? "",
@@ -142,13 +161,13 @@ export const getClientSettings = async (_req: Request, res: Response) => {
       symbolLogoUrl: clientIcon || published.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
       lightLogoUrl: published.lightLogoUrl || "/brand/atlaswanders-light.svg",
       darkLogoUrl: published.darkLogoUrl || "/brand/atlaswanders-dark.svg",
-      faviconUrl: clientIcon || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      faviconUrl: clientIcon || published.clientFaviconUrl || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
       defaultTitle: clientTitle,
       titleFormat: published.titleFormat || `%s | ${clientAppName}`,
       defaultMetaDescription: clientDesc,
       openGraphTitle: clientTitle,
       openGraphDescription: clientDesc,
-      openGraphImageUrl: (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
+      openGraphImageUrl: clientHero || (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
       canonicalUrl: published.canonicalUrl ?? "",
       brandDescription: clientDesc,
       themePreference: published.themePreference ?? "light",
@@ -193,8 +212,9 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
     const serviceAppName = config.app_name?.trim() || serviceDefaultName;
     const serviceTitle = config.webTitle?.trim() || serviceDefaultTitle;
     const serviceTagline = config.text?.trim() || serviceDefaultTagline;
-    const serviceIcon = config.icon?.trim() || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
+    const serviceIcon = config.icon?.trim() || published.serviceFaviconUrl || published.faviconUrl || published.symbolLogoUrl || "/brand/atlaswanders-favicon.svg";
     const serviceDesc = config.app_description?.trim() || serviceDefaultDesc;
+    const serviceHero = config.heroImageUrl?.trim() || published.serviceHeroImageUrl?.trim() || (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : "") || "";
 
     return res.status(200).json({
       app_name: serviceAppName,
@@ -202,6 +222,10 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
       tagline: serviceTagline,
       icon: serviceIcon,
       imageBanners: config.imageBanners ?? [],
+      heroImageUrl: serviceHero,
+      serviceHeroImageUrl: serviceHero,
+      defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl || config.defaultDistrictHeroImageUrl || "",
+      showDistrictHeadingByDefault: published.showDistrictHeadingByDefault ?? config.showDistrictHeadingByDefault ?? true,
       text: serviceTagline,
       app_description: serviceDesc,
       contacts: config.contacts ?? "",
@@ -216,13 +240,13 @@ export const getServiceSettings = async (_req: Request, res: Response) => {
       symbolLogoUrl: serviceIcon || published.symbolLogoUrl || "/brand/atlaswanders-symbol.svg",
       lightLogoUrl: published.lightLogoUrl || "/brand/atlaswanders-light.svg",
       darkLogoUrl: published.darkLogoUrl || "/brand/atlaswanders-dark.svg",
-      faviconUrl: serviceIcon || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
+      faviconUrl: serviceIcon || published.serviceFaviconUrl || published.faviconUrl || "/brand/atlaswanders-favicon.svg",
       defaultTitle: serviceTitle,
       titleFormat: published.titleFormat || `%s | ${serviceAppName}`,
       defaultMetaDescription: serviceDesc,
       openGraphTitle: serviceTitle,
       openGraphDescription: serviceDesc,
-      openGraphImageUrl: (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
+      openGraphImageUrl: serviceHero || (config.imageBanners && config.imageBanners.length > 0 ? config.imageBanners[0] : null) || published.openGraphImageUrl || "/brand/atlaswanders-og.jpg",
       canonicalUrl: published.canonicalUrl ?? "",
       brandDescription: serviceDesc,
       themePreference: published.themePreference ?? "light",
@@ -268,6 +292,13 @@ function checkHasUnpublishedChanges(
     "lightLogoUrl",
     "darkLogoUrl",
     "faviconUrl",
+    "clientFaviconUrl",
+    "serviceFaviconUrl",
+    "adminFaviconUrl",
+    "clientHeroImageUrl",
+    "serviceHeroImageUrl",
+    "defaultDistrictHeroImageUrl",
+    "showDistrictHeadingByDefault",
     "defaultTitle",
     "titleFormat",
     "defaultMetaDescription",
@@ -329,6 +360,12 @@ export const updateDraftBranding = async (req: Request, res: Response) => {
       "lightLogoUrl",
       "darkLogoUrl",
       "faviconUrl",
+      "clientFaviconUrl",
+      "serviceFaviconUrl",
+      "adminFaviconUrl",
+      "clientHeroImageUrl",
+      "serviceHeroImageUrl",
+      "defaultDistrictHeroImageUrl",
       "defaultTitle",
       "titleFormat",
       "defaultMetaDescription",
@@ -341,6 +378,15 @@ export const updateDraftBranding = async (req: Request, res: Response) => {
     ];
 
     const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+
+    if (body.showDistrictHeadingByDefault !== undefined) {
+      if (typeof body.showDistrictHeadingByDefault !== "boolean") {
+        return res.status(400).json({
+          message: "Invalid format for 'showDistrictHeadingByDefault': expected boolean",
+        });
+      }
+      data.showDistrictHeadingByDefault = body.showDistrictHeadingByDefault;
+    }
 
     for (const key of Object.keys(body)) {
       if (stringFields.includes(key)) {
@@ -409,6 +455,13 @@ export const publishBranding = async (_req: Request, res: Response) => {
       lightLogoUrl: draft.lightLogoUrl,
       darkLogoUrl: draft.darkLogoUrl,
       faviconUrl: draft.faviconUrl,
+      clientFaviconUrl: draft.clientFaviconUrl,
+      serviceFaviconUrl: draft.serviceFaviconUrl,
+      adminFaviconUrl: draft.adminFaviconUrl,
+      clientHeroImageUrl: draft.clientHeroImageUrl,
+      serviceHeroImageUrl: draft.serviceHeroImageUrl,
+      defaultDistrictHeroImageUrl: draft.defaultDistrictHeroImageUrl,
+      showDistrictHeadingByDefault: draft.showDistrictHeadingByDefault,
       defaultTitle: draft.defaultTitle,
       titleFormat: draft.titleFormat,
       defaultMetaDescription: draft.defaultMetaDescription,
@@ -434,9 +487,7 @@ export const publishBranding = async (_req: Request, res: Response) => {
       getOrCreateConfig("SERVICE"),
     ]);
 
-    // Synchronize published brand identity to app_config ONLY for CLIENT scope.
-    // NEVER overwrite SERVICE scope with client/brand tagline, title, or description.
-    // Service App scope maintains its own independent partner portal configuration.
+    // Synchronize published brand identity to app_config for CLIENT scope.
     const clientSyncData: Record<string, any> = {};
     if (draft.brandName) {
       clientSyncData.app_name = draft.brandName;
@@ -450,14 +501,38 @@ export const publishBranding = async (_req: Request, res: Response) => {
     if (draft.brandDescription) {
       clientSyncData.app_description = draft.brandDescription;
     }
-    if (draft.faviconUrl || draft.symbolLogoUrl) {
-      clientSyncData.icon = draft.faviconUrl || draft.symbolLogoUrl;
+    if (draft.clientFaviconUrl || draft.faviconUrl || draft.symbolLogoUrl) {
+      clientSyncData.icon = draft.clientFaviconUrl || draft.faviconUrl || draft.symbolLogoUrl;
+    }
+    if (draft.clientHeroImageUrl !== undefined) {
+      clientSyncData.heroImageUrl = draft.clientHeroImageUrl;
+    }
+    if (draft.defaultDistrictHeroImageUrl !== undefined) {
+      clientSyncData.defaultDistrictHeroImageUrl = draft.defaultDistrictHeroImageUrl;
+    }
+    if (draft.showDistrictHeadingByDefault !== undefined) {
+      clientSyncData.showDistrictHeadingByDefault = draft.showDistrictHeadingByDefault;
     }
 
     if (Object.keys(clientSyncData).length > 0) {
       await prisma.app_config.updateMany({
         where: { scope: "CLIENT" },
         data: clientSyncData,
+      });
+    }
+
+    // Synchronize published brand identity to app_config for SERVICE scope.
+    const serviceSyncData: Record<string, any> = {};
+    if (draft.serviceFaviconUrl) {
+      serviceSyncData.icon = draft.serviceFaviconUrl;
+    }
+    if (draft.serviceHeroImageUrl !== undefined) {
+      serviceSyncData.heroImageUrl = draft.serviceHeroImageUrl;
+    }
+    if (Object.keys(serviceSyncData).length > 0) {
+      await prisma.app_config.updateMany({
+        where: { scope: "SERVICE" },
+        data: serviceSyncData,
       });
     }
 
@@ -491,6 +566,13 @@ export const discardDraftBranding = async (_req: Request, res: Response) => {
       lightLogoUrl: published.lightLogoUrl,
       darkLogoUrl: published.darkLogoUrl,
       faviconUrl: published.faviconUrl,
+      clientFaviconUrl: published.clientFaviconUrl,
+      serviceFaviconUrl: published.serviceFaviconUrl,
+      adminFaviconUrl: published.adminFaviconUrl,
+      clientHeroImageUrl: published.clientHeroImageUrl,
+      serviceHeroImageUrl: published.serviceHeroImageUrl,
+      defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl,
+      showDistrictHeadingByDefault: published.showDistrictHeadingByDefault,
       defaultTitle: published.defaultTitle,
       titleFormat: published.titleFormat,
       defaultMetaDescription: published.defaultMetaDescription,
@@ -573,6 +655,9 @@ function buildUpdateData(body: Record<string, unknown>): Record<string, unknown>
     contacts,
     termsandconditions,
     privacy,
+    heroImageUrl,
+    defaultDistrictHeroImageUrl,
+    showDistrictHeadingByDefault,
   } = body;
 
   if (typeof app_name === "string") data.app_name = app_name.trim();
@@ -584,6 +669,9 @@ function buildUpdateData(body: Record<string, unknown>): Record<string, unknown>
   if (typeof contacts === "string") data.contacts = contacts.trim();
   if (typeof termsandconditions === "string") data.termsandconditions = termsandconditions.trim();
   if (typeof privacy === "string") data.privacy = privacy.trim();
+  if (typeof heroImageUrl === "string") data.heroImageUrl = heroImageUrl.trim();
+  if (typeof defaultDistrictHeroImageUrl === "string") data.defaultDistrictHeroImageUrl = defaultDistrictHeroImageUrl.trim();
+  if (typeof showDistrictHeadingByDefault === "boolean") data.showDistrictHeadingByDefault = showDistrictHeadingByDefault;
   if (Array.isArray(imageBanners)) {
     data.imageBanners = imageBanners.filter((i) => typeof i === "string" && i.trim().length > 0);
   }
@@ -615,6 +703,20 @@ export const updateClientSettings = async (req: Request, res: Response) => {
     const data = buildUpdateData(req.body ?? {});
     const config = await getOrCreateConfig("CLIENT");
     const updated = await prisma.app_config.update({ where: { id: config.id }, data });
+
+    if (data.heroImageUrl !== undefined) {
+      await prisma.brand_config.updateMany({
+        where: { id: { in: ["draft", "published"] } },
+        data: { clientHeroImageUrl: data.heroImageUrl as string },
+      });
+    }
+    if (data.icon !== undefined) {
+      await prisma.brand_config.updateMany({
+        where: { id: { in: ["draft", "published"] } },
+        data: { clientFaviconUrl: data.icon as string },
+      });
+    }
+
     return res.status(200).json({ message: "Client settings updated", settings: updated });
   } catch (error) {
     console.error("Update client settings error:", error);
@@ -627,9 +729,109 @@ export const updateServiceSettings = async (req: Request, res: Response) => {
     const data = buildUpdateData(req.body ?? {});
     const config = await getOrCreateConfig("SERVICE");
     const updated = await prisma.app_config.update({ where: { id: config.id }, data });
+
+    if (data.heroImageUrl !== undefined) {
+      await prisma.brand_config.updateMany({
+        where: { id: { in: ["draft", "published"] } },
+        data: { serviceHeroImageUrl: data.heroImageUrl as string },
+      });
+    }
+    if (data.icon !== undefined) {
+      await prisma.brand_config.updateMany({
+        where: { id: { in: ["draft", "published"] } },
+        data: { serviceFaviconUrl: data.icon as string },
+      });
+    }
+
     return res.status(200).json({ message: "Service settings updated", settings: updated });
   } catch (error) {
     console.error("Update service settings error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+/**
+ * GET /api/admin/districts/settings
+ * Returns global district default hero image and welcome heading default.
+ */
+export const getDistrictHeroSettings = async (_req: Request, res: Response) => {
+  try {
+    const published = await getOrCreateBrandConfig("published");
+    const draft = await getOrCreateBrandConfig("draft");
+    return res.status(200).json({
+      settings: {
+        defaultDistrictHeroImageUrl: draft.defaultDistrictHeroImageUrl || published.defaultDistrictHeroImageUrl || "",
+        showDistrictHeadingByDefault: draft.showDistrictHeadingByDefault ?? published.showDistrictHeadingByDefault ?? true,
+      },
+      published: {
+        defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl || "",
+        showDistrictHeadingByDefault: published.showDistrictHeadingByDefault ?? true,
+      },
+    });
+  } catch (error) {
+    console.error("Get district hero settings error:", error);
+    return res.status(500).json({ message: "Unable to load district settings" });
+  }
+};
+
+/**
+ * PATCH /api/admin/districts/settings
+ * Updates global district hero image and welcome heading toggle.
+ * Saves to both draft and published and synchronizes to app_config.
+ */
+export const updateDistrictHeroSettings = async (req: Request, res: Response) => {
+  try {
+    const { defaultDistrictHeroImageUrl, showDistrictHeadingByDefault } = req.body ?? {};
+    const updateData: Record<string, any> = {};
+
+    if (defaultDistrictHeroImageUrl !== undefined) {
+      if (typeof defaultDistrictHeroImageUrl !== "string") {
+        return res.status(400).json({ message: "defaultDistrictHeroImageUrl must be a string" });
+      }
+      updateData.defaultDistrictHeroImageUrl = defaultDistrictHeroImageUrl.trim();
+    }
+
+    if (showDistrictHeadingByDefault !== undefined) {
+      if (typeof showDistrictHeadingByDefault !== "boolean") {
+        return res.status(400).json({ message: "showDistrictHeadingByDefault must be a boolean" });
+      }
+      updateData.showDistrictHeadingByDefault = showDistrictHeadingByDefault;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "Nothing to update" });
+    }
+
+    // Update both draft and published rows in brand_config
+    const [draft, published] = await Promise.all([
+      prisma.brand_config.upsert({
+        where: { id: "draft" },
+        update: updateData,
+        create: { id: "draft", ...DEFAULT_BRAND_CONFIG, ...updateData },
+      }),
+      prisma.brand_config.upsert({
+        where: { id: "published" },
+        update: { ...updateData, publishedAt: new Date() },
+        create: { id: "published", ...DEFAULT_BRAND_CONFIG, ...updateData, publishedAt: new Date() },
+      }),
+    ]);
+
+    // Also update app_config for CLIENT scope so legacy endpoints see it
+    await prisma.app_config.updateMany({
+      where: { scope: "CLIENT" },
+      data: updateData,
+    });
+
+    return res.status(200).json({
+      message: "District global defaults updated successfully",
+      settings: {
+        defaultDistrictHeroImageUrl: published.defaultDistrictHeroImageUrl,
+        showDistrictHeadingByDefault: published.showDistrictHeadingByDefault,
+      },
+    });
+  } catch (error) {
+    console.error("Update district hero settings error:", error);
+    return res.status(500).json({ message: "Failed to update district settings" });
+  }
+};
+

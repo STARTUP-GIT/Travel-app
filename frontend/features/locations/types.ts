@@ -34,6 +34,11 @@ export type District = {
   isServiceAvailable: boolean;
   /** Backend flag: submissions in this district are published immediately. */
   autoApprovePlaces?: boolean;
+  heroImageUrl?: string | null;
+  useCustomHeroImage?: boolean;
+  showWelcomeHeading?: string | null;
+  effectiveHeroImageUrl?: string | null;
+  effectiveShowWelcomeHeading?: boolean;
 };
 
 export type DistrictSummary = District & {

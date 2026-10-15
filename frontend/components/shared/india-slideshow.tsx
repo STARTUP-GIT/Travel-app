@@ -23,23 +23,30 @@ export function IndiaSlideshow({
   className,
   overlayClassName,
   slides: providedSlides,
+  heroImage,
 }: {
   className?: string;
   overlayClassName?: string;
   slides?: LandingSlide[];
+  heroImage?: string | null;
 }) {
-  const { bannerImages } = useBranding();
+  const { bannerImages, heroImageUrl } = useBranding();
   const reduceMotion = useReducedMotion();
+
+  const effectiveHero = (heroImage !== undefined ? heroImage : heroImageUrl)?.trim();
 
   const slides = React.useMemo<LandingSlide[]>(() => {
     if (providedSlides?.length) {
       return providedSlides.filter((slide) => Boolean(slide.src));
     }
+    if (effectiveHero) {
+      return [{ src: effectiveHero, alt: "" }];
+    }
     const configured = (bannerImages ?? []).filter(Boolean);
     return configured.length > 0
       ? configured.map((src) => ({ src, alt: "" }))
       : FALLBACK_LANDING_SLIDES;
-  }, [bannerImages, providedSlides]);
+  }, [bannerImages, providedSlides, effectiveHero]);
 
   const [index, setIndex] = React.useState(0);
   const [failed, setFailed] = React.useState<Set<string>>(new Set());

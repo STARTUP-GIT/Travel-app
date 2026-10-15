@@ -19,6 +19,7 @@ type BrandingContextValue = {
   lightLogoUrl: string;
   darkLogoUrl: string;
   faviconUrl: string;
+  heroImageUrl: string | null;
   refetch: () => Promise<void>;
 };
 
@@ -36,6 +37,7 @@ const BrandingContext = React.createContext<BrandingContextValue>({
   lightLogoUrl: "/brand/atlaswanders-light.svg",
   darkLogoUrl: "/brand/atlaswanders-dark.svg",
   faviconUrl: "/brand/atlaswanders-favicon.svg",
+  heroImageUrl: null,
   refetch: async () => {},
 });
 
@@ -117,6 +119,31 @@ export function AppConfigProvider({
     }
   }, [config?.primaryColor, config?.secondaryColor, config?.accentColor]);
 
+  // Dynamically synchronize browser tab icon / favicon
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const iconUrl = (config?.icon || config?.faviconUrl)?.trim();
+    if (!iconUrl) return;
+
+    const existingIcons = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
+    existingIcons.forEach((el) => el.remove());
+
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = iconUrl;
+    if (iconUrl.endsWith(".svg")) link.type = "image/svg+xml";
+    else if (iconUrl.endsWith(".png")) link.type = "image/png";
+    else if (iconUrl.endsWith(".webp")) link.type = "image/webp";
+    document.head.appendChild(link);
+
+    const appleLink =
+      document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']") ||
+      document.createElement("link");
+    appleLink.rel = "apple-touch-icon";
+    appleLink.href = iconUrl;
+    if (!appleLink.parentNode) document.head.appendChild(appleLink);
+  }, [config?.icon, config?.faviconUrl]);
+
   const value = React.useMemo<BrandingContextValue>(() => {
     const active = config ?? (isLoading ? null : FALLBACK_CONFIG);
     const canonicalName = (
@@ -146,6 +173,7 @@ export function AppConfigProvider({
       lightLogoUrl: active?.lightLogoUrl || FALLBACK_CONFIG.lightLogoUrl,
       darkLogoUrl: active?.darkLogoUrl || FALLBACK_CONFIG.darkLogoUrl,
       faviconUrl: active?.icon || active?.faviconUrl || FALLBACK_CONFIG.faviconUrl,
+      heroImageUrl: active?.heroImageUrl || active?.serviceHeroImageUrl || null,
       refetch: syncConfig,
     };
   }, [config, isLoading, syncConfig]);

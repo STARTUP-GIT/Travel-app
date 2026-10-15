@@ -34,6 +34,10 @@ export async function getAppConfig(): Promise<AppConfig> {
         symbolLogoUrl: settings.symbolLogoUrl || settings.icon || FALLBACK_CONFIG.symbolLogoUrl,
         primaryLogoUrl: settings.primaryLogoUrl || settings.icon || FALLBACK_CONFIG.primaryLogoUrl,
         faviconUrl: settings.faviconUrl || settings.icon || FALLBACK_CONFIG.faviconUrl,
+        heroImageUrl: settings.heroImageUrl || settings.clientHeroImageUrl || (Array.isArray(settings.imageBanners) && settings.imageBanners.length > 0 ? settings.imageBanners[0] : "") || "",
+        clientHeroImageUrl: settings.clientHeroImageUrl || settings.heroImageUrl || "",
+        defaultDistrictHeroImageUrl: settings.defaultDistrictHeroImageUrl || "",
+        showDistrictHeadingByDefault: settings.showDistrictHeadingByDefault ?? true,
         imageBanners: Array.isArray(settings.imageBanners) ? settings.imageBanners : [],
         app_description: settings.app_description || FALLBACK_CONFIG.app_description,
       };
@@ -55,7 +59,12 @@ export async function getAppConfig(): Promise<AppConfig> {
         ...brand,
         app_name: brand.brandName,
         webTitle: brand.defaultTitle,
-        icon: brand.faviconUrl || brand.symbolLogoUrl,
+        icon: brand.clientFaviconUrl || brand.faviconUrl || brand.symbolLogoUrl,
+        faviconUrl: brand.clientFaviconUrl || brand.faviconUrl || brand.symbolLogoUrl,
+        heroImageUrl: brand.clientHeroImageUrl || "",
+        clientHeroImageUrl: brand.clientHeroImageUrl || "",
+        defaultDistrictHeroImageUrl: brand.defaultDistrictHeroImageUrl || "",
+        showDistrictHeadingByDefault: brand.showDistrictHeadingByDefault ?? true,
         app_description: brand.brandDescription || FALLBACK_CONFIG.app_description,
       };
     }

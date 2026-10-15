@@ -115,6 +115,9 @@ export const App_configScalarFieldEnum = {
   termsandconditions: 'termsandconditions',
   privacy: 'privacy',
   app_description: 'app_description',
+  heroImageUrl: 'heroImageUrl',
+  defaultDistrictHeroImageUrl: 'defaultDistrictHeroImageUrl',
+  showDistrictHeadingByDefault: 'showDistrictHeadingByDefault',
   placesAutoApproval: 'placesAutoApproval',
   guidesAutoApproval: 'guidesAutoApproval',
   hotelsAutoApproval: 'hotelsAutoApproval',
@@ -204,7 +207,10 @@ export const DistrictScalarFieldEnum = {
   name: 'name',
   stateId: 'stateId',
   isServiceAvailable: 'isServiceAvailable',
-  autoApprovePlaces: 'autoApprovePlaces'
+  autoApprovePlaces: 'autoApprovePlaces',
+  heroImageUrl: 'heroImageUrl',
+  useCustomHeroImage: 'useCustomHeroImage',
+  showWelcomeHeading: 'showWelcomeHeading'
 } as const
 
 export type DistrictScalarFieldEnum = (typeof DistrictScalarFieldEnum)[keyof typeof DistrictScalarFieldEnum]
@@ -813,6 +819,13 @@ export const Brand_configScalarFieldEnum = {
   lightLogoUrl: 'lightLogoUrl',
   darkLogoUrl: 'darkLogoUrl',
   faviconUrl: 'faviconUrl',
+  clientFaviconUrl: 'clientFaviconUrl',
+  serviceFaviconUrl: 'serviceFaviconUrl',
+  adminFaviconUrl: 'adminFaviconUrl',
+  clientHeroImageUrl: 'clientHeroImageUrl',
+  serviceHeroImageUrl: 'serviceHeroImageUrl',
+  defaultDistrictHeroImageUrl: 'defaultDistrictHeroImageUrl',
+  showDistrictHeadingByDefault: 'showDistrictHeadingByDefault',
   defaultTitle: 'defaultTitle',
   titleFormat: 'titleFormat',
   defaultMetaDescription: 'defaultMetaDescription',

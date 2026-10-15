@@ -48,6 +48,11 @@ type ApiDistrict = {
   stateId: string;
   isServiceAvailable: boolean;
   autoApprovePlaces?: boolean;
+  heroImageUrl?: string | null;
+  useCustomHeroImage?: boolean;
+  showWelcomeHeading?: string | null;
+  effectiveHeroImageUrl?: string | null;
+  effectiveShowWelcomeHeading?: boolean;
   state?: ApiState | null;
   _count?: { places?: number; hotels?: number; restaurent?: number } | null;
 };
@@ -121,6 +126,14 @@ function parseDistrict(value: unknown): DistrictSummary | null {
     isServiceAvailable: raw.isServiceAvailable === true && state !== null,
     state: state ?? emptyState(raw.stateId),
     autoApprovePlaces: raw.autoApprovePlaces === true,
+    heroImageUrl: asText(raw.heroImageUrl),
+    useCustomHeroImage: raw.useCustomHeroImage === true,
+    showWelcomeHeading: asText(raw.showWelcomeHeading),
+    effectiveHeroImageUrl: asText(raw.effectiveHeroImageUrl),
+    effectiveShowWelcomeHeading:
+      raw.effectiveShowWelcomeHeading !== undefined
+        ? Boolean(raw.effectiveShowWelcomeHeading)
+        : undefined,
   };
 
   return {
