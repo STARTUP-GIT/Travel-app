@@ -71,7 +71,7 @@ export function ResetPasswordForm() {
             <div className="space-y-1">
               <h1 className="text-2xl font-bold tracking-tight">Password updated</h1>
               <p className="text-sm text-muted-foreground">
-                Your password has been reset successfully. You can now sign in with your new password.
+                Your password has been reset successfully. You can now sign in with your new credentials.
               </p>
             </div>
             <Button asChild variant="action" size="lg" className="w-full rounded-xl">
@@ -106,7 +106,7 @@ export function ResetPasswordForm() {
       return;
     }
 
-    toast.success("Password updated successfully.");
+    toast.success("Password reset successfully.");
     setDone(true);
   }
 

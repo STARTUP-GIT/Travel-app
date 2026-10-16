@@ -255,12 +255,7 @@ async function run() {
     });
     assert(invalidEmailRes.status === 400, "Invalid email format rejected with 400 Validation Error");
 
-    // GET /api/auth/verify-reset-token
-    const latestTokenRecord = await prisma.password_reset_token.findFirst({
-      where: { ownerEmail: TEST_CUSTOMER_EMAIL, used: false },
-      orderBy: { createdAt: "desc" },
-    });
-    // We didn't capture raw token from HTTP request directly, but we can verify verify-reset-token with invalid token:
+    // GET /api/auth/verify-reset-token with malformed token
     const verifyBadRes = await fetch(`${API_BASE}/api/auth/verify-reset-token?token=badtoken`);
     assert(verifyBadRes.status === 400, "GET /api/auth/verify-reset-token with malformed token returns 400");
 

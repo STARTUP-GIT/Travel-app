@@ -2,7 +2,12 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { ZodError, z } from "zod";
 
-import { createPasswordResetToken, resetPassword, verifyResetToken, type Panel } from "../../../../services/passwordReset.js";
+import {
+  createPasswordResetToken,
+  resetPassword,
+  verifyResetToken,
+  type Panel,
+} from "../../../../services/passwordReset.js";
 import { sendPasswordResetEmail } from "../../../../services/email.js";
 
 /* -------------------------------------------------------------------------- */
@@ -44,16 +49,24 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email, panel } = emailSchema.parse(req.body);
 
-    const { rawToken } = await createPasswordResetToken(email.toLowerCase().trim(), panel as Panel);
+    const { rawToken } = await createPasswordResetToken(
+      email.toLowerCase().trim(),
+      panel as Panel
+    );
 
     if (rawToken) {
-      // Fire-and-forget: if email fails we still return the generic response so
-      // we don't leak information. The error is logged server-side.
-      sendPasswordResetEmail(email.toLowerCase().trim(), rawToken, panel as Panel).catch(
-        (err: unknown) => {
-          console.error("[forgot-password] email delivery failed:", (err as Error)?.message ?? err);
-        }
-      );
+      try {
+        await sendPasswordResetEmail(
+          email.toLowerCase().trim(),
+          rawToken,
+          panel as Panel
+        );
+      } catch (err: unknown) {
+        console.error(
+          "[forgot-password] email delivery failed:",
+          (err as Error)?.message ?? err
+        );
+      }
     }
 
     // Always return the same response regardless of whether the email exists.
@@ -93,7 +106,9 @@ export const resetPasswordHandler = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).json({ message: "Password updated successfully. You can now sign in." });
+    return res
+      .status(200)
+      .json({ message: "Password updated successfully. You can now sign in." });
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
@@ -137,4 +152,3 @@ export const verifyResetTokenHandler = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-

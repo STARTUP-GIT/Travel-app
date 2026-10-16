@@ -9,6 +9,7 @@
  * generate the correct panel-specific reset links.
  */
 
+import "../env.js";
 import { Resend } from "resend";
 
 function getResendClient(): Resend {
@@ -22,10 +23,14 @@ function getResendClient(): Resend {
 }
 
 function getFromAddress(): string {
-  return (
-    process.env.RESEND_FROM_EMAIL?.trim() ||
-    "ATLASWANDERS <noreply@atlaswanders.com>"
-  );
+  const configured = process.env.RESEND_FROM_EMAIL?.trim();
+  if (configured) {
+    if (!configured.includes("<")) {
+      return `ATLASWANDERS <${configured}>`;
+    }
+    return configured;
+  }
+  return "ATLASWANDERS <onboarding@resend.dev>";
 }
 
 export type Panel = "customer" | "provider";
@@ -36,13 +41,12 @@ function getPanelBaseUrl(panel: Panel): string {
       ? process.env.CLIENTENDURL || process.env.CLIENT_URL || process.env.NEXT_PUBLIC_CLIENT_URL
       : process.env.SERVICEENDURL || process.env.SERVICE_URL || process.env.NEXT_PUBLIC_SERVICE_URL;
 
-  if (!raw?.trim()) {
-    throw new Error(
-      `Base URL for the ${panel} panel is not configured ` +
-        `(${panel === "customer" ? "CLIENTENDURL" : "SERVICEENDURL"}).`
-    );
+  if (raw?.trim()) {
+    return raw.trim().replace(/\/+$/, "");
   }
-  return raw.trim().replace(/\/+$/, "");
+
+  // Safe defaults for local development environments
+  return panel === "customer" ? "http://localhost:3000" : "http://localhost:3001";
 }
 
 export async function sendPasswordResetEmail(
@@ -59,9 +63,9 @@ export async function sendPasswordResetEmail(
       : "ATLASWANDERS Service Provider Portal";
 
   const resend = getResendClient();
+  const primaryFrom = getFromAddress();
 
-  const { error } = await resend.emails.send({
-    from: getFromAddress(),
+  const emailPayload = {
     to,
     subject: "Reset your ATLASWANDERS password",
     html: `
@@ -124,11 +128,50 @@ export async function sendPasswordResetEmail(
 </html>
     `.trim(),
     text: `Reset your ATLASWANDERS password\n\nVisit the link below to reset your password. It expires in 1 hour and can only be used once.\n\n${resetUrl}\n\nIf you didn't request this, ignore this email.`,
+  };
+
+  let sendResult = await resend.emails.send({
+    from: primaryFrom,
+    ...emailPayload,
   });
 
-  if (error) {
-    // Never expose the raw error object — it may contain API key hints.
-    console.error("[email] Resend delivery failed:", error.name, error.message);
-    throw new Error("Failed to send the password reset email. Please try again later.");
+  // If the primary sender failed because the domain is unverified in Resend,
+  // attempt fallback to Resend's testing address (onboarding@resend.dev)
+  // so development and test accounts (account owner) still receive emails.
+  if (
+    sendResult.error &&
+    sendResult.error.message?.toLowerCase().includes("domain is not verified") &&
+    !primaryFrom.includes("onboarding@resend.dev")
+  ) {
+    console.warn(
+      `[email] Sender domain is unverified in Resend (${sendResult.error.message}). ` +
+        `Attempting sandbox fallback with onboarding@resend.dev for test recipients...`
+    );
+
+    const fallbackResult = await resend.emails.send({
+      from: "ATLASWANDERS <onboarding@resend.dev>",
+      ...emailPayload,
+    });
+
+    if (!fallbackResult.error) {
+      console.log(
+        `[email] Fallback email sent successfully via onboarding@resend.dev (id: ${fallbackResult.data?.id}).`
+      );
+      return;
+    }
+
+    console.error(
+      `[email] Sandbox fallback send via onboarding@resend.dev also failed:`,
+      fallbackResult.error.message
+    );
+  }
+
+  if (sendResult.error) {
+    console.error(
+      "[email] Resend delivery failed:",
+      sendResult.error.name,
+      sendResult.error.message
+    );
+    throw new Error(`Email delivery failed: ${sendResult.error.message}`);
   }
 }
