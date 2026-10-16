@@ -784,6 +784,30 @@ enum BrandingScope {
   SERVICE
 }
 
+/**
+ * Single-use, time-limited password reset tokens.
+ *
+ * - Only the SHA-256 hash of the raw token is stored; the raw token is only
+ *   ever delivered via email and never persisted.
+ * - `panel` distinguishes Customer Panel tokens from Service Provider Panel
+ *   tokens so a token issued for one panel cannot be used on the other.
+ * - `used` is flipped to true atomically when the password is changed,
+ *   providing single-use guarantees.
+ * - Expired or used rows are safe to prune periodically.
+ */
+model password_reset_token {
+  id         String   @id @default(uuid())
+  ownerEmail String
+  panel      String   // "customer" | "provider"
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([ownerEmail, panel])
+  @@index([expiresAt])
+}
+
 enum AdminRole {
   SUPER
   MANAGER

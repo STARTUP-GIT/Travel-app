@@ -83,10 +83,10 @@ function LoginForm() {
     <div className="pb-8">
       <ScreenHeader title="Log in" subtitle="Continue your journey" />
       <div className="app-container">
-        <div className="mx-auto mt-2 flex w-full max-w-sm flex-col gap-5">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto mt-2 flex w-full max-w-md flex-col gap-5">
+          <div className="space-y-1.5">
             <Logo className="text-2xl" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Sign in to book guides, hotels and restaurants, and to keep your Saved list with you.
             </p>
           </div>
@@ -127,7 +127,15 @@ function LoginForm() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"

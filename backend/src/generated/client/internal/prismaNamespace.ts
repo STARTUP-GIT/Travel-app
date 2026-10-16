@@ -424,6 +424,7 @@ export const ModelName = {
   restaurent_owner: 'restaurent_owner',
   hotel_booking: 'hotel_booking',
   restaurant_reservation: 'restaurant_reservation',
+  password_reset_token: 'password_reset_token',
   app_version_config: 'app_version_config',
   audit_log: 'audit_log',
   support_ticket: 'support_ticket',
@@ -446,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_pricing" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "hotel_room_type" | "restaurent" | "restaurant_dish" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation" | "app_version_config" | "audit_log" | "support_ticket" | "admin_notification" | "coupon" | "admin_session" | "brand_config"
+    modelProps: "app_config" | "testimonials" | "admin" | "user" | "user_fav_place" | "country" | "state" | "district" | "place" | "place_pricing" | "place_submission" | "specific_guide" | "common_guide" | "common_guide_places" | "common_guide_package" | "common_guide_package_places" | "specific_guide_booking" | "common_guide_booking" | "common_guide_booking_places" | "hotel" | "hotel_room_type" | "restaurent" | "restaurant_dish" | "hotel_owner" | "restaurent_owner" | "hotel_booking" | "restaurant_reservation" | "password_reset_token" | "app_version_config" | "audit_log" | "support_ticket" | "admin_notification" | "coupon" | "admin_session" | "brand_config"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2448,6 +2449,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    password_reset_token: {
+      payload: Prisma.$password_reset_tokenPayload<ExtArgs>
+      fields: Prisma.password_reset_tokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.password_reset_tokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.password_reset_tokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        findFirst: {
+          args: Prisma.password_reset_tokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.password_reset_tokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        findMany: {
+          args: Prisma.password_reset_tokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>[]
+        }
+        create: {
+          args: Prisma.password_reset_tokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        createMany: {
+          args: Prisma.password_reset_tokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.password_reset_tokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>[]
+        }
+        delete: {
+          args: Prisma.password_reset_tokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        update: {
+          args: Prisma.password_reset_tokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.password_reset_tokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.password_reset_tokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.password_reset_tokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.password_reset_tokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$password_reset_tokenPayload>
+        }
+        aggregate: {
+          args: Prisma.Password_reset_tokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePassword_reset_token>
+        }
+        groupBy: {
+          args: Prisma.password_reset_tokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Password_reset_tokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.password_reset_tokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Password_reset_tokenCountAggregateOutputType> | number
+        }
+      }
+    }
     app_version_config: {
       payload: Prisma.$app_version_configPayload<ExtArgs>
       fields: Prisma.app_version_configFieldRefs
@@ -3622,6 +3697,19 @@ export const Restaurant_reservationScalarFieldEnum = {
 export type Restaurant_reservationScalarFieldEnum = (typeof Restaurant_reservationScalarFieldEnum)[keyof typeof Restaurant_reservationScalarFieldEnum]
 
 
+export const Password_reset_tokenScalarFieldEnum = {
+  id: 'id',
+  ownerEmail: 'ownerEmail',
+  panel: 'panel',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  used: 'used',
+  createdAt: 'createdAt'
+} as const
+
+export type Password_reset_tokenScalarFieldEnum = (typeof Password_reset_tokenScalarFieldEnum)[keyof typeof Password_reset_tokenScalarFieldEnum]
+
+
 export const App_version_configScalarFieldEnum = {
   id: 'id',
   app: 'app',
@@ -4171,6 +4259,7 @@ export type GlobalOmitConfig = {
   restaurent_owner?: Prisma.restaurent_ownerOmit
   hotel_booking?: Prisma.hotel_bookingOmit
   restaurant_reservation?: Prisma.restaurant_reservationOmit
+  password_reset_token?: Prisma.password_reset_tokenOmit
   app_version_config?: Prisma.app_version_configOmit
   audit_log?: Prisma.audit_logOmit
   support_ticket?: Prisma.support_ticketOmit

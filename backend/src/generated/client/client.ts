@@ -185,6 +185,20 @@ export type hotel_booking = Prisma.hotel_bookingModel
  */
 export type restaurant_reservation = Prisma.restaurant_reservationModel
 /**
+ * Model password_reset_token
+ * *
+ *  * Single-use, time-limited password reset tokens.
+ *  *
+ *  * - Only the SHA-256 hash of the raw token is stored; the raw token is only
+ *  *   ever delivered via email and never persisted.
+ *  * - `panel` distinguishes Customer Panel tokens from Service Provider Panel
+ *  *   tokens so a token issued for one panel cannot be used on the other.
+ *  * - `used` is flipped to true atomically when the password is changed,
+ *  *   providing single-use guarantees.
+ *  * - Expired or used rows are safe to prune periodically.
+ */
+export type password_reset_token = Prisma.password_reset_tokenModel
+/**
  * Model app_version_config
  * 
  */

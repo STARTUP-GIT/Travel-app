@@ -78,6 +78,7 @@ export const ModelName = {
   restaurent_owner: 'restaurent_owner',
   hotel_booking: 'hotel_booking',
   restaurant_reservation: 'restaurant_reservation',
+  password_reset_token: 'password_reset_token',
   app_version_config: 'app_version_config',
   audit_log: 'audit_log',
   support_ticket: 'support_ticket',
@@ -718,6 +719,19 @@ export const Restaurant_reservationScalarFieldEnum = {
 } as const
 
 export type Restaurant_reservationScalarFieldEnum = (typeof Restaurant_reservationScalarFieldEnum)[keyof typeof Restaurant_reservationScalarFieldEnum]
+
+
+export const Password_reset_tokenScalarFieldEnum = {
+  id: 'id',
+  ownerEmail: 'ownerEmail',
+  panel: 'panel',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  used: 'used',
+  createdAt: 'createdAt'
+} as const
+
+export type Password_reset_tokenScalarFieldEnum = (typeof Password_reset_tokenScalarFieldEnum)[keyof typeof Password_reset_tokenScalarFieldEnum]
 
 
 export const App_version_configScalarFieldEnum = {

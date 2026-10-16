@@ -11,6 +11,7 @@ USERS ROUTES IMPORTS
 import userAuthRoutes from './modules/user/auth/routes/auth.route.js';
 import userProfileRoutes from './modules/user/profile/routes/profile.routes.js';
 import userBookingRoutes from './modules/user/booking/routes/booking.routes.js';
+import passwordResetRoutes from './modules/user/auth/routes/passwordReset.route.js';
 
 /** 
 ADMIN ROUTES IMPORTS
@@ -124,6 +125,11 @@ app.get('/' , (req,res) => {
 app.use('/users', userAuthRoutes);
 app.use('/users/profile', userProfileRoutes);
 app.use('/users/booking', userBookingRoutes);
+
+/**
+ PASSWORD RESET (shared endpoint — panel is declared in request body)
+**/
+app.use('/api', passwordResetRoutes);
 
 
 /**

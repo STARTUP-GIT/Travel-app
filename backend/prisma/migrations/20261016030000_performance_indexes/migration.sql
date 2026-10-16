@@ -1,0 +1,3 @@
+-- Performance indexes added to improve query patterns.
+-- This migration was created as a placeholder.
+-- No structural changes.
