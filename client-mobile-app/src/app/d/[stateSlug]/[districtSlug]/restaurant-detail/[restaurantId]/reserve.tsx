@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { TextField } from "@/components/ui/text-field";
 import { RemoteImage } from "@/components/ui/remote-image";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { Touchable } from "@/components/ui/pressable";
@@ -52,6 +53,8 @@ export default function ReserveRestaurantScreen() {
   );
 
   const [date, setDate] = useState<Date>(() => new Date());
+  const [time, setTime] = useState("19:00");
+  const [notes, setNotes] = useState("");
   const [guests, setGuests] = useState(2);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -93,7 +96,9 @@ export default function ReserveRestaurantScreen() {
       await createReservation({
         restaurantId: restaurant.id,
         reservationDate: toIsoDateOnly(date),
+        reservationTime: time.trim() || undefined,
         guests,
+        notes: notes.trim() || undefined,
       });
 
       toast.show("Table requested", "success");
@@ -169,6 +174,25 @@ export default function ReserveRestaurantScreen() {
             <Ionicons name="add" size={18} color={colors.text} />
           </Touchable>
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <TextField
+          label="Preferred dining time"
+          value={time}
+          onChangeText={setTime}
+          placeholder="19:00"
+          hint="24-hour time, for example 19:00 or 13:30."
+        />
+      </View>
+
+      <View style={styles.section}>
+        <TextField
+          label="Special requests (optional)"
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="e.g. Window table, high chair, birthday"
+        />
       </View>
 
       <Text style={styles.note}>

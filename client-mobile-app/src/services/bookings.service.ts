@@ -15,6 +15,7 @@
 
 import { api, asRecord } from "@/lib/api/client";
 import type {
+  BookingDetailResponse,
   CommonGuideBooking,
   CreateCommonGuideBookingInput,
   CreateHotelBookingInput,
@@ -23,6 +24,7 @@ import type {
   HotelBooking,
   RestaurantReservation,
   SpecificGuideBooking,
+  SpecificGuideLocationResult,
 } from "@/types/api";
 
 function unwrap<T>(response: unknown, key: string): T {
@@ -93,6 +95,22 @@ export async function createTourGuideBooking(
 
 export async function listTourGuideBookings(): Promise<CommonGuideBooking[]> {
   return api.get<CommonGuideBooking[]>("/users/booking/api/common-guide-bookings");
+}
+
+/* -------------------------------------------------------------------------- */
+/* Booking Detail & Tracking                                                  */
+/* -------------------------------------------------------------------------- */
+
+export async function getBookingById(bookingId: string): Promise<BookingDetailResponse> {
+  return api.get<BookingDetailResponse>(`/users/booking/api/bookings/${bookingId}`);
+}
+
+export async function getSpecificGuideLocation(
+  bookingId: string,
+): Promise<SpecificGuideLocationResult> {
+  return api.get<SpecificGuideLocationResult>(
+    `/users/booking/api/specific-guide-location/${bookingId}`,
+  );
 }
 
 /* -------------------------------------------------------------------------- */

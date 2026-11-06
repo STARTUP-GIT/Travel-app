@@ -143,6 +143,58 @@ export async function signOut(): Promise<void> {
   }
 }
 
+export async function requestPasswordReset(email: string): Promise<{ ok: boolean; message: string }> {
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed) {
+    return { ok: false, message: "Enter your email address." };
+  }
+  try {
+    const res = await api.post<{ message?: string }>("/api/auth/forgot-password", {
+      email: trimmed,
+      panel: "customer",
+    });
+    return {
+      ok: true,
+      message: res?.message || "If that email is registered, a reset link has been sent. Please check your inbox.",
+    };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 429) {
+      return { ok: false, message: "Too many requests. Please wait a few minutes before trying again." };
+    }
+    return {
+      ok: true,
+      message: "If that email is registered, a reset link has been sent. Please check your inbox.",
+    };
+  }
+}
+
+export async function resetPassword(token: string, password: string): Promise<{ ok: boolean; message: string }> {
+  if (!token.trim()) {
+    return { ok: false, message: "Invalid or missing reset token." };
+  }
+  if (password.length < 6) {
+    return { ok: false, message: "Password must be at least 6 characters." };
+  }
+  try {
+    const res = await api.post<{ message?: string }>("/api/auth/reset-password", {
+      token: token.trim(),
+      password,
+    });
+    return {
+      ok: true,
+      message: res?.message || "Password updated. You can now sign in.",
+    };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 429) {
+      return { ok: false, message: "Too many requests. Please wait a few minutes before trying again." };
+    }
+    if (error instanceof ApiError && error.message) {
+      return { ok: false, message: error.message };
+    }
+    return { ok: false, message: "This link is invalid, expired, or already used. Please request a new one." };
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Identity                                                                   */
 /* -------------------------------------------------------------------------- */

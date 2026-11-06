@@ -1,0 +1,87 @@
+name: Deploy Atlas Wanders Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy-atlaswanders.yml'
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: backend
+        run: npm run db:generate
+
+      - name: TypeScript Compile & Build
+        working-directory: backend
+        run: npm run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image (Dry Run / Cache Validation)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: atlaswanders-backend:latest
+
+  deploy:
+    name: Deploy to Server via SSH
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to Remote Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH || '/var/www/atlaswanders' }}"
+            echo "Navigating to deploy directory: $DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+
+            echo "Fetching latest changes..."
+            git pull origin main
+
+            echo "Building and restarting Docker services..."
+            docker compose down --remove-orphans || true
+            docker compose up -d --build
+
+            echo "Running database migrations..."
+            docker compose exec -T backend npm run db:migrate
+
+            echo "Cleaning up dangling Docker images..."
+            docker image prune -f
+
+            echo "Atlas Wanders deployment completed successfully!"
+

@@ -152,7 +152,12 @@ export default function TourPackageScreen() {
           icon="calendar-outline"
           size="lg"
           fullWidth
-          onPress={() => router.push(`${base}/tour-guide/${data.guide.id}/book`)}
+          onPress={() =>
+            router.push({
+              pathname: `${base}/tour-guide/${data.guide.id}/book` as any,
+              params: { packageId: data.id },
+            })
+          }
           style={styles.action}
         />
       ) : null}

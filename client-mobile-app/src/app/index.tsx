@@ -162,7 +162,15 @@ export default function HomeScreen() {
                 onPress={() => router.push("/login")}
                 style={styles.heroSecondary}
               />
-            ) : null}
+            ) : (
+              <Button
+                label="My Profile"
+                variant="secondary"
+                icon="person-outline"
+                onPress={() => router.push("/profile")}
+                style={styles.heroSecondary}
+              />
+            )}
           </View>
         </View>
 
@@ -214,8 +222,13 @@ export default function HomeScreen() {
           />
           <ShortcutTile
             icon="calendar-outline"
-            label="My bookings"
+            label="Bookings"
             onPress={() => router.push("/bookings")}
+          />
+          <ShortcutTile
+            icon="heart-outline"
+            label="Saved"
+            onPress={() => router.push("/favorites")}
           />
         </View>
       </View>

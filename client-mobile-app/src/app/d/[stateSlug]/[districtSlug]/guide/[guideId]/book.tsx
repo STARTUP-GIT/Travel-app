@@ -2,24 +2,21 @@
  * Booking form for a place-specific guide.
  *
  * Posts to `POST /users/booking/api/specific-guide-bookings`. The backend refuses
- * a date in the past, so the picker is capped at today; the same rule is checked
- * client-side to save a pointless round trip.
- *
- * Sign-in is required by the backend, so an unauthenticated submit routes to the
- * login screen with a return path instead of failing with a 401.
+ * a date in the past, so the picker is capped at today.
+ * Supports party size, ticket assistance requests, pickup location, and notes.
  */
 
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card, InfoRow } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
 import { RemoteImage } from "@/components/ui/remote-image";
+import { Touchable } from "@/components/ui/pressable";
 import { EmptyState, LoadingState } from "@/components/ui/states";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
@@ -29,7 +26,7 @@ import { findGuideInDistrict } from "@/services/guides.service";
 import { createSpecificGuideBooking } from "@/services/bookings.service";
 import { formatCurrency, formatDate, toIsoDateOnly } from "@/lib/utils/format";
 import { toUserMessage } from "@/lib/api/client";
-import { colors, spacing, typography } from "@/theme";
+import { colors, radii, spacing, typography } from "@/theme";
 
 export default function BookGuideScreen() {
   const router = useRouter();
@@ -54,6 +51,10 @@ export default function BookGuideScreen() {
     return tomorrow;
   });
   const [time, setTime] = useState("09:00");
+  const [people, setPeople] = useState(1);
+  const [ticketAssistance, setTicketAssistance] = useState(false);
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [notes, setNotes] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -76,8 +77,6 @@ export default function BookGuideScreen() {
     if (Platform.OS === "android") setPickerOpen(false);
     if (event.type === "dismissed" || !selected) return;
 
-    // Guard against a manual scroll onto a past date even though the minimum
-    // should prevent it.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     setDate(selected < today ? today : selected);
@@ -95,6 +94,10 @@ export default function BookGuideScreen() {
         specificGuideId: guide.id,
         bookingDate: toIsoDateOnly(date),
         bookingTime: time.trim() || undefined,
+        numberOfPeople: people,
+        requestTicketAssistance: ticketAssistance,
+        pickupAddress: pickupAddress.trim() || undefined,
+        notes: notes.trim() || undefined,
       });
 
       toast.show("Booking requested", "success");
@@ -110,36 +113,35 @@ export default function BookGuideScreen() {
     <ScrollView
       style={styles.screen}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
+      showsVerticalScrollIndicator={false}
     >
-      <Card>
-        <View style={styles.guideRow}>
-          <RemoteImage
-            uri={guide.profile_pic ?? null}
-            style={styles.avatar}
-            fallbackLabel={guide.full_name}
-            radius={999}
-          />
-          <View style={styles.guideBody}>
-            <Text style={styles.guideName}>{guide.full_name}</Text>
-            <Text style={styles.guidePlace}>{place.name}</Text>
-          </View>
+      <View style={styles.guideRow}>
+        <RemoteImage
+          uri={guide.profile_pic ?? null}
+          style={styles.avatar}
+          fallbackLabel={guide.full_name}
+          radius={radii.pill}
+        />
+        <View style={styles.guideBody}>
+          <Text style={styles.guideName}>{guide.full_name}</Text>
+          <Text style={styles.guidePlace}>{place?.name ?? "Designated place"}</Text>
         </View>
+      </View>
 
-        {typeof guide.cost === "number" && guide.cost > 0 ? (
-          <InfoRow label="Guide charge" value={`${formatCurrency(guide.cost)} per day`} />
-        ) : null}
-      </Card>
+      {guide.cost ? (
+        <Card style={styles.section}>
+          <InfoRow label="Guide fee" value={`${formatCurrency(guide.cost)} per tour`} />
+        </Card>
+      ) : null}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Choose a date</Text>
-
+        <Text style={styles.sectionTitle}>Date of visit</Text>
         <Button
           label={formatDate(date)}
           variant="secondary"
           icon="calendar-outline"
           onPress={() => setPickerOpen((open) => !open)}
         />
-
         {pickerOpen ? (
           <DateTimePicker
             value={date}
@@ -160,6 +162,69 @@ export default function BookGuideScreen() {
         />
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Number of travellers</Text>
+        <View style={styles.stepperRow}>
+          <Touchable
+            onPress={() => setPeople((curr) => Math.max(1, curr - 1))}
+            style={styles.stepperBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Decrease travellers"
+          >
+            <Ionicons name="remove" size={20} color={people > 1 ? colors.text : colors.textMuted} />
+          </Touchable>
+          <Text style={styles.stepperValue}>{people} {people === 1 ? "person" : "people"}</Text>
+          <Touchable
+            onPress={() => setPeople((curr) => Math.min(25, curr + 1))}
+            style={styles.stepperBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Increase travellers"
+          >
+            <Ionicons name="add" size={20} color={people < 25 ? colors.text : colors.textMuted} />
+          </Touchable>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Touchable
+          onPress={() => setTicketAssistance((curr) => !curr)}
+          style={[styles.checkboxCard, ticketAssistance && styles.checkboxCardActive]}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: ticketAssistance }}
+        >
+          <Ionicons
+            name={ticketAssistance ? "checkbox" : "square-outline"}
+            size={22}
+            color={ticketAssistance ? colors.primary : colors.textMuted}
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.checkboxTitle}>Entrance Ticket Assistance</Text>
+            <Text style={styles.checkboxSub}>
+              Ask the guide to help purchase tickets on arrival at the entrance gate.
+            </Text>
+          </View>
+        </Touchable>
+      </View>
+
+      <View style={styles.section}>
+        <TextField
+          label="Meeting or Pickup address (optional)"
+          value={pickupAddress}
+          onChangeText={setPickupAddress}
+          placeholder="e.g. Hotel lobby, Main Gate, Station"
+          hint="Where the guide should meet your party."
+        />
+      </View>
+
+      <View style={styles.section}>
+        <TextField
+          label="Notes or special requests (optional)"
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="e.g. Language preference, mobility requirements"
+        />
+      </View>
+
       <Button
         label="Request booking"
         icon="calendar-outline"
@@ -172,8 +237,7 @@ export default function BookGuideScreen() {
 
       <Text style={styles.note}>
         <Ionicons name="information-circle-outline" size={13} color={colors.textMuted} />{" "}
-        This is a booking request. The guide confirms it, and you will see the updated
-        status under My bookings.
+        This sends a direct booking request to {guide.full_name}. You can track confirmation under My bookings.
       </Text>
     </ScrollView>
   );
@@ -183,12 +247,47 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl },
   guideRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  avatar: { width: 48, height: 48 },
+  avatar: { width: 56, height: 56 },
   guideBody: { flex: 1 },
-  guideName: { ...typography.bodyStrong, color: colors.text },
-  guidePlace: { ...typography.small, color: colors.textMuted },
+  guideName: { ...typography.heading, color: colors.text },
+  guidePlace: { ...typography.small, color: colors.textMuted, marginTop: 2 },
   section: { marginTop: spacing.xl },
   sectionTitle: { ...typography.subheading, color: colors.text, marginBottom: spacing.sm },
+  stepperRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.sm,
+  },
+  stepperBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.md,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepperValue: { ...typography.bodyStrong, color: colors.text },
+  checkboxCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  checkboxCardActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
+  },
+  checkboxTitle: { ...typography.bodyStrong, color: colors.text },
+  checkboxSub: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
   submit: { marginTop: spacing.xxl },
   note: {
     ...typography.caption,

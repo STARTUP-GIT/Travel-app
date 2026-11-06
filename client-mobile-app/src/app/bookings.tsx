@@ -114,88 +114,132 @@ function BookingsContent() {
         visible.map((booking) => {
           if ("hotel" in booking) {
             return (
-              <Card key={booking.id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="bed-outline" size={18} color={colors.primary} />
-                  <Text style={styles.cardTitle}>{booking.hotel?.name ?? "Stay"}</Text>
-                  <StatusBadge status={booking.status} />
-                </View>
+              <Touchable
+                key={booking.id}
+                onPress={() => router.push(`/bookings/${booking.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`View hotel booking for ${booking.hotel?.name ?? "Hotel"}`}
+              >
+                <Card style={styles.card}>
+                  <View style={styles.cardHeader}>
+                    <Ionicons name="bed-outline" size={18} color={colors.primary} />
+                    <Text style={styles.cardTitle}>{booking.hotel?.name ?? "Stay"}</Text>
+                    <StatusBadge status={booking.status} />
+                  </View>
 
-                <Text style={styles.cardLine}>
-                  {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)} ·{" "}
-                  {booking.guests} {booking.guests === 1 ? "guest" : "guests"}
-                </Text>
-
-                {booking.totalAmount > 0 ? (
-                  <Text style={styles.amount}>
-                    {formatCurrency(booking.totalAmount)}
+                  <Text style={styles.cardLine}>
+                    {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)} ·{" "}
+                    {booking.guests} {booking.guests === 1 ? "guest" : "guests"}
                   </Text>
-                ) : null}
-              </Card>
+
+                  {booking.totalAmount > 0 ? (
+                    <Text style={styles.amount}>
+                      {formatCurrency(booking.totalAmount)}
+                    </Text>
+                  ) : null}
+
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.viewDetailsText}>View details & confirmation →</Text>
+                  </View>
+                </Card>
+              </Touchable>
             );
           }
 
           if ("restaurent" in booking) {
             return (
-              <Card key={booking.id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="restaurant-outline" size={18} color={colors.primary} />
-                  <Text style={styles.cardTitle}>
-                    {booking.restaurent?.name ?? "Table"}
-                  </Text>
-                  <StatusBadge status={booking.status} />
-                </View>
+              <Touchable
+                key={booking.id}
+                onPress={() => router.push(`/bookings/${booking.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`View reservation for ${booking.restaurent?.name ?? "Restaurant"}`}
+              >
+                <Card style={styles.card}>
+                  <View style={styles.cardHeader}>
+                    <Ionicons name="restaurant-outline" size={18} color={colors.primary} />
+                    <Text style={styles.cardTitle}>
+                      {booking.restaurent?.name ?? "Table"}
+                    </Text>
+                    <StatusBadge status={booking.status} />
+                  </View>
 
-                <Text style={styles.cardLine}>
-                  {formatDate(booking.reservationDate)} at{" "}
-                  {formatTime(booking.reservationDate)} · {booking.guests}{" "}
-                  {booking.guests === 1 ? "guest" : "guests"}
-                </Text>
-              </Card>
+                  <Text style={styles.cardLine}>
+                    {formatDate(booking.reservationDate)} at{" "}
+                    {booking.reservationTime || formatTime(booking.reservationDate)} · {booking.guests}{" "}
+                    {booking.guests === 1 ? "guest" : "guests"}
+                  </Text>
+
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.viewDetailsText}>View details & confirmation →</Text>
+                  </View>
+                </Card>
+              </Touchable>
             );
           }
 
-          if ("specificGuide" in booking) {
+          if ("place" in booking) {
             return (
-              <Card key={booking.id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Ionicons name="person-outline" size={18} color={colors.primary} />
-                  <Text style={styles.cardTitle}>
-                    {booking.specificGuide?.full_name ?? "Guide"}
-                  </Text>
-                  <StatusBadge status={booking.status} />
-                </View>
+              <Touchable
+                key={booking.id}
+                onPress={() => router.push(`/bookings/${booking.id}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`View guide booking for ${booking.specificGuide?.full_name ?? "Guide"}`}
+              >
+                <Card style={styles.card}>
+                  <View style={styles.cardHeader}>
+                    <Ionicons name="person-outline" size={18} color={colors.primary} />
+                    <Text style={styles.cardTitle}>
+                      {booking.specificGuide?.full_name ?? "Guide"}
+                    </Text>
+                    <StatusBadge status={booking.status} />
+                  </View>
 
-                <Text style={styles.cardLine}>
-                  {booking.place?.name ?? "Place"} · {formatDate(booking.bookingDate)}
-                  {booking.bookingTime ? ` at ${booking.bookingTime}` : ""}
-                </Text>
-              </Card>
+                  <Text style={styles.cardLine}>
+                    {booking.place?.name ?? "Place"} · {formatDate(booking.bookingDate)}
+                    {booking.bookingTime ? ` at ${booking.bookingTime}` : ""}
+                  </Text>
+
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.viewDetailsText}>View details, live tracking & confirmation →</Text>
+                  </View>
+                </Card>
+              </Touchable>
             );
           }
 
           return (
-            <Card key={booking.id} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Ionicons name="people-outline" size={18} color={colors.primary} />
-                <Text style={styles.cardTitle}>
-                  {booking.commonGuide?.full_name ?? "Tour Guide"}
-                </Text>
-                <StatusBadge status={booking.status} />
-              </View>
+            <Touchable
+              key={booking.id}
+              onPress={() => router.push(`/bookings/${booking.id}`)}
+              accessibilityRole="button"
+              accessibilityLabel={`View tour booking for ${booking.commonGuide?.full_name ?? "Tour Guide"}`}
+            >
+              <Card style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Ionicons name="people-outline" size={18} color={colors.primary} />
+                  <Text style={styles.cardTitle}>
+                    {booking.commonGuide?.agencyName || booking.commonGuide?.full_name || "Tour Guide"}
+                  </Text>
+                  <StatusBadge status={booking.status} />
+                </View>
 
-              <Text style={styles.cardLine}>
-                {formatDateTime(booking.bookingDate)}
-                {booking.bookingTime ? ` · ${booking.bookingTime}` : ""}
-              </Text>
-
-              {booking.selectedPlaces?.length ? (
-                <Text style={styles.cardSub}>
-                  {booking.selectedPlaces.length}{" "}
-                  {booking.selectedPlaces.length === 1 ? "place" : "places"} on this tour
+                <Text style={styles.cardLine}>
+                  {formatDate(booking.bookingDate)}
+                  {booking.bookingTime || booking.tripStartTime ? ` · ${booking.bookingTime || booking.tripStartTime}` : ""}
                 </Text>
-              ) : null}
-            </Card>
+
+                {booking.selectedPlaces?.length ? (
+                  <Text style={styles.cardSub}>
+                    {booking.selectedPlaces.length}{" "}
+                    {booking.selectedPlaces.length === 1 ? "place" : "places"} on this tour
+                  </Text>
+                ) : null}
+
+                <View style={styles.cardFooter}>
+                  <Text style={styles.viewDetailsText}>View details & confirmation →</Text>
+                </View>
+              </Card>
+            </Touchable>
           );
         })
       )}
@@ -247,5 +291,12 @@ const styles = StyleSheet.create({
   cardLine: { ...typography.small, color: colors.textSecondary },
   cardSub: { ...typography.small, color: colors.textMuted, marginTop: spacing.xs },
   amount: { ...typography.bodyStrong, color: colors.successDark, marginTop: spacing.sm },
+  cardFooter: {
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+  },
+  viewDetailsText: { ...typography.caption, color: colors.primary, fontWeight: "600" },
   footerAction: { marginTop: spacing.lg },
 });

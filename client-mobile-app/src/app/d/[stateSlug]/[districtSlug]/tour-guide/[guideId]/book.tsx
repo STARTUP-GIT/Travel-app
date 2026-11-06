@@ -1,22 +1,18 @@
 /**
  * Tour Guide booking form.
  *
- * Posts to `POST /users/booking/api/common-guide-bookings`, which requires at
- * least one place id — so the place selector cannot be submitted empty, and the
- * button reflects that instead of letting the backend reject it.
- *
- * The places offered are exactly the ones this district lists for the guide.
- * A package does not auto-select its places: the user confirms what they actually
- * want, which is what gets recorded on the booking.
+ * Posts to `POST /users/booking/api/common-guide-bookings`.
+ * Supports preselected packages, customized place selection, adult/child counts,
+ * meeting/pickup location, and notes.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Card } from "@/components/ui/card";
+import { Card, InfoRow } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
 import { RemoteImage } from "@/components/ui/remote-image";
@@ -26,9 +22,9 @@ import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { useDistrict } from "@/providers/district-provider";
 import { useQuery } from "@/hooks/use-query";
-import { findGuideInDistrict } from "@/services/guides.service";
+import { findGuideInDistrict, listPackagesForDistrict } from "@/services/guides.service";
 import { createTourGuideBooking } from "@/services/bookings.service";
-import { formatDate, toIsoDateOnly } from "@/lib/utils/format";
+import { formatDate, formatCurrency, toIsoDateOnly } from "@/lib/utils/format";
 import { toUserMessage } from "@/lib/api/client";
 import { colors, radii, spacing, TOUR_GUIDE_LABEL, typography } from "@/theme";
 
@@ -39,9 +35,18 @@ export default function BookTourGuideScreen() {
   const { status } = useAuth();
   const { district } = useDistrict();
 
-  const params = useLocalSearchParams<{ guideId?: string; stateSlug?: string; districtSlug?: string }>();
+  const params = useLocalSearchParams<{
+    guideId?: string;
+    stateSlug?: string;
+    districtSlug?: string;
+    packageId?: string;
+  }>();
+
   const guideId = params.guideId ?? "";
-  const returnTo = `/d/${params.stateSlug ?? ""}/${params.districtSlug ?? ""}/tour-guide/${guideId}/book`;
+  const packageId = params.packageId;
+  const returnTo = `/d/${params.stateSlug ?? ""}/${params.districtSlug ?? ""}/tour-guide/${guideId}/book${
+    packageId ? `?packageId=${packageId}` : ""
+  }`;
 
   const { data, loading } = useQuery(
     () => findGuideInDistrict(district!.id, guideId, "common"),
@@ -49,7 +54,13 @@ export default function BookTourGuideScreen() {
     { enabled: Boolean(district?.id && guideId) },
   );
 
+  const [matchedPackage, setMatchedPackage] = useState<any>(null);
   const [selected, setSelected] = useState<string[]>([]);
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [notes, setNotes] = useState("");
+
   const [date, setDate] = useState<Date>(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -58,6 +69,20 @@ export default function BookTourGuideScreen() {
   const [time, setTime] = useState("09:00");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Load package details if packageId was passed in params
+  useEffect(() => {
+    if (!packageId || !district?.id) return;
+    void listPackagesForDistrict(district.id).then((packages) => {
+      const found = packages.find((p) => p.id === packageId);
+      if (found) {
+        setMatchedPackage(found);
+        // Pre-select the package places
+        const ids = found.places.map((p) => p.id);
+        if (ids.length > 0) setSelected(ids);
+      }
+    });
+  }, [packageId, district?.id]);
 
   if (loading) return <LoadingState label="Loading tour options…" />;
 
@@ -102,9 +127,16 @@ export default function BookTourGuideScreen() {
     try {
       await createTourGuideBooking({
         commonGuideId: guide.id,
+        packageId: packageId || undefined,
         placeIds: selected,
         bookingDate: toIsoDateOnly(date),
         bookingTime: time.trim() || undefined,
+        tripStartTime: time.trim() || undefined,
+        numberOfAdults: adults,
+        numberOfChildren: children,
+        numberOfPeople: adults + children,
+        requestedPickupAddress: pickupAddress.trim() || undefined,
+        notes: notes.trim() || undefined,
       });
 
       toast.show("Tour requested", "success");
@@ -120,11 +152,38 @@ export default function BookTourGuideScreen() {
     <ScrollView
       style={styles.screen}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
+      showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.heading}>Book {guide.full_name}</Text>
+      <View style={styles.guideHeader}>
+        <RemoteImage
+          uri={guide.profile_pic ?? null}
+          style={styles.avatar}
+          fallbackLabel={guide.agencyName || guide.full_name}
+          radius={radii.pill}
+        />
+        <View style={styles.guideHeaderText}>
+          <Text style={styles.heading}>{guide.agencyName || guide.full_name}</Text>
+          {guide.agencyName && guide.full_name ? (
+            <Text style={styles.leadGuide}>Guide: {guide.full_name}</Text>
+          ) : null}
+        </View>
+      </View>
+
+      {matchedPackage ? (
+        <Card style={styles.packageCard}>
+          <View style={styles.packageBadgeRow}>
+            <Ionicons name="gift-outline" size={18} color={colors.primary} />
+            <Text style={styles.packageBadgeText}>Selected Package</Text>
+          </View>
+          <Text style={styles.packageTitle}>{matchedPackage.name}</Text>
+          {matchedPackage.description ? (
+            <Text style={styles.packageDesc}>{matchedPackage.description}</Text>
+          ) : null}
+        </Card>
+      ) : null}
 
       <Text style={styles.sectionTitle}>
-        Choose places ({selected.length} selected)
+        Choose tour places ({selected.length} selected)
       </Text>
 
       {places.length === 0 ? (
@@ -169,6 +228,7 @@ export default function BookTourGuideScreen() {
         })
       )}
 
+      {/* Date */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tour date</Text>
         <Button
@@ -187,9 +247,10 @@ export default function BookTourGuideScreen() {
         ) : null}
       </View>
 
+      {/* Time */}
       <View style={styles.section}>
         <TextField
-          label="Preferred time"
+          label="Preferred start time"
           value={time}
           onChangeText={setTime}
           placeholder="09:00"
@@ -197,18 +258,91 @@ export default function BookTourGuideScreen() {
         />
       </View>
 
+      {/* Travellers: Adults & Children */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Travellers</Text>
+        <View style={styles.stepperContainer}>
+          <View style={styles.stepperItem}>
+            <Text style={styles.stepperLabel}>Adults</Text>
+            <View style={styles.stepperRow}>
+              <Touchable
+                onPress={() => setAdults((curr) => Math.max(1, curr - 1))}
+                style={styles.stepperBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease adults"
+              >
+                <Ionicons name="remove" size={18} color={adults > 1 ? colors.text : colors.textMuted} />
+              </Touchable>
+              <Text style={styles.stepperValue}>{adults}</Text>
+              <Touchable
+                onPress={() => setAdults((curr) => Math.min(25, curr + 1))}
+                style={styles.stepperBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Increase adults"
+              >
+                <Ionicons name="add" size={18} color={adults < 25 ? colors.text : colors.textMuted} />
+              </Touchable>
+            </View>
+          </View>
+
+          <View style={styles.stepperItem}>
+            <Text style={styles.stepperLabel}>Children</Text>
+            <View style={styles.stepperRow}>
+              <Touchable
+                onPress={() => setChildren((curr) => Math.max(0, curr - 1))}
+                style={styles.stepperBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Decrease children"
+              >
+                <Ionicons name="remove" size={18} color={children > 0 ? colors.text : colors.textMuted} />
+              </Touchable>
+              <Text style={styles.stepperValue}>{children}</Text>
+              <Touchable
+                onPress={() => setChildren((curr) => Math.min(20, curr + 1))}
+                style={styles.stepperBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Increase children"
+              >
+                <Ionicons name="add" size={18} color={children < 20 ? colors.text : colors.textMuted} />
+              </Touchable>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Pickup address */}
+      <View style={styles.section}>
+        <TextField
+          label="Pickup / Hotel address (optional)"
+          value={pickupAddress}
+          onChangeText={setPickupAddress}
+          placeholder="e.g. Hotel name and street"
+          hint="Where the tour vehicle should pick your party up."
+        />
+      </View>
+
+      {/* Special requests */}
+      <View style={styles.section}>
+        <TextField
+          label="Notes or special requests (optional)"
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="e.g. Dietary preferences, language, senior citizens"
+        />
+      </View>
+
       <Card style={styles.summary}>
         <Text style={styles.summaryText}>
           {selected.length === 0
             ? "Select at least one place to request a tour."
-            : `${TOUR_GUIDE_LABEL}: ${guide.full_name} · ${selected.length} ${
+            : `${guide.agencyName || guide.full_name} · ${selected.length} ${
                 selected.length === 1 ? "place" : "places"
-              } · ${formatDate(date)}`}
+              } · ${adults} Adults${children > 0 ? `, ${children} Children` : ""} · ${formatDate(date)}`}
         </Text>
       </Card>
 
       <Button
-        label="Request tour"
+        label="Request tour booking"
         icon="calendar-outline"
         size="lg"
         fullWidth
@@ -224,7 +358,22 @@ export default function BookTourGuideScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl },
-  heading: { ...typography.title, color: colors.text, marginBottom: spacing.lg },
+  guideHeader: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.lg },
+  avatar: { width: 56, height: 56 },
+  guideHeaderText: { flex: 1 },
+  heading: { ...typography.heading, color: colors.text },
+  leadGuide: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  packageCard: {
+    backgroundColor: colors.primaryLight,
+    borderColor: colors.primary,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  packageBadgeRow: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  packageBadgeText: { ...typography.caption, color: colors.primary, fontWeight: "700" },
+  packageTitle: { ...typography.bodyStrong, color: colors.text, marginTop: spacing.xs },
+  packageDesc: { ...typography.small, color: colors.textSecondary, marginTop: spacing.xs },
   section: { marginTop: spacing.xl },
   sectionTitle: { ...typography.subheading, color: colors.text, marginBottom: spacing.md },
   placeRow: {
@@ -243,6 +392,26 @@ const styles = StyleSheet.create({
   placeBody: { flex: 1 },
   placeName: { ...typography.bodyStrong, color: colors.text },
   placeCategory: { ...typography.small, color: colors.textMuted },
+  stepperContainer: { flexDirection: "row", gap: spacing.md },
+  stepperItem: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+  },
+  stepperLabel: { ...typography.caption, color: colors.textMuted, marginBottom: spacing.xs },
+  stepperRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  stepperBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radii.sm,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepperValue: { ...typography.bodyStrong, color: colors.text },
   summary: { marginTop: spacing.xl, backgroundColor: colors.surfaceMuted },
   summaryText: { ...typography.small, color: colors.textSecondary },
   submit: { marginTop: spacing.lg },

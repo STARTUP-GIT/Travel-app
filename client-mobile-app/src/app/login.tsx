@@ -163,6 +163,16 @@ export default function LoginScreen() {
           required
         />
 
+        <View style={styles.forgotRow}>
+          <Touchable
+            onPress={() => router.push("/forgot-password")}
+            accessibilityRole="button"
+            style={styles.forgotBtn}
+          >
+            <Text style={styles.forgotText}>Forgot password?</Text>
+          </Touchable>
+        </View>
+
         <Button
           label="Log in"
           onPress={onSubmit}
@@ -240,6 +250,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginHorizontal: spacing.md,
   },
+  forgotRow: { alignItems: "flex-end", marginTop: -spacing.xs, marginBottom: spacing.lg },
+  forgotBtn: { paddingVertical: spacing.xs },
+  forgotText: { ...typography.small, color: colors.primary, fontWeight: "600" },
   switchLink: { marginTop: spacing.xxl, alignItems: "center" },
   switchText: { ...typography.body, color: colors.textSecondary },
   switchAccent: { color: colors.primary, fontWeight: "700" },

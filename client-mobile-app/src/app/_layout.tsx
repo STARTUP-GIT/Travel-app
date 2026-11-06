@@ -71,7 +71,12 @@ function RootNavigator() {
       <Stack.Screen name="search" options={{ title: "Search", presentation: "modal" }} />
       <Stack.Screen name="login" options={{ title: "Log in" }} />
       <Stack.Screen name="signup" options={{ title: "Create account" }} />
+      <Stack.Screen name="forgot-password" options={{ title: "Forgot password" }} />
+      <Stack.Screen name="reset-password" options={{ title: "Reset password" }} />
+      <Stack.Screen name="profile" options={{ title: "My profile" }} />
+      <Stack.Screen name="favorites" options={{ title: "Saved" }} />
       <Stack.Screen name="bookings" options={{ title: "My bookings" }} />
+      <Stack.Screen name="bookings/[bookingId]" options={{ title: "Booking details" }} />
       <Stack.Screen name="report" options={{ title: "Report a listing" }} />
       <Stack.Screen name="about" options={{ title: "About" }} />
       <Stack.Screen name="path-tracker/index" options={{ title: "Path Tracker" }} />

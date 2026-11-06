@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: atlaswanders-backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=8080
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - atlaswanders-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: atlaswanders-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-atlaswanders}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-atlaswanders}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - atlaswanders-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  atlaswanders-network:
+    driver: bridge
+

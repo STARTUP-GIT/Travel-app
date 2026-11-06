@@ -92,6 +92,7 @@ function DistrictStack() {
         name="restaurant-detail/[restaurantId]/reserve"
         options={{ title: "Reserve a table" }}
       />
+      <Stack.Screen name="path-tracker" options={{ title: "Path Tracker" }} />
     </Stack>
   );
 }
