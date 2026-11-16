@@ -10,7 +10,21 @@ on:
       - '.github/workflows/deploy-atlaswanders.yml'
   workflow_dispatch:
 
+# Enforce minimal token permissions — read-only access to repository contents.
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: CI validation on GitHub-hosted runner.
+  # Verifies the code compiles cleanly, Prisma Client generates, and the
+  # Docker image builds on Linux before the deploy job ever runs on the VM.
+  # If Docker build fails here, Job 2 will never execute.
+  # ---------------------------------------------------------------------------
   test-and-build:
     name: Test & Build
     runs-on: ubuntu-latest
@@ -41,47 +55,282 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker Image (Dry Run / Cache Validation)
+      - name: Build Docker Image (validation — not pushed)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: false
-          tags: atlaswanders-backend:latest
+          tags: atlaswanders-backend:ci-${{ github.sha }}
 
+  # ---------------------------------------------------------------------------
+  # Job 2: Deploy on the self-hosted runner inside the AtlasWanders VM.
+  #
+  # The runner process runs directly on the VM — no SSH, no inbound port,
+  # no stored SSH key. It polls GitHub outbound (HTTPS) for queued jobs.
+  #
+  # Security Gates:
+  # - 'if: github.ref == 'refs/heads/main'' ensures PRs or untrusted branches
+  #   can never trigger this job.
+  # - 'environment: Atlaswanders-backend-production' enforces GitHub Environment protection rules
+  #   and restricts deployment strictly to the 'main' branch.
+  # ---------------------------------------------------------------------------
   deploy:
-    name: Deploy to Server via SSH
+    name: Deploy to AtlasWanders VM
     needs: test-and-build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, atlaswanders]
     if: github.ref == 'refs/heads/main'
+    environment: Atlaswanders-backend-production
 
     steps:
-      - name: Deploy to Remote Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            set -e
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            DEPLOY_PATH="${{ secrets.DEPLOY_PATH || '/var/www/atlaswanders' }}"
-            echo "Navigating to deploy directory: $DEPLOY_PATH"
-            cd "$DEPLOY_PATH"
+      # Guard: confirm the existing DB network is present before touching Docker.
+      # If atlaswanders_default is missing, fail fast instead of creating an
+      # isolated network that cannot reach the existing PostgreSQL 18 container.
+      - name: Verify atlaswanders_default network exists
+        run: |
+          if ! docker network inspect atlaswanders_default > /dev/null 2>&1; then
+            echo "::error::Docker network 'atlaswanders_default' not found."
+            echo "The atlaswanders-postgres18 container must be running before deploying the backend."
+            exit 1
+          fi
+          echo "✓ Network 'atlaswanders_default' verified."
 
-            echo "Fetching latest changes..."
-            git pull origin main
+      # Pre-deployment guard: Verify VM-local durable environment file exists,
+      # is a regular non-empty file, has permissions exactly 600, and is owned by github-runner.
+      # Strictly read-only: does not modify, write, or display file contents or secrets.
+      - name: Verify VM-local production environment file
+        run: |
+          ENV_DIR="/etc/atlaswanders"
+          ENV_FILE="${ENV_DIR}/backend.env"
+          CURRENT_USER="$(id -un)"
 
-            echo "Building and restarting Docker services..."
-            docker compose down --remove-orphans || true
-            docker compose up -d --build
+          echo "Verifying VM-local environment file at ${ENV_FILE}..."
 
-            echo "Running database migrations..."
-            docker compose exec -T backend npm run db:migrate
+          # 1. Directory must exist and be writable by github-runner
+          if [ ! -d "${ENV_DIR}" ]; then
+            echo "::error::Directory '${ENV_DIR}' does not exist on the VM."
+            echo "Run VM infrastructure setup to create ${ENV_DIR} owned by ${CURRENT_USER}:docker."
+            exit 1
+          fi
 
-            echo "Cleaning up dangling Docker images..."
-            docker image prune -f
+          if [ ! -w "${ENV_DIR}" ]; then
+            echo "::error::Directory '${ENV_DIR}' is not writable by runner user '${CURRENT_USER}'."
+            exit 1
+          fi
 
-            echo "Atlas Wanders deployment completed successfully!"
+          # 2. File must exist and be a regular file
+          if [ ! -f "${ENV_FILE}" ]; then
+            echo "::error::Mandatory environment file '${ENV_FILE}' not found on the VM."
+            echo "Create '${ENV_FILE}' with required production configuration before deploying."
+            exit 1
+          fi
 
+          # 3. File must be non-empty
+          if [ ! -s "${ENV_FILE}" ]; then
+            echo "::error::Environment file '${ENV_FILE}' is empty (0 bytes)."
+            exit 1
+          fi
+
+          # 4. File ownership must be github-runner
+          FILE_OWNER="$(stat -c '%U' "${ENV_FILE}" 2>/dev/null || echo "unknown")"
+          if [ "${FILE_OWNER}" != "${CURRENT_USER}" ] && [ "${FILE_OWNER}" != "github-runner" ]; then
+            echo "::error::Ownership check failed: '${ENV_FILE}' is owned by '${FILE_OWNER}', expected '${CURRENT_USER}'."
+            exit 1
+          fi
+
+          # 5. File permissions must be exactly 600
+          FILE_PERMS="$(stat -c '%a' "${ENV_FILE}" 2>/dev/null || echo "unknown")"
+          if [ "${FILE_PERMS}" != "600" ]; then
+            echo "::error::Permission check failed: '${ENV_FILE}' has permissions ${FILE_PERMS}, expected 600."
+            echo "Fix on VM with: chmod 600 ${ENV_FILE}"
+            exit 1
+          fi
+
+          FILE_BYTES="$(stat -c '%s' "${ENV_FILE}" 2>/dev/null || echo "0")"
+          echo "✓ Confirmed: '${ENV_FILE}' exists (${FILE_BYTES} bytes)."
+          echo "✓ Confirmed: Permissions are strictly 600."
+          echo "✓ Confirmed: Ownership is '${FILE_OWNER}'."
+          echo "✓ Confirmed: Directory '${ENV_DIR}' is writable by '${CURRENT_USER}'."
+
+      # Rollback preservation: tag the currently running container's image
+      # as 'atlaswanders-backend:previous' before replacing it.
+      # Handles first deployment safely when no previous container exists.
+      - name: Preserve currently running image for rollback
+        run: |
+          PREV_IMAGE_ID=$(docker inspect --format='{{.Image}}' atlaswanders-backend 2>/dev/null || true)
+          if [ -n "${PREV_IMAGE_ID}" ]; then
+            docker tag "${PREV_IMAGE_ID}" atlaswanders-backend:previous
+            echo "HAS_PREVIOUS=true" >> "$GITHUB_ENV"
+            echo "✓ Preserved current running image (${PREV_IMAGE_ID:0:19}) as atlaswanders-backend:previous"
+          else
+            echo "HAS_PREVIOUS=false" >> "$GITHUB_ENV"
+            echo "ℹ First deployment: No existing atlaswanders-backend container running. No previous rollback image available."
+          fi
+
+      # Step 1: Build the new backend image locally on the VM, tagged with immutable commit SHA.
+      # Running container is NOT stopped or modified during this step.
+      - name: Build backend Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker compose build backend
+          docker tag atlaswanders-backend:${{ github.sha }} atlaswanders-backend:latest
+          echo "✓ Built image tagged as atlaswanders-backend:${{ github.sha }} and atlaswanders-backend:latest"
+
+      # Step 2: Run database migrations using a temporary one-off container BEFORE
+      # replacing the live backend.
+      #
+      # Safe Migration Ordering & Expand-Contract Strategy:
+      # - The temporary container connects to 'atlaswanders_default' and runs
+      #   'prisma migrate deploy' using the newly built image and DATABASE_URL.
+      # - While this runs, the existing live 'atlaswanders-backend' container
+      #   remains running and serving requests uninterrupted.
+      # - If migrations fail, this step exits non-zero and halts the workflow.
+      #   The live backend is NEVER stopped or replaced with incompatible code.
+      # - Future schema migrations must follow the Expand-and-Contract pattern
+      #   (additive changes first: new nullable columns, new tables) so the
+      #   currently running backend is unaffected while migrations execute.
+      - name: Run database migrations (pre-deployment guard)
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker compose run --rm --no-deps backend npm run db:migrate
+
+      # Step 3: Begin Container Replacement Phase.
+      # Flag is set immediately before replacing the container so rollback is ONLY
+      # triggered if a failure occurs during or after container replacement.
+      - name: Mark deployment phase started
+        run: |
+          echo "DEPLOYMENT_STARTED=true" >> "$GITHUB_ENV"
+
+      # Step 4: Replace backend container with the newly verified image.
+      #
+      # Note: Docker Compose recreates the container in-place. A brief
+      # connection interruption (a few seconds) may occur during container
+      # recreation unless an external reverse-proxy with blue-green routing
+      # is fronting the service.
+      # --no-deps ensures only 'backend' is touched; postgres18 is never restarted.
+      - name: Deploy backend container
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker compose up -d --no-deps backend
+
+      # Step 5: Verify container process status before health polling.
+      - name: Verify backend container is running
+        run: |
+          STATUS=$(docker inspect --format='{{.State.Status}}' atlaswanders-backend 2>/dev/null || echo "not_found")
+          if [ "${STATUS}" != "running" ]; then
+            echo "::error::Backend container is not in 'running' state. Actual status: ${STATUS}"
+            exit 1
+          fi
+          echo "✓ Backend container status: ${STATUS}"
+
+      # Step 6: Poll /api/health for up to 60 seconds (12 attempts × 5 s).
+      - name: Health check — wait for backend to respond
+        id: healthcheck
+        run: |
+          echo "Polling http://localhost:8080/api/health ..."
+          for i in $(seq 1 12); do
+            HTTP=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:8080/api/health 2>/dev/null || echo "000")
+            if [ "${HTTP}" = "200" ]; then
+              echo "✓ Health check passed on attempt ${i}/12 (HTTP ${HTTP})"
+              exit 0
+            fi
+            echo "  Attempt ${i}/12: HTTP ${HTTP} — retrying in 5 s..."
+            sleep 5
+          done
+          echo "::error::Health check failed after 60 seconds. The backend did not return HTTP 200."
+          exit 1
+
+      # Automated backend-only rollback:
+      # Triggered ONLY if failure occurs after deployment replacement has started
+      # (container start failure, crash, or health check failure).
+      # Failures before deployment (network, build, migration) will NEVER trigger this.
+      - name: Automatic backend rollback on deployment failure
+        if: failure() && env.DEPLOYMENT_STARTED == 'true'
+        env:
+          IMAGE_TAG: previous
+        run: |
+          if [ "${HAS_PREVIOUS}" = "true" ] && docker image inspect atlaswanders-backend:previous > /dev/null 2>&1; then
+            echo "::warning::Deployment failed after container swap. Restoring backend to atlaswanders-backend:previous..."
+            docker compose up -d --no-deps backend
+            echo "✓ Restored backend container from atlaswanders-backend:previous"
+          else
+            echo "::error::================================================================="
+            echo "::error::FIRST DEPLOYMENT FAILURE — NO PREVIOUS IMAGE EXISTS"
+            echo "::error::================================================================="
+            echo "::error::This is the initial deployment of atlaswanders-backend."
+            echo "::error::There is no previous image tag (atlaswanders-backend:previous) to roll back to."
+            echo "::error::PostgreSQL (atlaswanders-postgres18) remains healthy and untouched."
+            echo "::error::Recovery Instructions:"
+            echo "::error::  1. Inspect container logs below to diagnose the failure."
+            echo "::error::  2. Correct configuration/code on your Windows laptop."
+            echo "::error::  3. Re-run deployment after resolving the issue."
+            echo "::error::================================================================="
+            exit 1
+          fi
+
+      # Verify restored backend container state and health after automatic rollback.
+      - name: Verify health of restored backend after rollback
+        if: failure() && env.DEPLOYMENT_STARTED == 'true' && env.HAS_PREVIOUS == 'true'
+        run: |
+          echo "Verifying restored backend container process state..."
+          RESTORED_STATUS=$(docker inspect --format='{{.State.Status}}' atlaswanders-backend 2>/dev/null || echo "not_found")
+          if [ "${RESTORED_STATUS}" != "running" ]; then
+            echo "::error::CRITICAL: Restored backend container is NOT running! Status: ${RESTORED_STATUS}"
+            exit 1
+          fi
+          echo "✓ Restored container process is running. Verifying HTTP health at http://localhost:8080/api/health ..."
+          HEALTHY=false
+          for i in $(seq 1 12); do
+            HTTP=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:8080/api/health 2>/dev/null || echo "000")
+            if [ "${HTTP}" = "200" ]; then
+              echo "✓ Rollback verified: restored backend is healthy and serving HTTP 200 (attempt ${i}/12)."
+              HEALTHY=true
+              break
+            fi
+            sleep 5
+          done
+          if [ "${HEALTHY}" != "true" ]; then
+            echo "::error::CRITICAL: Restored backend failed HTTP health check after rollback! Immediate manual investigation required."
+            exit 1
+          fi
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "========================================"
+          echo " AtlasWanders Backend — Deployed"
+          echo "========================================"
+          echo "Commit : ${{ github.sha }}"
+          echo "Branch : ${{ github.ref_name }}"
+          echo "Actor  : ${{ github.actor }}"
+          STARTED=$(docker inspect atlaswanders-backend --format='{{.State.StartedAt}}' 2>/dev/null || echo "unknown")
+          echo "Started: ${STARTED}"
+          echo "Health response:"
+          curl -sf http://localhost:8080/api/health | head -c 500 || true
+
+      # Always check the PostgreSQL container — runs even if the deploy or rollback failed.
+      - name: Confirm PostgreSQL container is unaffected
+        if: always()
+        run: |
+          PG_STATUS=$(docker inspect --format='{{.State.Status}}' atlaswanders-postgres18 2>/dev/null || echo "not_found")
+          if [ "${PG_STATUS}" = "running" ]; then
+            echo "✓ atlaswanders-postgres18 is unaffected: ${PG_STATUS}"
+          else
+            echo "::warning::atlaswanders-postgres18 status is '${PG_STATUS}'. Investigate independently."
+          fi
+
+      # Surfaces container logs automatically on any step failure.
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          echo "=== Last 50 lines of atlaswanders-backend logs ==="
+          docker logs --tail=50 atlaswanders-backend 2>/dev/null || echo "(Container not found or no logs available)"
+          echo ""
+          echo "=== All atlaswanders containers ==="
+          docker ps -a --filter name=atlaswanders --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

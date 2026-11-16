@@ -1,2 +1,18 @@
 Design
 prompt.txt
+fix-firewall.bat
+
+# Backend — secrets and compiled output (never commit these)
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/dist/
+backend/node_modules/
+
+# Root-level environment files
+.env
+.env.*
+!.env.example
+
+# Local environment mock directory (never commit)
+etc/

@@ -3,46 +3,41 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: atlaswanders-backend:${IMAGE_TAG:-latest}
     container_name: atlaswanders-backend
     restart: unless-stopped
     ports:
-      - "${PORT:-8080}:8080"
+      - "8080:8080"
     env_file:
-      - ./backend/.env
+      # Mandatory durable production runtime environment file on the VM.
+      # Maintained locally on the VM (permissions 0600, owned by github-runner).
+      # Used directly for production container execution, migrations, and manual CLI rollback.
+      - /etc/atlaswanders/backend.env
     environment:
+      - NODE_ENV=production
       - PORT=8080
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - atlaswanders-network
-
-  db:
-    image: postgres:16-alpine
-    container_name: atlaswanders-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-atlaswanders}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-atlaswanders}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      # Uses node (always present in image) rather than curl (not installed in slim image).
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://localhost:8080/api/health').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     networks:
-      - atlaswanders-network
+      - atlaswanders_default
 
-volumes:
-  postgres_data:
-    driver: local
-
+# The atlaswanders_default network is managed by the existing PostgreSQL 18.7
+# container (atlaswanders-postgres18). It is declared external so Docker Compose
+# joins it without creating or destroying it. If the network does not exist,
+# 'docker compose up' will fail with a clear error rather than creating an
+# isolated network that cannot reach the database.
+#
+# DO NOT add a 'db' service here. DO NOT add a postgres volume here.
+# The existing database container and its data are managed independently.
 networks:
-  atlaswanders-network:
-    driver: bridge
-
+  atlaswanders_default:
+    external: true
