@@ -20,9 +20,11 @@ export const FALLBACK_CONFIG: AppConfig = {
   imageBanners: [],
   text: FALLBACK_TAGLINE,
   app_description: "Discover destinations, places, guides, hotels and restaurants.",
-  contacts: "",
-  termsandconditions: "",
-  privacy: "",
+  contacts: "support@atlaswanders.com",
+  termsandconditions: "AtlasWanders Terms of Service: https://atlaswanders.com/terms",
+  privacy: "AtlasWanders Privacy Policy: https://atlaswanders.com/privacy",
+  defaultDistrictHeroImageUrl: undefined,
+  showDistrictHeadingByDefault: true,
 };
 
 /** Drops empty strings and non-URLs so a partial config cannot break the shell. */
@@ -48,9 +50,11 @@ export async function getAppConfig(): Promise<AppConfig> {
       imageBanners: usableImages(raw?.imageBanners),
       text: text(raw?.text, FALLBACK_CONFIG.text),
       app_description: text(raw?.app_description, FALLBACK_CONFIG.app_description),
-      contacts: text(raw?.contacts, ""),
-      termsandconditions: text(raw?.termsandconditions, ""),
-      privacy: text(raw?.privacy, ""),
+      contacts: text(raw?.contacts, FALLBACK_CONFIG.contacts),
+      termsandconditions: text(raw?.termsandconditions, FALLBACK_CONFIG.termsandconditions),
+      privacy: text(raw?.privacy, FALLBACK_CONFIG.privacy),
+      defaultDistrictHeroImageUrl: typeof raw?.defaultDistrictHeroImageUrl === "string" ? raw.defaultDistrictHeroImageUrl.trim() : undefined,
+      showDistrictHeadingByDefault: typeof raw?.showDistrictHeadingByDefault === "boolean" ? raw.showDistrictHeadingByDefault : true,
     };
   } catch {
     return FALLBACK_CONFIG;

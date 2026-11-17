@@ -56,7 +56,7 @@ export default function PlacesScreen() {
       style={styles.screen}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xxl },
+        { paddingTop: spacing.md, paddingBottom: insets.bottom + spacing.xxl },
       ]}
       keyboardShouldPersistTaps="handled"
     >

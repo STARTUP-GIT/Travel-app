@@ -64,35 +64,33 @@ function DistrictStack() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.primary },
-        headerTintColor: colors.textInverse,
-        headerTitleStyle: { fontWeight: "700" },
-        headerShadowVisible: false,
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="hotels" options={{ title: "Hotels" }} />
-      <Stack.Screen name="restaurants" options={{ title: "Restaurants" }} />
-      <Stack.Screen name="transport" options={{ title: "Get there" }} />
-      <Stack.Screen name="place/[placeId]/index" options={{ title: "Place" }} />
-      <Stack.Screen name="place/[placeId]/go-to" options={{ title: "How to get there" }} />
-      <Stack.Screen name="guide/[guideId]/index" options={{ title: "Guide" }} />
-      <Stack.Screen name="guide/[guideId]/book" options={{ title: "Book this guide" }} />
-      <Stack.Screen name="tour-guide/[guideId]/index" options={{ title: "Tour Guide" }} />
-      <Stack.Screen name="tour-guide/[guideId]/book" options={{ title: "Book a tour" }} />
-      <Stack.Screen name="tour-package/[packageId]" options={{ title: "Package" }} />
-      <Stack.Screen name="hotel-detail/[hotelId]" options={{ title: "Hotel" }} />
-      <Stack.Screen name="hotel-detail/[hotelId]/book" options={{ title: "Book a stay" }} />
+      <Stack.Screen name="hotels" options={{ headerShown: false }} />
+      <Stack.Screen name="restaurants" options={{ headerShown: false }} />
+      <Stack.Screen name="transport/index" options={{ headerShown: false }} />
+      <Stack.Screen name="place/[placeId]/index" options={{ headerShown: false }} />
+      <Stack.Screen name="place/[placeId]/go-to" options={{ headerShown: false }} />
+      <Stack.Screen name="guide/[guideId]/index" options={{ headerShown: false }} />
+      <Stack.Screen name="guide/[guideId]/book" options={{ headerShown: false }} />
+      <Stack.Screen name="tour-guide/[guideId]/index" options={{ headerShown: false }} />
+      <Stack.Screen name="tour-guide/[guideId]/book" options={{ headerShown: false }} />
+      <Stack.Screen name="tour-package/[packageId]" options={{ headerShown: false }} />
+      <Stack.Screen name="hotel-detail/[hotelId]/index" options={{ headerShown: false }} />
+      <Stack.Screen name="hotel-detail/[hotelId]/book" options={{ headerShown: false }} />
       <Stack.Screen
-        name="restaurant-detail/[restaurantId]"
-        options={{ title: "Restaurant" }}
+        name="restaurant-detail/[restaurantId]/index"
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="restaurant-detail/[restaurantId]/reserve"
-        options={{ title: "Reserve a table" }}
+        options={{ headerShown: false }}
       />
-      <Stack.Screen name="path-tracker" options={{ title: "Path Tracker" }} />
+      <Stack.Screen name="path-tracker/index" options={{ headerShown: false }} />
+      <Stack.Screen name="path-tracker/live" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -93,6 +93,8 @@ export async function createTourGuideBooking(
   );
 }
 
+export const createCommonGuideBooking = createTourGuideBooking;
+
 export async function listTourGuideBookings(): Promise<CommonGuideBooking[]> {
   return api.get<CommonGuideBooking[]>("/users/booking/api/common-guide-bookings");
 }

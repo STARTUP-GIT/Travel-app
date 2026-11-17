@@ -63,7 +63,7 @@ export default function SavedScreen() {
       style={styles.screen}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xxl },
+        { paddingTop: spacing.md, paddingBottom: insets.bottom + spacing.xxl },
       ]}
     >
       <Text style={styles.title}>Saved</Text>

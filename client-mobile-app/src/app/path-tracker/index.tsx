@@ -1,252 +1,173 @@
+import React, { useCallback, useMemo, useRef } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { useTripStore } from '@/store/trip-store';
+import { useTripSession } from '@/hooks/useTripSession';
+import TripMap, { TripMapHandle } from '@/maps/TripMap';
+import { HeaderBar } from '@/components/HeaderBar';
+import { TripStatsCard } from '@/components/TripStatsCard';
+import { TripControls } from '@/components/TripControls';
+import { ReturnHUD } from '@/components/ReturnHUD';
+import { OffRouteBanner } from '@/components/OffRouteBanner';
+import { MapLegend } from '@/components/MapLegend';
+import { FloatingControls } from '@/components/FloatingControls';
+import { HomeIdleCard } from '@/components/HomeIdleCard';
+import { TripCompleteModal } from '@/components/TripCompleteModal';
+import { LocationPermissionScreen } from '@/components/LocationPermissionScreen';
+import { LocationSearchingScreen } from '@/components/LocationSearchingScreen';
+import { RecoveryPrompt } from '@/components/RecoveryPrompt';
+import { ArrivedBanner } from '@/components/ArrivedBanner';
+import { Colors, FontSize, FontWeight, Spacing, BorderRadius } from '@/constants/theme';
+import { Coordinate } from '@/types';
+
 /**
- * Mobile Path Tracker Hub.
- * Exact replication / parity with Website Path Tracker Hub.
+ * Home = the live tracking center.
+ *
+ * Layout order (never the other way around):
+ *   GPS → TripEngine → SQLite → UI/map/stats/return
+ *
+ * When offline the Google Map is unmounted and replaced by a blank/dark area.
+ * GPS, tracking, timer, distance, points and return logic ALL continue working
+ * regardless of internet connectivity. Only the map visualization is affected.
  */
-
-import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/states";
-import { Touchable } from "@/components/ui/pressable";
-import { useToast } from "@/providers/toast-provider";
-import { useTripStore } from "@/lib/path-tracker/trip-store";
-import { useTripSession } from "@/lib/path-tracker/useTripSession";
-import { formatDistance, formatDuration } from "@/lib/path-tracker/geo";
-import { formatDate, formatDateTime } from "@/lib/utils/format";
-import type { TripSummary } from "@/lib/path-tracker/types";
-import { triggerTap, triggerMediumTap } from "@/lib/path-tracker/alert-service";
-import { colors, radii, spacing, typography } from "@/theme";
-
-export default function PathTrackerScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const toast = useToast();
+export default function HomeScreen() {
   const session = useTripSession();
 
-  const tripHistory = useTripStore((s) => s.tripHistory);
-  const loadHistory = useTripStore((s) => s.loadHistory);
-  const deleteTrip = useTripStore((s) => s.deleteTrip);
-  const bootstrap = useTripStore((s) => s.bootstrap);
-  const recoveredActive = useTripStore((s) => s.recoveredActive);
+  const state = useTripStore((s) => s.state);
+  const networkState = useTripStore((s) => s.networkState);
+  const currentPosition = useTripStore((s) => s.currentPosition);
+  const hasInitial = useTripStore((s) => s.hasInitialPosition);
+  const isFollowing = useTripStore((s) => s.isFollowing);
   const activeTrip = useTripStore((s) => s.activeTrip);
-  const startTrip = useTripStore((s) => s.startTrip);
-  const resumeRecoveredTrip = useTripStore((s) => s.resumeRecoveredTrip);
-  const discardRecoveredTrip = useTripStore((s) => s.discardRecoveredTrip);
+  const returnState = useTripStore((s) => s.returnState);
+  const activeCheckpoints = useTripStore((s) => s.activeCheckpoints);
+  const setFollowing = useTripStore((s) => s.setFollowing);
+  const requestRecenter = useTripStore((s) => s.requestRecenter);
 
-  const [starting, setStarting] = useState(false);
+  const mapRef = useRef<TripMapHandle>(null);
 
-  useEffect(() => {
-    void bootstrap();
-    void loadHistory();
-  }, [bootstrap, loadHistory]);
+  const isReturning = state === 'RETURNING';
+  const hasLiveTrip = state === 'ACTIVE' || state === 'PAUSED' || state === 'RETURNING' || state === 'ARRIVED';
+  const isOffline = networkState === 'offline';
 
-  useFocusEffect(
-    useCallback(() => {
-      void loadHistory();
-    }, [loadHistory]),
+  const recordedPath = useMemo(
+    () => (activeTrip?.points ?? []) as Coordinate[],
+    [activeTrip?.points]
+  );
+  const start = useMemo(() => recordedPath[0] ?? null, [recordedPath]);
+  const destination = useMemo(
+    () => (isReturning ? returnState.destination : null),
+    [isReturning, returnState.destination]
   );
 
-  const start = async () => {
-    setStarting(true);
-    triggerMediumTap();
-    try {
-      if (!session.permissionGranted) {
-        session.requestPermission();
-      }
-      await session.armTracking();
-      await startTrip();
-      router.push("/path-tracker/live");
-    } catch {
-      toast.show("Could not initialize GPS. Try again outdoors.", "error");
-    } finally {
-      setStarting(false);
-    }
-  };
+  const handleRecenter = useCallback(() => {
+    requestRecenter();
+    mapRef.current?.recenter();
+  }, [requestRecenter]);
+  const handleUserPan = useCallback(() => {
+    setFollowing(false);
+  }, [setFollowing]);
 
-  const resumeTrip = async () => {
-    triggerMediumTap();
-    if (recoveredActive) {
-      await session.armTracking();
-      await resumeRecoveredTrip(recoveredActive);
-    }
-    router.push("/path-tracker/live");
-  };
+  // ---- Permission gates ----
+  if (session.permissionLoading) {
+    return (
+      <View style={styles.container}>
+        <LocationSearchingScreen />
+      </View>
+    );
+  }
 
-  return (
-    <FlatList
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}
-      data={tripHistory}
-      keyExtractor={(trip) => trip.id}
-      ListHeaderComponent={
-        <View>
-          <Text style={styles.heading}>Path Tracker</Text>
-          <Text style={styles.intro}>
-            Track your journey with real device GPS. Your path never leaves this device.
-          </Text>
-
-          {recoveredActive ? (
-            <Card style={styles.resume}>
-              <View style={styles.resumeHeader}>
-                <Ionicons name="alert-circle" size={22} color={colors.warning} />
-                <Text style={styles.resumeTitle}>Unfinished Trip Found</Text>
-              </View>
-
-              <Text style={styles.resumeMeta}>
-                Started {new Date(recoveredActive.startTime).toLocaleString()} ·{" "}
-                {formatDistance(recoveredActive.totalDistance)} so far
-              </Text>
-
-              <View style={styles.resumeActions}>
-                <Button
-                  label="Continue trip"
-                  variant="confirm"
-                  style={styles.resumeButton}
-                  onPress={() => void resumeTrip()}
-                />
-                <Button
-                  label="Discard"
-                  variant="secondary"
-                  style={styles.resumeButton}
-                  onPress={async () => {
-                    triggerTap();
-                    await discardRecoveredTrip();
-                    toast.show("Unfinished trip discarded", "info");
-                  }}
-                />
-              </View>
-            </Card>
-          ) : null}
-
-          {activeTrip && !recoveredActive ? (
-            <Card style={styles.resume}>
-              <View style={styles.resumeHeader}>
-                <Ionicons name="play-circle" size={22} color={colors.success} />
-                <Text style={styles.resumeTitle}>Active Trip in Progress</Text>
-              </View>
-              <Text style={styles.resumeMeta}>
-                Started {new Date(activeTrip.startTime).toLocaleString()} ·{" "}
-                {formatDistance(activeTrip.totalDistance)} so far
-              </Text>
-              <View style={styles.resumeActions}>
-                <Button
-                  label="Open Live Tracker"
-                  variant="confirm"
-                  style={styles.resumeButton}
-                  onPress={() => router.push("/path-tracker/live")}
-                />
-              </View>
-            </Card>
-          ) : null}
-
-          <View style={styles.startBlock}>
-            <Button
-              label={activeTrip || recoveredActive ? "Start a new trip" : "Start tracking"}
-              icon="navigate-outline"
-              size="lg"
-              fullWidth
-              loading={starting}
-              onPress={() => void start()}
-            />
-          </View>
-
-          <View style={styles.historyHeader}>
-            <Text style={styles.sectionTitle}>Your trips</Text>
-            <Text style={styles.sectionSubtitle}>Completed routes on this device</Text>
-          </View>
-        </View>
-      }
-      renderItem={({ item }) => (
-        <TripRow
-          trip={item}
-          onDelete={async () => {
-            triggerTap();
-            await deleteTrip(item.id);
-            toast.show("Trip deleted", "info");
-          }}
+  if (!session.permissionGranted) {
+    return (
+      <View style={styles.container}>
+        <LocationPermissionScreen
+          onEnable={session.requestPermission}
+          loading={session.permissionLoading}
         />
+      </View>
+    );
+  }
+
+  // ---- Waiting for initial GPS fix ----
+  if (!hasInitial && !currentPosition) {
+    return (
+      <View style={styles.container}>
+        <LocationSearchingScreen />
+        <RecoveryPrompt />
+      </View>
+    );
+  }
+
+  // ---- Live map view ----
+  return (
+    <View style={styles.container}>
+      {/* Google Map — only rendered when ONLINE.
+          When offline, the map is fully unmounted and a blank dark area is shown.
+          GPS tracking, timer, distance, points and return logic continue independently. */}
+      {!isOffline ? (
+        <TripMap
+          ref={mapRef}
+          recordedPath={recordedPath}
+          returnCorridor={isReturning ? returnState.returnCorridor : null}
+          recoveryRoute={isReturning ? returnState.recoveryRoute : null}
+          returnRoute={isReturning ? returnState.onlineRoute : null}
+          start={start}
+          destination={destination}
+          checkpoints={activeCheckpoints}
+          isReturning={isReturning}
+          follow={isFollowing}
+          onUserPan={handleUserPan}
+        />
+      ) : (
+        <View style={styles.offlineMap}>
+          <Text style={styles.offlineIcon}>MAP UNAVAILABLE</Text>
+          <Text style={styles.offlineText}>Offline — map tiles require internet</Text>
+          {hasLiveTrip && (
+            <Text style={styles.offlineHint}>GPS tracking continues normally</Text>
+          )}
+        </View>
       )}
-      ListEmptyComponent={
-        <EmptyState
-          title="No trips yet"
-          description="Complete a route and it will be saved here."
-          icon="navigate-outline"
-        />
-      }
-    />
-  );
-}
 
-function TripRow({ trip, onDelete }: { trip: TripSummary; onDelete: () => void }) {
-  return (
-    <Card style={styles.tripRow}>
-      <View style={styles.tripHeader}>
-        <View style={styles.tripBody}>
-          <Text style={styles.tripTitle}>{formatDate(trip.startTime)}</Text>
-          <Text style={styles.tripMeta}>
-            {formatDateTime(trip.startTime)} · {trip.pointCount}{" "}
-            {trip.pointCount === 1 ? "point" : "points"}
-            {trip.returnedToStart ? " · returned" : ""}
-          </Text>
-        </View>
+      <HeaderBar online={!isOffline} />
+      <MapLegend />
+      <OffRouteBanner />
+      <FloatingControls isReturning={isReturning} onRecenter={handleRecenter} />
 
-        <Touchable
-          onPress={onDelete}
-          accessibilityRole="button"
-          accessibilityLabel="Delete trip"
-          style={styles.deleteBtn}
-        >
-          <Ionicons name="trash-outline" size={18} color={colors.danger} />
-        </Touchable>
-      </View>
+      {isReturning ? <ReturnHUD /> : hasLiveTrip ? <TripStatsCard /> : null}
 
-      <View style={styles.tripStats}>
-        <Stat label="DISTANCE" value={formatDistance(trip.totalDistance)} />
-        <Stat label="DURATION" value={formatDuration(trip.activeDurationMs)} />
-      </View>
-    </Card>
-  );
-}
+      {hasLiveTrip ? <TripControls /> : <HomeIdleCard />}
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <ArrivedBanner />
+      <TripCompleteModal />
+      <RecoveryPrompt />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl },
-  heading: { ...typography.title, color: colors.text },
-  intro: { ...typography.small, color: colors.textMuted, marginTop: spacing.xs },
-  resume: { marginTop: spacing.xl, borderColor: colors.warning },
-  resumeHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  resumeTitle: { ...typography.subheading, color: colors.text },
-  resumeMeta: { ...typography.small, color: colors.textMuted, marginTop: spacing.xs },
-  resumeActions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.lg },
-  resumeButton: { flex: 1 },
-  startBlock: { marginTop: spacing.xl },
-  historyHeader: {
-    marginTop: spacing.xxxl,
-    marginBottom: spacing.md,
+  container: { flex: 1, backgroundColor: Colors.background },
+  offlineMap: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 0,
   },
-  sectionTitle: { ...typography.heading, color: colors.text },
-  sectionSubtitle: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
-  tripRow: { marginBottom: spacing.md },
-  tripHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  tripBody: { flex: 1 },
-  tripTitle: { ...typography.bodyStrong, color: colors.text },
-  tripMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
-  deleteBtn: { padding: spacing.xs },
-  tripStats: { flexDirection: "row", gap: spacing.xl, marginTop: spacing.md },
-  stat: { flex: 1, backgroundColor: colors.surfaceMuted, borderRadius: radii.md, padding: spacing.md },
-  statValue: { ...typography.subheading, color: colors.text },
-  statLabel: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  offlineIcon: {
+    fontSize: FontSize.xs,
+    color: Colors.textMuted,
+    letterSpacing: 2,
+    fontWeight: FontWeight.bold,
+    marginBottom: Spacing.sm,
+  },
+  offlineText: {
+    fontSize: FontSize.sm,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  offlineHint: {
+    fontSize: FontSize.xs,
+    color: Colors.success,
+    marginTop: Spacing.xs,
+    fontWeight: FontWeight.medium,
+  },
 });

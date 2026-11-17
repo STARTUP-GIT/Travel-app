@@ -1,32 +1,29 @@
 /**
  * Guides directory for a district.
  *
- * Lists both guide types the backend publishes for the district — place-specific
- * guides and Tour Guides — plus the tour packages those Tour Guides offer. The
- * customer-facing label for a `common` guide is always "Tour Guide"; the internal
- * model name never appears.
- *
- * A package that spans districts only lists the places this district can see, and
- * the header says so when the two counts differ, rather than implying the package
- * is smaller than it is.
+ * Faithfully mirrors `frontend/features/guides/ui/guides-list.tsx`:
+ *   - Tabs: All, Specific, Tour Guides, Tours
+ *   - Rich PackageCard with avatar, route icon, agency attribution, cover image,
+ *     stops badges, and direct navigation to the package details
+ *   - Rich GuideCard with verified credentials and rating
  */
 
-import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TextField } from "@/components/ui/text-field";
-import { Chip } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { GuideCard } from "@/components/guide-card";
 import { EmptyState } from "@/components/ui/states";
 import { Touchable } from "@/components/ui/pressable";
 import { useDistrict } from "@/providers/district-provider";
 import { useFavorites } from "@/hooks/use-favorites";
-import { TOUR_GUIDE_LABEL, colors, radii, spacing, typography } from "@/theme";
+import { colors, radius, spacing, typography } from "@/theme";
+import { formatCurrency } from "@/lib/utils/currency";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
 
-type Filter = "all" | "tour" | "local";
+type Filter = "all" | "specific" | "common" | "packages";
 
 export default function GuidesScreen() {
   const router = useRouter();
@@ -40,12 +37,22 @@ export default function GuidesScreen() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
+  const specificGuides = useMemo(
+    () => guides.guides.filter((g) => g.type === "specific"),
+    [guides.guides]
+  );
+  const commonGuides = useMemo(
+    () => guides.guides.filter((g) => g.type === "common"),
+    [guides.guides]
+  );
+
   const visibleGuides = useMemo(() => {
+    if (filter === "packages") return [];
     const needle = query.trim().toLowerCase();
 
     return guides.guides.filter((entry) => {
-      if (filter === "tour" && entry.type !== "common") return false;
-      if (filter === "local" && entry.type !== "specific") return false;
+      if (filter === "common" && entry.type !== "common") return false;
+      if (filter === "specific" && entry.type !== "specific") return false;
       if (needle.length < 2) return true;
 
       return `${entry.guide.full_name} ${entry.guide.tagline ?? ""} ${
@@ -57,50 +64,88 @@ export default function GuidesScreen() {
   }, [guides.guides, query, filter]);
 
   const visiblePackages = useMemo(() => {
-    if (filter === "local") return [];
+    if (filter === "specific" || filter === "common") return [];
     const needle = query.trim().toLowerCase();
     if (needle.length < 2) return guides.packages;
     return guides.packages.filter((pkg) =>
-      `${pkg.name} ${pkg.description ?? ""} ${pkg.guide.full_name}`
+      `${pkg.name} ${pkg.description ?? ""} ${pkg.guide.full_name} ${pkg.guide.agencyName ?? ""}`
         .toLowerCase()
-        .includes(needle),
+        .includes(needle)
     );
   }, [guides.packages, query, filter]);
 
   if (!district) return null;
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xxl },
-      ]}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Text style={styles.title}>Guides in {district.name}</Text>
+    <View style={styles.screen}>
+      <ScreenHeader
+        title="Local Guides"
+        subtitle={`${district.name} district · ${guides.guides.length} guide${guides.guides.length === 1 ? "" : "s"}${guides.packages.length > 0 ? ` · ${guides.packages.length} tour${guides.packages.length === 1 ? "" : "s"}` : ""}`}
+        onBack={() => router.back()}
+      />
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: spacing.md, paddingBottom: insets.bottom + 40 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
 
       <TextField
         label="Filter"
         value={query}
         onChangeText={setQuery}
-        placeholder="Search by name or language"
+        placeholder="Search by name, agency, or language"
         autoCapitalize="none"
       />
 
-      <View style={styles.chips}>
-        <Chip label="All" selected={filter === "all"} onPress={() => setFilter("all")} />
-        <Chip
-          label={TOUR_GUIDE_LABEL}
-          selected={filter === "tour"}
-          onPress={() => setFilter("tour")}
-        />
-        <Chip
-          label="Place guides"
-          selected={filter === "local"}
-          onPress={() => setFilter("local")}
-        />
-      </View>
+      {/* Tabs matching web: All, Specific, Tour Guides, Tours */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll}>
+        <View style={styles.tabsRow}>
+          <Touchable
+            onPress={() => setFilter("all")}
+            style={[styles.tabChip, filter === "all" && styles.tabChipActive]}
+          >
+            <Text style={[styles.tabChipText, filter === "all" && styles.tabChipTextActive]}>
+              All ({guides.guides.length + guides.packages.length})
+            </Text>
+          </Touchable>
+
+          <Touchable
+            onPress={() => setFilter("specific")}
+            style={[styles.tabChip, filter === "specific" && styles.tabChipActive]}
+          >
+            <Text style={[styles.tabChipText, filter === "specific" && styles.tabChipTextActive]}>
+              Specific ({specificGuides.length})
+            </Text>
+          </Touchable>
+
+          <Touchable
+            onPress={() => setFilter("common")}
+            style={[styles.tabChip, filter === "common" && styles.tabChipActive]}
+          >
+            <Text style={[styles.tabChipText, filter === "common" && styles.tabChipTextActive]}>
+              Tour Guides ({commonGuides.length})
+            </Text>
+          </Touchable>
+
+          <Touchable
+            onPress={() => setFilter("packages")}
+            style={[styles.tabChip, filter === "packages" && styles.tabChipActive]}
+          >
+            <Ionicons
+              name="git-branch-outline"
+              size={13}
+              color={filter === "packages" ? "#ffffff" : colors.primary}
+            />
+            <Text style={[styles.tabChipText, filter === "packages" && styles.tabChipTextActive]}>
+              Tours ({guides.packages.length})
+            </Text>
+          </Touchable>
+        </View>
+      </ScrollView>
 
       {visibleGuides.length === 0 && visiblePackages.length === 0 ? (
         <EmptyState
@@ -110,51 +155,88 @@ export default function GuidesScreen() {
         />
       ) : null}
 
+      {/* Tour Packages matching PackageCard from web */}
       {visiblePackages.length > 0 ? (
         <View style={styles.group}>
-          <Text style={styles.groupTitle}>Tour packages</Text>
+          <Text style={styles.groupTitle}>Tour Packages ({visiblePackages.length})</Text>
 
-          {visiblePackages.map((pkg) => (
-            <Card
-              key={pkg.id}
-              padded={false}
-              style={styles.packageCard}
-            >
+          {visiblePackages.map((pkg) => {
+            const cover = pkg.places.find((p) => p.images?.[0])?.images?.[0];
+            return (
               <Touchable
+                key={pkg.id}
                 onPress={() => router.push(`${base}/tour-package/${pkg.id}`)}
-                accessibilityRole="button"
-                accessibilityLabel={`Package ${pkg.name}`}
-                style={styles.packageInner}
+                style={styles.packageCard}
               >
+                {/* Header: Avatar + Title + Agency */}
                 <View style={styles.packageHeader}>
-                  <Ionicons name="map-outline" size={18} color={colors.primary} />
-                  <Text style={styles.packageName}>{pkg.name}</Text>
-                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                  {pkg.guide.profile_pic ? (
+                    <Image source={{ uri: pkg.guide.profile_pic }} style={styles.pkgAvatar} />
+                  ) : (
+                    <View style={styles.pkgAvatarFallback}>
+                      <Text style={styles.pkgAvatarInitial}>
+                        {(pkg.guide.agencyName || pkg.guide.full_name).charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                  <View style={styles.pkgTitleWrap}>
+                    <View style={styles.pkgNameRow}>
+                      <Ionicons name="git-branch" size={15} color={colors.primary} />
+                      <Text style={styles.pkgName} numberOfLines={1}>
+                        {pkg.name}
+                      </Text>
+                    </View>
+                    <Text style={styles.pkgAgency} numberOfLines={1}>
+                      {pkg.guide.agencyName
+                        ? `${pkg.guide.agencyName} with ${pkg.guide.full_name}`
+                        : `with ${pkg.guide.full_name}`}
+                    </Text>
+                  </View>
                 </View>
 
-                <Text style={styles.packageGuide}>by {pkg.guide.full_name}</Text>
+                {/* Cover Image (16:9) if available */}
+                {cover ? (
+                  <View style={styles.pkgCoverWrap}>
+                    <Image source={{ uri: cover }} style={styles.pkgCover} />
+                  </View>
+                ) : null}
 
                 {pkg.description ? (
-                  <Text style={styles.packageDescription} numberOfLines={3}>
+                  <Text style={styles.pkgDesc} numberOfLines={2}>
                     {pkg.description}
                   </Text>
                 ) : null}
 
-                {/* Cross-district packages are larger than what this district can
-                    show, so the difference is stated rather than hidden. */}
-                <Text style={styles.packagePlaces}>
-                  {pkg.places.length} of {pkg.placeCount}{" "}
-                  {pkg.placeCount === 1 ? "place" : "places"}
-                  {pkg.places.length < pkg.placeCount
-                    ? " in this district · package spans other districts"
-                    : ""}
-                </Text>
+                {/* Badges row */}
+                <View style={styles.pkgBadgesRow}>
+                  <View style={styles.badgeSuccess}>
+                    <Ionicons name="location" size={11} color="#15803d" />
+                    <Text style={styles.badgeSuccessText}>{pkg.placeCount} stops</Text>
+                  </View>
+
+                  {pkg.places.slice(0, 2).map((p) => (
+                    <View key={p.id} style={styles.badgeOutline}>
+                      <Text style={styles.badgeOutlineText} numberOfLines={1}>
+                        {p.name}
+                      </Text>
+                    </View>
+                  ))}
+
+                  {pkg.price ? (
+                    <View style={styles.badgeInfo}>
+                      <Text style={styles.badgeInfoText}>
+                        {formatCurrency(pkg.price)}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
               </Touchable>
-            </Card>
-          ))}
+            );
+          })}
         </View>
       ) : null}
 
+      {/* Guides Grid */}
       {visibleGuides.length > 0 ? (
         <View style={styles.group}>
           <Text style={styles.groupTitle}>
@@ -167,7 +249,7 @@ export default function GuidesScreen() {
               entry={entry}
               onPress={() =>
                 router.push(
-                  `${base}/${entry.type === "common" ? "tour-guide" : "guide"}/${entry.guide.id}`,
+                  `${base}/${entry.type === "common" ? "tour-guide" : "guide"}/${entry.guide.id}`
                 )
               }
               saved={favorites.isSaved(entry.guide.id, "guide")}
@@ -182,30 +264,177 @@ export default function GuidesScreen() {
           ))}
         </View>
       ) : null}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { paddingHorizontal: spacing.xl },
-  title: { ...typography.title, color: colors.text, marginBottom: spacing.lg },
-  chips: { flexDirection: "row", flexWrap: "wrap" },
-  group: { marginTop: spacing.lg },
-  groupTitle: { ...typography.heading, color: colors.text, marginBottom: spacing.md },
-  packageCard: { marginBottom: spacing.md, borderRadius: radii.lg },
-  packageInner: { padding: spacing.lg },
-  packageHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  packageName: { ...typography.subheading, color: colors.text, flex: 1 },
-  packageGuide: { ...typography.small, color: colors.textMuted, marginTop: 2 },
-  packageDescription: {
-    ...typography.small,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  packagePlaces: {
+  content: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.md,
+  },
+  title: {
+    ...typography.title,
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  tabsScroll: {
+    marginTop: spacing.xs,
+  },
+  tabsRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  tabChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+  },
+  tabChipActive: {
+    backgroundColor: colors.primary,
+  },
+  tabChipText: {
     ...typography.caption,
-    color: colors.primary,
-    marginTop: spacing.sm,
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.textSecondary,
+  },
+  tabChipTextActive: {
+    color: "#ffffff",
+  },
+  group: {
+    gap: spacing.sm,
+  },
+  groupTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  packageCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  packageHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  pkgAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  pkgAvatarFallback: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#dbeafe",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pkgAvatarInitial: {
+    color: "#1d4ed8",
+    fontWeight: "700",
+    fontSize: 18,
+  },
+  pkgTitleWrap: {
+    flex: 1,
+  },
+  pkgNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  pkgName: {
+    ...typography.bodyStrong,
+    fontSize: 15,
+    color: colors.text,
+    flex: 1,
+  },
+  pkgAgency: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 11,
+    marginTop: 1,
+  },
+  pkgCoverWrap: {
+    height: 140,
+    borderRadius: radius.lg,
+    overflow: "hidden",
+  },
+  pkgCover: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  pkgDesc: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  pkgBadgesRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    alignItems: "center",
+  },
+  badgeSuccess: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#dcfce7",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+  },
+  badgeSuccessText: {
+    ...typography.caption,
+    color: "#15803d",
+    fontWeight: "600",
+    fontSize: 11,
+  },
+  badgeOutline: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+    maxWidth: 120,
+  },
+  badgeOutlineText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontSize: 11,
+  },
+  badgeInfo: {
+    backgroundColor: "#dbeafe",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+    marginLeft: "auto",
+  },
+  badgeInfoText: {
+    ...typography.caption,
+    color: "#1d4ed8",
+    fontWeight: "700",
+    fontSize: 11,
   },
 });

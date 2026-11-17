@@ -27,6 +27,9 @@ import { createSpecificGuideBooking } from "@/services/bookings.service";
 import { formatCurrency, formatDate, toIsoDateOnly } from "@/lib/utils/format";
 import { toUserMessage } from "@/lib/api/client";
 import { colors, radii, spacing, typography } from "@/theme";
+import { TopBar } from "@/components/shared/TopBar";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { DistrictBottomNav } from "@/components/shared/DistrictBottomNav";
 
 export default function BookGuideScreen() {
   const router = useRouter();
@@ -73,7 +76,7 @@ export default function BookGuideScreen() {
 
   const { guide, place } = data;
 
-  const onDateChange = (event: DateTimePickerEvent, selected?: Date) => {
+  const onDateChange = (event: any, selected?: Date) => {
     if (Platform.OS === "android") setPickerOpen(false);
     if (event.type === "dismissed" || !selected) return;
 
@@ -110,11 +113,21 @@ export default function BookGuideScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.root}>
+      {/* 1. Universal TopBar matching Web */}
+      <TopBar />
+
+      {/* 2. Web ScreenHeader */}
+      <ScreenHeader
+        title={`Book ${guide.full_name}`}
+        subtitle={`Specific Guide · ${place?.name}`}
+      />
+
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.guideRow}>
         <RemoteImage
           uri={guide.profile_pic ?? null}
@@ -147,7 +160,8 @@ export default function BookGuideScreen() {
             value={date}
             mode="date"
             minimumDate={new Date()}
-            onChange={onDateChange}
+            onValueChange={onDateChange}
+            onDismiss={() => setPickerOpen(false)}
           />
         ) : null}
       </View>
@@ -225,6 +239,28 @@ export default function BookGuideScreen() {
         />
       </View>
 
+      {/* Summary matching web BookingSummary */}
+      <Card style={styles.summaryCard}>
+        <Text style={styles.summaryTitle}>BOOKING SUMMARY</Text>
+        <View style={styles.summaryDivider} />
+        <InfoRow label="Guide" value={guide.full_name} />
+        <InfoRow label="Type" value="Specific Guide" />
+        <InfoRow
+          label="Number of Travellers"
+          value={`${people} ${people === 1 ? "person" : "persons"}`}
+        />
+        {ticketAssistance ? (
+          <InfoRow label="Ticket Assistance" value="Requested" />
+        ) : null}
+        <View style={styles.summaryDivider} />
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total Estimate</Text>
+          <Text style={styles.totalValue}>
+            {formatCurrency(guide.cost * Math.max(people, 1))}
+          </Text>
+        </View>
+      </Card>
+
       <Button
         label="Request booking"
         icon="calendar-outline"
@@ -239,11 +275,47 @@ export default function BookGuideScreen() {
         <Ionicons name="information-circle-outline" size={13} color={colors.textMuted} />{" "}
         This sends a direct booking request to {guide.full_name}. You can track confirmation under My bookings.
       </Text>
-    </ScrollView>
+      </ScrollView>
+
+      {/* 3. Universal BottomNavigation matching Web */}
+      <DistrictBottomNav
+        activeTab="guides"
+        stateSlug={params.stateSlug}
+        districtSlug={params.districtSlug}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background },
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+    backgroundColor: colors.surface,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    padding: spacing.xs,
+    marginRight: spacing.sm,
+  },
+  headerTitleWrap: {
+    flex: 1,
+  },
+  headerTitle: {
+    ...typography.heading,
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  headerSubtitle: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 12,
+  },
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.xl },
   guideRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
@@ -288,6 +360,38 @@ const styles = StyleSheet.create({
   },
   checkboxTitle: { ...typography.bodyStrong, color: colors.text },
   checkboxSub: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  summaryCard: {
+    marginTop: spacing.xl,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  summaryTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 4,
+  },
+  totalRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 2,
+  },
+  totalLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  totalValue: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.primary,
+  },
   submit: { marginTop: spacing.xxl },
   note: {
     ...typography.caption,

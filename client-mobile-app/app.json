@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "ATLASWANDERS",
-    "slug": "karnataka-tourism-guide",
+    "name": "AtlasWanders",
+    "slug": "atlaswanders",
     "version": "1.0.0",
-    "scheme": "karnatakatourism",
+    "sdkVersion": "58.0.0",
+    "scheme": "atlaswanders",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
@@ -15,7 +16,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tourism.karnatakaguide",
+      "bundleIdentifier": "com.atlaswanders",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Your location is used to show how far away a destination is and to record your trip with Path Tracker.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Path Tracker records your trip in the background so distance and duration stay accurate while your screen is off.",
@@ -27,7 +28,8 @@
       }
     },
     "android": {
-      "package": "com.tourism.karnatakaguide",
+      "package": "com.atlaswanders",
+      "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {
@@ -42,8 +44,16 @@
         "android.permission.VIBRATE",
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_LOCATION"
-      ]
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCfZlnNz51BCxehQ3ASztx7o4rF3FMw524"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
@@ -65,16 +75,33 @@
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#208AEF"
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-splash-screen",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": false
     },
     "extra": {
-      "router": {},
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
       "eas": {
-        "projectId": "a5a59b82-5e75-4df4-9b5f-e5029c669401"
+        "projectId": "8b1628ff-23e5-4124-8c1f-b8a2b76a61c8"
       }
-    }
+    },
+    "owner": "sathwikms23"
   }
 }

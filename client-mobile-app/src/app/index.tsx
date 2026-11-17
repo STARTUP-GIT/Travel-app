@@ -1,447 +1,574 @@
 /**
- * Landing screen.
- *
- * The slideshow imagery comes from `GET /api/settings` (admin-controlled), so
- * rebranding is an admin action. When no banners are configured the app falls
- * back to real state imagery from `GET /api/states` rather than shipping stock
- * photos — a wrong or unrelated photo is worse than none.
- *
- * Everything here is dynamic: the districts shown, the counts on them, and the
- * app name all come from the backend.
+ * Full-screen tourism landing hero for ATLASWANDERS.
+ * Exact mobile replica of frontend/app/page.tsx and frontend/components/shared/top-bar.tsx.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
+  Dimensions,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useAppShell } from "@/providers/app-shell-provider";
 import { useAuth } from "@/providers/auth-provider";
-import { getDistricts, getStates, type DistrictSummary } from "@/services/locations.service";
-import { KEYS, storage } from "@/lib/storage/local-store";
-import { formatNumber, truncate } from "@/lib/utils/format";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
-import { Button } from "@/components/ui/button";
-import { RemoteImage } from "@/components/ui/remote-image";
-import { Touchable } from "@/components/ui/pressable";
-import { Badge } from "@/components/ui/badge";
-import { LoadingState } from "@/components/ui/states";
+import { Logo } from "@/components/ui/logo";
 
-const SLIDESHOW_INTERVAL_MS = 4500;
+const DESTINATION_HINTS = [
+  "Mysuru Palace",
+  "Hampi",
+  "Jog Falls",
+  "Coorg",
+  "Gokarna",
+  "Kerala",
+  "Goa",
+  "Taj Mahal",
+];
+
+const FALLBACK_LANDING_SLIDES = [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/1920px-Mysore_Palace_Morning.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg/1920px-Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Jog_Falls_05092016.jpg/1920px-Jog_Falls_05092016.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/Abbey_Falls_New.jpg/1920px-Abbey_Falls_New.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/8/8f/Bangalore_Mysore_Maharaja_Palace.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/d/dd/Delight_india.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Kumarkom.jpg/1920px-Kumarkom.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Palolem_Beach%2C_South_Goa.jpg/1920px-Palolem_Beach%2C_South_Goa.jpg",
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1920px-Taj_Mahal_%28Edited%29.jpeg",
+];
+
+const FALLBACK_INTRO =
+  "Discover heritage, nature, culture and unforgettable destinations across India — then book guides, stays and experiences.";
+
+const SLIDE_INTERVAL_MS = 6000;
 
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { config } = useAppShell();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, profile } = useAuth();
 
-  const [districts, setDistricts] = useState<DistrictSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const displayBrandName = (config.app_name || "ATLASWANDERS").trim();
+  const displayTagline = (
+    config.text ||
+    "Discover Places. Experience Local."
+  ).trim();
+  const intro = (config.app_description || FALLBACK_INTRO).trim();
+
+  // Slideshow images: admin-configured banners or fallback gallery
+  const slides = useMemo(() => {
+    const banners = (config.imageBanners ?? []).filter((b) => Boolean(b?.trim()));
+    return banners.length > 0 ? banners : FALLBACK_LANDING_SLIDES;
+  }, [config.imageBanners]);
+
   const [slideIndex, setSlideIndex] = useState(0);
-  const [lastVisited, setLastVisited] = useState<string | null>(null);
-
-  const fade = useRef(new Animated.Value(1)).current;
-
-  const banners = config.imageBanners;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    let cancelled = false;
+    if (slides.length <= 1) return;
 
-    (async () => {
-      const [allDistricts, states] = await Promise.all([
-        getDistricts().catch(() => [] as DistrictSummary[]),
-        getStates().catch(() => []),
-      ]);
-
-      if (cancelled) return;
-
-      setDistricts(allDistricts);
-
-      // No admin banners: build the slideshow from real state imagery instead.
-      if (banners.length === 0) {
-        const images = states
-          .map((state) => state.primaryImage)
-          .filter((image): image is string => Boolean(image));
-        if (images.length > 0) setSlideIndex(0);
-      }
-
-      setLoading(false);
-      void storage.readString(KEYS.lastDistrict).then((slug) => {
-        if (!cancelled && slug) setLastVisited(slug);
+    const timer = setInterval(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0.1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start(() => {
+        setSlideIndex((prev) => (prev + 1) % slides.length);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }).start();
       });
-    })();
+    }, SLIDE_INTERVAL_MS);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [banners.length]);
+    return () => clearInterval(timer);
+  }, [slides.length, fadeAnim]);
 
-  // Cross-fades between slides only when there is more than one.
-  useEffect(() => {
-    if (banners.length < 2) return;
-
-    const handle = setInterval(() => {
-      Animated.timing(fade, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => {
-        setSlideIndex((index) => (index + 1) % banners.length);
-        fade.setValue(0);
-        Animated.timing(fade, { toValue: 1, duration: 350, useNativeDriver: true }).start();
-      });
-    }, SLIDESHOW_INTERVAL_MS);
-
-    return () => clearInterval(handle);
-  }, [banners.length, fade]);
-
-  const tap = useCallback(() => {
+  const triggerHaptic = () => {
     if (Platform.OS !== "web") {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-  }, []);
+  };
 
-  if (loading) {
-    return (
-      <View style={[styles.screen, { paddingTop: insets.top }]}>
-        <LoadingState label="Finding destinations…" />
-      </View>
-    );
-  }
-
-  const featured = districts.slice(0, 6);
+  const firstName = profile?.name ? profile.name.split(" ")[0] : "Customer";
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ paddingBottom: insets.bottom + spacing.huge }}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Hero */}
-      <View style={{ height: 320 }}>
-        <Animated.View style={[StyleSheet.absoluteFill, { opacity: fade }]}>
-          <RemoteImage
-            uri={banners[slideIndex] ?? null}
-            style={styles.heroImage}
-            fallbackLabel={config.app_name}
-            accessibilityLabel={config.text || config.app_name}
+    <View style={styles.container}>
+      {/* 1. Full-screen background photography layer */}
+      <View style={StyleSheet.absoluteFill}>
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]}>
+          <Image
+            source={{ uri: slides[slideIndex] }}
+            style={styles.backgroundImage}
+            contentFit="cover"
+            priority="high"
+            transition={300}
           />
         </Animated.View>
 
+        {/* 2. Dedicated dark navy / black overlay (matching frontend gradient) */}
         <LinearGradient
-          colors={["rgba(9,16,34,0.15)", "rgba(9,16,34,0.75)"]}
+          colors={[
+            "rgba(11, 37, 69, 0.82)",
+            "rgba(0, 0, 0, 0.55)",
+            "rgba(11, 37, 69, 0.90)",
+          ]}
+          locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
+      </View>
 
-        <View style={[styles.heroContent, { paddingTop: insets.top + spacing.xxxl }]}>
-          <Text style={styles.heroTitle}>{config.app_name}</Text>
-          {config.text ? (
-            <Text style={styles.heroSubtitle} numberOfLines={2}>
-              {config.text}
-            </Text>
-          ) : null}
+      {/* 3. TopBar (matching frontend TopBar) */}
+      <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 12) }]}>
+        <View style={styles.topBarInner}>
+          {/* Logo & Brand text */}
+          <Pressable
+            onPress={() => router.push("/")}
+            style={styles.logoRow}
+            accessibilityRole="button"
+            accessibilityLabel={`${displayBrandName} home`}
+          >
+            <Logo variant="on-dark" />
+          </Pressable>
 
-          <View style={styles.heroActions}>
-            <Button
-              label="Explore destinations"
-              icon="compass-outline"
+          {/* Action buttons: Bell & Login/Profile */}
+          <View style={styles.topBarActions}>
+            <Pressable
               onPress={() => {
-                tap();
-                router.push("/explore");
+                triggerHaptic();
+                router.push("/about");
               }}
-            />
-            {!isSignedIn ? (
-              <Button
-                label="Sign in"
-                variant="secondary"
-                onPress={() => router.push("/login")}
-                style={styles.heroSecondary}
-              />
+              style={({ pressed }) => [
+                styles.iconBtn,
+                pressed && styles.btnPressed,
+              ]}
+              accessibilityLabel="About app"
+            >
+              <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
+            </Pressable>
+
+            {isSignedIn ? (
+              <Pressable
+                onPress={() => {
+                  triggerHaptic();
+                  router.push("/profile");
+                }}
+                style={styles.avatarBtn}
+                accessibilityLabel="My profile"
+              >
+                <View style={styles.avatarFallback}>
+                  <Text style={styles.avatarText}>
+                    {firstName.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+              </Pressable>
             ) : (
-              <Button
-                label="My Profile"
-                variant="secondary"
-                icon="person-outline"
-                onPress={() => router.push("/profile")}
-                style={styles.heroSecondary}
-              />
+              <Pressable
+                onPress={() => {
+                  triggerHaptic();
+                  router.push("/login");
+                }}
+                style={({ pressed }) => [
+                  styles.loginBtn,
+                  pressed && styles.btnPressed,
+                ]}
+                accessibilityLabel="Log in"
+              >
+                <Text style={styles.loginBtnText}>Login</Text>
+              </Pressable>
             )}
           </View>
         </View>
-
-        {banners.length > 1 ? (
-          <View style={styles.dots}>
-            {banners.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === slideIndex && styles.dotActive]}
-              />
-            ))}
-          </View>
-        ) : null}
       </View>
 
-      {/* Resume */}
-      {lastVisited ? (
-        <View style={styles.section}>
-          <Touchable
-            onPress={() => router.push(`/d/${lastVisited}`)}
-            accessibilityRole="button"
-            accessibilityLabel="Continue where you left off"
-            style={styles.resume}
-          >
-            <Ionicons name="time-outline" size={18} color={colors.primary} />
-            <View style={styles.resumeText}>
-              <Text style={styles.resumeTitle}>Continue browsing</Text>
-              <Text style={styles.resumeSubtitle}>
-                Pick up your last visited destination
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </Touchable>
-        </View>
-      ) : null}
+      {/* 4. Hero Content Layer — Centered vertically & horizontally */}
+      <ScrollView
+        contentContainerStyle={[
+          styles.heroScrollContent,
+          {
+            paddingBottom: insets.bottom + 16,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={styles.heroInner}>
+          {/* Eyebrow / Tagline */}
+          <Text style={styles.eyebrow} numberOfLines={2}>
+            {displayTagline}
+          </Text>
 
-      {/* Shortcuts */}
-      <View style={styles.section}>
-        <View style={styles.shortcuts}>
-          <ShortcutTile
-            icon="search"
-            label="Search"
-            onPress={() => router.push("/search")}
-          />
-          <ShortcutTile
-            icon="navigate-circle-outline"
-            label="Path Tracker"
-            onPress={() => router.push("/path-tracker")}
-          />
-          <ShortcutTile
-            icon="calendar-outline"
-            label="Bookings"
-            onPress={() => router.push("/bookings")}
-          />
-          <ShortcutTile
-            icon="heart-outline"
-            label="Saved"
-            onPress={() => router.push("/favorites")}
-          />
-        </View>
-      </View>
-
-      {/* Featured districts */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular destinations</Text>
-          {districts.length > featured.length ? (
-            <Text
-              accessibilityRole="button"
-              onPress={() => router.push("/explore")}
-              style={styles.sectionAction}
-            >
-              See all
-            </Text>
-          ) : null}
-        </View>
-
-        {featured.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>
-              No destinations are published yet. Check back soon.
+          {/* 3-Line Heading: Exactly WELCOME / TO / {displayBrandName} */}
+          <View style={styles.headingGroup}>
+            <Text style={styles.welcomeText}>WELCOME</Text>
+            <Text style={styles.toText}>TO</Text>
+            <Text style={styles.brandNameText} numberOfLines={2}>
+              {displayBrandName}
             </Text>
           </View>
-        ) : (
-          featured.map((district) => (
-            <Touchable
-              key={district.id}
+
+          {/* Supporting Description */}
+          <Text style={styles.introText}>{intro}</Text>
+
+          {/* CTA Destination Button & Quick Destination Links */}
+          <View style={styles.ctaContainer}>
+            <Pressable
               onPress={() => {
-                tap();
-                router.push(`/d/${district.state?.slug ?? "india"}/${district.slug}`);
+                triggerHaptic();
+                router.push("/explore");
               }}
+              style={({ pressed }) => [
+                styles.chooseBtn,
+                pressed && styles.chooseBtnPressed,
+              ]}
               accessibilityRole="button"
-              accessibilityLabel={`${district.name}, ${district.state?.name ?? ""}`}
-              style={styles.districtCard}
+              accessibilityLabel="Choose destination"
             >
-              <RemoteImage
-                uri={district.state?.primaryImage ?? null}
-                style={styles.districtImage}
-                fallbackLabel={district.name}
-                accessibilityLabel={district.name}
-              />
+              <Ionicons name="map" size={18} color="#FFFFFF" style={styles.btnIcon} />
+              <Text style={styles.chooseBtnText}>CHOOSE DESTINATION</Text>
+            </Pressable>
 
-              <View style={styles.districtBody}>
-                <Text style={styles.districtName}>{district.name}</Text>
-                <Text style={styles.districtState}>{district.state?.name ?? ""}</Text>
-
-                <View style={styles.districtMeta}>
-                  <Badge label={`${formatNumber(district.placeCount) ?? "0"} places`} tone="primary" />
-                  {district.hotelCount > 0 ? (
-                    <Badge label={`${formatNumber(district.hotelCount)} hotels`} tone="neutral" />
-                  ) : null}
+            {/* Popular destination hints chips */}
+            <View style={styles.hintsWrap}>
+              {DESTINATION_HINTS.map((name, i) => (
+                <View key={name} style={styles.hintItem}>
+                  {i > 0 && <Text style={styles.hintDot}>•</Text>}
+                  <Pressable
+                    onPress={() => {
+                      triggerHaptic();
+                      router.push("/explore");
+                    }}
+                    hitSlop={6}
+                  >
+                    <Text style={styles.hintText}>{name}</Text>
+                  </Pressable>
                 </View>
-              </View>
-            </Touchable>
-          ))
-        )}
-      </View>
+              ))}
+            </View>
+          </View>
+        </View>
 
-      <Text style={styles.footer}>
-        {config.contacts ? truncate(config.contacts, 120) : ""}
-      </Text>
-    </ScrollView>
+        {/* 5. Footer navigation links */}
+        <View style={styles.footerRow}>
+          <Pressable
+            onPress={() => {
+              triggerHaptic();
+              router.push("/about");
+            }}
+            style={styles.footerLink}
+          >
+            <Ionicons name="phone-portrait-outline" size={14} color="rgba(255,255,255,0.75)" />
+            <Text style={styles.footerText}>About App</Text>
+          </Pressable>
+
+          <Text style={styles.footerDot}>•</Text>
+
+          <Pressable
+            onPress={() => {
+              triggerHaptic();
+              router.push("/report");
+            }}
+            style={styles.footerLink}
+          >
+            <Ionicons name="create-outline" size={14} color="rgba(255,255,255,0.75)" />
+            <Text style={styles.footerText}>Report Issue</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
-function ShortcutTile({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <Touchable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      style={styles.shortcut}
-    >
-      <View style={styles.shortcutIcon}>
-        <Ionicons name={icon} size={22} color={colors.primary} />
-      </View>
-      <Text style={styles.shortcutLabel} numberOfLines={1}>
-        {label}
-      </Text>
-    </Touchable>
-  );
-}
+const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  heroImage: { width: "100%", height: "100%", borderRadius: 0 },
-  heroContent: {
+  container: {
     flex: 1,
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.xxl,
-    justifyContent: "flex-end",
+    backgroundColor: "#0B2545",
   },
-  heroTitle: {
-    ...typography.display,
-    color: colors.textInverse,
+  backgroundImage: {
+    width: "100%",
+    height: "100%",
   },
-  heroSubtitle: {
-    ...typography.body,
-    color: "rgba(255,255,255,0.9)",
-    marginTop: spacing.sm,
+
+  /* Top Bar */
+  topBar: {
+    backgroundColor: "rgba(11, 37, 69, 0.75)",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(255, 255, 255, 0.12)",
+    zIndex: 20,
   },
-  heroActions: {
-    flexDirection: "row",
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-  heroSecondary: {
-    backgroundColor: "rgba(255,255,255,0.16)",
-    borderColor: "rgba(255,255,255,0.5)",
-  },
-  dots: {
-    position: "absolute",
-    bottom: spacing.md,
-    alignSelf: "center",
-    flexDirection: "row",
-    gap: spacing.xs,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.45)",
-  },
-  dotActive: { backgroundColor: colors.textInverse },
-  section: {
-    paddingHorizontal: spacing.xl,
-    marginTop: spacing.xxl,
-  },
-  sectionHeader: {
+  topBarInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.md,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    minHeight: 52,
   },
-  sectionTitle: { ...typography.heading, color: colors.text },
-  sectionAction: { ...typography.smallStrong, color: colors.primary },
-  resume: {
+  logoRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.primaryLight,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
+    gap: 10,
+    flexShrink: 1,
   },
-  resumeText: { flex: 1 },
-  resumeTitle: { ...typography.bodyStrong, color: colors.text },
-  resumeSubtitle: { ...typography.small, color: colors.textSecondary },
-  shortcuts: {
-    flexDirection: "row",
-    gap: spacing.md,
-  },
-  shortcut: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+  logoMark: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "rgba(11, 37, 69, 0.9)",
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: spacing.lg,
-    ...shadows.card,
-  },
-  shortcutIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primaryLight,
+    borderColor: "rgba(217, 164, 65, 0.5)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.sm,
   },
-  shortcutLabel: { ...typography.smallStrong, color: colors.text },
-  districtCard: {
+  logoTextCol: {
+    justifyContent: "center",
+    flexShrink: 1,
+  },
+  brandTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "900",
+    letterSpacing: -0.3,
+  },
+  brandSubtitle: {
+    color: "#D9A441",
+    fontSize: 9.5,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    marginTop: 1,
+  },
+  topBarActions: {
     flexDirection: "row",
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    ...shadows.card,
+    alignItems: "center",
+    gap: 8,
   },
-  districtImage: { width: 92, height: 92 },
-  districtBody: { flex: 1, justifyContent: "center" },
-  districtName: { ...typography.subheading, color: colors.text },
-  districtState: { ...typography.small, color: colors.textMuted, marginTop: 2 },
-  districtMeta: {
-    flexDirection: "row",
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-    flexWrap: "wrap",
+  iconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  emptyCard: {
-    padding: spacing.xl,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surfaceMuted,
+  loginBtn: {
+    height: 36,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    backgroundColor: "#059669",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  emptyText: { ...typography.small, color: colors.textSecondary, textAlign: "center" },
-  footer: {
-    ...typography.caption,
-    color: colors.textMuted,
+  loginBtnText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  avatarBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  avatarFallback: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 18,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "#D9A441",
+  },
+  avatarText: {
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 14,
+  },
+  btnPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.97 }],
+  },
+
+  /* Hero Content */
+  heroScrollContent: {
+    flexGrow: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  heroInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    maxWidth: 520,
+    width: "100%",
+    alignSelf: "center",
+    marginVertical: "auto",
+    paddingVertical: 12,
+  },
+  eyebrow: {
+    fontSize: 11.5,
+    fontWeight: "700",
+    color: "#FDE68A",
+    textTransform: "uppercase",
+    letterSpacing: 2.2,
     textAlign: "center",
-    marginTop: spacing.xxxl,
-    paddingHorizontal: spacing.xl,
+    marginBottom: 12,
+    textShadowColor: "rgba(0, 0, 0, 0.6)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  headingGroup: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  welcomeText: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "rgba(255, 255, 255, 0.95)",
+    letterSpacing: 4,
+    textTransform: "uppercase",
+    textShadowColor: "rgba(0, 0, 0, 0.7)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  toText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FCD34D",
+    letterSpacing: 4.5,
+    textTransform: "uppercase",
+    marginVertical: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.7)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  brandNameText: {
+    fontSize: Math.min(width * 0.09, 38),
+    fontWeight: "900",
+    color: "#FFFFFF",
+    textTransform: "uppercase",
+    textAlign: "center",
+    letterSpacing: -0.5,
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 16,
+  },
+  introText: {
+    fontSize: 13.5,
+    lineHeight: 20,
+    color: "rgba(255, 255, 255, 0.9)",
+    textAlign: "center",
+    maxWidth: 380,
+    marginBottom: 26,
+    textShadowColor: "rgba(0, 0, 0, 0.6)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+
+  /* CTA */
+  ctaContainer: {
+    width: "100%",
+    alignItems: "center",
+    gap: 16,
+  },
+  chooseBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: 300,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: "#059669",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  chooseBtnPressed: {
+    backgroundColor: "#047857",
+    transform: [{ scale: 0.98 }],
+  },
+  btnIcon: {
+    marginRight: 8,
+  },
+  chooseBtnText: {
+    color: "#FFFFFF",
+    fontSize: 14.5,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+  },
+
+  /* Destination hints */
+  hintsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    maxWidth: 360,
+  },
+  hintItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 3,
+  },
+  hintDot: {
+    color: "rgba(255, 255, 255, 0.4)",
+    fontSize: 12,
+    marginHorizontal: 6,
+  },
+  hintText: {
+    color: "rgba(255, 255, 255, 0.82)",
+    fontSize: 11.5,
+    fontWeight: "500",
+    textDecorationLine: "underline",
+  },
+
+  /* Footer */
+  footerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 16,
+    gap: 12,
+  },
+  footerLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  footerText: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  footerDot: {
+    color: "rgba(255, 255, 255, 0.4)",
+    fontSize: 12,
   },
 });

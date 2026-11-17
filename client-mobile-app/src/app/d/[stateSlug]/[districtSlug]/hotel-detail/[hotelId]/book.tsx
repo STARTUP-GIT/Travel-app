@@ -63,14 +63,22 @@ export default function BookHotelScreen() {
   });
   const [guests, setGuests] = useState(2);
   const [rooms, setRooms] = useState(1);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>(undefined);
   const [picker, setPicker] = useState<"checkIn" | "checkOut" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const publishedRooms = useMemo(() => {
+    return (hotel?.room_types ?? []).filter((rt) => rt.isActive !== false);
+  }, [hotel?.room_types]);
+
+  const activeRoom = useMemo(() => {
+    if (!publishedRooms.length) return null;
+    return publishedRooms.find((r) => r.id === selectedRoomId) ?? publishedRooms[0];
+  }, [publishedRooms, selectedRoomId]);
+
+  const roomRate = activeRoom?.pricePerNight ?? hotel?.cost_per_night ?? 0;
   const nights = useMemo(() => nightsBetween(new Date(checkIn), new Date(checkOut)), [checkIn, checkOut]);
-  const total =
-    typeof hotel?.cost_per_night === "number"
-      ? hotel.cost_per_night * nights * rooms
-      : null;
+  const total = roomRate * nights * rooms;
 
   if (loading) return <LoadingState label="Loading hotel…" />;
   if (error && !hotel) return <ErrorState message={error} onRetry={reload} />;
@@ -89,7 +97,7 @@ export default function BookHotelScreen() {
     );
   }
 
-  const onDateChange = (event: DateTimePickerEvent, selected?: Date) => {
+  const onDateChange = (event: any, selected?: Date) => {
     const target = picker;
     if (Platform.OS === "android") setPicker(null);
     if (event.type === "dismissed" || !selected || !target) return;
@@ -126,6 +134,7 @@ export default function BookHotelScreen() {
     try {
       await createHotelBooking({
         hotelId: hotel.id,
+        roomTypeId: activeRoom?.id,
         checkIn: toIsoDateOnly(checkIn),
         checkOut: toIsoDateOnly(checkOut),
         guests,
@@ -156,11 +165,70 @@ export default function BookHotelScreen() {
           <View style={styles.hotelBody}>
             <Text style={styles.hotelName}>{hotel.name}</Text>
             <Text style={styles.hotelRate}>
-              {formatCurrency(hotel.cost_per_night) ?? "Price on request"} per night
+              {formatCurrency(roomRate) ?? "Price on request"} per night
             </Text>
           </View>
         </View>
       </Card>
+
+      {/* Room Type Selector */}
+      {publishedRooms.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Select Option / Room</Text>
+          <View style={styles.roomTypesList}>
+            {publishedRooms.map((rt) => {
+              const isSelected = rt.id === activeRoom?.id;
+              const isDorm = rt.roomCategory === "DORMITORY" || rt.pricingUnit === "PER_BED";
+              return (
+                <Touchable
+                  key={rt.id}
+                  onPress={() => setSelectedRoomId(rt.id)}
+                  style={[
+                    styles.roomTypeCard,
+                    isSelected && styles.roomTypeCardActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <View style={styles.roomTypeHeader}>
+                    <Text style={styles.roomTypeTitle} numberOfLines={1}>
+                      {rt.title}
+                    </Text>
+                    <View
+                      style={[
+                        styles.acBadge,
+                        rt.roomType === "AC"
+                          ? styles.acBadgeAc
+                          : styles.acBadgeNonAc,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.acBadgeText,
+                          rt.roomType === "AC"
+                            ? styles.acBadgeTextAc
+                            : styles.acBadgeTextNonAc,
+                        ]}
+                      >
+                        {rt.roomType}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.roomTypeFooter}>
+                    <Text style={styles.roomTypePrice}>
+                      {formatCurrency(rt.pricePerNight)}/{isDorm ? "bed" : "nt"}
+                    </Text>
+                    <Text style={styles.roomTypeAvail}>
+                      {rt.availableRooms} {isDorm ? "beds" : "avail"}
+                    </Text>
+                  </View>
+                </Touchable>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Dates</Text>
@@ -178,7 +246,8 @@ export default function BookHotelScreen() {
             value={checkIn}
             mode="date"
             minimumDate={new Date()}
-            onChange={onDateChange}
+            onValueChange={onDateChange}
+            onDismiss={() => setPicker(null)}
           />
         ) : null}
 
@@ -195,7 +264,8 @@ export default function BookHotelScreen() {
             value={checkOut}
             mode="date"
             minimumDate={new Date(checkIn.getTime() + 86_400_000)}
-            onChange={onDateChange}
+            onValueChange={onDateChange}
+            onDismiss={() => setPicker(null)}
           />
         ) : null}
       </View>
@@ -211,15 +281,23 @@ export default function BookHotelScreen() {
         <Stepper label="Rooms" value={rooms} min={1} max={MAX_ROOMS} onChange={setRooms} />
       </View>
 
+      {/* Stay Cost Breakdown (matching web BookingSummary) */}
       <Card style={styles.summary}>
+        <Text style={styles.summaryTitle}>PRICE BREAKDOWN</Text>
+        <View style={styles.summaryDivider} />
         <InfoRow
-          label="Nights"
+          label={`${activeRoom?.title ?? "Room"}`}
+          value={`${formatCurrency(roomRate)} × ${rooms} × ${nights}nt`}
+        />
+        <InfoRow
+          label="Duration"
           value={`${nights} ${nights === 1 ? "night" : "nights"}`}
         />
-        <InfoRow
-          label="Estimated total"
-          value={total === null ? "Price on request" : `${formatCurrency(total) ?? "—"}`}
-        />
+        <View style={styles.summaryDivider} />
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total Payable</Text>
+          <Text style={styles.totalValue}>{formatCurrency(total)}</Text>
+        </View>
       </Card>
 
       <Text style={styles.note}>
@@ -298,6 +376,83 @@ const styles = StyleSheet.create({
   section: { marginTop: spacing.xl },
   sectionTitle: { ...typography.subheading, color: colors.text, marginBottom: spacing.md },
   dateButton: { marginBottom: spacing.sm },
+  roomTypesList: { gap: spacing.sm },
+  roomTypeCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  roomTypeCardActive: {
+    borderColor: colors.primary,
+    backgroundColor: "rgba(11, 37, 69, 0.05)",
+  },
+  roomTypeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  roomTypeTitle: {
+    ...typography.subheading,
+    fontSize: 14,
+    color: colors.text,
+    flex: 1,
+  },
+  acBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radii.sm,
+  },
+  acBadgeAc: { backgroundColor: colors.primary },
+  acBadgeNonAc: { backgroundColor: colors.surfaceMuted },
+  acBadgeText: { fontSize: 10, fontWeight: "700" },
+  acBadgeTextAc: { color: "#FFFFFF" },
+  acBadgeTextNonAc: { color: colors.textMuted },
+  roomTypeFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.xs,
+  },
+  roomTypePrice: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  roomTypeAvail: {
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  summary: { marginTop: spacing.lg, padding: spacing.md, gap: spacing.sm },
+  summaryTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 4,
+  },
+  totalRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 2,
+  },
+  totalLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  totalValue: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.primary,
+  },
   stepper: {
     flexDirection: "row",
     alignItems: "center",
@@ -317,7 +472,6 @@ const styles = StyleSheet.create({
   },
   stepButtonDisabled: { backgroundColor: colors.surfaceSunken, opacity: 0.5 },
   stepValue: { ...typography.subheading, color: colors.text, minWidth: 24, textAlign: "center" },
-  summary: { marginTop: spacing.lg },
   note: { ...typography.caption, color: colors.textMuted, marginTop: spacing.lg },
   submit: { marginTop: spacing.lg },
   blocked: {

@@ -16,23 +16,14 @@
  *     needed to switch the flow back on.
  */
 
-import * as AuthSession from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
 import { GOOGLE_CLIENT_ID, googleRedirectUri } from "@/config";
 import type { GoogleIdentity } from "@/services/auth.service";
-
-// Required for the session to complete on iOS; harmless on Android and web.
-WebBrowser.maybeCompleteAuthSession();
 
 const SCOPES = ["openid", "email", "profile"];
 
 /**
  * Shown whenever Google Sign-In cannot be started — this build has no client id
  * Google would accept, or the browser flow failed before it began.
- *
- * One message covers every case on purpose. An unset or placeholder environment
- * variable is not something a traveller can act on, and the underlying reason
- * (OAuth, configuration, network) must never be surfaced to them.
  */
 export const GOOGLE_UNAVAILABLE_MESSAGE =
   "Google Sign-In is temporarily unavailable. Please try again later.";
@@ -43,16 +34,15 @@ export type GoogleResult =
   | { status: "unavailable"; reason: string };
 
 export async function signInWithGoogleAccount(): Promise<GoogleResult> {
-  // Checked before anything from `expo-auth-session` runs. `@/config` already
-  // discards a missing or placeholder client id, so this is the last place the
-  // OAuth session could otherwise be built from a value Google would reject.
   if (!GOOGLE_CLIENT_ID) {
     return { status: "unavailable", reason: GOOGLE_UNAVAILABLE_MESSAGE };
   }
 
   try {
-    // `redirectUri` must match `scheme` in `app.json`, otherwise the browser
-    // closes without ever handing control back to the app.
+    const AuthSession = await import("expo-auth-session");
+    const WebBrowser = await import("expo-web-browser");
+    WebBrowser.maybeCompleteAuthSession();
+
     const redirectUri = googleRedirectUri();
 
     const request = new AuthSession.AuthRequest({
@@ -63,8 +53,6 @@ export async function signInWithGoogleAccount(): Promise<GoogleResult> {
       extraParams: { prompt: "select_account" },
     });
 
-    // This version of expo-auth-session takes the issuer alone; the client id is
-    // supplied on the AuthRequest above.
     const discovery = await AuthSession.fetchDiscoveryAsync(
       "https://accounts.google.com",
     );
@@ -91,18 +79,15 @@ export async function signInWithGoogleAccount(): Promise<GoogleResult> {
   } catch {
     return {
       status: "unavailable",
-      reason: "Google sign-in could not be started. Please try again.",
+      reason: "Google sign-in could not be started on this device. Please try again.",
     };
   }
 }
 
 /**
  * Pulls the claims out of Google's response.
- *
- * Only email and name are read. The backend identifies the account by email and
- * issues its own token, so nothing else in Google's response is trusted.
  */
-function extractIdentity(result: AuthSession.AuthSessionResult): GoogleIdentity | null {
+function extractIdentity(result: unknown): GoogleIdentity | null {
   const response = (result as { authentication?: { idToken?: string } }).authentication;
   const idToken = response?.idToken;
   if (typeof idToken !== "string" || idToken.length === 0) return null;
@@ -130,9 +115,6 @@ function decodeJwtPayload(token: string): Record<string, unknown> {
     const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
     const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=");
 
-    // `atob` is present in React Native and in every browser engine this app
-    // targets. `Buffer` is deliberately not used: it is a Node global and would
-    // throw on a device even though the fallback branch is unreachable there.
     const decode = globalThis.atob;
     if (typeof decode !== "function") return {};
 

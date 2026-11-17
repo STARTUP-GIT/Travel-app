@@ -109,6 +109,9 @@ export type TourGuide = {
   tagline?: string | null;
   /** Optional. Absent/null means the guide trades in their own name. */
   agencyName?: string | null;
+  agencyAddress?: string | null;
+  agencyBanner?: string | null;
+  agencyMapsUrl?: string | null;
   rating?: number | null;
   review: string[];
   description?: string | null;
@@ -143,6 +146,69 @@ export type TourPackageSummary = {
   description: string | null;
   commonGuideId: string;
   placeCount: number;
+  duration?: string | null;
+  maxGroupSize?: number | null;
+  packageImages?: string[];
+  pricingMode?: string;
+  pricingUnit?: string;
+  price?: number;
+  allowCustomerPlaceSelection?: boolean;
+  cancellationPolicy?: string | null;
+  foodStatus?: string | null;
+  foodDetails?: string | null;
+  mealsService?: "INCLUDED" | "ON_REQUEST" | "NO_SERVICE" | string | null;
+  includedMeals?: string[];
+  mealDetails?: string | null;
+  transportStatus?: string | null;
+  transportDetails?: string | null;
+  transportService?: "INCLUDED" | "ON_REQUEST" | "NO_SERVICE" | string | null;
+  transportVehicles?: {
+    type: string;
+    vehicleType?: string;
+    capacity: number;
+    arrangement?: "PRIVATE" | "SHARED";
+    isPrivate?: boolean;
+    isShared?: boolean;
+    includedChargeCategories?: string[];
+    excludedChargeCategories?: string[];
+    chargesIncluded?: string;
+    chargesExcluded?: string;
+    conditions?: string;
+    pricePerDay?: number;
+    status?: "AVAILABLE" | "ON_REQUEST" | string;
+    otherIncludedChargeDetail?: string;
+    otherExcludedChargeDetail?: string;
+  }[] | null;
+  entryFeeStatus?: string | null;
+  entryFeeDetails?: string | null;
+  additionalCostsDetails?: string | null;
+  hasSpecificGuide?: boolean;
+  specificGuideId?: string | null;
+  specificGuide?: {
+    id: string;
+    name: string;
+    username?: string;
+    profilePic?: string | null;
+    experienceYears?: number;
+    pricePerDay?: number;
+    languages: string[];
+    specialties?: string[];
+    rating?: number | null;
+    tagline?: string | null;
+    agencyName?: string | null;
+  } | null;
+  childrenAllowed?: boolean;
+  childMaxAge?: number | null;
+  maxChildren?: number | null;
+  childrenCountTowardCapacity?: boolean;
+  childPrice?: number | null;
+  childDiscountType?: "NO_DISCOUNT" | "PERCENTAGE" | "FREE" | string | null;
+  childDiscountPercent?: number | null;
+  childConditions?: string | null;
+  tripStartTime?: string | null;
+  pickupName?: string | null;
+  pickupAddress?: string | null;
+  pickupMapsUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -194,6 +260,26 @@ export type PlaceDetail = Place & {
 /* Hotels                                                                     */
 /* -------------------------------------------------------------------------- */
 
+export type HotelRoomType = {
+  id: string;
+  hotelId: string;
+  title: string;
+  description: string;
+  roomType: "AC" | "NON_AC";
+  maxOccupancy: number;
+  availableRooms: number;
+  pricePerNight: number;
+  roomOverviewPhoto?: string;
+  bathroomPhoto?: string;
+  images?: string[];
+  hasHotWater?: boolean;
+  hasTv?: boolean;
+  hasWifi?: boolean;
+  roomCategory?: string;
+  pricingUnit?: string;
+  isActive?: boolean;
+};
+
 export type Hotel = {
   id: string;
   name: string;
@@ -213,6 +299,7 @@ export type Hotel = {
   website?: string | null;
   booking_enabled: boolean;
   status?: ContentStatus;
+  room_types?: HotelRoomType[];
   createdAt: string;
   updatedAt: string;
   district?: District | null;
@@ -463,10 +550,12 @@ export type ResetPasswordResult = {
 
 export type CreateHotelBookingInput = {
   hotelId: string;
+  roomTypeId?: string;
   checkIn: string;
   checkOut: string;
   guests: number;
   rooms: number;
+  notes?: string;
 };
 
 export type CreateReservationInput = {
@@ -502,6 +591,9 @@ export type CreateCommonGuideBookingInput = {
   numberOfPeople?: number;
   numberOfAdults?: number;
   numberOfChildren?: number;
+  pricingMode?: string;
+  pricingUnit?: string;
+  totalPrice?: number;
   pickupName?: string;
   pickupAddress?: string;
   pickupMapsUrl?: string;
@@ -525,12 +617,19 @@ export type UpdateProfileInput = {
 
 export type AppConfig = {
   app_name: string;
+  appName?: string;
   webTitle: string;
   icon: string;
   imageBanners: string[];
+  heroImageUrl?: string;
+  clientHeroImageUrl?: string;
+  defaultDistrictHeroImageUrl?: string;
+  showDistrictHeadingByDefault?: boolean;
   text: string;
   app_description: string;
   contacts: string;
   termsandconditions: string;
   privacy: string;
+  brandName?: string;
+  tagline?: string;
 };

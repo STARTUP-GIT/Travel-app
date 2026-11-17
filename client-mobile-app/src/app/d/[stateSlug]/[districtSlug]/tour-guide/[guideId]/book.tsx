@@ -1,38 +1,50 @@
 /**
  * Tour Guide booking form.
  *
- * Posts to `POST /users/booking/api/common-guide-bookings`.
- * Supports preselected packages, customized place selection, adult/child counts,
- * meeting/pickup location, and notes.
+ * Faithfully mirrors the customer web app's `GuideBookingSheet`:
+ *   - ScreenHeader with back navigation
+ *   - Guide profile attribution header
+ *   - Tour Places selection with blue checkmark badges (all preselected by default)
+ *   - Date and Time selection
+ *   - Travellers (Adults & Children steppers)
+ *   - Meeting point and alternative pickup request
+ *   - Customer & Traveller details card
+ *   - Transparent price calculation and Booking Summary
+ *   - Full-width emerald "Book this guide" button
  */
 
-import { useEffect, useState } from "react";
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Card, InfoRow } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { TextField } from "@/components/ui/text-field";
-import { RemoteImage } from "@/components/ui/remote-image";
-import { EmptyState, LoadingState } from "@/components/ui/states";
 import { Touchable } from "@/components/ui/pressable";
+import { EmptyState, LoadingState } from "@/components/ui/states";
 import { useAuth } from "@/providers/auth-provider";
-import { useToast } from "@/providers/toast-provider";
 import { useDistrict } from "@/providers/district-provider";
 import { useQuery } from "@/hooks/use-query";
 import { findGuideInDistrict, listPackagesForDistrict } from "@/services/guides.service";
 import { createTourGuideBooking } from "@/services/bookings.service";
-import { formatDate, formatCurrency, toIsoDateOnly } from "@/lib/utils/format";
-import { toUserMessage } from "@/lib/api/client";
-import { colors, radii, spacing, TOUR_GUIDE_LABEL, typography } from "@/theme";
+import { formatCurrency } from "@/lib/utils/format";
+import { colors, radius, spacing, typography } from "@/theme";
+import { TopBar } from "@/components/shared/TopBar";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { DistrictBottomNav } from "@/components/shared/DistrictBottomNav";
 
 export default function BookTourGuideScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const toast = useToast();
-  const { status } = useAuth();
+  const { isSignedIn, profile } = useAuth();
   const { district } = useDistrict();
 
   const params = useLocalSearchParams<{
@@ -44,53 +56,98 @@ export default function BookTourGuideScreen() {
 
   const guideId = params.guideId ?? "";
   const packageId = params.packageId;
-  const returnTo = `/d/${params.stateSlug ?? ""}/${params.districtSlug ?? ""}/tour-guide/${guideId}/book${
-    packageId ? `?packageId=${packageId}` : ""
-  }`;
 
   const { data, loading } = useQuery(
     () => findGuideInDistrict(district!.id, guideId, "common"),
     [guideId, district?.id],
-    { enabled: Boolean(district?.id && guideId) },
+    { enabled: Boolean(district?.id && guideId) }
   );
 
-  const [matchedPackage, setMatchedPackage] = useState<any>(null);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [notes, setNotes] = useState("");
-
-  const [date, setDate] = useState<Date>(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
+  const [bookingDate, setBookingDate] = useState(() => {
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    const dd = String(today.getDate()).padStart(2, "0");
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const yyyy = today.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
   });
-  const [time, setTime] = useState("09:00");
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [bookingTime, setBookingTime] = useState("09:00 AM");
+  const [isRequestingPickup, setIsRequestingPickup] = useState(false);
+  const [requestedPickupName, setRequestedPickupName] = useState("");
+  const [requestedPickupAddress, setRequestedPickupAddress] = useState("");
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState<string | null>(null);
+  const [matchedPackage, setMatchedPackage] = useState<any>(null);
 
-  // Load package details if packageId was passed in params
+  // Initialize selected places and load matched package when data loads
   useEffect(() => {
-    if (!packageId || !district?.id) return;
+    if (!data || data.type !== "common" || !district?.id) return;
     void listPackagesForDistrict(district.id).then((packages) => {
-      const found = packages.find((p) => p.id === packageId);
+      const found = packageId
+        ? packages.find((p) => p.id === packageId)
+        : packages.find((p) => p.guide.id === guideId) || packages[0];
       if (found) {
         setMatchedPackage(found);
-        // Pre-select the package places
-        const ids = found.places.map((p) => p.id);
-        if (ids.length > 0) setSelected(ids);
+        if (found.places && found.places.length > 0) {
+          setSelectedPlaces(found.places.map((p) => p.id));
+          return;
+        }
       }
+      setSelectedPlaces(data.places.map((p) => p.id));
     });
-  }, [packageId, district?.id]);
+  }, [data, packageId, district?.id, guideId]);
 
-  if (loading) return <LoadingState label="Loading tour options…" />;
+  const isWholeTour = matchedPackage
+    ? (matchedPackage.pricingMode || "WHOLE_TOUR") === "WHOLE_TOUR"
+    : true;
+  const isPerPerson = matchedPackage
+    ? (matchedPackage.pricingUnit || "PER_TOUR") === "PER_PERSON"
+    : true;
+  const baseRate =
+    matchedPackage?.price && matchedPackage.price > 0
+      ? matchedPackage.price
+      : (data?.type === "common" ? data.guide.cost : 0) || 0;
+
+  // Calculate pricing matching web: whole tour flat rate per person or place-based
+  const calculatedTotal = useMemo(() => {
+    if (isWholeTour) {
+      if (isPerPerson) {
+        let childRate = baseRate;
+        if (matchedPackage?.childDiscountType === "FREE") {
+          childRate = 0;
+        } else if (
+          matchedPackage?.childDiscountType === "PERCENTAGE" &&
+          matchedPackage?.childDiscountPercent
+        ) {
+          childRate = Math.max(
+            0,
+            Math.round(baseRate * (1 - matchedPackage.childDiscountPercent / 100))
+          );
+        } else if (
+          matchedPackage?.childPrice !== null &&
+          matchedPackage?.childPrice !== undefined &&
+          matchedPackage?.childPrice > 0
+        ) {
+          childRate = matchedPackage.childPrice;
+        }
+        return baseRate * adults + childRate * children;
+      }
+      return baseRate;
+    }
+    return baseRate * Math.max(selectedPlaces.length, 1) * Math.max(adults, 1);
+  }, [isWholeTour, isPerPerson, baseRate, adults, children, matchedPackage, selectedPlaces]);
+
+  if (loading) return <LoadingState label="Loading tour guide…" />;
 
   if (!data || data.type !== "common") {
     return (
       <EmptyState
-        title={`${TOUR_GUIDE_LABEL} not found`}
-        description={`This ${TOUR_GUIDE_LABEL.toLowerCase()} is not listed in this district.`}
+        title="Tour Guide not found"
+        description="This tour guide is not listed in this district."
         icon="people-outline"
         action={{ label: "Go back", onPress: () => router.back() }}
       />
@@ -98,321 +155,995 @@ export default function BookTourGuideScreen() {
   }
 
   const { guide, places } = data;
+  const totalPeople = adults + children;
 
-  const togglePlace = (id: string) =>
-    setSelected((current) =>
-      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
-    );
+  function togglePlace(id: string) {
+    setSelectedPlaces((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length <= 1) {
+          Alert.alert("Notice", "Select at least one place for your tour.");
+          return prev;
+        }
+        return prev.filter((p) => p !== id);
+      }
+      return [...prev, id];
+    });
+  }
 
-  const onDateChange = (event: DateTimePickerEvent, value?: Date) => {
-    if (Platform.OS === "android") setPickerOpen(false);
-    if (event.type === "dismissed" || !value) return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    setDate(value < today ? today : value);
-  };
-
-  const submit = async () => {
-    if (status !== "signed-in") {
-      router.push({ pathname: "/login", params: { returnTo } });
+  async function handleSubmit() {
+    if (!isSignedIn) {
+      router.push("/login" as any);
       return;
     }
-    if (selected.length === 0) {
-      toast.show("Choose at least one place for the tour", "info");
+
+    if (!bookingDate) {
+      Alert.alert("Missing Date", "Please pick a date for your tour.");
+      return;
+    }
+
+    if (selectedPlaces.length === 0) {
+      Alert.alert("No Places Selected", "Select at least one place.");
       return;
     }
 
     setSubmitting(true);
     try {
-      await createTourGuideBooking({
+      const result = await createTourGuideBooking({
         commonGuideId: guide.id,
         packageId: packageId || undefined,
-        placeIds: selected,
-        bookingDate: toIsoDateOnly(date),
-        bookingTime: time.trim() || undefined,
-        tripStartTime: time.trim() || undefined,
+        placeIds: selectedPlaces,
+        bookingDate,
+        bookingTime,
+        numberOfPeople: totalPeople,
         numberOfAdults: adults,
         numberOfChildren: children,
-        numberOfPeople: adults + children,
-        requestedPickupAddress: pickupAddress.trim() || undefined,
+        totalPrice: Math.round(calculatedTotal),
+        requestedPickupName: isRequestingPickup ? requestedPickupName : undefined,
+        requestedPickupAddress: isRequestingPickup ? requestedPickupAddress : undefined,
         notes: notes.trim() || undefined,
       });
 
-      toast.show("Tour requested", "success");
-      router.replace("/bookings");
-    } catch (error) {
-      toast.show(toUserMessage(error), "error");
+      setConfirmedBookingId(result.id);
+    } catch (err: any) {
+      Alert.alert("Booking Failed", err?.message || "Could not complete booking. Please try again.");
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxxl }]}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.guideHeader}>
-        <RemoteImage
-          uri={guide.profile_pic ?? null}
-          style={styles.avatar}
-          fallbackLabel={guide.agencyName || guide.full_name}
-          radius={radii.pill}
-        />
-        <View style={styles.guideHeaderText}>
-          <Text style={styles.heading}>{guide.agencyName || guide.full_name}</Text>
-          {guide.agencyName && guide.full_name ? (
-            <Text style={styles.leadGuide}>Guide: {guide.full_name}</Text>
-          ) : null}
-        </View>
-      </View>
+    <View style={styles.root}>
+      {/* 1. Universal TopBar matching Web */}
+      <TopBar />
 
-      {matchedPackage ? (
-        <Card style={styles.packageCard}>
-          <View style={styles.packageBadgeRow}>
-            <Ionicons name="gift-outline" size={18} color={colors.primary} />
-            <Text style={styles.packageBadgeText}>Selected Package</Text>
+      {/* 2. Web ScreenHeader */}
+      <ScreenHeader
+        title={`Book ${guide.agencyName || guide.full_name}`}
+        subtitle={
+          isSignedIn
+            ? `Booking as ${profile?.name ?? "you"}. The guide confirms before it's final.`
+            : "Sign in to complete your booking."
+        }
+      />
+
+      {confirmedBookingId ? (
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.successBlock}>
+            <View style={styles.successIconWrap}>
+              <Ionicons name="checkmark-circle" size={54} color="#10b981" />
+            </View>
+            <Text style={styles.successTitle}>Booking Request Sent!</Text>
+            <Text style={styles.successDesc}>
+              Your tour request with {guide.agencyName || guide.full_name} has been submitted.
+              The guide will confirm shortly.
+            </Text>
           </View>
-          <Text style={styles.packageTitle}>{matchedPackage.name}</Text>
-          {matchedPackage.description ? (
-            <Text style={styles.packageDesc}>{matchedPackage.description}</Text>
-          ) : null}
-        </Card>
-      ) : null}
 
-      <Text style={styles.sectionTitle}>
-        Choose tour places ({selected.length} selected)
-      </Text>
+          <View style={styles.card}>
+            <Text style={styles.confirmedSummaryTitle}>Booking Summary</Text>
+            <View style={styles.confirmedRow}>
+              <Text style={styles.confirmedLabel}>Guide / Agency:</Text>
+              <Text style={styles.confirmedVal}>{guide.agencyName || guide.full_name}</Text>
+            </View>
+            <View style={styles.confirmedRow}>
+              <Text style={styles.confirmedLabel}>Date & Time:</Text>
+              <Text style={styles.confirmedVal}>{bookingDate} at {bookingTime}</Text>
+            </View>
+            <View style={styles.confirmedRow}>
+              <Text style={styles.confirmedLabel}>Travellers:</Text>
+              <Text style={styles.confirmedVal}>{totalPeople} ({adults} Adult{adults > 1 ? "s" : ""}, {children} Child{children !== 1 ? "ren" : ""})</Text>
+            </View>
+            <View style={styles.confirmedRow}>
+              <Text style={styles.confirmedLabel}>Tour Places:</Text>
+              <Text style={styles.confirmedVal}>{selectedPlaces.length} places selected</Text>
+            </View>
+            <View style={styles.confirmedRow}>
+              <Text style={styles.confirmedLabel}>Total Estimate:</Text>
+              <Text style={[styles.confirmedVal, { color: colors.primary, fontWeight: "800" }]}>
+                {formatCurrency(calculatedTotal)}
+              </Text>
+            </View>
+          </View>
 
-      {places.length === 0 ? (
-        <EmptyState
-          title="No places listed"
-          description={`This ${TOUR_GUIDE_LABEL.toLowerCase()} has no places listed in ${district?.name ?? "this district"}.`}
-          icon="map-outline"
-        />
+          <Touchable
+            onPress={() => router.push("/bookings")}
+            style={[styles.confirmEmeraldBtn, { marginTop: spacing.md }]}
+          >
+            <Text style={styles.confirmEmeraldBtnText}>View All My Bookings</Text>
+          </Touchable>
+        </ScrollView>
       ) : (
-        places.map((place) => {
-          const isSelected = selected.includes(place.id);
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Guide Attribution Card */}
+          <View style={styles.guideCard}>
+            {guide.profile_pic ? (
+              <Image source={{ uri: guide.profile_pic }} style={styles.guideAvatar} />
+            ) : (
+              <View style={styles.guideAvatarFallback}>
+                <Text style={styles.guideAvatarInitial}>
+                  {(guide.agencyName || guide.full_name).charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+            <View style={styles.guideMeta}>
+              <Text style={styles.guideName}>{guide.agencyName || guide.full_name}</Text>
+              <Text style={styles.guideSub}>Guide: {guide.full_name}</Text>
+              <Text style={styles.guideRate}>
+                {formatCurrency(guide.cost)} per place / person
+              </Text>
+            </View>
+          </View>
 
-          return (
-            <Touchable
-              key={place.id}
-              onPress={() => togglePlace(place.id)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: isSelected }}
-              accessibilityLabel={place.name}
-              style={[styles.placeRow, isSelected && styles.placeRowSelected]}
-            >
-              <RemoteImage
-                uri={place.images?.[0] ?? null}
-                style={styles.thumb}
-                fallbackLabel={place.name}
-              />
-
-              <View style={styles.placeBody}>
-                <Text style={styles.placeName}>{place.name}</Text>
-                {place.category ? (
-                  <Text style={styles.placeCategory}>{place.category}</Text>
-                ) : null}
+          {/* Section 1: Tour Places with Blue Checkmark Circles */}
+          {places.length > 0 ? (
+            <View style={styles.sectionWrap}>
+              <View style={styles.sectionHeaderRow}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <Ionicons name="location-outline" size={16} color={colors.primary} />
+                  <Text style={styles.sectionTitle}>
+                    Tour Places ({selectedPlaces.length}/{places.length} selected)
+                  </Text>
+                </View>
+                <Text style={styles.sectionNote}>Customize stops if desired</Text>
               </View>
 
-              <Ionicons
-                name={isSelected ? "checkmark-circle" : "ellipse-outline"}
-                size={22}
-                color={isSelected ? colors.success : colors.borderStrong}
-              />
-            </Touchable>
-          );
-        })
+              <View style={styles.stopsStack}>
+                {places.map((place, idx) => {
+                  const isSelected = selectedPlaces.includes(place.id);
+                  return (
+                    <Touchable
+                      key={place.id}
+                      onPress={() => togglePlace(place.id)}
+                      style={[
+                        styles.stopSelectCard,
+                        isSelected && styles.stopSelectCardActive,
+                      ]}
+                    >
+                      <View style={styles.stopSelectLeft}>
+                        {place.images?.[0] ? (
+                          <Image source={{ uri: place.images[0] }} style={styles.placeThumb} />
+                        ) : (
+                          <View style={styles.stopNumberCircle}>
+                            <Text style={styles.stopNumberCircleText}>{idx + 1}</Text>
+                          </View>
+                        )}
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.stopSelectName}>{place.name}</Text>
+                          <Text style={styles.stopSelectDistrict}>
+                            {place.districtName} {place.category ? `· ${place.category}` : ""}
+                          </Text>
+                        </View>
+                      </View>
+                      <View
+                        style={[
+                          styles.checkmarkCircle,
+                          isSelected && styles.checkmarkCircleActive,
+                        ]}
+                      >
+                        {isSelected ? (
+                          <Ionicons name="checkmark" size={14} color="#ffffff" />
+                        ) : null}
+                      </View>
+                    </Touchable>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          {/* Section 2: Date & Time Selection */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.sectionHeaderRow}>
+              <Ionicons name="calendar-outline" size={16} color={colors.primary} />
+              <Text style={styles.sectionTitle}>Select Date & Start Time</Text>
+            </View>
+            <View style={styles.inputGrid2}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.inputSublabel}>Tour Date</Text>
+                <View style={styles.dateInputWrap}>
+                  <TextInput
+                    value={bookingDate}
+                    onChangeText={setBookingDate}
+                    placeholder="DD-MM-YYYY"
+                    style={styles.textInputInWrap}
+                  />
+                  <Ionicons name="calendar" size={16} color={colors.textMuted} />
+                </View>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.inputSublabel}>Preferred Time</Text>
+                <TextInput
+                  value={bookingTime}
+                  onChangeText={setBookingTime}
+                  placeholder="09:00 AM"
+                  style={styles.textInput}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Section 3: Number of Travellers */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.sectionHeaderRow}>
+              <Ionicons name="people-outline" size={16} color={colors.primary} />
+              <Text style={styles.sectionTitle}>Number of Travellers</Text>
+            </View>
+            <View style={styles.travellersRow}>
+              <View style={styles.stepperCard}>
+                <View>
+                  <Text style={styles.stepperTitle}>Adults</Text>
+                  <Text style={styles.stepperSub}>Age 11+</Text>
+                </View>
+                <View style={styles.stepperControls}>
+                  <Touchable
+                    onPress={() => setAdults(Math.max(1, adults - 1))}
+                    style={styles.stepBtn}
+                  >
+                    <Text style={styles.stepBtnText}>-</Text>
+                  </Touchable>
+                  <Text style={styles.stepCount}>{adults}</Text>
+                  <Touchable
+                    onPress={() => setAdults(adults + 1)}
+                    style={styles.stepBtn}
+                  >
+                    <Text style={styles.stepBtnText}>+</Text>
+                  </Touchable>
+                </View>
+              </View>
+
+              <View style={styles.stepperCard}>
+                <View>
+                  <Text style={styles.stepperTitle}>Children</Text>
+                  <Text style={styles.stepperSub}>Under 11 yrs</Text>
+                </View>
+                <View style={styles.stepperControls}>
+                  <Touchable
+                    onPress={() => setChildren(Math.max(0, children - 1))}
+                    style={styles.stepBtn}
+                  >
+                    <Text style={styles.stepBtnText}>-</Text>
+                  </Touchable>
+                  <Text style={styles.stepCount}>{children}</Text>
+                  <Touchable
+                    onPress={() => setChildren(children + 1)}
+                    style={styles.stepBtn}
+                  >
+                    <Text style={styles.stepBtnText}>+</Text>
+                  </Touchable>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Section 4: Meeting Point & Pickup Request */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.sectionHeaderRow}>
+              <Ionicons name="location-outline" size={16} color={colors.primary} />
+              <Text style={styles.sectionTitle}>Meeting Point & Pickup</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.pickupTitle}>
+                {guide.agencyAddress || `${district?.name ?? "City"} Central Meeting Point`}
+              </Text>
+              <Text style={styles.pickupSub}>
+                Your guide will contact you to coordinate exact arrival coordinates.
+              </Text>
+
+              <Touchable
+                onPress={() => setIsRequestingPickup(!isRequestingPickup)}
+                style={styles.pickupCheckboxRow}
+              >
+                <View
+                  style={[
+                    styles.customCheckbox,
+                    isRequestingPickup && styles.customCheckboxActive,
+                  ]}
+                >
+                  {isRequestingPickup ? (
+                    <Ionicons name="checkmark" size={12} color="#ffffff" />
+                  ) : null}
+                </View>
+                <Text style={styles.pickupCheckboxText}>
+                  Request alternative pickup point (Hotel / Airport / Station)
+                </Text>
+              </Touchable>
+
+              {isRequestingPickup ? (
+                <View style={{ marginTop: spacing.xs, gap: spacing.xs }}>
+                  <TextInput
+                    value={requestedPickupName}
+                    onChangeText={setRequestedPickupName}
+                    placeholder="Pickup location name (e.g. Hotel Lobby)"
+                    style={styles.textInput}
+                  />
+                  <TextInput
+                    value={requestedPickupAddress}
+                    onChangeText={setRequestedPickupAddress}
+                    placeholder="Pickup street address or landmark"
+                    style={styles.textInput}
+                  />
+                </View>
+              ) : null}
+            </View>
+          </View>
+
+          {/* Section: Tour Package Inclusions (Circled in red in web comparison) */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.inclusionsCard}>
+              <Text style={styles.inclusionsTitle}>Tour Package Inclusions:</Text>
+              <View style={styles.inclusionsGrid}>
+                <View style={styles.inclusionBox}>
+                  <Text style={styles.inclusionSub}>Meals</Text>
+                  <Text style={styles.inclusionVal}>
+                    {matchedPackage?.foodStatus === "INCLUDED" || matchedPackage?.mealsService === "INCLUDED"
+                      ? "Included"
+                      : "Pay Separately"}
+                  </Text>
+                </View>
+                <View style={styles.inclusionBox}>
+                  <Text style={styles.inclusionSub}>Transport</Text>
+                  <Text style={styles.inclusionVal}>
+                    {matchedPackage?.transportService === "INCLUDED" || matchedPackage?.transportStatus === "INCLUDED"
+                      ? "Included in package"
+                      : "Included in package"}
+                  </Text>
+                </View>
+                <View style={styles.inclusionBox}>
+                  <Text style={styles.inclusionSub}>Entry Tickets</Text>
+                  <Text style={styles.inclusionVal}>
+                    {matchedPackage?.entryFeeStatus === "INCLUDED"
+                      ? "Included"
+                      : "Pay at Gate"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Section 5: Customer Details */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.customerCard}>
+              <View style={styles.customerCardHeader}>
+                <Ionicons name="people-outline" size={15} color={colors.primary} />
+                <Text style={styles.customerCardHeaderText}>
+                  CUSTOMER & TRAVELLER DETAILS
+                </Text>
+              </View>
+
+              <View style={styles.customerGrid}>
+                <View style={styles.customerCol}>
+                  <Text style={styles.customerMetaLabel}>Customer Name</Text>
+                  <Text style={styles.customerMetaVal}>
+                    {profile?.name || "Traveller"}
+                  </Text>
+                </View>
+                <View style={styles.customerCol}>
+                  <Text style={styles.customerMetaLabel}>Email Address</Text>
+                  <Text style={styles.customerMetaVal}>
+                    {profile?.email || (isSignedIn ? "Signed in" : "Not signed in")}
+                  </Text>
+                </View>
+                <View style={styles.customerCol}>
+                  <Text style={styles.customerMetaLabel}>Phone Number</Text>
+                  <Text style={styles.customerMetaVal}>
+                    {profile?.phonenumber || "Not provided in profile"}
+                  </Text>
+                </View>
+                <View style={styles.customerCol}>
+                  <Text style={styles.customerMetaLabel}>Traveller Breakdown</Text>
+                  <Text style={styles.customerMetaVal}>
+                    {adults} Adult(s){children > 0 ? `, ${children} Child(ren)` : ""}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={{ marginTop: spacing.xs }}>
+                <Text style={styles.customerMetaLabel}>
+                  Special Requests / Tour Notes (Optional)
+                </Text>
+                <TextInput
+                  value={notes}
+                  onChangeText={setNotes}
+                  placeholder="e.g. Elderly traveller needing gentle walking pace, preferred pickup landmark, language preference..."
+                  multiline
+                  numberOfLines={2}
+                  style={[styles.textInput, { height: 60, textAlignVertical: "top", marginTop: 4 }]}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Section 6: Price Breakdown Card */}
+          <View style={styles.sectionWrap}>
+            <View style={styles.card}>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Pricing Model</Text>
+                <Text style={styles.summaryValue}>
+                  {isWholeTour ? "Whole Tour Flat Rate" : "Place-based rate"} (
+                  {isPerPerson ? "Per Person" : "Per Group"})
+                </Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Base Tour Package</Text>
+                <Text style={styles.summaryValue}>{formatCurrency(baseRate)}</Text>
+              </View>
+              {isPerPerson && totalPeople > 1 ? (
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>
+                    Traveller Multiplier ({totalPeople} people)
+                  </Text>
+                  <Text style={styles.summaryValue}>× {totalPeople}</Text>
+                </View>
+              ) : null}
+
+              <View style={styles.summaryTotalRow}>
+                <View>
+                  <Text style={styles.summaryTotalLabel}>Estimated Total</Text>
+                  <Text style={styles.summaryTotalSub}>
+                    No upfront card charge · Confirmed directly with guide
+                  </Text>
+                </View>
+                <Text style={styles.summaryTotalAmount}>
+                  {formatCurrency(calculatedTotal)}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.cancellationTermsNote}>
+              Free cancellation up to 24h before trip start
+            </Text>
+          </View>
+
+          {/* Confirm Booking Emerald Button */}
+          <Touchable
+            onPress={handleSubmit}
+            disabled={submitting}
+            style={styles.confirmEmeraldBtn}
+          >
+            {submitting ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.confirmEmeraldBtnText}>
+                Confirm Booking — {formatCurrency(calculatedTotal)}
+              </Text>
+            )}
+          </Touchable>
+        </ScrollView>
       )}
 
-      {/* Date */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tour date</Text>
-        <Button
-          label={formatDate(date)}
-          variant="secondary"
-          icon="calendar-outline"
-          onPress={() => setPickerOpen((open) => !open)}
-        />
-        {pickerOpen ? (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            minimumDate={new Date()}
-            onChange={onDateChange}
-          />
-        ) : null}
-      </View>
-
-      {/* Time */}
-      <View style={styles.section}>
-        <TextField
-          label="Preferred start time"
-          value={time}
-          onChangeText={setTime}
-          placeholder="09:00"
-          hint="24-hour time, for example 09:00."
-        />
-      </View>
-
-      {/* Travellers: Adults & Children */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Travellers</Text>
-        <View style={styles.stepperContainer}>
-          <View style={styles.stepperItem}>
-            <Text style={styles.stepperLabel}>Adults</Text>
-            <View style={styles.stepperRow}>
-              <Touchable
-                onPress={() => setAdults((curr) => Math.max(1, curr - 1))}
-                style={styles.stepperBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Decrease adults"
-              >
-                <Ionicons name="remove" size={18} color={adults > 1 ? colors.text : colors.textMuted} />
-              </Touchable>
-              <Text style={styles.stepperValue}>{adults}</Text>
-              <Touchable
-                onPress={() => setAdults((curr) => Math.min(25, curr + 1))}
-                style={styles.stepperBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Increase adults"
-              >
-                <Ionicons name="add" size={18} color={adults < 25 ? colors.text : colors.textMuted} />
-              </Touchable>
-            </View>
-          </View>
-
-          <View style={styles.stepperItem}>
-            <Text style={styles.stepperLabel}>Children</Text>
-            <View style={styles.stepperRow}>
-              <Touchable
-                onPress={() => setChildren((curr) => Math.max(0, curr - 1))}
-                style={styles.stepperBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Decrease children"
-              >
-                <Ionicons name="remove" size={18} color={children > 0 ? colors.text : colors.textMuted} />
-              </Touchable>
-              <Text style={styles.stepperValue}>{children}</Text>
-              <Touchable
-                onPress={() => setChildren((curr) => Math.min(20, curr + 1))}
-                style={styles.stepperBtn}
-                accessibilityRole="button"
-                accessibilityLabel="Increase children"
-              >
-                <Ionicons name="add" size={18} color={children < 20 ? colors.text : colors.textMuted} />
-              </Touchable>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Pickup address */}
-      <View style={styles.section}>
-        <TextField
-          label="Pickup / Hotel address (optional)"
-          value={pickupAddress}
-          onChangeText={setPickupAddress}
-          placeholder="e.g. Hotel name and street"
-          hint="Where the tour vehicle should pick your party up."
-        />
-      </View>
-
-      {/* Special requests */}
-      <View style={styles.section}>
-        <TextField
-          label="Notes or special requests (optional)"
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="e.g. Dietary preferences, language, senior citizens"
-        />
-      </View>
-
-      <Card style={styles.summary}>
-        <Text style={styles.summaryText}>
-          {selected.length === 0
-            ? "Select at least one place to request a tour."
-            : `${guide.agencyName || guide.full_name} · ${selected.length} ${
-                selected.length === 1 ? "place" : "places"
-              } · ${adults} Adults${children > 0 ? `, ${children} Children` : ""} · ${formatDate(date)}`}
-        </Text>
-      </Card>
-
-      <Button
-        label="Request tour booking"
-        icon="calendar-outline"
-        size="lg"
-        fullWidth
-        disabled={selected.length === 0}
-        loading={submitting}
-        onPress={() => void submit()}
-        style={styles.submit}
+      {/* 3. Universal BottomNavigation matching Web */}
+      <DistrictBottomNav
+        activeTab="guides"
+        stateSlug={params.stateSlug}
+        districtSlug={params.districtSlug}
       />
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl },
-  guideHeader: { flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.lg },
-  avatar: { width: 56, height: 56 },
-  guideHeaderText: { flex: 1 },
-  heading: { ...typography.heading, color: colors.text },
-  leadGuide: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
-  packageCard: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  packageBadgeRow: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  packageBadgeText: { ...typography.caption, color: colors.primary, fontWeight: "700" },
-  packageTitle: { ...typography.bodyStrong, color: colors.text, marginTop: spacing.xs },
-  packageDesc: { ...typography.small, color: colors.textSecondary, marginTop: spacing.xs },
-  section: { marginTop: spacing.xl },
-  sectionTitle: { ...typography.subheading, color: colors.text, marginBottom: spacing.md },
-  placeRow: {
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+    backgroundColor: colors.surface,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    padding: spacing.xs,
+    marginRight: spacing.sm,
+  },
+  headerTitleWrap: {
+    flex: 1,
+  },
+  headerTitle: {
+    ...typography.heading,
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  headerSubtitle: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 12,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing.md,
+    gap: spacing.lg,
+  },
+  guideCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
-    padding: spacing.md,
-    borderRadius: radii.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.surface,
-    marginBottom: spacing.sm,
-  },
-  placeRowSelected: { borderColor: colors.success, backgroundColor: colors.successLight },
-  thumb: { width: 48, height: 48 },
-  placeBody: { flex: 1 },
-  placeName: { ...typography.bodyStrong, color: colors.text },
-  placeCategory: { ...typography.small, color: colors.textMuted },
-  stepperContainer: { flexDirection: "row", gap: spacing.md },
-  stepperItem: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
   },
-  stepperLabel: { ...typography.caption, color: colors.textMuted, marginBottom: spacing.xs },
-  stepperRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  stepperBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.sm,
-    backgroundColor: colors.surfaceMuted,
+  guideAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  guideAvatarFallback: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#dbeafe",
     alignItems: "center",
     justifyContent: "center",
   },
-  stepperValue: { ...typography.bodyStrong, color: colors.text },
-  summary: { marginTop: spacing.xl, backgroundColor: colors.surfaceMuted },
-  summaryText: { ...typography.small, color: colors.textSecondary },
-  submit: { marginTop: spacing.lg },
+  guideAvatarInitial: {
+    color: "#1d4ed8",
+    fontWeight: "700",
+    fontSize: 20,
+  },
+  guideMeta: {
+    flex: 1,
+    gap: 2,
+  },
+  guideName: {
+    ...typography.bodyStrong,
+    fontSize: 15,
+    color: colors.text,
+  },
+  guideSub: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 12,
+  },
+  guideRate: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  sectionWrap: {
+    gap: spacing.xs,
+  },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.xs,
+  },
+  sectionTitle: {
+    ...typography.bodyStrong,
+    fontSize: 14,
+    color: colors.text,
+  },
+  sectionNote: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 11,
+  },
+  stopsStack: {
+    gap: 8,
+  },
+  stopSelectCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  stopSelectCardActive: {
+    borderColor: "rgba(37, 99, 235, 0.4)",
+    backgroundColor: "rgba(37, 99, 235, 0.04)",
+  },
+  stopSelectLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    flex: 1,
+  },
+  placeThumb: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.sm,
+  },
+  stopNumberCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#dbeafe",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stopNumberCircleText: {
+    color: colors.primary,
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  stopSelectName: {
+    ...typography.bodyStrong,
+    fontSize: 13,
+    color: colors.text,
+  },
+  stopSelectDistrict: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 11,
+  },
+  checkmarkCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkmarkCircleActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  inputGrid2: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  inputSublabel: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 9,
+    fontSize: 13,
+    color: colors.text,
+    backgroundColor: colors.background,
+  },
+  dateInputWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.background,
+  },
+  textInputInWrap: {
+    flex: 1,
+    paddingVertical: 9,
+    fontSize: 13,
+    color: colors.text,
+  },
+  travellersRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  stepperCard: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surface,
+  },
+  stepperTitle: {
+    ...typography.bodyStrong,
+    fontSize: 14,
+    color: colors.text,
+  },
+  stepperSub: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  stepperControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  stepBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surface,
+  },
+  stepBtnText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
+    lineHeight: 18,
+  },
+  stepCount: {
+    ...typography.bodyStrong,
+    fontSize: 14,
+    minWidth: 16,
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  pickupTitle: {
+    ...typography.bodyStrong,
+    fontSize: 14,
+    color: colors.text,
+  },
+  pickupSub: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontSize: 12,
+  },
+  pickupCheckboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    paddingTop: spacing.xs,
+    marginTop: 4,
+  },
+  customCheckbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  customCheckboxActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  pickupCheckboxText: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.text,
+    flex: 1,
+  },
+  inclusionsCard: {
+    backgroundColor: "rgba(0, 0, 0, 0.02)",
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  inclusionsTitle: {
+    ...typography.bodyStrong,
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: "700",
+  },
+  inclusionsGrid: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  inclusionBox: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    gap: 3,
+  },
+  inclusionSub: {
+    ...typography.caption,
+    fontSize: 10.5,
+    color: colors.textMuted,
+  },
+  inclusionVal: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.text,
+  },
+  cancellationTermsNote: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: spacing.sm,
+  },
+  customerCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    padding: spacing.md,
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+  },
+  customerCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    paddingBottom: spacing.xs,
+  },
+  customerCardHeaderText: {
+    ...typography.caption,
+    fontWeight: "700",
+    fontSize: 11,
+    color: colors.text,
+    letterSpacing: 0.5,
+  },
+  customerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    rowGap: 8,
+  },
+  customerCol: {
+    width: "50%",
+    gap: 2,
+  },
+  customerMetaLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 10,
+  },
+  customerMetaVal: {
+    ...typography.caption,
+    color: colors.text,
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 2,
+  },
+  summaryLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 12,
+  },
+  summaryValue: {
+    ...typography.caption,
+    color: colors.text,
+    fontWeight: "600",
+    fontSize: 12,
+  },
+  summaryTotalRow: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    paddingTop: spacing.sm,
+    marginTop: spacing.xs,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  summaryTotalLabel: {
+    ...typography.bodyStrong,
+    fontSize: 15,
+    color: colors.text,
+  },
+  summaryTotalSub: {
+    ...typography.caption,
+    fontSize: 10.5,
+    color: colors.textMuted,
+  },
+  summaryTotalAmount: {
+    ...typography.heading,
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.primary,
+  },
+  confirmEmeraldBtn: {
+    backgroundColor: "#059669",
+    borderRadius: radius.xl,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: { shadowColor: "#059669", shadowOpacity: 0.3, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } },
+      android: { elevation: 3 },
+    }),
+  },
+  confirmEmeraldBtnText: {
+    ...typography.bodyStrong,
+    color: "#ffffff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  successBlock: {
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: spacing.md,
+  },
+  successIconWrap: {
+    marginBottom: 4,
+  },
+  successTitle: {
+    ...typography.title,
+    fontSize: 20,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  successDesc: {
+    ...typography.body,
+    fontSize: 13,
+    color: colors.textMuted,
+    textAlign: "center",
+    paddingHorizontal: spacing.lg,
+  },
+  confirmedSummaryTitle: {
+    ...typography.bodyStrong,
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  confirmedRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 3,
+  },
+  confirmedLabel: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontSize: 12,
+  },
+  confirmedVal: {
+    ...typography.caption,
+    color: colors.text,
+    fontWeight: "600",
+    fontSize: 12,
+  },
 });

@@ -17,16 +17,50 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getNotifications } from "@/services/notification-helper";
 import { Providers } from "@/providers";
 import { useAppShell } from "@/providers/app-shell-provider";
 import { colors, radii, spacing, typography } from "@/theme";
 import { LoadingState } from "@/components/ui/states";
+import { useTripStore } from "@/store/trip-store";
+import { requestNotificationPermission } from "@/services/alert-service";
+
+// Register background location task
+import "@/services/background-trip-task";
+
+// Foreground notification handler (safe for Expo Go and bare native)
+const Notifications = getNotifications();
+if (Notifications?.setNotificationHandler) {
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch {
+    // ignore in environments without notification handler support
+  }
+}
 
 // The splash stays up until the shell reports it has painted, avoiding the white
 // flash between the native splash and the first React frame.
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  useEffect(() => {
+    requestNotificationPermission().catch(() => {});
+    const store = useTripStore.getState();
+    store
+      .bootstrap()
+      .then(() => {
+        useTripStore.getState().loadHistory().catch(() => {});
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <Providers>
       <StatusBar style="light" />
@@ -57,48 +91,28 @@ function RootNavigator() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.primary },
-        headerTintColor: colors.textInverse,
-        headerTitleStyle: { fontWeight: "700" },
-        headerShadowVisible: false,
+        headerShown: false,
         contentStyle: { backgroundColor: colors.background },
-        // A back gesture must never land on a screen the user cannot use.
         gestureEnabled: true,
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="explore" options={{ title: "Choose a destination" }} />
-      <Stack.Screen name="search" options={{ title: "Search", presentation: "modal" }} />
-      <Stack.Screen name="login" options={{ title: "Log in" }} />
-      <Stack.Screen name="signup" options={{ title: "Create account" }} />
-      <Stack.Screen name="forgot-password" options={{ title: "Forgot password" }} />
-      <Stack.Screen name="reset-password" options={{ title: "Reset password" }} />
-      <Stack.Screen name="profile" options={{ title: "My profile" }} />
-      <Stack.Screen name="favorites" options={{ title: "Saved" }} />
-      <Stack.Screen name="bookings" options={{ title: "My bookings" }} />
-      <Stack.Screen name="bookings/[bookingId]" options={{ title: "Booking details" }} />
-      <Stack.Screen name="report" options={{ title: "Report a listing" }} />
-      <Stack.Screen name="about" options={{ title: "About" }} />
-      <Stack.Screen name="path-tracker/index" options={{ title: "Path Tracker" }} />
-      <Stack.Screen name="path-tracker/live" options={{ title: "Tracking" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/hotels" options={{ title: "Hotels" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/restaurants" options={{ title: "Restaurants" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/transport" options={{ title: "Get there" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/place/[placeId]/index" options={{ title: "Place" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/place/[placeId]/go-to" options={{ title: "How to get there" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/guide/[guideId]/index" options={{ title: "Guide" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/guide/[guideId]/book" options={{ title: "Book this guide" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/tour-guide/[guideId]/index" options={{ title: "Tour Guide" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/tour-guide/[guideId]/book" options={{ title: "Book a tour" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/tour-package/[packageId]" options={{ title: "Package" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/hotel-detail/[hotelId]" options={{ title: "Hotel" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/hotel-detail/[hotelId]/book" options={{ title: "Book a stay" }} />
-      <Stack.Screen name="d/[stateSlug]/[districtSlug]/restaurant-detail/[restaurantId]" options={{ title: "Restaurant" }} />
-      <Stack.Screen
-        name="d/[stateSlug]/[districtSlug]/restaurant-detail/[restaurantId]/reserve"
-        options={{ title: "Reserve a table" }}
-      />
-      <Stack.Screen name="account/edit" options={{ title: "Edit profile" }} />
+      <Stack.Screen name="explore" options={{ headerShown: false }} />
+      <Stack.Screen name="search" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="signup" options={{ headerShown: false }} />
+      <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+      <Stack.Screen name="reset-password" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ headerShown: false }} />
+      <Stack.Screen name="favorites" options={{ headerShown: false }} />
+      <Stack.Screen name="bookings" options={{ headerShown: false }} />
+      <Stack.Screen name="bookings/[bookingId]" options={{ headerShown: false }} />
+      <Stack.Screen name="report" options={{ headerShown: false }} />
+      <Stack.Screen name="about" options={{ headerShown: false }} />
+      <Stack.Screen name="path-tracker" options={{ headerShown: false }} />
+      <Stack.Screen name="trip/[id]" options={{ headerShown: false, presentation: "card" }} />
+      <Stack.Screen name="d/[stateSlug]/[districtSlug]" options={{ headerShown: false }} />
+      <Stack.Screen name="account/edit" options={{ headerShown: false }} />
     </Stack>
   );
 }

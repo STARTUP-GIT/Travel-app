@@ -73,6 +73,8 @@ export const radii = {
   pill: 999,
 } as const;
 
+export const radius = radii;
+
 export const typography = {
   display: { fontSize: 30, lineHeight: 36, fontWeight: "800" },
   title: { fontSize: 24, lineHeight: 30, fontWeight: "800" },

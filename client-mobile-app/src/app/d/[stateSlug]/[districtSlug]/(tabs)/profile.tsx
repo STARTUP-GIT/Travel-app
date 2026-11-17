@@ -39,7 +39,7 @@ export default function ProfileScreen() {
       style={styles.screen}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xxxl },
+        { paddingTop: spacing.md, paddingBottom: insets.bottom + spacing.xxxl },
       ]}
     >
       {status === "checking" ? (

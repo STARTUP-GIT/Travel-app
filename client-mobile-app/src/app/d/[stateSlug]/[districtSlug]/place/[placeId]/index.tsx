@@ -12,13 +12,13 @@
 
 import { useState } from "react";
 import {
-  ImageBackground,
   Linking,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,6 +41,7 @@ import { buildDirectionsUrl, buildOpenUrl, formatCoordinates, validPoint } from 
 import { formatCurrency, firstImage, formatDate } from "@/lib/utils/format";
 import { toUserMessage } from "@/lib/api/client";
 import { colors, radii, shadows, spacing, TOUR_GUIDE_LABEL, typography } from "@/theme";
+import { DistrictBottomNav } from "@/components/shared/DistrictBottomNav";
 import type { PlaceDetail } from "@/types/api";
 
 
@@ -116,13 +117,14 @@ export default function PlaceDetailScreen() {
         {/* Gallery */}
         <View style={styles.gallery}>
           {images.length > 0 ? (
-            <ImageBackground
-              source={{ uri: images[0] }}
-              style={styles.galleryImage}
-              imageStyle={styles.galleryImageStyle}
-            >
+            <View style={styles.galleryImage}>
+              <Image
+                source={{ uri: images[0] }}
+                style={[StyleSheet.absoluteFill, styles.galleryImageStyle]}
+                contentFit="cover"
+              />
               <View style={styles.galleryScrim} />
-            </ImageBackground>
+            </View>
           ) : (
             <View style={styles.galleryFallback}>
               <RemoteImage
@@ -402,6 +404,13 @@ export default function PlaceDetailScreen() {
           style={styles.actionBarItem}
         />
       </View>
+
+      {/* Universal BottomNavigation matching Web */}
+      <DistrictBottomNav
+        activeTab="places"
+        stateSlug={params.stateSlug}
+        districtSlug={params.districtSlug}
+      />
     </View>
   );
 }

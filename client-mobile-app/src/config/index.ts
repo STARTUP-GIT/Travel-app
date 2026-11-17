@@ -148,7 +148,7 @@ export const GOOGLE_MAPS_ANDROID_KEY: string | null =
  * same string; `app.json` remains the source of truth for the native build.
  */
 export const APP_SCHEME: string =
-  firstNonEmpty(readEnv("EXPO_PUBLIC_APP_SCHEME"), "karnatakatourism") as string;
+  firstNonEmpty(readEnv("EXPO_PUBLIC_APP_SCHEME"), "atlaswanders") as string;
 
 /**
  * Brand shown while the real, admin-controlled branding is still loading.

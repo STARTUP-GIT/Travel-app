@@ -35,6 +35,11 @@ export type DistrictSummary = {
   isServiceAvailable: boolean;
   /** Backend flag: guide submissions here are published immediately. */
   autoApprovePlaces: boolean;
+  heroImageUrl?: string | null;
+  useCustomHeroImage?: boolean;
+  showWelcomeHeading?: string | null;
+  effectiveHeroImageUrl?: string | null;
+  effectiveShowWelcomeHeading?: boolean;
   state: StateSummary | null;
   placeCount: number;
   hotelCount: number;
@@ -117,6 +122,14 @@ export async function getDistricts(): Promise<DistrictSummary[]> {
         // district under a disabled state must not be reachable.
         isServiceAvailable: raw.isServiceAvailable === true && state !== null,
         autoApprovePlaces: raw.autoApprovePlaces === true,
+        heroImageUrl: asText(raw.heroImageUrl),
+        useCustomHeroImage: raw.useCustomHeroImage === true,
+        showWelcomeHeading: asText(raw.showWelcomeHeading),
+        effectiveHeroImageUrl: asText(raw.effectiveHeroImageUrl),
+        effectiveShowWelcomeHeading:
+          typeof raw.effectiveShowWelcomeHeading === "boolean"
+            ? raw.effectiveShowWelcomeHeading
+            : undefined,
         state,
         placeCount: asCount(counts.places),
         hotelCount: asCount(counts.hotels),

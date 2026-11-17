@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 12.0.0"
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -20,6 +21,12 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.atlaswanders.com",
+        "EXPO_PUBLIC_APP_SCHEME": "atlaswanders",
+        "EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_KEY": "AIzaSyCfZlnNz51BCxehQ3ASztx7o4rF3FMw524",
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "837375121733-sa38kqus6atfp1bsgegu31job9dila2p.apps.googleusercontent.com"
       }
     }
   },

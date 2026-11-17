@@ -18,6 +18,7 @@ import { getApprovedPlaces, getPlaceById } from "@/services/places.service";
 import { slugify } from "@/lib/utils/slug";
 import type {
   PlaceDetail,
+  PlacePricingBand,
   SpecificGuide,
   TourGuide,
   TourPackageSummary,
@@ -37,6 +38,11 @@ export type PlaceContext = {
   images: string[];
   category: string;
   entryfee: number | null;
+  pricing?: PlacePricingBand[];
+  expectedDuration?: string | null;
+  entryFeeStatus?: "INCLUDED" | "EXCLUDED" | string;
+  entryFeeAmount?: number | null;
+  visitArrangement?: "GUIDED" | "DROP_OFF" | string;
 };
 
 export type SpecificGuideEntry = {
@@ -80,6 +86,11 @@ function toPlaceContext(place: PlaceDetail): PlaceContext {
     images: Array.isArray(place.images) ? place.images : [],
     category: place.category ?? "",
     entryfee: place.entryfee ?? null,
+    pricing: place.pricing ?? [],
+    expectedDuration: (place as any).expectedDuration ?? null,
+    entryFeeStatus: (place as any).entryFeeStatus ?? undefined,
+    entryFeeAmount: (place as any).entryFeeAmount ?? null,
+    visitArrangement: (place as any).visitArrangement ?? undefined,
   };
 }
 

@@ -1,11 +1,31 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Combined design constants: mobile app theme + Path Tracker constants.
  */
 
 import '@/global.css';
-
 import { Platform } from 'react-native';
+import {
+  Colors as TrackerColors,
+  Spacing as TrackerSpacing,
+} from '../path-tracker/constants/theme';
+
+export {
+  APP_NAME,
+  RouteColors,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  GlassCardStyle,
+  MapConfig,
+  TrackingConfig,
+  MovementConfig,
+  OffRouteConfig,
+  ArrivalConfig,
+  RoutingConfig,
+  AlertConfig,
+  Branding,
+} from '../path-tracker/constants/theme';
 
 export const Colors = {
   light: {
@@ -22,19 +42,16 @@ export const Colors = {
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
   },
+  ...TrackerColors,
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -59,6 +76,7 @@ export const Spacing = {
   four: 24,
   five: 32,
   six: 64,
+  ...TrackerSpacing,
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;

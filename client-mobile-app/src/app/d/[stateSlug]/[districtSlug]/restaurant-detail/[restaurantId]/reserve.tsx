@@ -12,7 +12,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Card } from "@/components/ui/card";
+import { Card, InfoRow } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
 import { RemoteImage } from "@/components/ui/remote-image";
@@ -76,7 +76,7 @@ export default function ReserveRestaurantScreen() {
     );
   }
 
-  const onDateChange = (event: DateTimePickerEvent, selected?: Date) => {
+  const onDateChange = (event: any, selected?: Date) => {
     if (Platform.OS === "android") setPickerOpen(false);
     if (event.type === "dismissed" || !selected) return;
 
@@ -142,7 +142,8 @@ export default function ReserveRestaurantScreen() {
             value={date}
             mode="date"
             minimumDate={new Date()}
-            onChange={onDateChange}
+            onValueChange={onDateChange}
+            onDismiss={() => setPickerOpen(false)}
           />
         ) : null}
       </View>
@@ -195,6 +196,19 @@ export default function ReserveRestaurantScreen() {
         />
       </View>
 
+      {/* Reservation Summary */}
+      <Card style={styles.summaryCard}>
+        <Text style={styles.summaryTitle}>RESERVATION SUMMARY</Text>
+        <View style={styles.summaryDivider} />
+        <InfoRow label="Restaurant" value={restaurant.name} />
+        <InfoRow label="Date" value={formatDate(date)} />
+        <InfoRow label="Preferred Time" value={time} />
+        <InfoRow
+          label="Party Size"
+          value={`${guests} ${guests === 1 ? "guest" : "guests"}`}
+        />
+      </Card>
+
       <Text style={styles.note}>
         <Ionicons name="information-circle-outline" size={13} color={colors.textMuted} />{" "}
         This is a reservation request. The restaurant confirms it from its bookings
@@ -240,6 +254,22 @@ const styles = StyleSheet.create({
   },
   stepDisabled: { backgroundColor: colors.surfaceSunken, opacity: 0.5 },
   guestCount: { ...typography.subheading, color: colors.text },
+  summaryCard: {
+    marginTop: spacing.xl,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  summaryTitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 4,
+  },
   note: { ...typography.caption, color: colors.textMuted, marginTop: spacing.xl },
   submit: { marginTop: spacing.lg },
   blocked: {
