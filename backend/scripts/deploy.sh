@@ -100,24 +100,25 @@ log_ok "Production environment file verified (${SECRETS_FILE}, perms: 600)."
 # ------------------------------------------------------------------------------
 # 4. Proactive Disk Space Check & Docker Cache Prune
 # ------------------------------------------------------------------------------
-log_info "Verifying disk space and pruning stale build cache..."
-# Prune builder cache older than 24 hours to prevent runner disk exhaustion
-docker builder prune -f --filter "until=24h" >/dev/null 2>&1 || true
+log_info "Verifying disk space and cleaning build cache..."
+
+# Clean leftover failed runner debris if present (reclaims up to 900MB)
+if [ -d "/opt/actions-runner-failed-20261116-080120" ]; then
+  rm -rf /opt/actions-runner-failed-20261116-080120/* >/dev/null 2>&1 || true
+fi
+
+# Always prune all unreferenced build cache and dangling images before build
+docker builder prune -a -f >/dev/null 2>&1 || true
+docker image prune -f >/dev/null 2>&1 || true
 
 # Check available disk space on root filesystem (in MB)
 AVAIL_MB=$(df -BM / | awk 'NR==2 {gsub("M","",$4); print $4}')
 log_info "Available disk space on root filesystem: ${AVAIL_MB} MB"
 
-if [ "${AVAIL_MB}" -lt 500 ]; then
-  log_warn "Low disk space (< 500MB). Running aggressive build cache prune..."
-  docker builder prune -a -f --keep-storage 500MB >/dev/null 2>&1 || true
-  AVAIL_MB=$(df -BM / | awk 'NR==2 {gsub("M","",$4); print $4}')
-  log_info "Available disk space after prune: ${AVAIL_MB} MB"
-  if [ "${AVAIL_MB}" -lt 300 ]; then
-    log_err "CRITICAL: Insufficient disk space on / (${AVAIL_MB} MB available, minimum 300MB required)."
-    log_err "Deployment aborted to protect system stability."
-    exit 1
-  fi
+if [ "${AVAIL_MB}" -lt 800 ]; then
+  log_err "CRITICAL: Insufficient disk space on / (${AVAIL_MB} MB available, minimum 800MB required)."
+  log_err "Deployment aborted to protect system stability."
+  exit 1
 fi
 log_ok "Disk space check passed (${AVAIL_MB} MB available)."
 
@@ -136,20 +137,29 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 6. Build Backend Docker Image
+# 6. Build Backend Docker Image (Timeout: 10m)
 # ------------------------------------------------------------------------------
 log_info "Building backend Docker image tagged as atlaswanders-backend:${COMMIT_SHA}..."
 BUILD_START=$(date +%s)
 
+BUILD_CMD="docker compose -f ${REPO_ROOT}/docker-compose.yml build backend"
 if [ -f "${COMPOSE_FILE}" ]; then
-  IMAGE_TAG="${COMMIT_SHA}" docker compose -f "${COMPOSE_FILE}" build backend
-else
-  IMAGE_TAG="${COMMIT_SHA}" docker compose -f "${REPO_ROOT}/docker-compose.yml" build backend
+  BUILD_CMD="docker compose -f ${COMPOSE_FILE} build backend"
+fi
+
+if ! timeout 600 env IMAGE_TAG="${COMMIT_SHA}" ${BUILD_CMD}; then
+  log_err "CRITICAL: Docker image build timed out after 10 minutes or failed!"
+  # Prune any half-built cache layers to protect disk
+  docker builder prune -f >/dev/null 2>&1 || true
+  exit 1
 fi
 
 docker tag "atlaswanders-backend:${COMMIT_SHA}" atlaswanders-backend:latest
 BUILD_DURATION=$(( $(date +%s) - BUILD_START ))
 log_ok "Backend image built successfully in ${BUILD_DURATION}s."
+
+# Immediately prune builder cache to release intermediate layers and keep disk lean
+docker builder prune -f >/dev/null 2>&1 || true
 
 # ------------------------------------------------------------------------------
 # 7. Execute Database Migration Pipeline (Pre-Deployment Guard)

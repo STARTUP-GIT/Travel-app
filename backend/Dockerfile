@@ -41,20 +41,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Copy runtime files from builder
-COPY --from=builder /app/package.json /app/package-lock.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+# Copy runtime files from builder with direct non-root ownership to avoid layer duplication and slow chown
+COPY --chown=node:node --from=builder /app/package.json /app/package-lock.json ./
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+COPY --chown=node:node --from=builder /app/dist ./dist
 
 # prisma/ and prisma7.config.ts are required at runtime for 'prisma migrate deploy'
 # (run via 'docker compose exec backend npm run db:migrate' during each deployment).
 # prisma7.config.ts is the only source of DATABASE_URL for the Prisma CLI since
 # schema.prisma intentionally has no url field (Prisma 7 defineConfig pattern).
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma7.config.ts ./
-
-# Assign ownership to non-root node user for security
-RUN chown -R node:node /app
+COPY --chown=node:node --from=builder /app/prisma ./prisma
+COPY --chown=node:node --from=builder /app/prisma7.config.ts ./
 
 USER node
 

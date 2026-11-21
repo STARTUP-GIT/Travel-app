@@ -95,15 +95,19 @@ jobs:
           echo "Current disk utilization on /:"
           df -h /
 
-          echo "Proactively pruning stale Docker build cache (>24h)..."
-          docker builder prune -f --filter "until=24h" >/dev/null 2>&1 || true
+          # Clean leftover failed runner debris if present (reclaims 900MB)
+          if [ -d "/opt/actions-runner-failed-20261116-080120" ]; then
+            echo "Cleaning leftover failed runner directory..."
+            rm -rf /opt/actions-runner-failed-20261116-080120/* || true
+          fi
+
+          echo "Pruning stale Docker build cache and images..."
+          docker builder prune -a -f || true
+          docker image prune -f || true
 
           AVAIL_MB=$(df -BM / | awk 'NR==2 {gsub("M","",$4); print $4}')
-          echo "Available disk space after prune: ${AVAIL_MB} MB"
-          if [ "${AVAIL_MB}" -lt 500 ]; then
-            echo "::warning::Available space on / is below 500MB (${AVAIL_MB} MB). Running aggressive prune..."
-            docker builder prune -a -f --keep-storage 500MB >/dev/null 2>&1 || true
-          fi
+          echo "Available disk space after cleanup: ${AVAIL_MB} MB"
+          df -h /
 
       # Execute canonical deployment pipeline via backend/scripts/deploy.sh
       # Includes:
@@ -115,6 +119,7 @@ jobs:
       #   6. Container swap and HTTP health check polling (up to 60s)
       #   7. Automated rollback to previous image on failure
       - name: Execute Safe Production Deployment
+        timeout-minutes: 10
         env:
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF: ${{ github.ref }}
