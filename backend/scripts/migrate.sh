@@ -359,6 +359,60 @@ if [ "${MIGRATE_EXIT_CODE}" -ne 0 ]; then
   log_err "Production database migration failed. DEPLOYMENT IS BLOCKED."
   log_err "Existing application container has NOT been touched."
   log_err "Snapshot available at: $(cat "${BACKUP_DIR}/latest_pre_migrate_backup.txt" 2>/dev/null || echo 'N/A')"
+  echo "--------------------------------------------------------------------"
+  log_err "DIAGNOSTIC DETAILS:"
+
+  # 1. Extract Prisma Error Code
+  PRISMA_ERR_CODE=$(grep -oE 'P[0-9]{4}' "${MIGRATE_LOG_FILE}" 2>/dev/null | head -n1 || echo "")
+  if [ -n "${PRISMA_ERR_CODE}" ]; then
+    log_err "  Prisma Error Code:     ${PRISMA_ERR_CODE}"
+  fi
+
+  # 2. Extract Failing Migration Name
+  FAILED_MIGRATION=$(grep -oE '[0-9]{14}_[a-zA-Z0-9_-]+' "${MIGRATE_LOG_FILE}" 2>/dev/null | head -n1 || echo "")
+  if [ -z "${FAILED_MIGRATION}" ]; then
+    get_db_credentials
+    FAILED_MIGRATION=$(docker exec -i -e PGPASSWORD="${DB_PASS:-}" "${POSTGRES_CONTAINER}" psql -U "${DB_USER}" -d "${DB_NAME}" -t -A -c "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NULL AND rolled_back_at IS NULL ORDER BY started_at DESC LIMIT 1;" 2>/dev/null || echo "")
+  fi
+  if [ -n "${FAILED_MIGRATION}" ]; then
+    log_err "  Failed Migration:      ${FAILED_MIGRATION}"
+  fi
+
+  # 3. Extract PostgreSQL Error / Database Error Code
+  PG_ERR_CODE=$(grep -oE 'Database error code: [0-9A-Za-z]+' "${MIGRATE_LOG_FILE}" 2>/dev/null | head -n1 || echo "")
+  if [ -n "${PG_ERR_CODE}" ]; then
+    log_err "  PostgreSQL Error Code: ${PG_ERR_CODE#Database error code: }"
+  fi
+
+  PG_ERR_LINE=$(grep -E '(Database error: ERROR:|ERROR: )' "${MIGRATE_LOG_FILE}" 2>/dev/null | head -n2 | sed 's/^[[:space:]]*//' || echo "")
+  if [ -n "${PG_ERR_LINE}" ]; then
+    log_err "  PostgreSQL Message:    ${PG_ERR_LINE}"
+  fi
+
+  # 4. Extract Primary Prisma Error Message
+  PRISMA_MSG=$(grep -A 2 -E 'Error: P[0-9]{4}' "${MIGRATE_LOG_FILE}" 2>/dev/null | head -n3 | sed 's/^[[:space:]]*//' || echo "")
+  if [ -n "${PRISMA_MSG}" ]; then
+    log_err "  Prisma Message:        ${PRISMA_MSG}"
+  fi
+
+  echo "--------------------------------------------------------------------"
+  log_err "REMEDIATION GUIDANCE:"
+  if [ "${PRISMA_ERR_CODE}" = "P3009" ]; then
+    log_err "  1. A previous migration run failed and left an unfinished record in _prisma_migrations."
+    log_err "  2. Fix the SQL statement in backend/prisma/migrations/${FAILED_MIGRATION}/migration.sql to be idempotent."
+    log_err "  3. Mark the failed migration as rolled back via:"
+    log_err "     docker exec atlaswanders-backend npx prisma migrate resolve --rolled-back ${FAILED_MIGRATION}"
+    log_err "  4. Re-run deployment or migrate deploy."
+  elif [ "${PRISMA_ERR_CODE}" = "P3018" ]; then
+    log_err "  1. A migration statement failed against PostgreSQL (e.g. syntax error or duplicate object)."
+    log_err "  2. Review the SQL in backend/prisma/migrations/${FAILED_MIGRATION}/migration.sql."
+    log_err "  3. Use IF NOT EXISTS / IF EXISTS guards for DDL statements."
+    log_err "  4. Resolve the migration with 'prisma migrate resolve --rolled-back ${FAILED_MIGRATION}' and re-deploy."
+  else
+    log_err "  Review the full retained log at: ${MIGRATE_LOG_FILE}"
+    log_err "  To restore pre-migration database snapshot, run:"
+    log_err "  ./backend/scripts/migrate.sh --restore $(cat "${BACKUP_DIR}/latest_pre_migrate_backup.txt" 2>/dev/null || echo '<backup_file>')"
+  fi
   log_err "===================================================================="
   exit "${MIGRATE_EXIT_CODE}"
 fi
