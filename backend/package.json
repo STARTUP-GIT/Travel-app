@@ -6,9 +6,19 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
+    "tunnel:dev": "node scripts/dev-tunnel.cjs",
+    "tunnel:status": "node scripts/dev-tunnel.cjs --check",
+    "tunnel:stop": "node scripts/dev-tunnel.cjs --stop",
+    "prisma": "node scripts/prisma-dev.cjs",
+    "migrate:dev": "node scripts/prisma-dev.cjs migrate dev",
+    "migrate:status": "node scripts/prisma-dev.cjs migrate status",
+    "migrate:deploy": "node scripts/prisma-dev.cjs migrate deploy",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "npm run build && node dist/prisma/seed.js"
+    "db:pull": "node scripts/prisma-dev.cjs db pull",
+    "db:studio": "node scripts/prisma-dev.cjs studio",
+    "db:seed": "npm run build && node dist/prisma/seed.js",
+    "postinstall": "node -e \"try{require('./scripts/setup-prisma-hook.cjs')}catch(e){}\""
   },
   "keywords": [],
   "type": "module",
